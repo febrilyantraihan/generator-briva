@@ -1,0 +1,30 @@
+{
+  "name": "DriveData - Generator BRIVA & Tahfidz YTPAI",
+  "short_name": "DriveData YTPAI",
+  "description": "Aplikasi Manajemen Tagihan BRIVA, Analisis PPDB, Generator Akun & Studio Tahfidz Tasmi' Yayasan Pondok Pesantren Raudlatul Muta'allimin",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
