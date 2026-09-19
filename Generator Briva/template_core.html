@@ -11095,8 +11095,13 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         const liveTranscript = document.getElementById('akunVoiceLiveTranscript');
         const btn = document.getElementById('btnAkunVoiceAssistant');
 
+        let commandProcessed = false;
+        let lastRecognizedText = '';
+
         akunSpeechRecognitionInstance.onstart = function() {
           isAkunVoiceListening = true;
+          commandProcessed = false;
+          lastRecognizedText = '';
           if (btn) {
             btn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-md font-bold text-xs flex items-center gap-1.5 shadow-lg cursor-pointer transition-all border border-rose-400 animate-pulse ring-2 ring-rose-400';
           }
@@ -11116,12 +11121,16 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
             }
           }
 
-          const activeText = finalTranscript || interimTranscript;
+          const activeText = (finalTranscript || interimTranscript).trim();
+          if (activeText) {
+            lastRecognizedText = activeText;
+          }
           if (liveTranscript && activeText) {
             liveTranscript.textContent = `🗣️ "${activeText}"`;
           }
 
           if (finalTranscript && finalTranscript.trim().length > 1) {
+            commandProcessed = true;
             processAkunVoiceSmartCommand(finalTranscript.trim());
             stopAkunVoiceAssistant();
           }
@@ -11129,10 +11138,21 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
 
         akunSpeechRecognitionInstance.onerror = function(event) {
           console.warn('Akun Speech recognition error:', event.error);
+          if (event.error === 'not-allowed') {
+            if (typeof showAkunToast === 'function') {
+              showAkunToast('Izin mikrofon ditolak. Mohon izinkan akses mikrofon pada browser Anda.', 'error');
+            } else if (typeof showToast === 'function') {
+              showToast('Izin Mikrofon Ditolak', 'Mohon izinkan akses mikrofon di browser Anda.', 'error');
+            }
+          }
           stopAkunVoiceAssistant();
         };
 
         akunSpeechRecognitionInstance.onend = function() {
+          if (!commandProcessed && lastRecognizedText && lastRecognizedText.length > 1) {
+            commandProcessed = true;
+            processAkunVoiceSmartCommand(lastRecognizedText);
+          }
           stopAkunVoiceAssistant();
         };
 
@@ -13703,8 +13723,13 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         const liveTranscript = document.getElementById('brivaVoiceLiveTranscript');
         const btn = document.getElementById('btnBrivaVoiceAssistant');
 
+        let commandProcessed = false;
+        let lastRecognizedText = '';
+
         brivaSpeechRecognitionInstance.onstart = function() {
           isBrivaVoiceListening = true;
+          commandProcessed = false;
+          lastRecognizedText = '';
           if (btn) {
             btn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-none font-bold text-xs flex items-center gap-1.5 shadow-lg cursor-pointer transition-all border border-rose-400 animate-pulse ring-2 ring-rose-400';
           }
@@ -13724,22 +13749,36 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
             }
           }
 
-          const activeText = finalTranscript || interimTranscript;
+          const activeText = (finalTranscript || interimTranscript).trim();
+          if (activeText) {
+            lastRecognizedText = activeText;
+          }
           if (liveTranscript && activeText) {
             liveTranscript.textContent = `🗣️ "${activeText}"`;
           }
 
           if (finalTranscript && finalTranscript.trim().length > 1) {
+            commandProcessed = true;
             processBrivaVoiceSmartCommand(finalTranscript.trim());
+            stopBrivaVoiceAssistant();
           }
         };
 
         brivaSpeechRecognitionInstance.onerror = function(event) {
           console.warn('BRIVA Speech recognition error:', event.error);
+          if (event.error === 'not-allowed') {
+            if (typeof showToast === 'function') {
+              showToast('Izin Mikrofon Ditolak', 'Mohon izinkan akses mikrofon di browser Anda.', 'error');
+            }
+          }
           stopBrivaVoiceAssistant();
         };
 
         brivaSpeechRecognitionInstance.onend = function() {
+          if (!commandProcessed && lastRecognizedText && lastRecognizedText.length > 1) {
+            commandProcessed = true;
+            processBrivaVoiceSmartCommand(lastRecognizedText);
+          }
           stopBrivaVoiceAssistant();
         };
 
@@ -18348,8 +18387,13 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         const listeningBanner = document.getElementById('tahfidzVoiceListeningBanner');
         const liveTranscript = document.getElementById('tahfidzVoiceLiveTranscript');
 
+        let commandProcessed = false;
+        let lastRecognizedText = '';
+
         tahfidzSpeechRecognitionInstance.onstart = function() {
           isTahfidzVoiceListening = true;
+          commandProcessed = false;
+          lastRecognizedText = '';
           if (voiceBtn) {
             voiceBtn.className = 'px-2 py-1 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-md text-[11px] font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all border border-red-500 animate-pulse ring-2 ring-red-400';
           }
@@ -18370,12 +18414,16 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
             }
           }
 
-          const currentText = finalTranscript || interimTranscript;
+          const currentText = (finalTranscript || interimTranscript).trim();
+          if (currentText) {
+            lastRecognizedText = currentText;
+          }
           if (liveTranscript && currentText) {
             liveTranscript.textContent = `🗣️ "${currentText}"`;
           }
 
           if (finalTranscript && finalTranscript.trim().length > 1) {
+            commandProcessed = true;
             processTahfidzSmartCommand(finalTranscript.trim());
             stopTahfidzVoiceRecognition();
           }
@@ -18384,12 +18432,20 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         tahfidzSpeechRecognitionInstance.onerror = function(event) {
           console.warn('Voice Recognition Error:', event.error);
           stopTahfidzVoiceRecognition();
-          if (event.error !== 'no-speech' && typeof showToast === 'function') {
+          if (event.error === 'not-allowed') {
+            if (typeof showToast === 'function') {
+              showToast('Izin Mikrofon Ditolak', 'Mohon izinkan akses mikrofon di pengaturan browser Anda.', 'error');
+            }
+          } else if (event.error !== 'no-speech' && typeof showToast === 'function') {
             showToast('Suara Tidak Terdeteksi', 'Coba ulangi berbicara lebih dekat ke mikrofon.', 'warning');
           }
         };
 
         tahfidzSpeechRecognitionInstance.onend = function() {
+          if (!commandProcessed && lastRecognizedText && lastRecognizedText.length > 1) {
+            commandProcessed = true;
+            processTahfidzSmartCommand(lastRecognizedText);
+          }
           stopTahfidzVoiceRecognition();
         };
 
@@ -22902,8 +22958,17 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       }
 
       // 7. Auto-sinkronisasi status Supabase
+      if (typeof updateSupabaseConnectionStatusBadge === 'function') {
+        updateSupabaseConnectionStatusBadge();
+      }
       if (typeof initHumasSupabaseSync === 'function') {
         initHumasSupabaseSync();
+      }
+    }
+
+    function initHumasSupabaseSync() {
+      if (typeof updateSupabaseConnectionStatusBadge === 'function') {
+        updateSupabaseConnectionStatusBadge();
       }
     }
 
@@ -24592,9 +24657,458 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
       filterHumasTable('bulan', months[nextIdx]);
     }
 
+    // =========================================================================
+    // VOICE RECOGNITION, SMART SEARCH & NLP COMMAND ENGINE TAB 10 HUMAS
+    // =========================================================================
+    let humasSpeechRecognitionInstance = null;
+    let isHumasVoiceListening = false;
+
+    function toggleHumasVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        if (typeof showToast === 'function') {
+          showToast('Fitur Suara Tidak Didukung', 'Browser Anda belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome di HP/Laptop.', 'warning');
+        } else {
+          alert('Browser ini belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome.');
+        }
+        return;
+      }
+
+      if (isHumasVoiceListening) {
+        stopHumasVoiceSearch();
+      } else {
+        startHumasVoiceSearch(SpeechRecognition);
+      }
+    }
+
+    function startHumasVoiceSearch(SpeechRecognition) {
+      try {
+        humasSpeechRecognitionInstance = new SpeechRecognition();
+        humasSpeechRecognitionInstance.lang = 'id-ID';
+        humasSpeechRecognitionInstance.continuous = false;
+        humasSpeechRecognitionInstance.interimResults = true;
+
+        const voiceBtn = document.getElementById('btnHumasVoiceSearch');
+        const voiceLabel = document.getElementById('labelHumasVoice');
+        const listeningBanner = document.getElementById('humasVoiceListeningBanner');
+        const liveTranscript = document.getElementById('humasVoiceLiveTranscript');
+
+        const topVoiceBtn = document.getElementById('btnHumasTopVoiceSearch');
+        const topVoiceLabel = document.getElementById('labelHumasTopVoice');
+        const topListeningBanner = document.getElementById('humasTopVoiceListeningBanner');
+        const topLiveTranscript = document.getElementById('humasTopVoiceLiveTranscript');
+
+        let commandProcessed = false;
+        let lastRecognizedText = '';
+
+        humasSpeechRecognitionInstance.onstart = function() {
+          isHumasVoiceListening = true;
+          commandProcessed = false;
+          lastRecognizedText = '';
+          if (voiceBtn) {
+            voiceBtn.className = 'absolute right-0.5 top-1/2 -translate-y-1/2 h-6 px-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-none text-[10.5px] font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all border border-rose-500 animate-pulse ring-2 ring-rose-400';
+          }
+          if (voiceLabel) voiceLabel.textContent = 'Mendengarkan...';
+          if (listeningBanner) listeningBanner.classList.remove('hidden');
+          if (liveTranscript) liveTranscript.textContent = 'Silakan sebutkan pencarian atau filter (cth: "Acara Oktober butuh pamflet")...';
+
+          if (topVoiceBtn) {
+            topVoiceBtn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded font-bold text-xs flex items-center gap-1.5 shadow-lg cursor-pointer transition-all border border-rose-400 animate-pulse ring-2 ring-rose-400';
+          }
+          if (topVoiceLabel) topVoiceLabel.textContent = 'Mendengarkan...';
+          if (topListeningBanner) topListeningBanner.classList.remove('hidden');
+          if (topLiveTranscript) topLiveTranscript.textContent = 'Silakan sebutkan pencarian atau filter (cth: "Acara Oktober butuh pamflet")...';
+        };
+
+        humasSpeechRecognitionInstance.onresult = function(event) {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          const currentText = (finalTranscript || interimTranscript).trim();
+          if (currentText) {
+            lastRecognizedText = currentText;
+          }
+          if (liveTranscript && currentText) {
+            liveTranscript.textContent = `"${currentText}"`;
+          }
+          if (topLiveTranscript && currentText) {
+            topLiveTranscript.textContent = `"${currentText}"`;
+          }
+
+          if (finalTranscript && finalTranscript.trim().length > 1) {
+            commandProcessed = true;
+            processHumasVoiceSmartCommand(finalTranscript.trim());
+            stopHumasVoiceSearch();
+          }
+        };
+
+        humasSpeechRecognitionInstance.onerror = function(event) {
+          console.warn('Humas Voice Recognition Error:', event.error);
+          stopHumasVoiceSearch();
+          if (event.error === 'not-allowed') {
+            if (typeof showToast === 'function') {
+              showToast('Izin Mikrofon Ditolak', 'Mohon izinkan akses mikrofon di pengaturan browser Anda.', 'error');
+            }
+          } else if (event.error !== 'no-speech' && typeof showToast === 'function') {
+            showToast('Suara Tidak Terdeteksi', 'Coba ulangi berbicara lebih dekat ke mikrofon.', 'warning');
+          }
+        };
+
+        humasSpeechRecognitionInstance.onend = function() {
+          if (!commandProcessed && lastRecognizedText && lastRecognizedText.length > 1) {
+            commandProcessed = true;
+            processHumasVoiceSmartCommand(lastRecognizedText);
+          }
+          stopHumasVoiceSearch();
+        };
+
+        humasSpeechRecognitionInstance.start();
+      } catch (e) {
+        console.error('Start Humas Voice Recognition Failed:', e);
+        stopHumasVoiceSearch();
+      }
+    }
+
+    function stopHumasVoiceSearch() {
+      isHumasVoiceListening = false;
+      if (humasSpeechRecognitionInstance) {
+        try {
+          humasSpeechRecognitionInstance.stop();
+        } catch (e) {}
+        humasSpeechRecognitionInstance = null;
+      }
+
+      const voiceBtn = document.getElementById('btnHumasVoiceSearch');
+      const voiceLabel = document.getElementById('labelHumasVoice');
+      const listeningBanner = document.getElementById('humasVoiceListeningBanner');
+
+      const topVoiceBtn = document.getElementById('btnHumasTopVoiceSearch');
+      const topVoiceLabel = document.getElementById('labelHumasTopVoice');
+      const topListeningBanner = document.getElementById('humasTopVoiceListeningBanner');
+
+      if (voiceBtn) {
+        voiceBtn.className = 'absolute right-0.5 top-1/2 -translate-y-1/2 h-6 px-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-none text-[10.5px] font-bold flex items-center gap-1 shadow-2xs cursor-pointer transition-all border border-indigo-500';
+      }
+      if (voiceLabel) voiceLabel.textContent = 'Suara';
+      if (listeningBanner) listeningBanner.classList.add('hidden');
+
+      if (topVoiceBtn) {
+        topVoiceBtn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 text-white rounded font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all border border-indigo-300/30';
+      }
+      if (topVoiceLabel) topVoiceLabel.textContent = 'Bicara';
+      if (topListeningBanner) topListeningBanner.classList.add('hidden');
+    }
+
+    function handleHumasSearchKeydown(e, val) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        processHumasVoiceSmartCommand(val);
+      }
+    }
+
+    function speakHumasAnswer(textToSpeak) {
+      if ('speechSynthesis' in window && textToSpeak) {
+        try {
+          window.speechSynthesis.cancel();
+          const cleanSpeech = textToSpeak.replace(/[\*\#\_]/g, '');
+          const utterance = new SpeechSynthesisUtterance(cleanSpeech);
+          utterance.lang = 'id-ID';
+          utterance.rate = 1.05;
+          utterance.pitch = 1.0;
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          console.warn('Speech synthesis error:', e);
+        }
+      }
+    }
+
+    function scrollHumasToTable() {
+      const section = document.getElementById('humasProgramTableSection');
+      if (section) {
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // SEMANTIC SYNONYM & CANONICAL MAPPING FOR HUMAS NLP SEARCH
+    // -------------------------------------------------------------
+    function normalizeHumasSemanticQuery(str) {
+      if (!str) return '';
+      let s = str.toLowerCase();
+
+      // Normalisasi Angka Lisan & Jawa ke Angka / Istilah
+      s = s.replace(/\b(songo|sanga|sembilan)\b/gi, '9')
+           .replace(/\b(delapan|wolu)\b/gi, '8')
+           .replace(/\b(tujuh|pitu)\b/gi, '7')
+           .replace(/\b(enam|enem)\b/gi, '6')
+           .replace(/\b(lima|limo)\b/gi, '5')
+           .replace(/\b(empat|papat)\b/gi, '4')
+           .replace(/\b(tiga|telu)\b/gi, '3')
+           .replace(/\b(dua|loro)\b/gi, '2')
+           .replace(/\b(satu|siji)\b/gi, '1')
+           .replace(/\b(sepuluh|sedasa)\b/gi, '10')
+           .replace(/\b(tiga puluh|tigapuluh)\b/gi, '30');
+
+      // Normalisasi Istilah & Sinonim Pesantren
+      s = s.replace(/\b(wali\s*9|walisongo|wali\s*songo|wali\s*sanga|ziarah\s*wali)\b/gi, 'wali songo')
+           .replace(/\b(wisuda|pelepasan|kelulusan|haflatut\s*takhrij|haflah\s*imtihan)\b/gi, 'haflah akhirussanah')
+           .replace(/\b(mos|mpls|masa\s*orientasi|orientasi\s*santri|santri\s*baru|taaruf)\b/gi, 'matsama')
+           .replace(/\b(tasmik|setoran\s*juz|ujian\s*juz|tasmi\s*akbar|tasmi\s*borongan)\b/gi, 'tasmi')
+           .replace(/\b(classmeeting|lomba\s*santri|porseni|pekan\s*olahraga)\b/gi, 'class meeting')
+           .replace(/\b(awal\s*masuk|masuk\s*pondok|pembukaan\s*ajaran|kuliah\s*umum|masuk\s*madrasah|masuk\s*sekolah|kbm\s*awal)\b/gi, 'iftitah dirasah')
+           .replace(/\b(kegiatan\s*belajar|pembelajaran|belajar\s*mengajar)\b/gi, 'kbm')
+           .replace(/\b(madrasah\s*diniyah|diniyah|madin\s*ula|madin\s*wustho|madin\s*ulya)\b/gi, 'madin')
+           .replace(/\b(bimbingan\s*belajar|bimbel|les)\b/gi, 'lbb')
+           .replace(/\b(lembaga\s*bahasa|bahasa\s*asing|bahasa\s*arab|bahasa\s*inggris)\b/gi, 'lba')
+           .replace(/\b(khutbah\s*arsy|pekan\s*perkenalan|orientasi\s*pondok)\b/gi, 'khutbatul arsy')
+           .replace(/\b(hari\s*besar|peringatan\s*maulid|isra\s*miraj|tahun\s*baru\s*islam)\b/gi, 'phbi')
+           .replace(/\b(musyawarah|pleno|pertemuan)\b/gi, 'rapat')
+           .replace(/\b(spp|syahriah|iuran|bayaran)\b/gi, 'tagihan');
+
+      return s;
+    }
+
     function onHumasSearchInput(val) {
+      humasState.matchedProgramIds = null;
       humasState.searchQuery = (val || '').toLowerCase().trim();
+      const topInput = document.getElementById('humasTopSearchInput');
+      if (topInput && topInput.value !== val) topInput.value = val;
       renderHumasTable();
+    }
+
+    function onHumasTopSearchInput(val) {
+      humasState.matchedProgramIds = null;
+      humasState.searchQuery = (val || '').toLowerCase().trim();
+      const bottomInput = document.getElementById('humasSearchInput');
+      if (bottomInput && bottomInput.value !== val) bottomInput.value = val;
+      renderHumasTable();
+    }
+
+    function handleHumasTopSearchKeydown(e, val) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        processHumasVoiceSmartCommand(val);
+      }
+    }
+
+    function processHumasVoiceSmartCommand(rawText) {
+      if (!rawText || !rawText.trim()) return false;
+      const originalText = rawText.trim();
+      let text = originalText.toLowerCase();
+
+      // A. PENANGANAN PERTANYAAN JADWAL (Q&A: "KAPAN HAFLAH AKHIRUSSANAH?", "DATA ZIARAH WALI 9", "KBM AWAL MADIN")
+      const isQuestion = /\b(kapan|hari apa|tanggal berapa|kapan pelaksanaan|kapan waktu|jadwal|kapan acara|kapan kegiatan|data|info|informasi|jadwalnya|pelaksanaan|tentang|agenda)\b/i.test(text);
+      if (isQuestion) {
+        let questionSubject = text
+          .replace(/\b(kapan|hari apa|tanggal berapa|kapan pelaksanaan|kapan waktu|jadwal|jadwalnya|data|info|informasi|acara|kegiatan|program|kerja|pesantren|pondok|madrasah|sekolah|dilaksanakan|diadakan|dimulai|berlangsung|jatuh|itu|sih|ya|tolong|tahu|kah|untuk|tentang|mengenai|pada|di|ke|dari|buat|adakah|ada|mohon|carikan|lihat|tampilkan|buka)\b/gi, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        const normSubject = normalizeHumasSemanticQuery(questionSubject);
+
+        if (questionSubject.length >= 2 || normSubject.length >= 2) {
+          const allProgs = humasState.programs || [];
+          const queryTokens = (normSubject || questionSubject).split(' ').filter(t => t.length > 1);
+
+          const matchedItems = [];
+          for (const prog of allProgs) {
+            const rawProgText = `${prog.uraian || ''} ${prog.kategori || ''} ${prog.pj || ''} ${prog.sasaran || ''}`.toLowerCase();
+            const normProgText = normalizeHumasSemanticQuery(rawProgText);
+
+            let score = 0;
+            for (const token of queryTokens) {
+              if (rawProgText.includes(token) || normProgText.includes(token)) score += 12;
+            }
+            if (rawProgText.includes(questionSubject) || normProgText.includes(normSubject)) score += 40;
+
+            if (score >= 10) {
+              matchedItems.push({ prog, score });
+            }
+          }
+
+          matchedItems.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return (a.prog.startDate || '').localeCompare(b.prog.startDate || '');
+          });
+
+          if (matchedItems.length > 0) {
+            const bestMatch = matchedItems[0].prog;
+
+            humasState.matchedProgramIds = matchedItems.map(m => m.prog.id);
+            humasState.searchQuery = '';
+
+            if (matchedItems.length === 1) {
+              if (bestMatch.bulan) {
+                filterHumasTable('bulan', bestMatch.bulan);
+              } else {
+                filterHumasTable('bulan', 'all');
+              }
+
+              const topInput = document.getElementById('humasTopSearchInput');
+              const btmInput = document.getElementById('humasSearchInput');
+              if (topInput) topInput.value = bestMatch.uraian;
+              if (btmInput) btmInput.value = bestMatch.uraian;
+
+              renderHumasTable();
+              scrollHumasToTable();
+
+              const tglStr = bestMatch.tanggal || bestMatch.waktu || 'jadwal menyusul';
+              const blnStr = bestMatch.bulan ? `Bulan ${bestMatch.bulan}` : '';
+              const spokenAns = `Acara ${bestMatch.uraian} dijadwalkan pada tanggal ${tglStr}, ${blnStr}.`;
+              const toastDetail = `📅 Tanggal: ${tglStr} (${blnStr}) • PJ: ${bestMatch.pj || '-'}`;
+
+              if (typeof showToast === 'function') {
+                showToast(`📅 ${bestMatch.uraian}`, toastDetail, 'info');
+              }
+              speakHumasAnswer(spokenAns);
+              return true;
+            } else {
+              filterHumasTable('bulan', 'all');
+
+              const topInput = document.getElementById('humasTopSearchInput');
+              const btmInput = document.getElementById('humasSearchInput');
+              if (topInput) topInput.value = questionSubject;
+              if (btmInput) btmInput.value = questionSubject;
+
+              renderHumasTable();
+              scrollHumasToTable();
+
+              const firstTwo = matchedItems.slice(0, 2).map(m => `${m.prog.uraian} (${m.prog.tanggal || m.prog.waktu || ''} ${m.prog.bulan || ''})`).join(', dan ');
+              const spokenAns = `Ditemukan ${matchedItems.length} agenda terkait ${questionSubject}: ${firstTwo}. Seluruh data lengkap tampil di tabel.`;
+              const toastDetail = `📋 Ditemukan ${matchedItems.length} agenda pada tanggal berbeda di tabel.`;
+
+              if (typeof showToast === 'function') {
+                showToast(`📅 ${matchedItems.length} Jadwal Terkait "${questionSubject}"`, toastDetail, 'info');
+              }
+              speakHumasAnswer(spokenAns);
+              return true;
+            }
+          }
+        }
+      }
+
+      // B. PENANGANAN FILTER & PENCARIAN BIASA
+      humasState.matchedProgramIds = null;
+      let appliedMessages = [];
+      let spokenSummary = '';
+
+      // 1. Deteksi Perintah Reset
+      if (/\b(reset|tampilkan semua|semua agenda|seluruh agenda|awal)\b/i.test(text)) {
+        humasState.searchQuery = '';
+        humasState.matchedProgramIds = null;
+        const topInput = document.getElementById('humasTopSearchInput');
+        const searchInput = document.getElementById('humasSearchInput');
+        if (topInput) topInput.value = '';
+        if (searchInput) searchInput.value = '';
+        filterHumasTable('kategori', 'all');
+        filterHumasTable('status', 'all');
+        filterHumasTable('bulan', 'all');
+        if (typeof showToast === 'function') {
+          showToast('🔄 Filter Direset', 'Menampilkan semua agenda tahun ajaran.');
+        }
+        speakHumasAnswer('Menampilkan semua agenda.');
+        scrollHumasToTable();
+        return true;
+      }
+
+      // 2. Deteksi Filter Bulan
+      const monthsList = [
+        { name: 'Juni', regex: /\b(juni|jun)\b/i },
+        { name: 'Juli', regex: /\b(juli|jul)\b/i },
+        { name: 'Agustus', regex: /\b(agustus|agu|agust)\b/i },
+        { name: 'September', regex: /\b(september|sep|sept)\b/i },
+        { name: 'Oktober', regex: /\b(oktober|okt)\b/i },
+        { name: 'November', regex: /\b(november|nov)\b/i },
+        { name: 'Desember', regex: /\b(desember|des)\b/i },
+        { name: 'Januari', regex: /\b(januari|jan)\b/i },
+        { name: 'Februari', regex: /\b(februari|feb)\b/i },
+        { name: 'Maret', regex: /\b(maret|mar)\b/i },
+        { name: 'April', regex: /\b(april|apr)\b/i },
+        { name: 'Mei', regex: /\b(mei)\b/i }
+      ];
+
+      for (const m of monthsList) {
+        if (m.regex.test(text)) {
+          filterHumasTable('bulan', m.name);
+          appliedMessages.push(`Bulan ${m.name}`);
+          spokenSummary += `agenda bulan ${m.name} `;
+          break;
+        }
+      }
+
+      // 3. Deteksi Filter Status Pamflet & Radar
+      if (/\b(h-7|h minus 7|h - 7|mendesak|radar|butuh tindakan|jatuh tempo)\b/i.test(text)) {
+        filterHumasTable('status', 'h7');
+        appliedMessages.push('Radar H-7 (Mendesak)');
+        spokenSummary += 'radar H minus 7 ';
+      } else if (/\b(butuh pamflet|belum dibuat|belum pamflet|tanpa pamflet|belum ada pamflet|belum selesai|belum)\b/i.test(text)) {
+        filterHumasTable('status', 'belum');
+        appliedMessages.push('Status: Butuh Pamflet');
+        spokenSummary += 'yang butuh pamflet ';
+      } else if (/\b(sedang desain|proses desain|proses|tahap desain)\b/i.test(text)) {
+        filterHumasTable('status', 'proses');
+        appliedMessages.push('Status: Sedang Desain');
+      } else if (/\b(siap publish|siap tayang|siap)\b/i.test(text)) {
+        filterHumasTable('status', 'siap');
+        appliedMessages.push('Status: Siap Publish');
+      } else if (/\b(selesai|sudah tayang|sudah selesai|arsip)\b/i.test(text)) {
+        filterHumasTable('status', 'selesai');
+        appliedMessages.push('Status: Selesai');
+      }
+
+      // 4. Deteksi Kategori Tasmi'
+      if (/\b(tasmi|tasmik|tahfidz|hafalan quran)\b/i.test(text)) {
+        filterHumasTable('kategori', 'tasmi');
+        appliedMessages.push('Kategori: Agenda Tasmi');
+        spokenSummary += 'kategori tasmi ';
+      }
+
+      // 5. Ekstraksi Kata Kunci Pencarian Acara Spesifik
+      let queryClean = text
+        .replace(/\b(tampilkan|buka|cari|tolong|carikan|lihat|filter|agenda|acara|kegiatan|program|kerja|bulan|status|pamflet|yang|pada|di|ke|untuk|juni|juli|agustus|september|oktober|november|desember|januari|februari|maret|april|mei|h-7|h minus 7|mendesak|radar|butuh tindakan|butuh|belum|selesai|siap|proses|desain|tasmi|tasmik|tahfidz)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (queryClean.length >= 2) {
+        humasState.searchQuery = queryClean;
+        const topInput = document.getElementById('humasTopSearchInput');
+        const searchInput = document.getElementById('humasSearchInput');
+        if (topInput) topInput.value = queryClean;
+        if (searchInput) searchInput.value = queryClean;
+        appliedMessages.push(`Cari: "${queryClean}"`);
+        spokenSummary += `pencarian ${queryClean} `;
+      } else if (appliedMessages.length > 0 && queryClean.length === 0) {
+        humasState.searchQuery = '';
+        const topInput = document.getElementById('humasTopSearchInput');
+        const searchInput = document.getElementById('humasSearchInput');
+        if (topInput) topInput.value = '';
+        if (searchInput) searchInput.value = '';
+      }
+
+      renderHumasTable();
+      scrollHumasToTable();
+
+      const summary = appliedMessages.length > 0 ? appliedMessages.join(' • ') : `Cari: "${originalText}"`;
+      if (typeof showToast === 'function') {
+        showToast('🎙️ Filter Suara Diterapkan!', summary);
+      }
+
+      if (spokenSummary) {
+        speakHumasAnswer(`Menampilkan ${spokenSummary}`);
+      } else if (queryClean) {
+        speakHumasAnswer(`Mencari acara ${queryClean}`);
+      }
+      return true;
     }
 
     function renderHumasTable() {
@@ -24606,6 +25120,11 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
       const refDateStr = humasState.refDate || getTodayIsoDateString();
 
       const filtered = humasState.programs.filter(p => {
+        // -1. JIKA ADA PROGRAM YANG DIKUNCI HASIL VOICE MATCHING (100% PASTI TAMPIL)
+        if (humasState.matchedProgramIds && humasState.matchedProgramIds.length > 0) {
+          return humasState.matchedProgramIds.includes(p.id);
+        }
+
         // 0. Filter Khusus: Tasmi' Belum Dibuatkan Pamflet
         if (humasState.currentSpecialFilter === 'tasmi_belum' || humasState.currentStatusFilter === 'tasmi_belum') {
           const isTasmi = p.kategori === 'tasmi' || (p.uraian || '').toLowerCase().includes('tasmi');
