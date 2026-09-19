@@ -1,10 +1,10 @@
 # **Product Requirements Document (PRD)**
 
-## **Proyek: DriveData \- Database Tagihan & Konverter Excel Premium**
+## **Proyek: Partner Fatih \- Database Tagihan & Konverter Excel Premium**
 
 | Informasi Dokumen | Detail |
 | :---- | :---- |
-| **Nama Produk** | DriveData (Sistem Kasir & Tagihan Mandiri) |
+| **Nama Produk** | Partner Fatih (Sistem Kasir & Tagihan Mandiri) |
 | **Versi Dokumen** | 1.0.0 |
 | **Status** | Production / Active |
 | **Basis Institusi** | YTPAI Raudlatul Muta'allimin Lamongan |

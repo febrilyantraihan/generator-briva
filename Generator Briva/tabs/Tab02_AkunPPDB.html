@@ -1,0 +1,1557 @@
+          <div id="tab-akun" class="hidden space-y-3.5 sm:space-y-6 pb-8 px-1 sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
+            
+              <!-- PROMINENT SMART VOICE & BILLING ASSISTANT CARD (Tab Akun PPDB) -->
+              <div class="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 rounded-xl border border-emerald-500/40 p-3 sm:p-4 shadow-md text-white space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="mic" class="w-4 h-4 text-emerald-300"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <h4 class="text-xs sm:text-sm font-black tracking-tight flex items-center gap-1.5 truncate">
+                        <span>Asisten Suara: Tagihan &amp; Akun Cepat</span>
+                        <span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-emerald-400/20 text-emerald-200 border border-emerald-400/30">AI Voice</span>
+                      </h4>
+                    </div>
+                  </div>
+                  <!-- Quick hint desktop -->
+                  <span class="text-[10.5px] text-emerald-200/80 hidden md:inline">
+                    💡 Ucapkan: "Buat tagihan santri baru MA Putri kelas 11" atau "Cari akun Fatih"
+                  </span>
+                </div>
+
+                <!-- Big Voice Input Bar -->
+                <div class="relative flex items-center">
+                  <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                  <input 
+                    type="text" 
+                    id="akunVoiceCommandInput" 
+                    placeholder="Bicara atau ketik (cth: 'Buat tagihan santri baru MA Putri kelas 11', 'Cari akun Fatih')..." 
+                    onkeydown="handleAkunVoiceKeydown(event, this.value)"
+                    class="w-full pl-9 pr-24 py-2 sm:py-2.5 rounded-lg bg-slate-950/80 border border-emerald-400/50 text-xs sm:text-sm font-medium text-white placeholder-emerald-200/50 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all shadow-inner"
+                  />
+                  
+                  <button 
+                    type="button" 
+                    id="btnAkunVoiceAssistant" 
+                    onclick="toggleAkunVoiceAssistant()" 
+                    class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 text-white rounded-md font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all border border-emerald-300/30"
+                    title="Perintah Suara: Buat tagihan santri baru atau cari akun"
+                  >
+                    <i data-lucide="mic" class="w-3.5 h-3.5" id="iconAkunVoice"></i>
+                    <span id="labelAkunVoice">Bicara</span>
+                  </button>
+                </div>
+
+                <!-- Voice Listening Banner -->
+                <div id="akunVoiceListeningBanner" class="hidden p-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-lg shadow-lg flex items-center justify-between gap-2 text-xs animate-pulse border border-white/20">
+                  <div class="flex items-center gap-2 truncate">
+                    <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping shrink-0"></span>
+                    <span id="akunVoiceLiveTranscript" class="font-bold truncate">Mendengarkan perintah...</span>
+                  </div>
+                  <button type="button" onclick="stopAkunVoiceAssistant()" class="px-2 py-0.5 bg-white/20 hover:bg-white/30 rounded text-[10px] font-bold shrink-0 cursor-pointer">
+                    Selesai
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clean Segmented Mode Switcher (Symmetric 3-Pill Layout) -->
+              <div class="flex items-center justify-between gap-2 max-w-xl mx-auto w-full">
+                <div class="grid grid-cols-3 p-1 bg-slate-200/70 dark:bg-white/[0.05] rounded-xl text-xs font-semibold w-full border border-slate-300/60 dark:border-white/[0.08] backdrop-blur-md">
+                  <!-- 1. WhatsApp (Primary) -->
+                  <button 
+                    id="btnTabModeAi" 
+                    onclick="switchAccountMode('ai')" 
+                    class="py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all bg-emerald-500 text-white shadow-sm cursor-pointer"
+                  >
+                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                    <span>WhatsApp</span>
+                  </button>
+
+                  <!-- 2. File Excel -->
+                  <button 
+                    id="btnTabModePpdb" 
+                    onclick="switchAccountMode('ppdb')" 
+                    class="py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                  >
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                    <span>File Excel</span>
+                  </button>
+
+                  <!-- 3. Manual -->
+                  <button 
+                    id="btnTabModeManual" 
+                    onclick="switchAccountMode('manual')" 
+                    class="py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                  >
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>Manual</span>
+                  </button>
+                </div>
+
+                <!-- Quick Reset Link (Desktop) -->
+                <div class="hidden sm:flex items-center shrink-0">
+                  <button type="button" onclick="resetPpdbAnalysis()" class="text-xs text-slate-400 hover:text-red-500 font-semibold flex items-center gap-1 cursor-pointer transition-colors">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span>Reset</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ================= VIEW 1: ANALISIS PPDB (UTAMA) ================= -->
+              <div id="viewModePpdb" class="space-y-3 sm:space-y-4">
+                
+                <!-- Upload Box & Parameters Grid (Excel Mode) -->
+                <div id="ppdbInputExcelSection" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-4">
+                  
+                  <!-- Upload Dropzone (Lg: Col 7) -->
+                  <div 
+                    ondragover="event.preventDefault(); this.classList.add('border-emerald-500', 'bg-emerald-50/20');" 
+                    ondragleave="this.classList.remove('border-emerald-500', 'bg-emerald-50/20');" 
+                    ondrop="handlePpdbDrop(event);"
+                    class="lg:col-span-7 bg-white dark:bg-[#121724] rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/10 hover:border-emerald-400 p-3.5 sm:p-5 shadow-xs flex flex-col justify-center items-center text-center transition-all bg-gradient-to-b from-slate-50/50 dark:from-white/[0.02] to-transparent relative group"
+                  >
+                    <!-- VIP WhatsApp Quick Callout Banner -->
+                    <div 
+                      onclick="switchAccountMode('ai')" 
+                      class="cursor-pointer mb-3 w-full p-2.5 sm:p-3 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/5 dark:from-emerald-500/20 dark:via-teal-500/10 dark:to-transparent border border-emerald-500/35 hover:border-emerald-400 shadow-[0_4px_16px_rgba(16,185,129,0.15)] flex items-center justify-between gap-2.5 transition-all group/wa hover:scale-[1.01]"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/30 ring-1 ring-white/30 group-hover/wa:scale-105 transition-transform shrink-0">
+                          <i data-lucide="message-circle" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div class="text-left">
+                          <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-extrabold font-display text-emerald-700 dark:text-emerald-400 tracking-tight">Sering Terima Data dari WhatsApp?</span>
+                            <span class="text-[8.5px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500 text-slate-950 uppercase tracking-wider">Paling Cepat</span>
+                          </div>
+                          <p class="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight">Klik untuk langsung tempel chat santri &amp; ekstrak 2 akun (Ortu &amp; Siswa) instan.</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold shrink-0">
+                        <span class="hidden sm:inline">Buka WA</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover/wa:translate-x-1 transition-transform"></i>
+                      </div>
+                    </div>
+
+                    <input type="file" id="ppdbFileInput" accept=".xlsx,.xls,.csv" onchange="handlePpdbFileInput(event)" class="hidden" />
+                    
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 dark:bg-white/[0.06] text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-1.5 sm:mb-2 group-hover:scale-105 transition-transform shadow-xs border border-indigo-200 dark:border-white/10">
+                      <i data-lucide="upload-cloud" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    </div>
+                    
+                    <h4 class="font-extrabold font-display text-slate-800 dark:text-white text-xs sm:text-base mb-0.5">Unggah Formulir PPDB (.xlsx / .csv)</h4>
+                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 max-w-md mb-2.5 hidden sm:block">Tarik & lepas file spreadsheet hasil formulir PPDB ke sini, atau klik tombol di bawah.</p>
+                    
+                    <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+                      <!-- HERO WHATSAPP BUTTON (EYE-CATCHING) -->
+                      <button 
+                        type="button" 
+                        onclick="switchAccountMode('ai')" 
+                        class="col-span-2 sm:col-span-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-extrabold text-xs px-3 sm:px-4 py-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] ring-2 ring-emerald-400/50 flex items-center justify-center gap-2 transition-all cursor-pointer h-9 sm:h-10 transform hover:scale-[1.02] group/btn"
+                        title="Buka AI Chat Parser untuk pesan WhatsApp santri"
+                      >
+                        <i data-lucide="message-circle" class="w-4 h-4 text-emerald-100 group-hover/btn:scale-110 transition-transform"></i>
+                        <span class="font-display tracking-tight">AI Chat WA (Instan)</span>
+                        <span class="text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 uppercase tracking-wide">Populer</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        onclick="document.getElementById('ppdbFileInput').click()" 
+                        class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold text-xs px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer h-9 sm:h-10"
+                      >
+                        <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
+                        <span class="truncate">Pilih File Excel</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        onclick="loadPpdbSampleData()" 
+                        class="bg-indigo-50 dark:bg-white/[0.06] hover:bg-indigo-100 dark:hover:bg-white/[0.1] text-indigo-700 dark:text-indigo-300 font-semibold text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-indigo-200 dark:border-white/10 flex items-center justify-center gap-1.5 transition-all cursor-pointer h-9 sm:h-10"
+                      >
+                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-500"></i>
+                        <span class="truncate">Contoh Data</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        onclick="togglePpdbPasteArea()" 
+                        class="bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-700 dark:text-slate-300 text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-center gap-1 transition-colors cursor-pointer h-9 sm:h-10"
+                      >
+                        <i data-lucide="clipboard" class="w-3 h-3"></i>
+                        <span class="truncate">Tempel Manual</span>
+                      </button>
+                    </div>
+
+                  <!-- Optional Paste Area (Collapsible) -->
+                  <div id="ppdbPasteAreaWrapper" class="hidden w-full mt-3 pt-2.5 border-t border-indigo-100 dark:border-indigo-900/40 text-left">
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="text-[10px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-300">Atau Tempel Baris dari Google Sheet (Ctrl+V):</label>
+                      <button onclick="clearPpdbPaste()" class="text-[10px] sm:text-[11px] text-red-500 hover:underline">Bersihkan</button>
+                    </div>
+                    <textarea 
+                      id="ppdbPasteInput" 
+                      rows="2" 
+                      oninput="handlePpdbPasteInput()" 
+                      placeholder="Tempel baris tabel data pendaftaran lengkap di sini..." 
+                      class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none text-xs font-mono text-slate-800 dark:text-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none resize-none"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Parameters Box: Sleek Accordion on Mobile, Expanded Card on Desktop (Kotak Tegas) -->
+                <details class="lg:col-span-5 group bg-white dark:bg-[#151e30] rounded-none border border-slate-200/80 dark:border-slate-700 p-3 sm:p-4 shadow-none">
+                  <summary class="flex items-center justify-between cursor-pointer select-none outline-none">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div class="w-7 h-7 rounded-none bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200 dark:border-indigo-800">
+                        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                      </div>
+                      <div class="min-w-0 text-left">
+                        <h4 class="font-bold text-slate-800 dark:text-white text-xs">Parameter Akun Otomatis</h4>
+                        <p class="text-[11px] text-slate-400 truncate">Sandi: P@ssword123 &bull; Suffix: 26</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0 text-slate-400 group-hover:text-slate-600">
+                      <span class="text-[10.5px] font-semibold text-indigo-600 dark:text-indigo-400 hidden sm:inline">Ubah</span>
+                      <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i>
+                    </div>
+                  </summary>
+
+                  <div class="pt-2.5 border-t border-slate-100 dark:border-white/10 mt-2 space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
+                      <!-- Format Username Siswa -->
+                      <div class="col-span-2">
+                        <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Format Username Siswa</label>
+                        <select 
+                          id="ppdbUsernameStyle" 
+                          onchange="reprocessCurrentPpdbData()" 
+                          class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none truncate h-8.5"
+                        >
+                          <option value="joined_all" selected>Gabung Semua Kata (salsanabilayusnia26)</option>
+                          <option value="joined_if_3">Gabung Jika 3 Kata / Titik Jika 2 Kata</option>
+                          <option value="first_second_dot">Kata 1 & 2 Pakai Titik (salsa.nabila26)</option>
+                          <option value="first_only">Kata Pertama Saja (salsa26)</option>
+                        </select>
+                      </div>
+
+                      <!-- Kata Sandi Default -->
+                      <div>
+                        <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Kata Sandi Default</label>
+                        <input 
+                          type="text" 
+                          id="ppdbPasswordInput" 
+                          value="P@ssword123" 
+                          oninput="reprocessCurrentPpdbData()" 
+                          class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2.5 py-1.5 text-xs font-bold text-slate-900 dark:text-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none h-8.5"
+                        />
+                      </div>
+
+                      <!-- Domain Email -->
+                      <div>
+                        <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Domain Email (@)</label>
+                        <div class="relative">
+                          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">@</span>
+                          <input 
+                            type="text" 
+                            id="ppdbDomainInput" 
+                            value="gmail.com" 
+                            oninput="reprocessCurrentPpdbData()" 
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none pl-6 pr-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500/30 outline-none h-8"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Suffix Angkatan (di Belakang Username) -->
+                      <div class="col-span-2 flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1.5 rounded-none border border-slate-200/60 dark:border-slate-700/60">
+                        <div class="min-w-0">
+                          <span class="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 block">Suffix Angkatan (Username):</span>
+                          <span class="text-[10.5px] text-slate-400 dark:text-slate-500">Contoh: salsanabila<strong class="text-indigo-600 dark:text-indigo-400 font-bold">26</strong></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <input 
+                            type="text" 
+                            id="ppdbSuffixInput" 
+                            value="26" 
+                            oninput="reprocessCurrentPpdbData()" 
+                            placeholder="26" 
+                            class="w-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-none px-1.5 py-1 text-xs font-bold text-center text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500/40 outline-none h-7"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Nomor Registrasi (Diinput oleh Admin untuk Fitur WA) -->
+                      <div class="col-span-2 flex items-center justify-between gap-2 bg-emerald-50/70 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-none border border-emerald-200/80 dark:border-emerald-800/60">
+                        <div class="min-w-0">
+                          <span class="text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+                            <span>No. Registrasi Custom:</span>
+                          </span>
+                          <span class="text-[10px] sm:text-[10.5px] text-emerald-700/80 dark:text-emerald-400/80">Kode Sekolah: <b class="font-bold text-emerald-900 dark:text-emerald-200">1600</b> | Masukkan nomor registrasi jika ditentukan custom oleh Admin</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <input 
+                            type="text" 
+                            id="ppdbBrivaInput" 
+                            value="" 
+                            oninput="syncPpdbBrivaInput(this.value)" 
+                            placeholder="No. Registrasi (Opsional)" 
+                            class="w-28 sm:w-36 bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-none px-2 py-1 text-xs font-bold font-mono text-center text-emerald-950 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500/40 outline-none h-7 sm:h-8"
+                            title="Nomor registrasi yang dimasukkan custom oleh admin"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pt-1.5 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+                      <span class="text-slate-500 dark:text-slate-400 text-[11px] truncate max-w-[200px]" id="ppdbFileStatusText">Belum ada file dipilih</span>
+                      <button type="button" onclick="resetPpdbAnalysis()" class="text-slate-400 hover:text-red-600 text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        <span>Reset</span>
+                      </button>
+                    </div>
+                  </div>
+                </details>
+
+              </div>
+
+              <!-- ================= INPUT MODE: WHATSAPP CHAT PARSER (CLEAN & MINIMALIST) ================= -->
+              <div id="ppdbInputAiSection" class="space-y-3 max-w-xl mx-auto w-full">
+                <div class="bg-white dark:bg-[#121724] rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3.5 sm:p-5 shadow-xs space-y-3">
+                  
+                  <!-- Top Bar: Title & Discreet Presets -->
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-white/[0.06]">
+                    <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                      </div>
+                      <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-white font-display">Ekstrak Chat WhatsApp</span>
+                    </div>
+
+                    <!-- Clean Uniform Presets -->
+                    <div class="flex items-center gap-1">
+                      <span class="text-[10px] text-slate-400 hidden sm:inline mr-0.5">Contoh:</span>
+                      <button 
+                        type="button" 
+                        onclick="loadAiPreset(1)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
+                        title="Contoh chat santri pindahan"
+                      >
+                        Pindahan
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="loadAiPreset(2)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
+                        title="Contoh chat dengan NIK/NISN terbalik"
+                      >
+                        Terbalik
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="loadAiPreset(3)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
+                        title="Contoh teks formulir PPDB"
+                      >
+                        Formulir
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Textarea Container with Integrated Action Bar -->
+                  <div class="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden focus-within:border-emerald-500/70 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                    <!-- Textarea Action Header -->
+                    <div class="flex items-center justify-between px-3 py-1.5 bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200/70 dark:border-white/5 text-xs">
+                      <span class="text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                        <i data-lucide="align-left" class="w-3 h-3 text-slate-400"></i>
+                        <span>Pesan Chat WhatsApp</span>
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <button 
+                          type="button" 
+                          onclick="pasteClipboardToAiChat()" 
+                          class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold flex items-center gap-1 text-[11px] cursor-pointer"
+                        >
+                          <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
+                          <span>Tempel</span>
+                        </button>
+                        <span class="text-slate-300 dark:text-slate-700">|</span>
+                        <button 
+                          type="button" 
+                          onclick="clearAiChatInput()" 
+                          class="text-slate-400 hover:text-rose-500 text-[11px] cursor-pointer transition-colors"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Clean Textarea -->
+                    <textarea 
+                      id="aiChatRawInput" 
+                      rows="6" 
+                      placeholder="Tempel pesan chat pendaftaran santri/wali dari WhatsApp di sini..." 
+                      class="w-full p-3 bg-white dark:bg-[#0c1017] text-xs sm:text-sm font-sans text-slate-800 dark:text-slate-200 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 outline-none resize-y leading-relaxed"
+                    ></textarea>
+                  </div>
+
+                  <!-- Single Clean Hero Action Button -->
+                  <div>
+                    <button 
+                      type="button" 
+                      onclick="processAiChatToDualAccounts()" 
+                      class="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
+                      <span>Ekstrak Menjadi Akun Ortu &amp; Siswa</span>
+                      <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-200"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Metrics Grid: Sharp Kotak Elegan -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/60 dark:border-indigo-800/40">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Akun Ortu</p>
+                    <p class="text-sm sm:text-base font-black text-indigo-600 dark:text-indigo-400 tabular-nums leading-tight" id="metricPpdbOrtu">0 Akun</p>
+                  </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/60 dark:border-blue-800/40">
+                    <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Akun Siswa</p>
+                    <p class="text-sm sm:text-base font-black text-blue-600 dark:text-blue-400 tabular-nums leading-tight" id="metricPpdbSiswa">0 Akun</p>
+                  </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/60 dark:border-emerald-800/40">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Guru</p>
+                    <p class="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-tight" id="metricPpdbGuru">0 Guru</p>
+                  </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-200/60 dark:border-purple-800/40">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Total Siswa</p>
+                    <p class="text-sm sm:text-base font-black text-purple-600 dark:text-purple-400 tabular-nums leading-tight" id="metricPpdbTotal">0 Siswa</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sub-Tabs Navigation for Results (Sharp Kotak Elegan) -->
+              <div class="bg-white/90 dark:bg-slate-900/90 rounded-none border border-slate-200 dark:border-slate-800 shadow-none overflow-hidden flex flex-col">
+                
+                <!-- Subtab Headers & Mobile View Toggle (Kartu vs Tabel) -->
+                <div class="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 w-full box-border">
+                  <!-- 3 Subtabs (Penuh 3 Kolom di Mobile, Kotak) -->
+                  <div class="subtab-pill-container grid grid-cols-3 sm:flex sm:items-center gap-1 p-0.5 rounded-none bg-slate-200/80 dark:bg-slate-950 border border-slate-300/60 dark:border-slate-800 w-full sm:w-auto box-border">
+                    <button 
+                      id="btnSubtabOrtu" 
+                      onclick="switchPpdbSubtab('ortu')" 
+                      class="justify-center whitespace-nowrap px-2 sm:px-3 py-1.5 rounded-none font-bold text-[11px] sm:text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-none flex items-center gap-1 sm:gap-1.5 transition-all subtab-active cursor-pointer min-w-0"
+                    >
+                      <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>
+                      <span class="hidden sm:inline">1. Akun Orang Tua (11 Kolom)</span>
+                      <span class="inline sm:hidden truncate">1. Ortu</span>
+                      <span id="badgeSubtabOrtu" class="ml-0.5 sm:ml-1 text-[9px] sm:text-[10px] bg-white/25 dark:bg-slate-900/25 text-white dark:text-slate-900 font-bold px-1 py-0.2 rounded-none shrink-0">0</span>
+                    </button>
+                    <button 
+                      id="btnSubtabSiswa" 
+                      onclick="switchPpdbSubtab('siswa')" 
+                      class="justify-center whitespace-nowrap px-2 sm:px-3 py-1.5 rounded-none font-semibold text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0"
+                    >
+                      <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                      <span class="hidden sm:inline">2. Akun Siswa</span>
+                      <span class="inline sm:hidden truncate">2. Siswa</span>
+                      <span id="badgeSubtabSiswa" class="ml-0.5 sm:ml-1 text-[9px] sm:text-[10px] bg-slate-300/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-1 py-0.2 rounded-none shrink-0">0</span>
+                    </button>
+                    <button 
+                      id="btnSubtabGuru" 
+                      onclick="switchPpdbSubtab('guru')" 
+                      class="justify-center whitespace-nowrap px-2 sm:px-3 py-1.5 rounded-none font-semibold text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0"
+                    >
+                      <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                      <span class="hidden sm:inline">3. Siswa per Guru</span>
+                      <span class="inline sm:hidden truncate">3. Guru</span>
+                      <span id="badgeSubtabGuru" class="ml-0.5 sm:ml-1 text-[9px] sm:text-[10px] bg-slate-300/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-1 py-0.2 rounded-none shrink-0">0</span>
+                    </button>
+                  </div>
+
+                  <!-- Segmented View Toggle: Kartu vs Tabel (Kotak) -->
+                  <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto shrink-0 pt-0.5 sm:pt-0">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 sm:hidden flex items-center gap-1">
+                      <i data-lucide="sliders-horizontal" class="w-3 h-3"></i> Mode Tampilan:
+                    </span>
+                    <div class="flex items-center bg-slate-200/80 dark:bg-slate-950 p-0.5 rounded-none text-xs font-bold shrink-0 border border-slate-300/60 dark:border-slate-800">
+                      <button type="button" id="btnPpdbViewCards" onclick="togglePpdbViewMode('cards')" class="px-2.5 py-1 rounded-none transition-all flex items-center gap-1 view-toggle-active cursor-pointer">
+                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        <span>Kartu</span>
+                      </button>
+                      <button type="button" id="btnPpdbViewTable" onclick="togglePpdbViewMode('table')" class="px-2.5 py-1 rounded-none text-slate-600 dark:text-slate-400 transition-all flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                        <span>Tabel</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SUBTAB 1: TABEL AKUN ORANG TUA (11 KOLOM TEMPLATE RESMI) -->
+                <div id="subtabContentOrtu" class="p-2.5 sm:p-4 space-y-2.5">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-0.5">
+                    <div class="relative w-full sm:flex-1 min-w-[200px]">
+                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                      <input 
+                        type="text" 
+                        id="searchPpdbOrtuInput" 
+                        oninput="filterPpdbOrtuTable()" 
+                        placeholder="Cari nama wali, NIK, username, profesi..." 
+                        class="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-none text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 w-full sm:w-auto">
+                      <!-- Tombol Geser Kolom (Tampil di Tablet/Desktop, di HP langsung usap layar) -->
+                      <div class="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-none border border-slate-200 dark:border-slate-700 shrink-0">
+                        <button type="button" onclick="scrollPpdbTable('ortu', -300)" class="p-1 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kiri">
+                          <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 px-1 select-none">Geser</span>
+                        <button type="button" onclick="scrollPpdbTable('ortu', 300)" class="p-1 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kanan">
+                          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                      </div>
+
+                      <!-- Tombol Aksi: Anti-Tabrakan & Kotak Tegas -->
+                      <div class="grid grid-cols-3 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
+                        <button onclick="copyPpdbOrtuToClipboard()" class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2 sm:px-3.5 rounded-none shadow-none flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Salin semua kolom & baris ke Excel">
+                          <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span class="hidden sm:inline">Salin Tabel</span>
+                          <span class="inline sm:hidden">Tabel</span>
+                        </button>
+
+                        <!-- Dropdown Salin per Kategori Ortu -->
+                        <div class="relative w-full sm:w-auto" id="dropdownPpdbOrtuWrapper">
+                          <button type="button" onclick="togglePpdbCategoryMenu('ortu')" class="w-full sm:w-auto justify-center bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2 sm:px-3 rounded-none shadow-none flex items-center justify-center gap-1 transition-all cursor-pointer whitespace-nowrap" title="Salin data per item kategori">
+                            <i data-lucide="copy" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span class="hidden sm:inline">Salin Kategori</span>
+                            <span class="inline sm:hidden">Kategori</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 shrink-0 opacity-80"></i>
+                          </button>
+                          <div id="dropdownPpdbOrtuMenu" class="hidden absolute right-0 mt-1 w-52 sm:w-56 bg-white dark:bg-[#1e293b] rounded-none shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50 text-xs text-slate-700 dark:text-slate-200 divide-y divide-slate-100 dark:divide-slate-800">
+                            <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Salin Kolom Kategori:</div>
+                            <div class="py-1 max-h-60 overflow-y-auto">
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaWali', 'Nama Wali')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-500 shrink-0"></i>
+                                <span>Nama Orangtua / Wali</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'email', 'Email')" class="w-full px-3 py-1.5 text-left hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="mail" class="w-3.5 h-3.5 text-sky-500 shrink-0"></i>
+                                <span>Email Wali</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'username', 'Username')" class="w-full px-3 py-1.5 text-left hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:text-purple-600 dark:hover:text-purple-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="at-sign" class="w-3.5 h-3.5 text-purple-500 shrink-0"></i>
+                                <span>Nama Pengguna (Username)</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'password', 'Kata Sandi')" class="w-full px-3 py-1.5 text-left hover:bg-amber-50 dark:hover:bg-amber-950/50 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                                <span>Kata Sandi (Password)</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'ktp', 'No KTP')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="id-card" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+                                <span>No KTP / NIK</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaAyah', 'Nama Ayah')" class="w-full px-3 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                                <span>Nama Ayah</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaIbu', 'Nama Ibu')" class="w-full px-3 py-1.5 text-left hover:bg-pink-50 dark:hover:bg-pink-950/50 hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="heart" class="w-3.5 h-3.5 text-pink-500 shrink-0"></i>
+                                <span>Nama Ibu</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiAyah', 'Profesi Ayah')" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+                                <span>Profesi Ayah</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiIbu', 'Profesi Ibu')" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+                                <span>Profesi Ibu</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'telepon', 'No Telepon')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                                <span>No Telepon / WA</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'alamat', 'Alamat')" class="w-full px-3 py-1.5 text-left hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
+                                <span>Alamat Lengkap</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'siswaTerkait', 'Siswa Terkait')" class="w-full px-3 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                                <span>Siswa Terkait</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button onclick="exportPpdbOrtuToExcel()" class="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2 sm:px-3 rounded-none shadow-none flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Unduh file Excel .xlsx">
+                          <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span class="hidden sm:inline">Unduh .xlsx</span>
+                          <span class="inline sm:hidden">Unduh</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Kontrol & Navigasi Geser Tabel Mobile Ortu -->
+                  <div class="flex items-center justify-between gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-none text-[11px]">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <span class="px-1.5 py-0.5 rounded-none bg-indigo-600 text-white font-bold text-[10px] uppercase shrink-0">Terkunci</span>
+                      <span class="text-slate-700 dark:text-slate-300 font-medium truncate">Nama Wali</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button type="button" onclick="scrollPpdbTable('ortu', -240)" class="h-6.5 px-2.5 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer" title="Geser tabel ke kiri">
+                        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                        <span>Kiri</span>
+                      </button>
+                      <button type="button" onclick="scrollPpdbTable('ortu', 240)" class="h-6.5 px-2.5 rounded-none bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer shadow-none" title="Geser tabel ke kanan untuk data lengkap">
+                        <span>Kanan</span>
+                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Table 11 Kolom Ortu -->
+                  <!-- Mobile Cards View for PPDB Ortu -->
+                  <div id="ppdbOrtuCardsContainer" class="p-1 sm:p-2 space-y-2.5 max-h-[500px] overflow-y-auto mobile-touch-scroll"></div>
+
+                  <div id="scrollWrapperPpdbOrtu" class="hidden drag-scroll-container mobile-touch-scroll overflow-x-auto overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-none max-h-[480px]">
+                    <table class="w-full text-left text-[13px] border-collapse min-w-[1100px]">
+                      <thead class="bg-slate-100 dark:bg-[#1a2234] text-slate-800 dark:text-slate-100 font-extrabold text-xs tracking-wider uppercase sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700 select-none">
+                        <tr>
+                          <!-- 1. No -->
+                          <th class="py-2 sm:py-3 px-1 sm:px-2 w-8 sm:w-10 text-center text-slate-600 dark:text-slate-300 sticky left-0 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[1px_0_0_#cbd5e1] dark:shadow-[1px_0_0_#334155] text-[10px] sm:text-xs">No</th>
+                          
+                          <!-- 2. Nama Wali* -->
+                          <th class="py-2 sm:py-3 px-1.5 sm:px-3 whitespace-nowrap text-indigo-950 dark:text-white sticky left-8 sm:left-10 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[3px_0_6px_-2px_rgba(0,0,0,0.15)] w-[120px] min-w-[120px] max-w-[120px] sm:w-auto sm:min-w-[200px] sm:max-w-none border-r-2 border-indigo-300 dark:border-indigo-800 text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1">
+                              <span class="truncate">Nama Wali*</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaWali', 'Nama Wali')" class="p-0.5 sm:p-1 rounded-none hover:bg-indigo-100 dark:hover:bg-white/10 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer shrink-0" title="Salin seluruh kolom Nama Wali">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 3. Opsi Salin -->
+                          <th class="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap text-indigo-950 dark:text-indigo-200 bg-indigo-50/80 dark:bg-indigo-950/40 min-w-[100px] sm:min-w-[150px] text-[10.5px] sm:text-xs">Opsi Salin</th>
+                          
+                          <!-- 4. Email* -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-sky-950 dark:text-sky-300 min-w-[125px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Email*</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'email', 'Email')" class="p-1 rounded-none hover:bg-sky-100 dark:hover:bg-white/10 text-sky-600 dark:text-sky-400 transition-all cursor-pointer" title="Salin seluruh kolom Email">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 5. Nama Pengguna* -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-purple-950 dark:text-purple-300 min-w-[160px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Nama Pengguna*</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'username', 'Username')" class="p-1 rounded-none hover:bg-purple-100 dark:hover:bg-white/10 text-purple-600 dark:text-purple-400 transition-all cursor-pointer" title="Salin seluruh kolom Username">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 6. Kata Sandi* -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-amber-950 dark:text-amber-300 min-w-[90px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Kata Sandi*</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'password', 'Kata Sandi')" class="p-1 rounded-none hover:bg-amber-100 dark:hover:bg-white/10 text-amber-600 dark:text-amber-400 transition-all cursor-pointer" title="Salin seluruh kolom Kata Sandi">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 7. KTP Wali -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-900 dark:text-slate-100 min-w-[110px] sm:min-w-[160px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>KTP Wali</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'ktp', 'No KTP')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer" title="Salin seluruh kolom No KTP">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 8. Nama Ayah -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 min-w-[105px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Nama Ayah</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaAyah', 'Nama Ayah')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 transition-all cursor-pointer" title="Salin seluruh kolom Nama Ayah">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 9. Nama Ibu -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 min-w-[105px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Nama Ibu</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaIbu', 'Nama Ibu')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-pink-600 dark:text-pink-400 transition-all cursor-pointer" title="Salin seluruh kolom Nama Ibu">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 10. Profesi Ayah -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[95px] sm:min-w-[140px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Profesi Ayah</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiAyah', 'Profesi Ayah')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Salin seluruh kolom Profesi Ayah">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 11. Profesi Ibu -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[95px] sm:min-w-[140px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Profesi Ibu</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiIbu', 'Profesi Ibu')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Salin seluruh kolom Profesi Ibu">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 12. Telepon -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 min-w-[100px] sm:min-w-[130px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Telepon</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'telepon', 'No Telepon')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom No Telepon">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 13. Alamat -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[130px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Alamat</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'alamat', 'Alamat')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-rose-600 dark:text-rose-400 transition-all cursor-pointer" title="Salin seluruh kolom Alamat">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          
+                          <!-- 14. Siswa Terkait -->
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 min-w-[140px] sm:min-w-[170px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Siswa Terkait</span>
+                              <button type="button" onclick="copyPpdbColumn('ortu', 'siswaTerkait', 'Siswa Terkait')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 transition-all cursor-pointer" title="Salin seluruh kolom Siswa Terkait">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbodyPpdbOrtu" class="divide-y divide-slate-100 text-slate-800">
+                        <tr>
+                          <td colspan="14" class="py-12 text-center text-slate-400">
+                            <i data-lucide="folder-up" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                            <p class="font-medium">Belum ada data</p>
+                            <p class="text-xs text-slate-400">Silakan unggah file Excel PPDB atau klik "Muat Contoh Data" di atas.</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- SUBTAB 2: TABEL AKUN SISWA (LENGKAP BRIVA & DETAIL) -->
+                <div id="subtabContentSiswa" class="hidden p-2.5 sm:p-4 space-y-2.5">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-0.5">
+                    <div class="relative w-full sm:flex-1 min-w-[200px]">
+                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                      <input 
+                        type="text" 
+                        id="searchPpdbSiswaInput" 
+                        oninput="filterPpdbSiswaTable()" 
+                        placeholder="Cari nama siswa, username, email, status, sekolah asal..." 
+                        class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-none text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div class="flex items-center gap-1.5 w-full sm:w-auto">
+                      <!-- Tombol Geser Kolom (Tampil di Tablet/Desktop) -->
+                      <div class="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-white/10 p-0.5 rounded-none border border-slate-200 dark:border-white/10 shadow-none shrink-0">
+                        <button type="button" onclick="scrollPpdbTable('siswa', -300)" class="p-1 rounded-none bg-white dark:bg-[#1e293b] hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kiri">
+                          <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 px-1 select-none">Geser</span>
+                        <button type="button" onclick="scrollPpdbTable('siswa', 300)" class="p-1 rounded-none bg-white dark:bg-[#1e293b] hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kanan">
+                          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                      </div>
+
+                      <!-- Tombol Aksi Siswa: Grid 2x2 di Mobile, 1 Baris di Desktop -->
+                      <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
+                        <!-- 1. Tombol Format WA Semua -->
+                        <button onclick="copyAllPpdbStudentsWa(false)" class="w-full sm:w-auto justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Salin format pesan WhatsApp akun santri sekaligus">
+                          <i data-lucide="message-square-share" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span class="hidden sm:inline">Salin Format WA (Semua)</span>
+                          <span class="inline sm:hidden">Format WA</span>
+                        </button>
+
+                        <!-- 2. Tombol Salin Tabel Lengkap -->
+                        <button onclick="copyPpdbSiswaToClipboard()" class="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Salin semua kolom & baris ke Excel">
+                          <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span class="hidden sm:inline">Salin Tabel Lengkap</span>
+                          <span class="inline sm:hidden">Salin Tabel</span>
+                        </button>
+
+                        <!-- 3. Dropdown Salin per Kategori Siswa -->
+                        <div class="relative w-full sm:w-auto" id="dropdownPpdbSiswaWrapper">
+                          <button type="button" onclick="togglePpdbCategoryMenu('siswa')" class="w-full sm:w-auto justify-center bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center justify-center gap-1 transition-all cursor-pointer whitespace-nowrap" title="Salin data per item kategori">
+                            <i data-lucide="copy" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span class="hidden sm:inline">Salin Kategori</span>
+                            <span class="inline sm:hidden">Kategori</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 shrink-0 opacity-80"></i>
+                          </button>
+                          <div id="dropdownPpdbSiswaMenu" class="hidden absolute right-0 mt-1.5 w-52 sm:w-56 bg-white dark:bg-[#1e293b] rounded-none shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-50 text-xs text-slate-700 dark:text-slate-200 divide-y divide-slate-100 dark:divide-slate-800">
+                            <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Salin Kolom Kategori:</div>
+                            <div class="py-1 max-h-60 overflow-y-auto">
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'namaSiswa', 'Nama Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="user" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                                <span>Nama Lengkap Siswa</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'briva', 'Nomor BRIVA')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="credit-card" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                                <span>Nomor BRIVA Siswa</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'username', 'Username')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="at-sign" class="w-3.5 h-3.5 text-indigo-500 shrink-0"></i>
+                                <span>Nama Pengguna (Username)</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'email', 'Email Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="mail" class="w-3.5 h-3.5 text-sky-500 shrink-0"></i>
+                                <span>Email Siswa</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'password', 'Kata Sandi')" class="w-full px-3 py-1.5 text-left hover:bg-amber-50 dark:hover:bg-amber-950/50 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                                <span>Kata Sandi (Password)</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'gender', 'Jenis Kelamin')" class="w-full px-3 py-1.5 text-left hover:bg-pink-50 dark:hover:bg-pink-950/50 hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="users" class="w-3.5 h-3.5 text-pink-500 shrink-0"></i>
+                                <span>Jenis Kelamin (JK)</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'hp', 'No HP Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                                <span>No HP Siswa</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'alamat', 'Alamat Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
+                                <span>Alamat Lengkap Siswa</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'rencanaStatus', 'Status Santri')" class="w-full px-3 py-1.5 text-left hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="tag" class="w-3.5 h-3.5 text-teal-500 shrink-0"></i>
+                                <span>Status Santri (Mukim/Non)</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'sekolahAsal', 'Sekolah Asal')" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="school" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+                                <span>Sekolah Asal</span>
+                              </button>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'guru', 'Guru Pendamping')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
+                                <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                                <span>Guru Pendamping</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- 4. Unduh Excel -->
+                        <button onclick="exportPpdbSiswaToExcel()" class="w-full sm:w-auto justify-center bg-slate-800 hover:bg-slate-900 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Unduh file Excel .xlsx">
+                          <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span class="hidden sm:inline">Unduh .xlsx</span>
+                          <span class="inline sm:hidden">Unduh</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Input Cepat Nomor Registrasi & Kontrol Geser Tabel Mobile Siswa (1 Baris Ringkas & Rapi) -->
+                  <!-- Input Cepat Nomor Registrasi & Kontrol Geser Tabel Mobile Siswa (1 Baris Ringkas & Rapi) -->
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 p-1.5 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-none text-xs">
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-1.5 min-w-0 w-full sm:w-auto">
+                      <span class="px-1.5 py-0.5 rounded-none bg-emerald-600 text-white font-bold text-[10px] uppercase shrink-0 flex items-center gap-1" title="Kode Sekolah: 1600">
+                        <i data-lucide="clipboard-list" class="w-3 h-3"></i> No. Registrasi
+                      </span>
+                      <input 
+                        type="text" 
+                        id="ppdbBrivaQuickInput" 
+                        value="" 
+                        oninput="syncPpdbBrivaInput(this.value)" 
+                        placeholder="No. Registrasi Custom" 
+                        class="flex-1 sm:w-36 h-6 px-1.5 bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-none font-mono font-bold text-center text-xs text-emerald-950 dark:text-emerald-100 outline-none focus:ring-1 focus:ring-emerald-500 min-w-[110px]"
+                        title="Nomor Registrasi custom dari admin untuk dimasukkan ke pesan WA (Kode Sekolah: 1600)"
+                      />
+                      <button type="button" onclick="copyToClipboard(document.getElementById('ppdbBrivaQuickInput')?.value || '', 'No. Registrasi Disalin!', 'Nomor Registrasi siap dibagikan.')" class="h-6 px-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-[10px] rounded-none cursor-pointer flex items-center gap-1 transition-all shrink-0" title="Salin No. Registrasi">
+                        <i data-lucide="copy" class="w-2.5 h-2.5"></i> Salin
+                      </button>
+                      <button type="button" onclick="openPpdbBulkSetBrivaModal()" class="h-6 px-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-[10px] rounded-none cursor-pointer flex items-center gap-1 transition-all shrink-0" title="Tempel Kolom No. Registrasi Masal dari Excel atau Buat Urut">
+                        <i data-lucide="layers" class="w-2.5 h-2.5"></i> Tempel Masal
+                      </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-end gap-1 shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-emerald-200/60 dark:border-emerald-800/40">
+                      <span class="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold mr-auto sm:hidden">Navigasi Tabel:</span>
+                      <span class="hidden sm:inline-block px-1.5 py-0.5 rounded-none bg-blue-600 text-white font-bold text-[10px] uppercase shrink-0">Terkunci</span>
+                      <button type="button" onclick="scrollPpdbTable('siswa', -240)" class="h-6 px-2 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer" title="Geser tabel ke kiri">
+                        <i data-lucide="chevron-left" class="w-3 h-3"></i>
+                        <span>Kiri</span>
+                      </button>
+                      <button type="button" onclick="scrollPpdbTable('siswa', 240)" class="h-6 px-2 rounded-none bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer shadow-none" title="Geser tabel ke kanan untuk data lengkap">
+                        <span>Kanan</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Mobile Cards View for PPDB Siswa -->
+                  <div id="ppdbSiswaCardsContainer" class="p-1 sm:p-2 space-y-2.5 max-h-[500px] overflow-y-auto mobile-touch-scroll"></div>
+
+                  <!-- Table Siswa Container with Drag Scroll -->
+                  <div id="scrollWrapperPpdbSiswa" class="hidden drag-scroll-container mobile-touch-scroll overflow-x-auto overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-none max-h-[490px] relative">
+                    <table class="w-full text-left text-[13px] border-collapse min-w-[1100px]">
+                      <thead class="bg-slate-100 dark:bg-[#1a2234] text-slate-800 dark:text-slate-100 font-extrabold text-xs tracking-wider uppercase sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700 select-none">
+                        <tr>
+                          <th class="py-2 sm:py-3 px-1 sm:px-2 w-8 sm:w-10 text-center text-slate-600 dark:text-slate-300 sticky left-0 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[1px_0_0_#cbd5e1] dark:shadow-[1px_0_0_#334155] text-[10px] sm:text-xs">No</th>
+                          <th class="py-2 sm:py-3 px-1.5 sm:px-3 whitespace-nowrap text-blue-950 dark:text-white sticky left-8 sm:left-10 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[3px_0_6px_-2px_rgba(0,0,0,0.15)] w-[115px] min-w-[115px] max-w-[115px] sm:w-auto sm:min-w-[190px] sm:max-w-none border-r-2 border-blue-300 dark:border-blue-800 text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1">
+                              <span class="truncate">Nama Siswa*</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'namaSiswa', 'Nama Siswa')" class="p-0.5 sm:p-1 rounded-none hover:bg-blue-100 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 transition-all cursor-pointer shrink-0" title="Salin seluruh kolom Nama Siswa">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap text-indigo-950 dark:text-indigo-200 bg-indigo-50/80 dark:bg-indigo-950/40 min-w-[120px] sm:min-w-[280px] text-[10.5px] sm:text-xs">Opsi Salin</th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-emerald-950 min-w-[100px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>No. Registrasi</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'briva', 'No. Registrasi')" class="p-1 rounded-none hover:bg-emerald-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom No. Registrasi">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-indigo-950 min-w-[105px] sm:min-w-[160px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Nama Pengguna*</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'username', 'Username Siswa')" class="p-1 rounded-none hover:bg-indigo-100 dark:hover:bg-white/10 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer" title="Salin seluruh kolom Username Siswa">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-sky-950 min-w-[125px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Email Siswa*</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'email', 'Email Siswa')" class="p-1 rounded-none hover:bg-sky-100 dark:hover:bg-white/10 text-sky-600 dark:text-sky-400 transition-all cursor-pointer" title="Salin seluruh kolom Email Siswa">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-amber-950 min-w-[85px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Kata Sandi*</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'password', 'Kata Sandi Siswa')" class="p-1 rounded-none hover:bg-amber-100 dark:hover:bg-white/10 text-amber-600 dark:text-amber-400 transition-all cursor-pointer" title="Salin seluruh kolom Kata Sandi Siswa">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-1 sm:px-2.5 whitespace-nowrap text-center text-slate-800 w-12 sm:w-16 text-[10px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1">
+                              <span>JK</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'gender', 'Jenis Kelamin')" class="p-0.5 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-pink-600 dark:text-pink-400 transition-all cursor-pointer" title="Salin seluruh kolom JK">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 min-w-[100px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>No HP Siswa</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'hp', 'No HP Siswa')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom No HP Siswa">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-rose-950 min-w-[130px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Alamat Siswa</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'alamat', 'Alamat Siswa')" class="p-1 rounded-none hover:bg-rose-100 dark:hover:bg-white/10 text-rose-600 dark:text-rose-400 transition-all cursor-pointer" title="Salin seluruh kolom Alamat Siswa">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-900 bg-slate-200/50 min-w-[110px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Status Santri</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'rencanaStatus', 'Status Santri')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-teal-600 dark:text-teal-400 transition-all cursor-pointer" title="Salin seluruh kolom Status Santri">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 min-w-[115px] sm:min-w-[160px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Sekolah Asal</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'sekolahAsal', 'Sekolah Asal')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Salin seluruh kolom Sekolah Asal">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-emerald-950 min-w-[125px] sm:min-w-[180px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Guru Pendamping</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'guru', 'Guru Pendamping')" class="p-1 rounded-none hover:bg-emerald-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom Guru Pendamping">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbodyPpdbSiswa" class="divide-y divide-slate-100 text-slate-800">
+                        <tr>
+                          <td colspan="13" class="py-12 text-center text-slate-400">
+                            <i data-lucide="folder-up" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                            <p class="font-medium">Belum ada data</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- SUBTAB 3: AKUMULASI GURU PENDAMPING (TOTAL SISWA DIPEROLEH) -->
+                <div id="subtabContentGuru" class="hidden p-3 sm:p-4 space-y-3">
+                  
+                  <!-- Top 3 Guru Pendamping Leaderboard Podium Cards -->
+                  <div id="ppdbGuruPodiumWrapper" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+
+                  <div class="flex flex-wrap items-center justify-between gap-2.5 pb-1">
+                    <div class="relative flex-1 min-w-[220px]">
+                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                      <input 
+                        type="text" 
+                        id="searchPpdbGuruInput" 
+                        oninput="filterPpdbGuruTable()" 
+                        placeholder="Cari nama guru pendamping atau nama siswa..." 
+                        class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-none text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 font-medium"
+                      />
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 w-full sm:w-auto">
+                      <button 
+                        onclick="copyPpdbGuruWaReport()" 
+                        class="w-full sm:w-auto justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-3.5 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+                        title="Salin rekap siap kirim ke WhatsApp dewan guru"
+                      >
+                        <i data-lucide="message-square-share" class="w-3.5 h-3.5 shrink-0"></i>
+                        <span>Format WA</span>
+                      </button>
+                      <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
+                        <button 
+                          onclick="copyPpdbGuruToClipboard()" 
+                          class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+                          title="Salin tabel ke format Excel"
+                        >
+                          <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span>Salin Rekap</span>
+                        </button>
+                        <button 
+                          onclick="exportPpdbGuruToExcel()" 
+                          class="w-full sm:w-auto justify-center bg-teal-700 hover:bg-teal-800 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+                          title="Unduh file .xlsx"
+                        >
+                          <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span class="hidden sm:inline">Unduh Excel</span>
+                          <span class="inline sm:hidden">Unduh .xlsx</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Table Guru -->
+                  <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-none max-h-[480px]">
+                    <table class="w-full text-left text-[13px] border-collapse min-w-[750px]">
+                      <thead class="bg-slate-100 text-slate-800 font-extrabold text-xs tracking-wider uppercase sticky top-0 z-10 border-b border-slate-200 select-none">
+                        <tr>
+                          <th class="py-3 px-3.5 w-16 text-center text-slate-600">Peringkat</th>
+                          <th class="py-3 px-3.5 whitespace-nowrap text-emerald-950">Nama Guru Pendamping</th>
+                          <th class="py-3 px-3.5 whitespace-nowrap text-center w-48 text-emerald-950">Total Siswa & Kontribusi</th>
+                          <th class="py-3 px-3.5 text-slate-800">Rincian Siswa yang Dibawa</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbodyPpdbGuru" class="divide-y divide-slate-100 text-slate-800">
+                        <tr>
+                          <td colspan="4" class="py-12 text-center text-slate-400">
+                            <i data-lucide="award" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                            <p class="font-medium">Belum ada data guru</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot id="tfootPpdbGuru" class="bg-slate-50 font-bold border-t-2 border-slate-200 text-slate-800 text-[13px]"></tfoot>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- ================= VIEW 2: GENERATOR MANUAL (SEDERHANA) ================= -->
+            <div id="viewModeManual" class="hidden space-y-3 sm:space-y-4">
+              <!-- Controls Bar -->
+              <div class="bg-white dark:bg-[#151e30] rounded-none border border-indigo-100 dark:border-indigo-900/40 p-3.5 sm:p-5 shadow-none space-y-3 sm:space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-3 border-b border-indigo-50 dark:border-slate-800">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-none bg-indigo-600"></div>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm tracking-wide uppercase">Pengaturan Generator Username & Email Cepat</h3>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-none bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Mode Manual Nama Santri</span>
+                  </div>
+                </div>
+
+                <!-- Parameter Form Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Susunan Nama</label>
+                    <select id="accNameStyle" onchange="runAccountGenerator()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
+                      <option value="first_last" selected>Nama Depan . Belakang (ahmad.fikri)</option>
+                      <option value="joined">Nama Sambung (ahmadfikri)</option>
+                      <option value="first_only">Nama Depan Saja (ahmad)</option>
+                      <option value="initial_last">Inisial Depan . Belakang (a.fikri)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Pemisah Kata</label>
+                    <select id="accSeparator" onchange="runAccountGenerator()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
+                      <option value="." selected>Titik ( . )</option>
+                      <option value="_">Garis Bawah ( _ )</option>
+                      <option value="-">Strip ( - )</option>
+                      <option value="">Tanpa Pemisah</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Angka Custom di Belakang</label>
+                    <select id="accNumberMode" onchange="onNumberModeChange(); runAccountGenerator();" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
+                      <option value="static" selected>Angka Statis / Angkatan (misal: 26)</option>
+                      <option value="increment">Nomor Urut Otomatis (001, 002...)</option>
+                      <option value="column">Ambil dari Kolom Excel (NIS/No Induk)</option>
+                      <option value="random">Digit Acak (3 Digit Unik)</option>
+                      <option value="none">Tanpa Angka Tambahan</option>
+                    </select>
+                  </div>
+
+                  <div id="wrapperStaticNumber">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nilai Angka Statis</label>
+                    <input 
+                      type="text" 
+                      id="accStaticValue" 
+                      value="26" 
+                      placeholder="Contoh: 26 / 2026 / 10" 
+                      oninput="runAccountGenerator()" 
+                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div id="wrapperIncrementNumber" class="hidden grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Mulai Dari</label>
+                      <input 
+                        type="number" 
+                        id="accIncStart" 
+                        value="1" 
+                        min="1" 
+                        oninput="runAccountGenerator()" 
+                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Digit Padding</label>
+                      <select id="accIncPadding" onchange="runAccountGenerator()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white outline-none">
+                        <option value="1">1, 2, 3</option>
+                        <option value="2">01, 02, 03</option>
+                        <option value="3" selected>001, 002</option>
+                        <option value="4">0001, 0002</option>
+                      </select>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Row 2: Domain Email & Password -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  
+                  <div class="lg:col-span-5">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Domain Email Institusi</label>
+                    <div class="relative flex items-center">
+                      <span class="absolute left-3 text-slate-400 font-mono text-xs">@</span>
+                      <input 
+                        type="text" 
+                        id="accDomainInput" 
+                        value="ytpai.sch.id" 
+                        placeholder="ytpai.sch.id atau gmail.com" 
+                        oninput="runAccountGenerator()" 
+                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none pl-8 pr-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all font-mono"
+                      />
+                    </div>
+                    <div class="flex items-center gap-2 mt-1.5 text-[10px] text-slate-500">
+                      <span>Pilihan Cepat:</span>
+                      <button onclick="setDomainPreset('ytpai.sch.id')" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">@ytpai.sch.id</button>
+                      <button onclick="setDomainPreset('santri.ytpai.sch.id')" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">@santri.ytpai.sch.id</button>
+                      <button onclick="setDomainPreset('gmail.com')" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">@gmail.com</button>
+                    </div>
+                  </div>
+
+                  <div class="lg:col-span-4">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Password Default</label>
+                    <input 
+                      type="text" 
+                      id="accPasswordInput" 
+                      value="P@ssword123" 
+                      placeholder="Contoh: P@ssword123 / Santri#2026" 
+                      oninput="runAccountGenerator()" 
+                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all font-mono"
+                    />
+                    <p class="text-[10px] text-slate-400 mt-1">Sertakan saat ekspor multi-kolom Excel.</p>
+                  </div>
+
+                  <div class="lg:col-span-3 flex items-end gap-2">
+                    <button 
+                      onclick="copyFullExcelAccountSheet()" 
+                      class="flex-1 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-semibold py-2.5 px-3 rounded-none shadow-none flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      title="Salin tabel lengkap siap tempel ke Excel"
+                    >
+                      <i data-lucide="sheet" class="w-4 h-4"></i>
+                      <span>Salin Tabel Excel</span>
+                    </button>
+                    <button 
+                      onclick="resetAccountGenerator()" 
+                      class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold p-2.5 rounded-none transition-all active:scale-95 cursor-pointer" 
+                      title="Bersihkan Input"
+                    >
+                      <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Two-Column Area: Input vs Live Results Table with Distinct Column Colors -->
+              <div class="flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4">
+                
+                <!-- Left Input Box -->
+                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-xs flex flex-col h-48 sm:h-64 lg:h-[490px]">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-slate-700">Daftar Nama Siswa dari Excel</span>
+                      <span id="accLineCount" class="text-[10px] bg-indigo-50 text-indigo-700 font-mono px-2 py-0.5 rounded-full font-bold">0 nama</span>
+                    </div>
+                    <button onclick="insertAccountSample()" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold">Contoh Data</button>
+                  </div>
+                  
+                  <textarea 
+                    id="accInput" 
+                    oninput="runAccountGenerator()"
+                    placeholder="Tempelkan (Ctrl+V) daftar nama siswa di sini...&#10;&#10;Contoh 1 (Nama Saja):&#10;Muhammad Wildan&#10;Siti Fatimah Azzahra&#10;Ahmad Fikri Pratama&#10;&#10;Contoh 2 (Nama + NIS Tabulasi):&#10;Ahmad Fikri	2026101&#10;Siti Fatimah	2026102" 
+                    class="w-full flex-1 p-2.5 sm:p-3 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500/30 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400"
+                  ></textarea>
+
+                  <div class="mt-2 text-[11px] text-slate-400 flex items-center justify-between">
+                    <span>Mendukung teks gelar & tanda petik</span>
+                    <button onclick="document.getElementById('accInput').value = ''; runAccountGenerator();" class="text-red-500 hover:underline">Hapus</button>
+                  </div>
+                </div>
+
+                <!-- Right Live Preview Table with Color Coded Items -->
+                <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col min-h-[300px] lg:h-[490px] overflow-hidden">
+                  
+                  <!-- Table Header Bar -->
+                  <div class="px-4 py-2.5 sm:py-3 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/70 gap-2">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                      <span class="text-xs font-bold text-slate-700 tracking-wider uppercase">Pratinjau Akun Santri</span>
+                      <span id="accSummaryBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
+                        0 Akun Siap
+                      </span>
+                    </div>
+                    <!-- Quick Copy Buttons with Color Badges -->
+                    <div class="flex items-center gap-1.5">
+                      <button 
+                        onclick="copyUsernamesOnly()" 
+                        class="text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-all shadow-2xs flex items-center gap-1 active:scale-95"
+                        title="Salin hanya kolom username ke bawah"
+                      >
+                        <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-600"></i>
+                        <span>Salin Username</span>
+                      </button>
+                      <button 
+                        onclick="copyEmailsOnly()" 
+                        class="text-xs font-semibold bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-all shadow-2xs flex items-center gap-1 active:scale-95"
+                        title="Salin hanya kolom email ke bawah"
+                      >
+                        <i data-lucide="mail" class="w-3.5 h-3.5 text-sky-600"></i>
+                        <span>Salin Email</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Instant Search / Filter Bar for Account Table -->
+                  <div class="px-4 py-2 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between gap-3">
+                    <div class="relative flex-1">
+                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                      <input 
+                        type="text" 
+                        id="accTableSearch" 
+                        oninput="renderAccountResults()" 
+                        placeholder="Cari item siswa (nama, nomor urut, username, email)..." 
+                        class="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all"
+                      />
+                      <button 
+                        id="clearAccSearchBtn" 
+                        onclick="document.getElementById('accTableSearch').value = ''; renderAccountResults();" 
+                        class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                      </button>
+                    </div>
+                    <div class="text-[11px] text-slate-500 flex items-center gap-1 shrink-0 font-medium">
+                      <span>Tampil:</span>
+                      <b id="accFilterCount" class="text-indigo-700 font-bold">0</b>
+                    </div>
+                  </div>
+
+                  <!-- Table Container: Color Distinct Column Cells for Rapid Visual Search -->
+                  <div class="flex-1 overflow-x-auto overflow-y-auto" id="accTableWrapper">
+                    <table class="w-full text-left border-collapse text-xs min-w-[650px] sm:min-w-full">
+                      <thead class="bg-slate-50/90 text-slate-500 font-semibold border-b border-slate-200 sticky top-0 z-10 backdrop-blur-xs">
+                        <tr>
+                          <th class="py-2.5 px-3 w-10 text-center">No</th>
+                          <th class="py-2.5 px-3">Nama Santri</th>
+                          <th class="py-2.5 px-3 text-indigo-700">Username (Ungu)</th>
+                          <th class="py-2.5 px-3 text-sky-700">Email Institusi (Biru)</th>
+                          <th class="py-2.5 px-3 text-amber-700">Password (Kuning)</th>
+                          <th class="py-2.5 px-3 w-16 text-center">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="accTableBody" class="divide-y divide-slate-100 text-slate-700">
+                        <tr>
+                          <td colspan="6" class="py-16 text-center text-slate-400">
+                            <i data-lucide="user-plus" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                            <p class="font-medium">Belum ada daftar nama</p>
+                            <p class="text-[11px] text-slate-400">Tempelkan daftar nama siswa di kotak sebelah kiri/atas.</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Table Bottom Metrics Bar -->
+                  <div class="px-4 py-2 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
+                      <span>Format Aktif: <b id="statAccPattern" class="text-indigo-700 font-bold">ahmad.fikri26@ytpai.sch.id</b></span>
+                    </div>
+                    <div class="text-[11px] text-slate-400">
+                      &#128161; Klik langsung pada kotak berwarna untuk salin instan.
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- ================= MODAL KELOLA & TEMPEL NOMOR BRIVA MASAL ================= -->
+            <div id="modalPpdbBulkBriva" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+              <div class="bg-white dark:bg-[#131b2c] border border-slate-200 dark:border-slate-700 w-full max-w-xl shadow-2xl rounded-none flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                
+                <!-- Modal Header -->
+                <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <i data-lucide="credit-card" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                      <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm">Kelola & Tempel Nomor BRIVA Masal</h3>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400">Atur nomor BRIVA kustom untuk seluruh santri sekaligus</p>
+                    </div>
+                  </div>
+                  <button type="button" onclick="closePpdbBulkSetBrivaModal()" class="p-1 rounded-none text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-all">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+
+                <!-- Status Badges -->
+                <div class="px-4 py-2 bg-emerald-50/50 dark:bg-emerald-950/20 border-b border-emerald-100 dark:border-emerald-900/40 flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-slate-500 dark:text-slate-400 text-[11px]">Total Target:</span>
+                    <span id="ppdbBulkStudentCount" class="font-bold text-emerald-700 dark:text-emerald-300 font-mono text-[11px]">0 Santri</span>
+                  </div>
+                  <span id="ppdbBulkEmptyCount" class="px-2 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-bold">0 Belum Ada BRIVA</span>
+                </div>
+
+                <!-- Method Switcher Tab Buttons -->
+                <div class="grid grid-cols-3 gap-1 p-2 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs select-none">
+                  <button 
+                    type="button" 
+                    id="ppdbBrivaTabBtn-paste" 
+                    onclick="switchPpdbBrivaModalTab('paste')" 
+                    class="ppdb-briva-modal-tab-btn py-1.5 px-2 text-center font-bold bg-indigo-600 text-white transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px]"
+                  >
+                    <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
+                    <span>Tempel Excel</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="ppdbBrivaTabBtn-sequence" 
+                    onclick="switchPpdbBrivaModalTab('sequence')" 
+                    class="ppdb-briva-modal-tab-btn py-1.5 px-2 text-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px]"
+                  >
+                    <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+                    <span>Nomor Urut</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="ppdbBrivaTabBtn-fill_empty" 
+                    onclick="switchPpdbBrivaModalTab('fill_empty')" 
+                    class="ppdb-briva-modal-tab-btn py-1.5 px-2 text-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px]"
+                  >
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Isi Kosong</span>
+                  </button>
+                </div>
+
+                <!-- Hidden radio storage for active method -->
+                <div class="hidden">
+                  <input type="radio" name="ppdbBrivaMethod" value="paste" checked>
+                  <input type="radio" name="ppdbBrivaMethod" value="sequence">
+                  <input type="radio" name="ppdbBrivaMethod" value="fill_empty">
+                </div>
+
+                <!-- Modal Body (Panes) -->
+                <div class="p-4 space-y-3 overflow-y-auto flex-1">
+                  
+                  <!-- PANE 1: TEMPEL KOLOM EXCEL -->
+                  <div id="ppdbBrivaPane-paste" class="ppdb-briva-modal-pane space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                      <label class="font-bold text-slate-700 dark:text-slate-200">Tempel Kolom BRIVA dari Spreadsheet / Excel:</label>
+                      <span id="ppdbBulkPasteLineCount" class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">0 Baris Terdeteksi</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                      Salin 1 kolom berisi nomor BRIVA dari Excel (Ctrl+C), lalu tempelkan (Ctrl+V) di bawah. Nomor akan dipasangkan berurutan sesuai urutan siswa.
+                    </p>
+                    <textarea 
+                      id="ppdbBulkPasteTextarea" 
+                      rows="6" 
+                      oninput="onPpdbBulkPasteInput(this.value)"
+                      placeholder="Contoh:&#10;1600001&#10;1600002&#10;1600003&#10;1600004&#10;..."
+                      class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none text-xs font-mono text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 resize-none leading-relaxed"
+                    ></textarea>
+                  </div>
+
+                  <!-- PANE 2: NOMOR URUT OTOMATIS -->
+                  <div id="ppdbBrivaPane-sequence" class="ppdb-briva-modal-pane space-y-3 hidden">
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                      Buat nomor BRIVA berurutan secara otomatis untuk seluruh santri dengan format <b>Prefix + Nomor Urut</b>.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">Prefix / Kode</label>
+                        <input 
+                          type="text" 
+                          id="ppdbSeqPrefix" 
+                          value="1600" 
+                          placeholder="1600" 
+                          class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 outline-none text-center"
+                        />
+                      </div>
+                      <div>
+                        <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">Mulai Dari</label>
+                        <input 
+                          type="number" 
+                          id="ppdbSeqStart" 
+                          value="1" 
+                          min="1" 
+                          class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 outline-none text-center"
+                        />
+                      </div>
+                      <div>
+                        <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">Digit Padding</label>
+                        <select 
+                          id="ppdbSeqDigits" 
+                          class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 outline-none"
+                        >
+                          <option value="3" selected>3 digit (001, 002...)</option>
+                          <option value="4">4 digit (0001, 0002...)</option>
+                          <option value="2">2 digit (01, 02...)</option>
+                          <option value="1">Tanpa padding (1, 2, 3...)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="p-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-[11px] text-indigo-900 dark:text-indigo-200 font-mono">
+                      Contoh Hasil: <b>1600001</b>, <b>1600002</b>, <b>1600003</b>, ...
+                    </div>
+                  </div>
+
+                  <!-- PANE 3: ISI DEFAULT YANG KOSONG -->
+                  <div id="ppdbBrivaPane-fill_empty" class="ppdb-briva-modal-pane space-y-2 hidden">
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                      Hanya mengisi santri yang kolom nomor BRIVA-nya masih kosong dengan nomor BRIVA standar (default institusi), tanpa mengubah santri yang sudah memiliki nomor kustom.
+                    </p>
+                    <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+                      <span class="text-xs text-slate-700 dark:text-slate-200 font-medium">Nomor Standar yang Digunakan:</span>
+                      <span class="font-mono font-black text-xs text-emerald-600 dark:text-emerald-400 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800">
+                        1600 (Sesuai Input Cepat)
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-2">
+                  <button 
+                    type="button" 
+                    onclick="closePpdbBulkSetBrivaModal()" 
+                    class="px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer transition-all"
+                  >
+                    Batal
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="applyPpdbBulkBriva()" 
+                    class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer transition-all"
+                  >
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Terapkan Nomor BRIVA</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>

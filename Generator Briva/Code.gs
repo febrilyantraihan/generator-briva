@@ -1,6 +1,6 @@
 /**
  * =========================================================================
- * Google Apps Script Web App Controller: DriveData Generator BRIVA & Keuangan
+ * Google Apps Script Web App Controller: Partner Fatih Generator BRIVA & Keuangan
  * Institusi: Pondok Pesantren & Madrasah YTPAI Babat Lamongan
  * =========================================================================
  */
@@ -28,10 +28,10 @@ function doGet(e) {
   }
   
   return output
-    .setTitle("DriveData - Generator BRIVA & Sistem Keuangan YTPAI")
+    .setTitle("Partner Fatih - Generator BRIVA & Sistem Keuangan YTPAI")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover')
-    .setFaviconUrl('https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png');
+    .setFaviconUrl('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAR8SURBVFhHxZdbTBxVHMbn0UdfZNmLLARMVmpSsVpRY1tvhZZSbl2gN8pFFLFQjKltXyy+lMYEiGktSTHV1Aut8cX4sL4oLwqaqMSGFE2533Zn77fZ2XV3+Txn2FmWnZlllrT6Jf9sNps5v++c//98m2HSxZ3Oqea7cvpCnTmjXKcG3FsaBDtyEXwzF4E3SLXnwv+6Fv42LXytpFq08DaTatLCc5LUCS3cx3VwH9PBdZRUow7Oet2oy6wbZM265rlTxocSqM0Kdj6SG+7WWEJdGoTeJuD7BW8gZdbBcYRUnQ5sjX7KUas1JbDr4s9o8vkujedBw+21ethr9GCrdbytUl+awDNMqDtn9L+Dk6rSw3bYMDW3l7Qj1K1p/B/gsFUasHJIf54h8KHtwr0t+fC0m7YFtx4iVaG3MAQ+kS3c25qP0BfvI+5lscb5EPqmH+5WU5ZwA1YP6D1MtnDueg/ijkWkK+5hEfzsIpxHC9TBD5IqN4BRC+c+akFsYTKBUxY14r/yjir4ShkxsBU8eLkOsenfEsurV4xdhPdSW0b4yn5qQAEeOLsb0Ts/JpbbvqIzk3BdMMvCl197FEzGY7/WIdtvtYq77fAP98JWUygLX36VGsgwcOI9526cE3qrVmtBH4JfDYBtKFbcOYUvvUIMbAUXQ8bdVABu5JKwuJLWImFw3w6DbSRghZ6nwpdepgZUwFNDxtVsAvd1P9b+CSew6wpZbsJ+qiTjwKXDF1/KA5MNPDVknK1PIvTdMPgfbsPZXrrltMvBF/dRAzLwsOW6sKu4fRHBoZ7sEy4Bd541I/znmLBW5O7vEvjCXmJAbufRu+sPiYot34Pvw1bVcOd7G2BR8YBPAl/YQw3IHLv33T2IzUtTLzo7Cd/lNkW443QZImlgqpjLDse5kxL4/IvEQKae+8muY6QN6aJG3L0nknBnVxn4se8Tv26Igj3XerFcXiQLn3+BGlAxcDTbabSmK3JnDPy4FEyP2/dJH5YPFMkeuwife54YkIO7jhXAe7EOzibTpp77h84L6aYkCvbfHMBq9Y7kwC2VPQa2px5LFU9I4HPPUQMyO+dHbwsL0tDhbvXDfvzxZM/ZukIhXlON0AAK3LqK1ZodyatGj91z9QOhDVRR65IEPltqBCN37JFfLcJDooRoHSHRmpJw1upCeK9cgO9GH6wNJcl7To/d83FvEiyKfk+Hzz5LDcj03NVRivAvm01QxYmRwJcDsJmLJSGzcpCAycClg6n4P8ax2lwugc/sJgbIS8OcUsi4evYjLDdkxIj/8wFYa4uxUlEErxJ4Yhy27nrZnVP49NN5POM0a0e2SjhnN7lmCtOuBGYpWKbnInzmGcHAOGM/ou1Rm3COTmLkZ6kRUWEKPlMvO+1SOPksyRtkPFXGh+01OutW8NSesx3l4H/aMCKAyVWTu+dK8HslefzUTmO+8GbkqNLvUwtX+lfLBj79lBF/7zQ2C3BRbKWh3HpYb33QcLpzCVwUbQeBD65WGMbvO3xX3gTp+ad/7TKmvBkzzL81xH2UPcGHWQAAAABJRU5ErkJggg==');
 }
 
 /**

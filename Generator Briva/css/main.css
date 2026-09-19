@@ -1,4 +1,3 @@
-  <style>
     /* Custom Scrollbars */
     ::-webkit-scrollbar {
       width: 5px;
@@ -83,7 +82,9 @@
     /* Geser Tabel Horizontal Bebas (Drag-to-Scroll tanpa tombol gulir) */
     .drag-scroll-container {
       cursor: grab;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-x pan-y !important;
+      overflow-x: auto !important;
       scroll-behavior: smooth;
     }
     .drag-scroll-container.is-dragging {
@@ -182,7 +183,7 @@
       background: rgba(255, 255, 255, 0.45);
     }
 
-    /* Mobile Precision Micro-Typography & Touch Ergonomics (Bebas Auto-Zoom & Bebas Patah-Patah) */
+    /* Mobile Precision Micro-Typography & Touch Ergonomics (Bebas Auto-Zoom, Presisi Simetris di Tengah) */
     @media screen and (max-width: 640px) {
       html {
         height: 100% !important;
@@ -193,6 +194,7 @@
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+        box-sizing: border-box !important;
       }
       body {
         height: 100% !important;
@@ -202,11 +204,15 @@
         overflow: hidden !important;
         width: 100% !important;
         max-width: 100% !important;
+        min-width: 100% !important;
         margin: 0 auto !important;
         padding: 0 !important;
         position: relative;
         display: flex !important;
         flex-direction: row !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+        box-sizing: border-box !important;
       }
       #mainCanvas {
         height: 100% !important;
@@ -218,7 +224,9 @@
         overflow: hidden !important;
         width: 100% !important;
         max-width: 100% !important;
-        min-width: 0 !important;
+        min-width: 100% !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
         display: flex !important;
         flex-direction: column !important;
       }
@@ -240,15 +248,31 @@
         touch-action: pan-y !important;
         display: block !important;
       }
-      /* Cegah elemen flex dan grid meluber keluar layar ponsel 360-384px */
-      .grid, .flex, [id^="tab-"], section, #humasPriorityReminderHub, #tab-humas {
-        min-width: 0 !important;
+      #canvasHeader {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+      }
+      #mobileBottomNav {
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+      }
+      /* Cegah elemen flex dan grid meluber keluar layar ponsel 360-384px (Samsung A22) */
+      .grid, .flex, #humasPriorityReminderHub, #humasMonitoringSection, [id^="tab-"], section {
+        min-width: 0;
         box-sizing: border-box;
       }
-      /* Optimasi GPU Ponsel: Tanpa beban blur agar 60-120 FPS ultra-lancar tanpa lag */
+      /* Optimasi GPU Ponsel: Kurangi beban blur agar 60-120 FPS ultra-lancar tanpa lag */
       #bentoSection, [id^="tab-"] > .bg-white, .workspace-card, .floating-chassis, header, nav, aside {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
       }
       /* Standar emas mobile: 16px mencegah browser iOS Safari & Chrome otomatis zoom-in dan menggeser layar */
       input:not([type="checkbox"]):not([type="radio"]), select, textarea {
@@ -278,10 +302,48 @@
     /* ==========================================================================
        TYPOGRAPHY ENHANCEMENT & CLARITY ENGINE (SIANG & MALAM LEBIH TAJAM)
        ========================================================================== */
+    /* ==========================================================================
+       GENERATOR AKUN & TAHFIDZ: DESAIN KOTAK TEGAS & ANTI-TABRAKAN (0px RADIUS)
+       ========================================================================== */
+    #tab-akun,
+    #tab-akun *,
+    #tab-tahfidz,
+    #tab-tahfidz *,
+    #tahfidzPredikatChips button,
+    #tahfidzPamfletStatusBtns button,
+    #tahfidzUnitChipsContainer button,
+    #tabContentPpdbAkun,
+    #tabContentPpdbAkun *,
+    #viewModePpdb,
+    #viewModePpdb *,
+    #viewModeManual,
+    #viewModeManual *,
+    #viewModeAi,
+    #viewModeAi *,
+    #ppdbOrtuCardsContainer,
+    #ppdbOrtuCardsContainer *,
+    #ppdbSiswaCardsContainer,
+    #ppdbSiswaCardsContainer *,
+    #ppdbGuruPodiumWrapper,
+    #ppdbGuruPodiumWrapper *,
+    #accTableWrapper,
+    #accTableWrapper *,
+    #accTableBody,
+    #accTableBody * {
+      border-radius: 0px !important;
+    }
     html, body {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
       -webkit-font-smoothing: antialiased !important;
       -moz-osx-font-smoothing: grayscale !important;
       text-rendering: optimizeLegibility !important;
+    }
+    #mainCanvas, #canvasHeader, #mainContentContainer {
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
     }
 
     /* PENEGASAN WARNA TEKS MODE SIANG (LIGHT MODE - ULTRA CRISP) */
@@ -872,7 +934,7 @@
     }
     html.dark #tab-briva .bg-emerald-100 {
       background-color: rgba(6, 78, 59, 0.65) !important;
-      border-color: rgba(16, 185, 129, 0.6) !important;
+      border-color: rgba(168, 85, 247, 0.6) !important;
       color: #6ee7b7 !important;
     }
     html.dark #tab-briva .bg-rose-100 {
@@ -1039,26 +1101,44 @@
     /* ==========================================================================
        10. REFERENCE BENTO & LUXURY SMART-HOME GLASSMORPHISM STYLING
        ========================================================================== */
-      /* Clean Ultra-Lightweight Ambient Background */
+    /* Ambient Aurora Background - Rich multi-point vibrant luminous mesh */
     .aurora-bg {
       background-color: #f1f4f9 !important;
-      background-image: none !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(199, 210, 254, 0.85) 0px, transparent 48%), 
+        radial-gradient(at 100% 0%, rgba(254, 215, 170, 0.8) 0px, transparent 45%), 
+        radial-gradient(at 50% 50%, rgba(224, 231, 255, 0.75) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(245, 208, 254, 0.8) 0px, transparent 48%), 
+        radial-gradient(at 0% 100%, rgba(254, 205, 211, 0.75) 0px, transparent 45%),
+        radial-gradient(at 35% 85%, rgba(167, 243, 208, 0.65) 0px, transparent 42%) !important;
+      background-attachment: fixed;
     }
     html.dark .aurora-bg {
       background-color: #070a12 !important;
-      background-image: none !important;
+      background-image: 
+        radial-gradient(at 5% 0%, rgba(99, 102, 241, 0.60) 0px, transparent 55%), 
+        radial-gradient(at 95% 5%, rgba(245, 158, 11, 0.50) 0px, transparent 50%), 
+        radial-gradient(at 50% 40%, rgba(14, 165, 233, 0.45) 0px, transparent 55%),
+        radial-gradient(at 90% 90%, rgba(168, 85, 247, 0.60) 0px, transparent 55%), 
+        radial-gradient(at 5% 95%, rgba(244, 63, 94, 0.50) 0px, transparent 50%),
+        radial-gradient(at 40% 90%, rgba(16, 185, 129, 0.40) 0px, transparent 45%) !important;
+      background-attachment: fixed;
     }
 
     /* Detached Left Floating Pill Dock */
     #floatingDockNav {
-      background: #181c28 !important;
-      border: 1px solid rgba(255, 255, 255, 0.15) !important;
-      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35) !important;
+      background: rgba(18, 22, 32, 0.72) !important;
+      backdrop-filter: blur(45px) saturate(210%) !important;
+      -webkit-backdrop-filter: blur(45px) saturate(210%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.22) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.35) !important;
     }
     html.dark #floatingDockNav {
-      background: #0f131d !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5) !important;
+      background: rgba(10, 14, 24, 0.42) !important;
+      backdrop-filter: blur(45px) saturate(210%) !important;
+      -webkit-backdrop-filter: blur(45px) saturate(210%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.65), inset 0 1px 1.5px rgba(255, 255, 255, 0.15) !important;
     }
 
     /* Dock Items */
@@ -1093,34 +1173,47 @@
       transform: scale(1.05);
     }
 
-    /* Main Floating Canvas Window - Clean & Super Ringan */
+    /* Main Floating Canvas Window - Deep Liquid Frosted Glass */
     #mainCanvas {
-      background: #ffffff !important;
-      border: 1.5px solid #e2e8f0 !important;
-      box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08) !important;
+      background: rgba(255, 255, 255, 0.52) !important;
+      backdrop-filter: blur(55px) saturate(210%) !important;
+      -webkit-backdrop-filter: blur(55px) saturate(210%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+      box-shadow: 0 30px 80px -15px rgba(15, 23, 42, 0.16), 
+                  inset 0 1.5px 2px rgba(255, 255, 255, 1), 
+                  inset 0 0 25px rgba(255, 255, 255, 0.35) !important;
     }
     html.dark #mainCanvas {
-      background: #0b0f19 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.6) !important;
+      background: rgba(10, 14, 24, 0.28) !important;
+      backdrop-filter: blur(55px) saturate(220%) !important;
+      -webkit-backdrop-filter: blur(55px) saturate(220%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.75), 
+                  inset 0 1.5px 2px rgba(255, 255, 255, 0.22), 
+                  inset 0 0 35px rgba(255, 255, 255, 0.02) !important;
     }
 
-    /* Top Room / Category Navigation Pills - Ultra-Clean Luxury Segmented Glassmorphism */
+    /* Top Room / Category Navigation Pills - Luxury Amber-BRIVA Glassmorphism */
+    /* Top Room / Category Navigation Pills - Ultra-Luxury Segmented Glassmorphism */
     .room-pill-active {
-      background: linear-gradient(135deg, #ea580c 0%, #d97706 100%) !important;
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important;
       color: #ffffff !important;
+      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 700 !important;
-      border-radius: 0.75rem !important;
-      box-shadow: 0 2px 10px -1px rgba(234, 88, 12, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      border-radius: 0.85rem !important;
+      box-shadow: 0 4px 16px -2px rgba(245, 158, 11, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      letter-spacing: -0.01em !important;
     }
     html.dark .room-pill-active {
-      background: linear-gradient(135deg, rgba(234, 88, 12, 0.6) 0%, rgba(217, 119, 6, 0.45) 100%) !important;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.8) 100%) !important;
       color: #ffffff !important;
+      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 700 !important;
-      border-radius: 0.75rem !important;
-      box-shadow: 0 2px 12px -1px rgba(249, 115, 22, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
-      border: 1.5px solid rgba(251, 146, 60, 0.5) !important;
+      border-radius: 0.85rem !important;
+      box-shadow: 0 4px 18px -2px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid rgba(251, 191, 36, 0.55) !important;
+      letter-spacing: -0.01em !important;
     }
     /* Room Pill Badges with Crisp Contrast */
     .room-pill-badge-emerald {
@@ -1140,35 +1233,53 @@
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
     }
     html.dark .room-pill-active .room-pill-badge-emerald {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      color: #fed7aa !important;
-      border: 1px solid rgba(251, 146, 60, 0.35) !important;
+      background-color: rgba(255, 255, 255, 0.18) !important;
+      color: #fef3c7 !important;
+      border: 1px solid rgba(251, 191, 36, 0.4) !important;
     }
     .room-pill-inactive {
       background-color: transparent !important;
       color: #64748b !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 600 !important;
-      border-radius: 0.75rem !important;
+      border-radius: 0.85rem !important;
       border: 1px solid transparent !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     html.dark .room-pill-inactive {
       background-color: transparent !important;
       color: #94a3b8 !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 600 !important;
-      border-radius: 0.75rem !important;
+      border-radius: 0.85rem !important;
       border: 1px solid transparent !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     .room-pill-inactive:hover {
-      background-color: rgba(255, 255, 255, 0.85) !important;
+      background-color: rgba(255, 255, 255, 0.9) !important;
       color: #0f172a !important;
-      border-color: rgba(226, 232, 240, 0.8) !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      border-color: rgba(226, 232, 240, 0.9) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+      transform: translateY(-1px);
     }
     html.dark .room-pill-inactive:hover {
       background-color: rgba(255, 255, 255, 0.08) !important;
       color: #f8fafc !important;
       border-color: rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+      transform: translateY(-1px);
+    }
+
+    /* Ultra-Clean Typography Utilities */
+    .font-display {
+      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-variant-numeric: tabular-nums lining-nums !important;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums lining-nums !important;
     }
 
     /* 10. WHATSAPP WEB AUTHENTIC PREVIEW SYSTEM */
@@ -1230,54 +1341,103 @@
       border-color: #222d34 !important;
     }
 
-
-    /* Bento Grid Card - Super Ringan, Bersih & Instan */
+    /* Bento Grid Card Micro-Animations & Liquid Frosted Glass */
     .bento-card {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
-      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05) !important;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background: rgba(255, 255, 255, 0.55) !important;
+      backdrop-filter: blur(35px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.85) !important;
+      box-shadow: 0 15px 35px -8px rgba(15, 23, 42, 0.08), inset 0 1.5px 2px rgba(255, 255, 255, 0.95) !important;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     html.dark .bento-card {
-      background: #111624 !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4) !important;
+      background: rgba(16, 22, 36, 0.32) !important;
+      backdrop-filter: blur(35px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), inset 0 1px 1.5px rgba(255, 255, 255, 0.12) !important;
     }
     .bento-card.bg-gradient-to-br {
-      background: #161c2d !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      background: linear-gradient(135deg, rgba(18, 23, 38, 0.88), rgba(26, 33, 54, 0.82), rgba(15, 20, 34, 0.92)) !important;
+      backdrop-filter: blur(40px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
     }
     html.dark .bento-card.bg-gradient-to-br {
-      background: #141926 !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      background: linear-gradient(135deg, rgba(20, 26, 45, 0.50), rgba(28, 36, 62, 0.35), rgba(16, 22, 38, 0.50)) !important;
+      backdrop-filter: blur(40px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
     }
     .bento-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08) !important;
+      box-shadow: 0 20px 45px -8px rgba(15, 23, 42, 0.12), inset 0 1.5px 2px rgba(255, 255, 255, 1) !important;
     }
     html.dark .bento-card:hover {
-      box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.5) !important;
+      box-shadow: 0 25px 55px -10px rgba(0, 0, 0, 0.75), inset 0 1px 1.5px rgba(255, 255, 255, 0.18) !important;
     }
 
-    /* Header Clean Solid */
+    /* ==========================================================================
+       DYNAMIC SCROLL INTERACTIVE SYSTEM (GLASS MORPHING, DOCK GLOW & PROGRESS)
+       ========================================================================== */
+    /* Header Dynamic Glass & Elevation on Scroll */
     #canvasHeader {
-      background: #ffffff !important;
-      border-bottom: 1px solid #e2e8f0 !important;
+      background: rgba(255, 255, 255, 0.40) !important;
+      backdrop-filter: blur(45px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(45px) saturate(200%) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.7) !important;
+      transition: background 0.25s ease, backdrop-filter 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
     html.dark #canvasHeader {
-      background: #0c101a !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      background: rgba(10, 14, 24, 0.25) !important;
+      backdrop-filter: blur(45px) saturate(200%) !important;
+      -webkit-backdrop-filter: blur(45px) saturate(200%) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
     #canvasHeader.header-scrolled {
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+      background: rgba(255, 255, 255, 0.70) !important;
+      backdrop-filter: blur(60px) saturate(220%) !important;
+      -webkit-backdrop-filter: blur(60px) saturate(220%) !important;
+      box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.8) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.85) !important;
     }
     html.dark #canvasHeader.header-scrolled {
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4) !important;
+      background: rgba(10, 14, 24, 0.55) !important;
+      backdrop-filter: blur(60px) saturate(220%) !important;
+      -webkit-backdrop-filter: blur(60px) saturate(220%) !important;
+      box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.7) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    /* Floating Dock Dynamic Glow & Depth on Scroll */
+    #floatingDockNav.dock-scrolled {
+      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.55), 0 0 25px rgba(249, 115, 22, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+      transform: translateY(-2px);
+    }
+
+    /* Glowing Top Scroll Progress Bar */
+    #scrollProgressTrack {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+    }
+    #scrollProgressBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f97316 0%, #fbbf24 50%, #10b981 100%);
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.8), 0 0 4px rgba(251, 191, 36, 0.6);
+      transition: width 0.08s ease-out;
+      border-radius: 0 2px 2px 0;
     }
 
     /* Floating Back to Top Pill */
     #btnBackToTop {
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     #btnBackToTop.btn-visible {
       opacity: 1 !important;
@@ -1285,24 +1445,38 @@
       pointer-events: auto !important;
     }
 
-    /* Bento Section Chassis */
+    /* Bento Section Chassis - Sleek Frosted Glass matching Left Floating Dock */
     #bentoSection {
       flex-shrink: 0 !important;
       min-height: fit-content !important;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 28px;
-      box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.04);
+      background: rgba(255, 255, 255, 0.40);
+      backdrop-filter: blur(45px) saturate(210%);
+      -webkit-backdrop-filter: blur(45px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.70);
+      border-radius: 32px;
+      box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.06), inset 0 1.5px 2px rgba(255, 255, 255, 0.9);
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
     html.dark #bentoSection {
-      background: #0d121f !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.5) !important;
+      background: rgba(10, 14, 24, 0.52) !important;
+      backdrop-filter: blur(14px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.55), inset 0 1px 1.5px rgba(255, 255, 255, 0.15) !important;
+    }
+    #bentoSection.bento-scrolled-down {
+      border-color: rgba(255, 255, 255, 0.22) !important;
+    }
+    @media (max-width: 639px) {
+      #bentoSection {
+        display: none !important;
+      }
     }
 
     /* ==========================================================================
-       11. UNIVERSAL SOLID CARDS FOR ALL TABS & WORKSPACES (SUPER LIGHTWEIGHT)
+       11. UNIVERSAL BENTO GLASSMORPHISM HARMONIZATION FOR ALL TABS & WORKSPACES
        ========================================================================== */
+    /* Universal Bento Glass Cards for All Sections */
     [id^="tab-"] > .bg-white,
     [id^="tab-"] .bg-white.rounded-2xl,
     [id^="tab-"] .bg-white.rounded-3xl,
@@ -1312,10 +1486,12 @@
     #studentModal .bg-white,
     #detailModal .bg-white,
     #confirmModal .bg-white {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
-      border-radius: 20px !important;
-      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04) !important;
+      background: rgba(255, 255, 255, 0.72) !important;
+      backdrop-filter: blur(12px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.85) !important;
+      border-radius: 26px !important;
+      box-shadow: 0 12px 32px -6px rgba(15, 23, 42, 0.07), inset 0 1.5px 2px rgba(255, 255, 255, 0.95) !important;
       contain: layout paint;
     }
     html.dark [id^="tab-"] > .bg-white,
@@ -1327,45 +1503,45 @@
     html.dark #studentModal .bg-white,
     html.dark #detailModal .bg-white,
     html.dark #confirmModal .bg-white {
-      background: #111624 !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      border-radius: 20px !important;
-      box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+      background: rgba(16, 22, 36, 0.45) !important;
+      backdrop-filter: blur(12px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 26px !important;
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1.5px rgba(255, 255, 255, 0.1) !important;
       color: #f1f5f9 !important;
       contain: layout paint;
     }
 
+    /* Enhanced Frosted Glass for Teacher Podium, Tables & Chips */
     #ppdbGuruPodiumWrapper > div {
-      border: 1px solid #e2e8f0 !important;
-      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04) !important;
+      backdrop-filter: blur(10px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95) !important;
     }
     html.dark #ppdbGuruPodiumWrapper > div {
-      background: #111624 !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
+      background: rgba(18, 24, 38, 0.45) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
     }
     thead.sticky {
-      background: #f8fafc !important;
+      backdrop-filter: blur(10px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
+      background: rgba(248, 250, 252, 0.85) !important;
     }
     html.dark thead.sticky {
-      background: #0f1422 !important;
+      background: rgba(10, 14, 24, 0.65) !important;
     }
     #tbodyPpdbGuru tr span.bg-white {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
+      background: rgba(255, 255, 255, 0.68) !important;
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.85) !important;
     }
     html.dark #tbodyPpdbGuru tr span.bg-white {
-      background: #1a2234 !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
       color: #e2e8f0 !important;
-    }
-
-    /* 60-120 FPS High-Performance Smooth Table DOM Optimization */
-    #humasTableBody tr,
-    #tbodyPpdbOrtu tr,
-    #tbodyPpdbGuru tr,
-    #tahfidzMasterTableBody tr {
-      content-visibility: auto;
-      contain-intrinsic-size: 0 44px;
     }
 
     /* Subtab Pill Capsule System - Pure Square (Kotak Tegas) */
@@ -1405,23 +1581,7 @@
       border: none !important;
     }
 
-    /* Table Container Styling - Sharp Kotak */
-    .table-container-bento,
-    #scrollWrapperPpdbOrtu,
-    #scrollWrapperPpdbSiswa,
-    #scrollWrapperPpdbGuru {
-      border-radius: 0px !important;
-      overflow: hidden;
-      border: 1px solid rgba(226, 232, 240, 0.8);
-    }
-    html.dark .table-container-bento,
-    html.dark #scrollWrapperPpdbOrtu,
-    html.dark #scrollWrapperPpdbSiswa,
-    html.dark #scrollWrapperPpdbGuru {
-      border-color: rgba(255, 255, 255, 0.08) !important;
-    }
-
-    /* Desain Kotak Tegas & Anti-Tabrakan Khusus Generator Akun PPDB */
+    /* Desain Kotak Tegas Khusus Generator Akun PPDB */
     #tabContentPpdbAkun button,
     #tabContentPpdbAkun input,
     #tabContentPpdbAkun select,
@@ -1431,6 +1591,53 @@
     #ppdbSiswaCardsContainer > div,
     #ppdbGuruPodiumWrapper > div {
       border-radius: 0px !important;
+    }
+
+    /* Table Container Styling - Desain KOTAK Tegas & Scroll Lancar Mobile */
+    .table-container-bento,
+    #scrollWrapperPpdbOrtu,
+    #scrollWrapperPpdbSiswa,
+    #scrollWrapperPpdbGuru {
+      border-radius: 0px !important;
+      overflow-x: auto !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-x pan-y !important;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      position: relative;
+    }
+    html.dark .table-container-bento,
+    html.dark #scrollWrapperPpdbOrtu,
+    html.dark #scrollWrapperPpdbSiswa,
+    html.dark #scrollWrapperPpdbGuru {
+      border-color: rgba(255, 255, 255, 0.15) !important;
+      background-color: #0d1322 !important;
+    }
+
+    /* Scrollbar horizontal jelas dan responsif untuk mobile */
+    #scrollWrapperPpdbOrtu::-webkit-scrollbar,
+    #scrollWrapperPpdbSiswa::-webkit-scrollbar,
+    #scrollWrapperPpdbGuru::-webkit-scrollbar {
+      height: 7px !important;
+      width: 6px !important;
+      display: block !important;
+    }
+    #scrollWrapperPpdbOrtu::-webkit-scrollbar-track,
+    #scrollWrapperPpdbSiswa::-webkit-scrollbar-track,
+    #scrollWrapperPpdbGuru::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.8) !important;
+      border-radius: 0px !important;
+    }
+    #scrollWrapperPpdbOrtu::-webkit-scrollbar-thumb,
+    #scrollWrapperPpdbSiswa::-webkit-scrollbar-thumb,
+    #scrollWrapperPpdbGuru::-webkit-scrollbar-thumb {
+      background: #3b82f6 !important;
+      border-radius: 0px !important;
+    }
+    #scrollWrapperPpdbOrtu::-webkit-scrollbar-thumb:hover,
+    #scrollWrapperPpdbSiswa::-webkit-scrollbar-thumb:hover,
+    #scrollWrapperPpdbGuru::-webkit-scrollbar-thumb:hover {
+      background: #60a5fa !important;
     }
 
     /* Modern Soft Glassy Inputs & Form Controls */
@@ -1735,20 +1942,198 @@
       background: rgba(30, 41, 59, 0.75) !important;
     }
 
-    /* Mobile Bottom Navigation Bar Clean Solid */
-    html.dark nav.lg\:hidden {
-      background: #0c101a !important;
-      border-top-color: rgba(255, 255, 255, 0.1) !important;
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4) !important;
+    /* ==========================================================================
+       CURVED SCOOP BOTTOM NAVIGATION BAR (FLOATING ACTIVE CIRCLE WITH NOTCH CUTOUT)
+       ========================================================================== */
+    :root {
+      --bnav-bar-bg: #ffffff;
+      --bnav-bar-border: rgba(226, 232, 240, 0.85);
+      --bnav-bar-shadow: 0 -4px 20px rgba(15, 23, 42, 0.05);
+      --bnav-cutout-bg: #f8fafc;
+      --bnav-active-circle: #059669;
+      --bnav-active-circle-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+      --bnav-active-content: #ffffff;
+      --bnav-inactive: #64748b;
     }
-    html:not(.dark) nav.lg\:hidden {
-      background: #ffffff !important;
-      border-top-color: #e2e8f0 !important;
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05) !important;
+
+    html.dark {
+      --bnav-bar-bg: #090d16;
+      --bnav-bar-border: rgba(255, 255, 255, 0.07);
+      --bnav-bar-shadow: 0 -6px 25px rgba(0, 0, 0, 0.5);
+      --bnav-cutout-bg: #0f172a;
+      --bnav-active-circle: #10b981;
+      --bnav-active-circle-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+      --bnav-active-content: #ffffff;
+      --bnav-inactive: #94a3b8;
     }
-    html.dark .bottom-nav-active {
-      color: #f97316 !important;
-      font-weight: 700 !important;
+
+    @media (max-width: 1023px) {
+      #mobileBottomNav.magic-bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 60px !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+        background-color: var(--bnav-bar-bg) !important;
+        border-top-left-radius: 18px !important;
+        border-top-right-radius: 18px !important;
+        border-top: 1px solid var(--bnav-bar-border) !important;
+        box-shadow: var(--bnav-bar-shadow) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: visible !important;
+        z-index: 40 !important;
+        box-sizing: border-box !important;
+        user-select: none !important;
+        transition: background-color 0.25s ease, border-color 0.25s ease !important;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #mobileBottomNav,
+      #mobileBottomNav.magic-bottom-nav {
+        display: none !important;
+      }
+    }
+
+    .magic-nav-list {
+      display: flex !important;
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      list-style: none !important;
+      overflow: visible !important;
+      align-items: center !important;
+    }
+
+    .magic-nav-item {
+      position: relative !important;
+      flex: 1 1 0% !important;
+      height: 100% !important;
+      z-index: 2 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .magic-nav-link {
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+      width: 100% !important;
+      height: 100% !important;
+      text-align: center !important;
+      text-decoration: none !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      cursor: pointer !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+
+    .magic-icon-wrapper {
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1) !important;
+      z-index: 10 !important;
+      width: 100% !important;
+    }
+
+    .magic-icon {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 19px !important;
+      height: 19px !important;
+      color: var(--bnav-inactive) !important;
+      transition: color 0.25s ease !important;
+    }
+
+    .magic-label {
+      font-size: 10px !important;
+      font-weight: 600 !important;
+      line-height: 1.1 !important;
+      margin-top: 2.5px !important;
+      color: var(--bnav-inactive) !important;
+      letter-spacing: -0.01em !important;
+      white-space: nowrap !important;
+      transition: color 0.25s ease, font-weight 0.25s ease !important;
+    }
+
+    /* Active state: elevated gently into the floating circle with balanced vertical centering */
+    .magic-nav-item.active .magic-icon-wrapper {
+      transform: translateY(-11px) !important;
+    }
+
+    .magic-nav-item.active .magic-icon {
+      color: var(--bnav-active-content) !important;
+    }
+
+    .magic-nav-item.active .magic-label {
+      color: var(--bnav-active-content) !important;
+      font-weight: 800 !important;
+      font-size: 9px !important;
+      line-height: 1 !important;
+      margin-top: 2px !important;
+      white-space: nowrap !important;
+      overflow: visible !important;
+    }
+
+    /* Floating Active Circle Indicator with Scoop Cutout Wings */
+    .magic-indicator {
+      position: absolute !important;
+      top: -6px !important;
+      width: 52px !important;
+      height: 52px !important;
+      background-color: var(--bnav-active-circle) !important;
+      border-radius: 50% !important;
+      border: 3.5px solid var(--bnav-cutout-bg) !important;
+      box-shadow: var(--bnav-active-circle-shadow) !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1), background-color 0.25s ease !important;
+      left: 0 !important;
+      will-change: transform !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Left Shoulder Cutout Curve */
+    .magic-indicator::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 6px !important;
+      left: -14px !important;
+      width: 14px !important;
+      height: 14px !important;
+      background: transparent !important;
+      border-top-right-radius: 14px !important;
+      box-shadow: 0 -4px 0 0 var(--bnav-cutout-bg) !important;
+      transition: box-shadow 0.25s ease !important;
+    }
+
+    /* Right Shoulder Cutout Curve */
+    .magic-indicator::after {
+      content: '' !important;
+      position: absolute !important;
+      top: 6px !important;
+      right: -14px !important;
+      width: 14px !important;
+      height: 14px !important;
+      background: transparent !important;
+      border-top-left-radius: 14px !important;
+      box-shadow: 0 -4px 0 0 var(--bnav-cutout-bg) !important;
+      transition: box-shadow 0.25s ease !important;
     }
 
     /* 15. CATALOG CLASS GROUPING BENTO CARDS */
@@ -1759,9 +2144,11 @@
       transform: translateY(-2px);
     }
     html.dark .catalog-class-card {
-      background: #111624 !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+      background: rgba(18, 25, 42, 0.78) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45) !important;
     }
 
     /* --- HARMONIZED MOBILE TYPOGRAPHY & TOUCH ERGONOMICS --- */
@@ -1806,11 +2193,11 @@
     }
 
     /* ==========================================================================
-       STUDIO HUMAS & SOSMED: RADAR PENGINGAT H-7 & DARK THEME ENHANCEMENTS
+       STUDIO HUMAS & SOSMED: RADAR PENGINGAT H-7 STYLES
        ========================================================================== */
     @keyframes radarPulse {
-      0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(244, 63, 94, 0); }
       100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
     }
     .radar-pulse-badge {
@@ -2027,184 +2414,4 @@
       border-radius: 0px !important;
     }
 
-    /* ==========================================================================
-       CURVED SCOOP BOTTOM NAVIGATION BAR (FLOATING ACTIVE CIRCLE WITH NOTCH CUTOUT)
-       ========================================================================== */
-    :root {
-      --bnav-bar-bg: #090d16;
-      --bnav-cutout-bg: #e2e8f0;
-      --bnav-active-circle: #ffffff;
-      --bnav-active-content: #0f172a;
-      --bnav-inactive: #94a3b8;
-    }
 
-    html.dark {
-      --bnav-bar-bg: #0b1120;
-      --bnav-cutout-bg: #060911;
-      --bnav-active-circle: #ffffff;
-      --bnav-active-content: #0f172a;
-      --bnav-inactive: #94a3b8;
-    }
-
-    @media (max-width: 1023px) {
-      #mobileBottomNav.magic-bottom-nav {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        height: 60px !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-        background-color: var(--bnav-bar-bg) !important;
-        border-top-left-radius: 20px !important;
-        border-top-right-radius: 20px !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.45) !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        overflow: visible !important;
-        z-index: 40 !important;
-        box-sizing: border-box !important;
-        user-select: none !important;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      #mobileBottomNav,
-      #mobileBottomNav.magic-bottom-nav {
-        display: none !important;
-      }
-    }
-
-    .magic-nav-list {
-      display: flex !important;
-      position: relative !important;
-      width: 100% !important;
-      height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      list-style: none !important;
-      overflow: visible !important;
-      align-items: center !important;
-    }
-
-    .magic-nav-item {
-      position: relative !important;
-      flex: 1 1 0% !important;
-      height: 100% !important;
-      z-index: 2 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    .magic-nav-link {
-      position: relative !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: center !important;
-      align-items: center !important;
-      width: 100% !important;
-      height: 100% !important;
-      text-align: center !important;
-      text-decoration: none !important;
-      background: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      cursor: pointer !important;
-      -webkit-tap-highlight-color: transparent !important;
-    }
-
-    .magic-icon-wrapper {
-      position: relative !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1) !important;
-      z-index: 10 !important;
-      width: 100% !important;
-    }
-
-    .magic-icon {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 22px !important;
-      height: 22px !important;
-      color: var(--bnav-inactive) !important;
-      transition: color 0.25s ease !important;
-    }
-
-    .magic-label {
-      font-size: 10px !important;
-      font-weight: 600 !important;
-      line-height: 1 !important;
-      margin-top: 3px !important;
-      color: var(--bnav-inactive) !important;
-      letter-spacing: -0.01em !important;
-      transition: color 0.25s ease, font-weight 0.25s ease !important;
-    }
-
-    /* Active state: elevated into the white floating circle */
-    .magic-nav-item.active .magic-icon-wrapper {
-      transform: translateY(-23px) !important;
-    }
-
-    .magic-nav-item.active .magic-icon {
-      color: var(--bnav-active-content) !important;
-    }
-
-    .magic-nav-item.active .magic-label {
-      color: var(--bnav-active-content) !important;
-      font-weight: 800 !important;
-      font-size: 9.5px !important;
-      margin-top: 2px !important;
-    }
-
-    /* Floating White Circle Indicator with Scoop Cutout Wings */
-    .magic-indicator {
-      position: absolute !important;
-      top: -24px !important;
-      width: 56px !important;
-      height: 56px !important;
-      background-color: var(--bnav-active-circle) !important;
-      border-radius: 50% !important;
-      border: 5px solid var(--bnav-cutout-bg) !important;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
-      z-index: 1 !important;
-      pointer-events: none !important;
-      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1) !important;
-      left: 0 !important;
-      will-change: transform !important;
-      box-sizing: border-box !important;
-    }
-
-    /* Left Shoulder Cutout Curve */
-    .magic-indicator::before {
-      content: '' !important;
-      position: absolute !important;
-      top: 23px !important;
-      left: -19px !important;
-      width: 18px !important;
-      height: 18px !important;
-      background: transparent !important;
-      border-top-right-radius: 18px !important;
-      box-shadow: 1px -9px 0 0 var(--bnav-cutout-bg) !important;
-    }
-
-    /* Right Shoulder Cutout Curve */
-    .magic-indicator::after {
-      content: '' !important;
-      position: absolute !important;
-      top: 23px !important;
-      right: -19px !important;
-      width: 18px !important;
-      height: 18px !important;
-      background: transparent !important;
-      border-top-left-radius: 18px !important;
-      box-shadow: -1px -9px 0 0 var(--bnav-cutout-bg) !important;
-    }
-  </style>

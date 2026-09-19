@@ -1,10577 +1,449 @@
-<!DOCTYPE html>
-<html lang="id" class="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Partner Fatih - Database Tagihan & Generator BRIVA | YTPAI Raudlatul Muta'allimin</title>
-  
-  <meta name="description" content="Sistem Generator Kode BRIVA, Konverter Formulir PPDB, Humas &amp; Manajemen Data Tagihan Siswa / Santri Yayasan Tarbiyatul Mubtadi'in YTPAI Raudlatul Muta'allimin Babat Lamongan.">
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b0f19">
-  
-  <!-- Google Fonts: Plus Jakarta Sans & Poppins (Modern Sans-Serif, Angka Bulat Halus Bersih Anti-Serif) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Lucide Icons CDN (High Availability unpkg + jsdelivr fallback) -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js'"></script>
-  <script>
-    // Inisialisasi pengaman agar tidak melempar error jika CDN terhambat
+﻿    // --- 0. ROBUST SAFETY STUB FOR LUCIDE ICONS (CRITICAL FOR APPS SCRIPT IFRAME) ---
     window.lucide = window.lucide || {
       createIcons: function() {}
     };
-  </script>
 
-  <!-- SheetJS (xlsx) - Deferred so 1.2MB library does not block initial load & tab clicks -->
-  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    // ============================================================================
+    // SMART VOICE NLP ENGINE (FUZZY INTENT & CONTEXT EXTRACTOR)
+    // ============================================================================
+    window.SmartVoiceNLP = (function() {
+      'use strict';
 
-  <script>
-    // Inisialisasi tema sebelum render pertama untuk mencegah kedipan cahaya (FOUC)
-    (function() {
-      try {
-        let saved = null;
-        try { saved = localStorage.getItem('theme_preference'); } catch (err) {}
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        } else if (saved === 'light') {
-          document.documentElement.classList.remove('dark');
+      const SPOKEN_NUMBERS = {
+        'sembilan puluh sembilan': 99, 'sembilan puluh delapan': 98, 'sembilan puluh tujuh': 97,
+        'sembilan puluh enam': 96, 'sembilan puluh lima': 95, 'sembilan puluh empat': 94,
+        'sembilan puluh tiga': 93, 'sembilan puluh dua': 92, 'sembilan puluh satu': 91, 'sembilan puluh': 90,
+        'delapan puluh sembilan': 89, 'delapan puluh delapan': 88, 'delapan puluh tujuh': 87,
+        'delapan puluh enam': 86, 'delapan puluh lima': 85, 'delapan puluh empat': 84,
+        'delapan puluh tiga': 83, 'delapan puluh dua': 82, 'delapan puluh satu': 81, 'delapan puluh': 80,
+        'tujuh puluh sembilan': 79, 'tujuh puluh delapan': 78, 'tujuh puluh tujuh': 77,
+        'tujuh puluh enam': 76, 'tujuh puluh lima': 75, 'tujuh puluh empat': 74,
+        'tujuh puluh tiga': 73, 'tujuh puluh dua': 72, 'tujuh puluh satu': 71, 'tujuh puluh': 70,
+        'enam puluh sembilan': 69, 'enam puluh delapan': 68, 'enam puluh tujuh': 67,
+        'enam puluh enam': 66, 'enam puluh lima': 65, 'enam puluh empat': 64,
+        'enam puluh tiga': 63, 'enam puluh dua': 62, 'enam puluh satu': 61, 'enam puluh': 60,
+        'lima puluh sembilan': 59, 'lima puluh delapan': 58, 'lima puluh tujuh': 57,
+        'lima puluh enam': 56, 'lima puluh lima': 55, 'lima puluh empat': 54,
+        'lima puluh tiga': 53, 'lima puluh dua': 52, 'lima puluh satu': 51, 'lima puluh': 50,
+        'empat puluh sembilan': 49, 'empat puluh delapan': 48, 'empat puluh tujuh': 47,
+        'empat puluh enam': 46, 'empat puluh lima': 45, 'empat puluh empat': 44,
+        'empat puluh tiga': 43, 'empat puluh dua': 42, 'empat puluh satu': 41, 'empat puluh': 40,
+        'tiga puluh sembilan': 39, 'tiga puluh delapan': 38, 'tiga puluh tujuh': 37,
+        'tiga puluh enam': 36, 'tiga puluh lima': 35, 'tiga puluh empat': 34,
+        'tiga puluh tiga': 33, 'tiga puluh dua': 32, 'tiga puluh satu': 31, 'tiga puluh': 30,
+        'dua puluh sembilan': 29, 'dua puluh delapan': 28, 'dua puluh tujuh': 27,
+        'dua puluh enam': 26, 'dua puluh lima': 25, 'dua puluh empat': 24,
+        'dua puluh tiga': 23, 'dua puluh dua': 22, 'dua puluh satu': 21, 'dua puluh': 20,
+        'sembilan belas': 19, 'delapan belas': 18, 'tujuh belas': 17, 'enam belas': 16,
+        'lima belas': 15, 'empat belas': 14, 'tiga belas': 13, 'dua belas': 12, 'sebelas': 11,
+        'sepuluh': 10, 'sembilan': 9, 'delapan': 8, 'tujuh': 7, 'enam': 6, 'lima': 5,
+        'empat': 4, 'tiga': 3, 'dua': 2, 'satu': 1, 'nol': 0, 'kosong': 0, 'seratus': 100
+      };
+
+      const FILLERS_REGEX = /\b(tolong dong|tolong bikinin|tolong buatkan|tolong carikan|tolong bantu|bisa tolong|minta tolong|tolong inputkan|tolong|bikinin|buatkan|carikan|coba tolong|coba deh|coba|anu dong|anu itu|anu|apa namanya|ee+|eh|ya|dong|sih|lah|kan|nih|deh|oke|okey|sip|halo|hai|admin|partner fatih|bot|assistant|mas|mbak|mba|pak|bu|ustadz|ustadzah|kak)\b/gi;
+
+      function normalizeText(text) {
+        if (!text) return '';
+        let t = text.toString().toLowerCase().trim();
+        t = t.replace(/[.,;:!?_~`()\[\]{}"'\/\\]/g, ' ');
+        for (const [phrase, num] of Object.entries(SPOKEN_NUMBERS)) {
+          const reg = new RegExp('\\b' + phrase + '\\b', 'gi');
+          t = t.replace(reg, num.toString());
         }
-      } catch (e) {}
-    })();
+        t = t.replace(/\bke\s*[-]?\s*(\d+)\b/gi, '$1');
+        t = t.replace(/\bkls\b/gi, 'kelas');
+        t = t.replace(/\b(em\s*tes|emtes|m\s*ts|tsanawiyah|tsanawiah|sltp|smp)\b/gi, 'mts');
+        t = t.replace(/\b(em\s*a|ema|m\s*a|aliyah|aliyyah|slta|sma|smk)\b/gi, 'ma');
+        t = t.replace(/\b(em\s*i|emi|m\s*i|ibtidaiyah|ibtidaiyyah|sd)\b/gi, 'mi');
+        t = t.replace(/\s+/g, ' ').trim();
+        return t;
+      }
 
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', '"Poppins"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-            mono: ['"Plus Jakarta Sans"', '"Poppins"', 'system-ui', 'sans-serif'],
-          },
-          colors: {
-            drive: {
-              blue: '#1a73e8',
-              hoverBlue: '#1557b0',
-              sidebar: '#1967d2',
-              lightBlue: '#e8f0fe',
-              bg: '#f8fafd',
-              card: '#ffffff',
-              border: '#e0e4eb',
-              text: '#202124',
-              secondary: '#5f6368',
+      function stripFillers(text) {
+        if (!text) return '';
+        return text.replace(FILLERS_REGEX, ' ').replace(/\s+/g, ' ').trim();
+      }
+
+      function similarity(s1, s2) {
+        if (!s1 || !s2) return 0;
+        s1 = s1.toLowerCase().trim();
+        s2 = s2.toLowerCase().trim();
+        if (s1 === s2) return 1;
+        if (s1.includes(s2) || s2.includes(s1)) return 0.88;
+
+        const longer = s1.length > s2.length ? s1 : s2;
+        const shorter = s1.length > s2.length ? s2 : s1;
+        const longerLength = longer.length;
+        if (longerLength === 0) return 1.0;
+
+        let costs = [];
+        for (let i = 0; i <= longer.length; i++) {
+          let lastValue = i;
+          for (let j = 0; j <= shorter.length; j++) {
+            if (i === 0) costs[j] = j;
+            else {
+              if (j > 0) {
+                let newValue = costs[j - 1];
+                if (longer.charAt(i - 1) !== shorter.charAt(j - 1)) {
+                  newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                }
+                costs[j - 1] = lastValue;
+                lastValue = newValue;
+              }
             }
-          },
-          boxShadow: {
-            'drive-window': '0 25px 60px -15px rgba(16, 52, 122, 0.35), 0 0 1px 1px rgba(255, 255, 255, 0.2) inset',
-            'drive-card': '0 2px 10px rgba(60, 64, 67, 0.08), 0 1px 3px rgba(60, 64, 67, 0.12)',
-            'drive-hover': '0 8px 24px rgba(60, 64, 67, 0.14), 0 2px 6px rgba(60, 64, 67, 0.12)',
-            'pill': '0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15)'
+          }
+          if (i > 0) costs[shorter.length] = lastValue;
+        }
+        return (longerLength - costs[shorter.length]) / parseFloat(longerLength);
+      }
+
+      function parseBillingIntent(rawText, explicitTipe = null) {
+        const originalText = (rawText || '').trim();
+        const normalized = normalizeText(originalText);
+        const cleaned = stripFillers(normalized);
+
+        let isBilling = false;
+        if (/\b(buat tagihan|tagihan|biaya|hitung tagihan|tarif|buatkan tagihan|rincian tagihan|biaya masuk|pembayaran|pindah|pindahan|pindahak|santri baru|siswa baru|spp|daftar ulang|uang masuk)\b/i.test(cleaned)) {
+          isBilling = true;
+        }
+        if (/\b(ma|mts|smp|sma|mi|kelas\s*\d+|\b(7|8|9|10|11|12)\b)/i.test(cleaned) && /\b(putra|putri|cewek|cowok|santri|mondok|mbajak|asrama|laju|reguler|vip)\b/i.test(cleaned)) {
+          isBilling = true;
+        }
+
+        // Gender
+        let gender = null;
+        let genderLabel = 'Putri';
+        let genderKey = 'pi';
+        if (/\b(putra|putro|laki|laki-laki|cowok|cowo|santriwan|ikhwan|pria|mas|anak laki)\b/i.test(cleaned)) {
+          gender = 'PA';
+          genderLabel = 'Putra';
+          genderKey = 'pa';
+        } else if (/\b(putri|putree|perempuan|cewek|cewe|santriwati|akhwat|wanita|siswi|mbak|mba|anak perempuan)\b/i.test(cleaned)) {
+          gender = 'PI';
+          genderLabel = 'Putri';
+          genderKey = 'pi';
+        }
+
+        if (!gender) {
+          const defaultGenderEl = document.getElementById('brivaGenderDefault') || document.getElementById('brivaDefaultGender');
+          gender = defaultGenderEl && defaultGenderEl.value === 'PA' ? 'PA' : 'PI';
+          genderLabel = gender === 'PA' ? 'Putra' : 'Putri';
+          genderKey = gender.toLowerCase();
+        }
+
+        // Kelas
+        let kelas = null;
+        const matchKelas1 = cleaned.match(/\bkelas\s*(\d+)\b/i);
+        const matchKelas2 = cleaned.match(/\b(7|8|9|10|11|12)\b/);
+        if (matchKelas1 && matchKelas1[1]) {
+          kelas = matchKelas1[1];
+        } else if (matchKelas2 && matchKelas2[1]) {
+          kelas = matchKelas2[1];
+        }
+
+        // Jenjang & Level
+        let jenjang = null;
+        let level = 'slta';
+        if (/\bmts\b/i.test(cleaned)) {
+          jenjang = 'MTs';
+          level = 'sltp';
+        } else if (/\bma\b/i.test(cleaned)) {
+          jenjang = 'MA';
+          level = 'slta';
+        } else if (/\bmi\b/i.test(cleaned)) {
+          jenjang = 'MI';
+          level = 'sltp';
+        }
+
+        if (!jenjang) {
+          if (kelas && ['7', '8', '9'].includes(kelas)) {
+            jenjang = 'MTs';
+            level = 'sltp';
+          } else if (kelas && ['10', '11', '12'].includes(kelas)) {
+            jenjang = 'MA';
+            level = 'slta';
+          } else {
+            jenjang = 'MA';
+            level = 'slta';
           }
         }
+
+        if (!kelas) {
+          kelas = (jenjang === 'MA') ? '10' : '7';
+        }
+
+        if (['7', '8', '9'].includes(kelas)) {
+          level = 'sltp';
+          if (jenjang === 'MA') jenjang = 'MTs';
+        } else if (['10', '11', '12'].includes(kelas)) {
+          level = 'slta';
+          if (jenjang === 'MTs' || jenjang === 'MI') jenjang = 'MA';
+        }
+
+        // Tipe Mukim
+        let tipe = explicitTipe;
+        let tipeExplicitlyFound = false;
+
+        if (!tipe) {
+          const hasNonMukim = /\b(non[- ]?mukim|mbajak|bajak|pulang[- ]?pergi|laju|tidak mondok|ga mondok|gak mondok|nggak mondok|luar|santri luar|kalong)\b/i.test(cleaned);
+          const hasVip = /\b(vip|kamar ac|ac|fasilitas khusus)\b/i.test(cleaned);
+          const hasMukim = /\b(mukim|mondok|asrama|pesantren|pondok|nginap|menginap|nginep|tidur dalem|tidur dalam|reguler)\b/i.test(cleaned);
+
+          if (hasNonMukim) {
+            tipe = 'mbajak';
+            tipeExplicitlyFound = true;
+          } else if (hasVip) {
+            tipe = 'vip';
+            tipeExplicitlyFound = true;
+          } else if (hasMukim) {
+            tipe = 'reguler';
+            tipeExplicitlyFound = true;
+          }
+        } else {
+          tipeExplicitlyFound = true;
+        }
+
+        let tipeLabel = 'Reguler';
+        if (tipe === 'vip') {
+          tipeLabel = 'VIP';
+        } else if (tipe === 'mbajak') {
+          tipeLabel = 'Non-Mukim (Mbajak)';
+        } else if (tipe === 'reguler') {
+          tipeLabel = 'Mukim (Reguler)';
+        }
+
+        // Status Santri
+        let statusSantri = 'Santri Baru (Pindahan)';
+        if (/\b(pindahan|pindah|pindahak|mutasi)\b/i.test(cleaned)) {
+          statusSantri = 'Santri Pindahan';
+        } else if (/\b(baru|santri baru|siswa baru|calon santri|pendaftar baru|masuk baru)\b/i.test(cleaned)) {
+          statusSantri = 'Santri Baru';
+        } else if (/\b(lama|siswa lama|santri lama|naik kelas)\b/i.test(cleaned)) {
+          statusSantri = 'Siswa Lama';
+        }
+
+        // Bulan Masuk
+        let bulanMasuk = 'September';
+        const monthMatches = [
+          { name: 'Juli', regex: /\bjuli\b/i },
+          { name: 'Agustus', regex: /\bagustus\b/i },
+          { name: 'September', regex: /\bseptember\b/i },
+          { name: 'Oktober', regex: /\boktober\b/i },
+          { name: 'November', regex: /\b(november|nopember)\b/i },
+          { name: 'Desember', regex: /\bdesember\b/i },
+          { name: 'Januari', regex: /\bjanuari\b/i },
+          { name: 'Februari', regex: /\b(februari|pebruari)\b/i },
+          { name: 'Maret', regex: /\bmaret\b/i },
+          { name: 'April', regex: /\bapril\b/i },
+          { name: 'Mei', regex: /\bmei\b/i },
+          { name: 'Juni', regex: /\bjuni\b/i }
+        ];
+        for (const m of monthMatches) {
+          if (m.regex.test(cleaned)) {
+            bulanMasuk = m.name;
+            break;
+          }
+        }
+
+        return {
+          isBilling,
+          jenjang,
+          level,
+          gender,
+          genderLabel,
+          genderKey,
+          kelas,
+          tipe,
+          tipeLabel,
+          tipeExplicitlyFound,
+          statusSantri,
+          bulanMasuk,
+          originalText,
+          normalized,
+          cleaned
+        };
       }
-    }
-  </script>
 
-  <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
-    <style>
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+      function parseTahfidzIntent(rawText, masterStudents = []) {
+        const originalText = (rawText || '').trim();
+        const normalized = normalizeText(originalText);
+        const text = stripFillers(normalized);
 
-    /* Hide scrollbar for horizontal swipe on mobile */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+        let detectedPredikat = null;
+        if (/\b(mumtaz|istimewa|sempurna|cumlaude|terbaik|sangat\s*memuaskan)\b/i.test(text)) {
+          detectedPredikat = 'Mumtaz';
+        } else if (/\b(jayyid\s*jiddan|jayyid\s*ziddan|sangat\s*baik|bagus\s*banget|bagus\s*sekali|memuaskan)\b/i.test(text)) {
+          detectedPredikat = 'Jayyid Jiddan';
+        } else if (/\b(jayyid|jayid|baik|bagus|lancar|cukup\s*baik)\b/i.test(text)) {
+          detectedPredikat = 'Jayyid';
+        }
 
-    /* Active Tab Highlight in Sidebar (Ontrack Style Minimalist White Pill) */
-    .sidebar-active {
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-      font-weight: 700 !important;
-      box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-      border: 1px solid rgba(226, 232, 240, 0.9) !important;
-    }
-    .sidebar-active .nav-icon-box {
-      background-color: #ffedd5 !important;
-      color: #ea580c !important;
-    }
-    .sidebar-active i {
-      color: #ea580c !important;
-    }
+        let detectedJuz = null;
+        let detectedKategori = null;
 
-    /* Ambient Aurora Iridescent Background */
-    .aurora-bg {
-      background: 
-        radial-gradient(at 0% 0%, #c7d2fe 0px, transparent 45%), 
-        radial-gradient(at 100% 0%, #bae6fd 0px, transparent 40%), 
-        radial-gradient(at 50% 100%, #e9d5ff 0px, transparent 45%), 
-        radial-gradient(at 0% 100%, #fbcfe8 0px, transparent 40%), 
-        #e2e8f0;
-    }
+        const rangeMatch = text.match(/(?:juz|jus)\s*(\d{1,2})\s*(?:-|sampai|sd|s\/d)\s*(\d{1,2})/i);
+        if (rangeMatch) {
+          const startJuz = parseInt(rangeMatch[1], 10);
+          const endJuz = parseInt(rangeMatch[2], 10);
+          detectedJuz = `${startJuz}-${endJuz}`;
+          const totalJuz = Math.abs(endJuz - startJuz) + 1;
+          detectedKategori = `${totalJuz} Juz`;
+        } else {
+          const singleJuzMatch = text.match(/(?:juz|jus)\s*(\d{1,2})/i) || text.match(/(\d{1,2})\s*(?:juz|jus)/i);
+          if (singleJuzMatch) {
+            detectedJuz = singleJuzMatch[1];
+            detectedKategori = '1 Juz';
+          } else {
+            const numMatch = text.match(/\b([1-9]|[12]\d|30)\b/);
+            if (numMatch) {
+              detectedJuz = numMatch[1];
+              detectedKategori = '1 Juz';
+            }
+          }
+        }
 
-    /* Floating Glass Chassis */
-    .floating-chassis {
-      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-    }
+        let cleanQuery = text
+          .replace(/\b(juz|jus|predikat|predikatnya|nilai|nilainya|hasil|hasilnya|dapat|mendapatkan|alhamdulillah|bismillah|lulus|selesai|telah|ujian|ujiannya|atas|nama|untuk|caption|pamflet|berhasil|tasmi|tasmiyah|hafalan|bil|ghoib|sekali|duduk|dengan|mumtaz|jayyid|jiddan|ziddan|istimewa|sempurna|baik|bagus|sekali|banget|sampai|ananda|santri|siswa|siswi|dari|bapak|ibu|unit|kelas|mi|mts|smp|ma|sma|tolong|buatkan|panggil|tampilkan|cari|tolongkan)\b/gi, ' ')
+          .replace(/[\d\-\.\,]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
 
-    /* Bottom Nav Active State */
-    .bottom-nav-active {
-      color: #ea580c !important;
-      font-weight: 700;
-    }
-    .bottom-nav-active .nav-indicator {
-      transform: scaleX(1);
-    }
+        let matchedStudent = null;
+        let bestScore = 0;
 
-    /* Touch optimizations */
-    button, input, select, textarea, a {
-      -webkit-tap-highlight-color: transparent;
-    }
+        if (masterStudents && masterStudents.length > 0 && cleanQuery.length > 0) {
+          const queryWords = cleanQuery.split(' ').filter(w => w.length >= 2);
 
-    /* Pastikan seluruh elemen memakai Plus Jakarta Sans / Poppins (100% Sans-Serif Murni Tanpa Model Serifa) */
-    *, html, body, button, input, select, textarea, table, td, th, kbd, code, pre, .font-mono, [class*="font-mono"] {
-      font-family: 'Plus Jakarta Sans', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
-    }
+          masterStudents.forEach(s => {
+            let score = 0;
+            const sName = (s.nama || '').toLowerCase();
+            const sWords = sName.split(' ');
 
-    /* Optimasi Angka: 0 bulat halus terbuka, bebas serifa mesin tik, rapi dan modern */
-    .tabular-nums, .font-mono, td, th, input, span, div, p {
-      font-variant-numeric: tabular-nums;
-      font-feature-settings: "tnum" 1;
-    }
+            if (sName.includes(cleanQuery)) score += 100;
 
-    /* Geser Tabel Horizontal Bebas (Drag-to-Scroll tanpa tombol gulir) */
-    .drag-scroll-container {
-      cursor: grab;
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-x pan-y !important;
-      overflow-x: auto !important;
-      scroll-behavior: smooth;
-    }
-    .drag-scroll-container.is-dragging {
-      cursor: grabbing !important;
-      user-select: none !important;
-      scroll-behavior: auto !important;
-    }
-    .drag-scroll-container.is-dragging * {
-      user-select: none !important;
-      pointer-events: none !important;
-    }
-    /* Viewport & Layout Sizing - Sempurna di Desktop, Mobile & Google Apps Script iframe */
-    html {
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      box-sizing: border-box;
-    }
-    body {
-      height: 100%;
-      width: 100%;
-      max-height: 100%;
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      touch-action: pan-y;
-    }
-    /* Anti-Click Blocking: Backdrop drawer tertutup 100% lenyap dari hit-testing */
-    #drawerBackdrop:not(.drawer-active) {
-      display: none !important;
-      pointer-events: none !important;
-    }
-    #mainCanvas {
-      flex: 1 1 0% !important;
-      height: 100% !important;
-      max-height: 100% !important;
-      min-height: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      overflow: hidden !important;
-      box-sizing: border-box !important;
-      position: relative !important;
-    }
-    #canvasHeader {
-      flex-shrink: 0 !important;
-      position: relative !important;
-      top: 0 !important;
-      z-index: 40 !important;
-      box-sizing: border-box !important;
-    }
-    #mainContentContainer {
-      flex: 1 1 0% !important;
-      height: 0 !important;
-      flex-grow: 1 !important;
-      flex-shrink: 1 !important;
-      flex-basis: 0% !important;
-      min-height: 0 !important;
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-y !important;
-      scrollbar-width: thin;
-      scrollbar-color: #94a3b8 transparent;
-      position: relative !important;
-      display: block !important;
-    }
-    #mainContentContainer::-webkit-scrollbar {
-      width: 7px !important;
-      height: 7px !important;
-      display: block !important;
-    }
-    #mainContentContainer::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.03);
-      border-radius: 9999px;
-    }
-    html.dark #mainContentContainer::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.04);
-    }
-    #mainContentContainer::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    html.dark #mainContentContainer::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.25);
-    }
-    #mainContentContainer::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-    html.dark #mainContentContainer::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.45);
-    }
+            queryWords.forEach(qw => {
+              if (sName.includes(qw)) score += 40;
+              sWords.forEach(sw => {
+                if (sw === qw) score += 60;
+                else if (sw.startsWith(qw) || qw.startsWith(sw)) score += 35;
+                else {
+                  const sim = similarity(sw, qw);
+                  if (sim > 0.7) score += Math.round(sim * 50);
+                }
+              });
+            });
 
-    /* Mobile Precision Micro-Typography & Touch Ergonomics (Bebas Auto-Zoom, Presisi Simetris di Tengah) */
-    @media screen and (max-width: 640px) {
-      html {
-        height: 100% !important;
-        height: 100dvh !important;
-        max-height: 100% !important;
-        max-height: 100dvh !important;
-        overflow: hidden !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
+            if (score > bestScore) {
+              bestScore = score;
+              matchedStudent = s;
+            }
+          });
+        }
+
+        return {
+          originalText,
+          normalized,
+          text,
+          cleanQuery,
+          matchedStudent,
+          bestScore,
+          detectedJuz,
+          detectedKategori,
+          detectedPredikat
+        };
       }
-      body {
-        height: 100% !important;
-        height: 100dvh !important;
-        max-height: 100% !important;
-        max-height: 100dvh !important;
-        overflow: hidden !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-        margin: 0 auto !important;
-        padding: 0 !important;
-        position: relative;
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: center !important;
-        align-items: stretch !important;
-        box-sizing: border-box !important;
+
+      function dispatchSmartVoiceCommand(rawText) {
+        if (!rawText || !rawText.trim()) return false;
+        const originalText = rawText.trim();
+        const normalized = normalizeText(originalText);
+        const cleaned = stripFillers(normalized);
+
+        // Global Tab Switching Intent
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(humas|sosmed|instagram|agenda|postingan)\b/i.test(cleaned) || cleaned === 'humas') {
+          if (typeof switchTab === 'function') switchTab('humas');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Humas & Agenda', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(briva|tagihan briva|generator briva)\b/i.test(cleaned) || cleaned === 'briva') {
+          if (typeof switchTab === 'function') switchTab('briva');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Tagihan BRIVA', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(tahfidz|tasmi|hafalan|tasmi'|ujian tahfidz)\b/i.test(cleaned) || cleaned === 'tahfidz') {
+          if (typeof switchTab === 'function') switchTab('tahfidz');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Tahfidz & Tasmi\'', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(akun|ppdb|akun ppdb|ortu|wali|siswa|guru)\b/i.test(cleaned) || cleaned === 'akun' || cleaned === 'ppdb') {
+          if (typeof switchTab === 'function') switchTab('akun');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Akun PPDB', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(katalog|katalog biaya|tarif biaya|biaya)\b/i.test(cleaned) || cleaned === 'katalog') {
+          if (typeof switchTab === 'function') switchTab('katalog');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Katalog Biaya', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(konverter|konvert|konversi)\b/i.test(cleaned) || cleaned === 'konverter') {
+          if (typeof switchTab === 'function') switchTab('konverter');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Konverter', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(panggil|panggil tagihan)\b/i.test(cleaned) || cleaned === 'panggil') {
+          if (typeof switchTab === 'function') switchTab('panggil');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Panggil Tagihan', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(pembersih|pembersih sum|bersihkan sum)\b/i.test(cleaned) || cleaned === 'pembersih') {
+          if (typeof switchTab === 'function') switchTab('pembersih');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Pembersih Sum', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(panduan|excel|panduan excel)\b/i.test(cleaned) || cleaned === 'panduan') {
+          if (typeof switchTab === 'function') switchTab('panduan');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Panduan Excel', 'info');
+          return true;
+        }
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\s*(wa|template wa|whatsapp)\b/i.test(cleaned) || cleaned === 'wa') {
+          if (typeof switchTab === 'function') switchTab('wa');
+          if (typeof showToast === 'function') showToast('📂 Pindah Tab', 'Membuka Tab Template WhatsApp', 'info');
+          return true;
+        }
+
+        if (/\b(tema malam|dark mode|mode gelap|mode malam|tema gelap)\b/i.test(cleaned)) {
+          if (!document.documentElement.classList.contains('dark') && typeof toggleTheme === 'function') {
+            toggleTheme();
+          }
+          return true;
+        } else if (/\b(tema siang|light mode|mode terang|mode siang|tema terang)\b/i.test(cleaned)) {
+          if (document.documentElement.classList.contains('dark') && typeof toggleTheme === 'function') {
+            toggleTheme();
+          }
+          return true;
+        }
+
+        const billingResult = parseBillingIntent(originalText);
+        if (billingResult.isBilling) {
+          if (typeof switchTab === 'function') switchTab('briva');
+          if (typeof processBrivaVoiceSmartCommand === 'function') {
+            return processBrivaVoiceSmartCommand(originalText);
+          }
+        }
+
+        return false;
       }
-      #mainCanvas {
-        height: 100% !important;
-        height: 100dvh !important;
-        max-height: 100% !important;
-        max-height: 100dvh !important;
-        flex: 1 1 0% !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-        margin: 0 auto !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: column !important;
-      }
-      #mainContentContainer {
-        flex: 1 1 0% !important;
-        height: 0 !important;
-        flex-grow: 1 !important;
-        flex-shrink: 1 !important;
-        flex-basis: 0% !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        margin: 0 auto !important;
-        box-sizing: border-box !important;
-        -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-y !important;
-        display: block !important;
-      }
-      #canvasHeader {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-        margin: 0 auto !important;
-        box-sizing: border-box !important;
-        flex-shrink: 0 !important;
-      }
-      #mobileBottomNav {
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
-        box-sizing: border-box !important;
-      }
-      /* Cegah elemen flex dan grid meluber keluar layar ponsel 360-384px (Samsung A22) */
-      .grid, .flex, #humasPriorityReminderHub, #humasMonitoringSection, [id^="tab-"], section {
-        min-width: 0;
-        box-sizing: border-box;
-      }
-      /* Optimasi GPU Ponsel: Kurangi beban blur agar 60-120 FPS ultra-lancar tanpa lag */
-      #bentoSection, [id^="tab-"] > .bg-white, .workspace-card, .floating-chassis, header, nav, aside {
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-      }
-      /* Standar emas mobile: 16px mencegah browser iOS Safari & Chrome otomatis zoom-in dan menggeser layar */
-      input:not([type="checkbox"]):not([type="radio"]), select, textarea {
-        font-size: 16px !important;
-        line-height: 1.35 !important;
-      }
-      /* Hilangkan delay sentuh 300ms pada tombol & elemen interaktif mobile */
-      button, a, select, summary, [onclick], .cursor-pointer {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-      }
-      /* Compact mobile table & UI letter-spacing */
-      table td, table th {
-        letter-spacing: -0.01em;
-      }
-      /* Eliminasi Scroll-Trapping: Biarkan kartu mengalir alami mengikuti scroll halaman HP */
-      #brivaCardsContainer, #ppdbOrtuCardsContainer, #ppdbSiswaCardsContainer {
-        max-height: none !important;
-        overflow-y: visible !important;
-      }
-      /* Pastikan wadah tabel di HP tidak kaku */
-      .drag-scroll-container {
-        overscroll-behavior-x: contain;
-      }
-    }
 
-    /* ==========================================================================
-       TYPOGRAPHY ENHANCEMENT & CLARITY ENGINE (SIANG & MALAM LEBIH TAJAM)
-       ========================================================================== */
-    /* ==========================================================================
-       GENERATOR AKUN & TAHFIDZ: DESAIN KOTAK TEGAS & ANTI-TABRAKAN (0px RADIUS)
-       ========================================================================== */
-    #tab-akun,
-    #tab-akun *,
-    #tab-tahfidz,
-    #tab-tahfidz *,
-    #tahfidzPredikatChips button,
-    #tahfidzPamfletStatusBtns button,
-    #tahfidzUnitChipsContainer button,
-    #tabContentPpdbAkun,
-    #tabContentPpdbAkun *,
-    #viewModePpdb,
-    #viewModePpdb *,
-    #viewModeManual,
-    #viewModeManual *,
-    #viewModeAi,
-    #viewModeAi *,
-    #ppdbOrtuCardsContainer,
-    #ppdbOrtuCardsContainer *,
-    #ppdbSiswaCardsContainer,
-    #ppdbSiswaCardsContainer *,
-    #ppdbGuruPodiumWrapper,
-    #ppdbGuruPodiumWrapper *,
-    #accTableWrapper,
-    #accTableWrapper *,
-    #accTableBody,
-    #accTableBody * {
-      border-radius: 0px !important;
-    }
-    html, body {
-      width: 100% !important;
-      max-width: 100% !important;
-      overflow-x: hidden !important;
-      -webkit-font-smoothing: antialiased !important;
-      -moz-osx-font-smoothing: grayscale !important;
-      text-rendering: optimizeLegibility !important;
-    }
-    #mainCanvas, #canvasHeader, #mainContentContainer {
-      max-width: 100% !important;
-      min-width: 0 !important;
-      box-sizing: border-box !important;
-    }
-
-    /* PENEGASAN WARNA TEKS MODE SIANG (LIGHT MODE - ULTRA CRISP) */
-    html:not(.dark) body {
-      color: #0f172a;
-    }
-    html:not(.dark) .text-slate-500 {
-      color: #475569 !important;
-      font-weight: 500;
-    }
-    html:not(.dark) .text-slate-600 {
-      color: #334155 !important;
-    }
-    html:not(.dark) .text-slate-700 {
-      color: #1e293b !important;
-    }
-    html:not(.dark) .text-slate-800,
-    html:not(.dark) .text-slate-900 {
-      color: #0f172a !important;
-    }
-    html:not(.dark) #appSidebar button:not(.sidebar-active) {
-      color: #334155 !important;
-      font-weight: 600 !important;
-    }
-    html:not(.dark) #appSidebar button:not(.sidebar-active):hover {
-      color: #0f172a !important;
-      background-color: #e2e8f0 !important;
-    }
-
-    /* ==========================================================================
-       TEMA MALAM / DARK MODE (OBSIDIAN ONTRACK CRISP CONTRAST)
-       ========================================================================== */
-    html.dark {
-      color-scheme: dark;
-    }
-    html.dark body {
-      color: #f8fafc;
-    }
-
-    /* 1. Latar Belakang Aurora Gelap */
-    html.dark .aurora-bg {
-      background-color: #060911 !important;
-      background-image: 
-        radial-gradient(at 15% 15%, rgba(30, 41, 59, 0.85) 0px, transparent 65%),
-        radial-gradient(at 85% 15%, rgba(15, 23, 42, 0.95) 0px, transparent 60%),
-        radial-gradient(at 20% 85%, rgba(30, 41, 59, 0.8) 0px, transparent 65%),
-        radial-gradient(at 85% 85%, rgba(15, 23, 42, 0.95) 0px, transparent 60%),
-        linear-gradient(135deg, #090d16 0%, #05070d 100%) !important;
-    }
-
-    /* 2. Floating Chassis & Top Header */
-    html.dark .floating-chassis {
-      background: rgba(15, 23, 42, 0.97) !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-      box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.06) inset !important;
-      color: #f8fafc !important;
-    }
-    html.dark header {
-      background: rgba(15, 23, 42, 0.97) !important;
-      border-bottom-color: rgba(51, 65, 85, 0.75) !important;
-    }
-    html.dark header #globalSearchInput {
-      background: #1e293b !important;
-      color: #f8fafc !important;
-      border-color: rgba(71, 85, 105, 0.7) !important;
-    }
-    html.dark header #globalSearchInput::placeholder {
-      color: #94a3b8 !important;
-    }
-    html.dark header .bg-slate-100\/80,
-    html.dark header .bg-slate-100\/90 {
-      background-color: #1e293b !important;
-      border-color: rgba(71, 85, 105, 0.7) !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark #topHeaderBreadcrumb,
-    html.dark #liveHeaderClock {
-      color: #ffffff !important;
-    }
-
-    /* 3. BOX 1: SIDEBAR ONTRACK DARK (KONTRAK TINGGI & FONT JELAS) */
-    html.dark #appSidebar {
-      background: #0b1120 !important;
-      border-right-color: rgba(51, 65, 85, 0.7) !important;
-      color: #f8fafc !important;
-    }
-    html.dark #appSidebar .text-slate-900,
-    html.dark #appSidebar .text-slate-800,
-    html.dark #appSidebar .text-slate-700 {
-      color: #ffffff !important;
-    }
-    html.dark #appSidebar .text-slate-400 {
-      color: #94a3b8 !important;
-    }
-    html.dark #appSidebar .bg-white {
-      background: #161f30 !important;
-      border-color: rgba(71, 85, 105, 0.6) !important;
-      color: #ffffff !important;
-    }
-    html.dark #appSidebar input {
-      background: #161f30 !important;
-      color: #ffffff !important;
-      border-color: rgba(71, 85, 105, 0.6) !important;
-    }
-    html.dark #sidebarMenuNav button {
-      color: #e2e8f0 !important;
-    }
-    html.dark #sidebarMenuNav button span {
-      color: #e2e8f0 !important;
-      font-weight: 600 !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active) {
-      background: transparent !important;
-      color: #e2e8f0 !important;
-      border: 1px solid transparent !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active):hover {
-      background: #1e293b !important;
-      color: #ffffff !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active) span {
-      color: #e2e8f0 !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active):hover span {
-      color: #ffffff !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active) div:first-child {
-      background: #1e293b !important;
-      color: #93c5fd !important;
-      border: 1px solid rgba(71, 85, 105, 0.5) !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active):hover div:first-child {
-      background: #2563eb !important;
-      color: #ffffff !important;
-    }
-    html.dark #sidebarMenuNav button.sidebar-active {
-      background: #1e293b !important;
-      border-color: rgba(249, 115, 22, 0.6) !important;
-      box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(249, 115, 22, 0.3) !important;
-    }
-    html.dark #sidebarMenuNav button.sidebar-active span {
-      color: #ffffff !important;
-      font-weight: 800 !important;
-    }
-    html.dark #sidebarMenuNav button.sidebar-active div:first-child {
-      background: rgba(249, 115, 22, 0.25) !important;
-      color: #fb923c !important;
-      border: 1px solid rgba(249, 115, 22, 0.5) !important;
-    }
-    html.dark #appSidebar [onclick*="switchPpdbSubtab"],
-    html.dark #appSidebar [onclick*="presetConverter"],
-    html.dark #appSidebar [onclick*="switchTab"] {
-      color: #cbd5e1 !important;
-    }
-    html.dark #appSidebar [onclick*="switchPpdbSubtab"]:hover,
-    html.dark #appSidebar [onclick*="presetConverter"]:hover,
-    html.dark #appSidebar [onclick*="switchTab"]:hover {
-      background: #1e293b !important;
-      color: #ffffff !important;
-    }
-
-    /* 4. WORKSPACE UTAMA & KARTU METRIK HERO */
-    html.dark #mainContentContainer {
-      background: transparent !important;
-      color: #f8fafc !important;
-    }
-    html.dark #mainContentContainer .bg-white:not(.bento-card):not(.workspace-card):not([class*="rounded-3xl"]):not([class*="rounded-[32px]"]) {
-      background: #131b2c !important;
-      border-color: rgba(51, 65, 85, 0.7) !important;
-      color: #f8fafc !important;
-    }
-    html.dark #mainContentContainer .bg-\[\#f8fafd\],
-    html.dark #mainContentContainer .bg-\[\#f3f4f7\],
-    html.dark #mainContentContainer .bg-slate-50,
-    html.dark #mainContentContainer [class*="bg-slate-50"] {
-      background-color: #0b1120 !important;
-    }
-    html.dark #mainContentContainer .bg-slate-100 {
-      background: #1e293b !important;
-    }
-    html.dark #mainContentContainer .text-slate-800,
-    html.dark #mainContentContainer .text-slate-900,
-    html.dark #mainContentContainer .text-slate-700 {
-      color: #f8fafc !important;
-    }
-    html.dark #mainContentContainer .text-slate-600 {
-      color: #cbd5e1 !important;
-    }
-    html.dark #mainContentContainer .text-slate-500 {
-      color: #94a3b8 !important;
-    }
-    html.dark #mainContentContainer .text-slate-400 {
-      color: #94a3b8 !important;
-    }
-    html.dark #mainContentContainer .border-slate-200,
-    html.dark #mainContentContainer .border-slate-200\/80,
-    html.dark #mainContentContainer .border-slate-200\/90,
-    html.dark #mainContentContainer .border-slate-200\/60 {
-      border-color: rgba(51, 65, 85, 0.7) !important;
-    }
-
-    /* 5. BOX 2: EMPAT STAT CARDS PPDB (KONTRAK TINGGI & ANGKA RADIANT) */
-    html.dark #metricPpdbOrtu {
-      color: #a5b4fc !important;
-      font-weight: 900 !important;
-      text-shadow: 0 0 16px rgba(129, 140, 248, 0.35);
-    }
-    html.dark #metricPpdbSiswa {
-      color: #93c5fd !important;
-      font-weight: 900 !important;
-      text-shadow: 0 0 16px rgba(96, 165, 250, 0.35);
-    }
-    html.dark #metricPpdbGuru {
-      color: #6ee7b7 !important;
-      font-weight: 900 !important;
-      text-shadow: 0 0 16px rgba(52, 211, 153, 0.35);
-    }
-    html.dark #metricPpdbTotal {
-      color: #d8b4fe !important;
-      font-weight: 900 !important;
-      text-shadow: 0 0 16px rgba(192, 132, 252, 0.35);
-    }
-    html.dark .grid-cols-2:not([class*="bento"]):not([id*="bento"]) > div:not(.bento-card),
-    html.dark .grid-cols-4:not([class*="bento"]):not([id*="bento"]) > div:not(.bento-card) {
-      background: #151e30 !important;
-      border-color: rgba(51, 65, 85, 0.75) !important;
-      box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.5) !important;
-    }
-    html.dark .grid-cols-2 > div p:first-child,
-    html.dark .grid-cols-4 > div p:first-child {
-      color: #cbd5e1 !important;
-      font-weight: 700 !important;
-    }
-    html.dark .grid-cols-2 > div .bg-indigo-50,
-    html.dark .grid-cols-4 > div .bg-indigo-50 {
-      background: rgba(79, 70, 229, 0.25) !important;
-      color: #a5b4fc !important;
-      border: 1px solid rgba(99, 102, 241, 0.35) !important;
-    }
-    html.dark .grid-cols-2 > div .bg-blue-50,
-    html.dark .grid-cols-4 > div .bg-blue-50 {
-      background: rgba(37, 99, 235, 0.25) !important;
-      color: #93c5fd !important;
-      border: 1px solid rgba(59, 130, 246, 0.35) !important;
-    }
-    html.dark .grid-cols-2 > div .bg-emerald-50,
-    html.dark .grid-cols-4 > div .bg-emerald-50 {
-      background: rgba(5, 150, 105, 0.25) !important;
-      color: #6ee7b7 !important;
-      border: 1px solid rgba(16, 185, 129, 0.35) !important;
-    }
-    html.dark .grid-cols-2 > div .bg-purple-50,
-    html.dark .grid-cols-4 > div .bg-purple-50 {
-      background: rgba(147, 51, 234, 0.25) !important;
-      color: #d8b4fe !important;
-      border: 1px solid rgba(168, 85, 247, 0.35) !important;
-    }
-
-    /* 6. SUBTABS NAVIGATION PPDB CAPSULE SYSTEM */
-    html.dark [class*="bg-slate-50/50"],
-    html.dark div:has(> div > #btnSubtabOrtu) {
-      background-color: transparent !important;
-      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-    }
-    #btnSubtabOrtu,
-    #btnSubtabSiswa,
-    #btnSubtabGuru {
-      cursor: pointer;
-      border-radius: 9999px !important;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-    html.dark #btnSubtabOrtu:not(.subtab-active),
-    html.dark #btnSubtabSiswa:not(.subtab-active),
-    html.dark #btnSubtabGuru:not(.subtab-active) {
-      color: #cbd5e1 !important;
-      background: transparent !important;
-    }
-    html.dark #btnSubtabOrtu:not(.subtab-active):hover,
-    html.dark #btnSubtabSiswa:not(.subtab-active):hover,
-    html.dark #btnSubtabGuru:not(.subtab-active):hover {
-      color: #ffffff !important;
-      background: rgba(255, 255, 255, 0.08) !important;
-    }
-    #btnSubtabOrtu.subtab-active,
-    #btnSubtabSiswa.subtab-active,
-    #btnSubtabGuru.subtab-active {
-      background-color: #0f172a !important;
-      color: #ffffff !important;
-      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.3) !important;
-      border: none !important;
-    }
-    html.dark #btnSubtabOrtu.subtab-active,
-    html.dark #btnSubtabSiswa.subtab-active,
-    html.dark #btnSubtabGuru.subtab-active {
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-      box-shadow: 0 4px 16px -2px rgba(255, 255, 255, 0.3) !important;
-      border: none !important;
-    }
-    html.dark #btnSubtabOrtu.subtab-active span,
-    html.dark #btnSubtabSiswa.subtab-active span,
-    html.dark #btnSubtabGuru.subtab-active span {
-      color: #0f172a !important;
-      font-weight: 800 !important;
-    }
-    #badgeSubtabOrtu,
-    #badgeSubtabSiswa,
-    #badgeSubtabGuru {
-      transition: all 0.2s ease !important;
-    }
-    html.dark #badgeSubtabOrtu,
-    html.dark #badgeSubtabSiswa,
-    html.dark #badgeSubtabGuru {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      color: #cbd5e1 !important;
-    }
-    .subtab-active #badgeSubtabOrtu,
-    .subtab-active #badgeSubtabSiswa,
-    .subtab-active #badgeSubtabGuru {
-      background-color: rgba(255, 255, 255, 0.25) !important;
-      color: #ffffff !important;
-    }
-    html.dark .subtab-active #badgeSubtabOrtu,
-    html.dark .subtab-active #badgeSubtabSiswa,
-    html.dark .subtab-active #badgeSubtabGuru {
-      background-color: rgba(15, 23, 42, 0.15) !important;
-      color: #0f172a !important;
-    }
-
-    /* 7. TABEL & STICKY COLUMNS (KONTRAST TINGGI & MUDAH DIBACA) */
-    html.dark thead {
-      background: #161f30 !important;
-      color: #f8fafc !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-    }
-    html.dark thead th {
-      background: #161f30 !important;
-      color: #f8fafc !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-    }
-    html.dark thead th.sticky {
-      background: #161f30 !important;
-      color: #ffffff !important;
-    }
-    html.dark tbody tr {
-      border-color: rgba(51, 65, 85, 0.45) !important;
-    }
-    html.dark tbody tr:hover {
-      background-color: rgba(30, 41, 59, 0.75) !important;
-    }
-    html.dark tbody td {
-      color: #e2e8f0 !important;
-      border-color: rgba(51, 65, 85, 0.45) !important;
-      font-weight: 500 !important;
-    }
-    html.dark tbody td.sticky {
-      background: #131b2c !important;
-      color: #ffffff !important;
-      font-weight: 700 !important;
-    }
-    html.dark tbody tr:hover td.sticky {
-      background: #1e293b !important;
-    }
-    html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-    html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
-      border-color: rgba(51, 65, 85, 0.5) !important;
-    }
-
-    /* 8. FORM INPUT & CONTROLS */
-    html.dark input[type="text"],
-    html.dark input[type="number"],
-    html.dark input[type="search"],
-    html.dark select,
-    html.dark textarea {
-      background-color: #161f30 !important;
-      color: #ffffff !important;
-      border-color: rgba(71, 85, 105, 0.7) !important;
-    }
-    html.dark input::placeholder,
-    html.dark textarea::placeholder {
-      color: #94a3b8 !important;
-    }
-    html.dark input:focus,
-    html.dark select:focus,
-    html.dark textarea:focus {
-      border-color: #f97316 !important;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
-    }
-
-    /* 9. MODALS & SCROLLBAR */
-    html.dark #studentModal .bg-white,
-    html.dark #detailModal .bg-white,
-    html.dark #confirmModal .bg-white,
-    html.dark #singleStudentModal .bg-white {
-      background: #151d2e !important;
-      border-color: rgba(51, 65, 85, 0.7) !important;
-      color: #f1f5f9 !important;
-    }
-    html.dark ::-webkit-scrollbar-thumb {
-      background: #334155;
-    }
-    html.dark ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
-    /* 9.1 PEMBERSIH ANGKA & KONVERTER TEKS (TAB 5 & 6) CONTRAST ENGINE */
-    html.dark #tab-pembersih .bg-white {
-      background: #111827 !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-    }
-    html.dark #tab-pembersih .bg-gradient-to-r.from-cyan-50,
-    html.dark #tab-pembersih [class*="from-cyan-50"] {
-      background: linear-gradient(to right, rgba(8, 51, 68, 0.65), rgba(15, 23, 42, 0.9)) !important;
-      border-color: rgba(6, 182, 212, 0.4) !important;
-    }
-    html.dark #tab-pembersih #cleanSumText {
-      color: #22d3ee !important;
-      text-shadow: 0 0 16px rgba(34, 211, 238, 0.3) !important;
-    }
-    html.dark #tab-pembersih .text-cyan-800 {
-      color: #a5f3fc !important;
-      font-weight: 700 !important;
-    }
-    html.dark #tab-pembersih .text-cyan-600 {
-      color: #38bdf8 !important;
-    }
-    html.dark #tab-pembersih .bg-cyan-50 {
-      background-color: rgba(8, 51, 68, 0.65) !important;
-      border-color: rgba(6, 182, 212, 0.5) !important;
-    }
-    html.dark #tab-pembersih .text-cyan-900 {
-      color: #67e8f9 !important;
-      font-weight: 700 !important;
-    }
-    html.dark #tab-pembersih .bg-emerald-50\/80,
-    html.dark #tab-pembersih .bg-emerald-50\/60,
-    html.dark #tab-pembersih .bg-emerald-50 {
-      background: rgba(6, 78, 59, 0.4) !important;
-      border-color: rgba(16, 185, 129, 0.4) !important;
-    }
-    html.dark #tab-pembersih .text-emerald-900,
-    html.dark #tab-pembersih .text-emerald-950 {
-      color: #a7f3d0 !important;
-      font-weight: 700 !important;
-    }
-    html.dark #tab-pembersih .text-emerald-700 {
-      color: #34d399 !important;
-      font-weight: 700 !important;
-    }
-    html.dark #tab-pembersih .text-emerald-600 {
-      color: #34d399 !important;
-    }
-    html.dark #tab-pembersih textarea {
-      background-color: #0b1120 !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-      color: #f8fafc !important;
-    }
-    html.dark #tab-pembersih textarea::placeholder {
-      color: #64748b !important;
-    }
-    html.dark #tab-pembersih p.text-slate-500,
-    html.dark #tab-pembersih p.text-slate-600 {
-      color: #cbd5e1 !important;
-    }
-    /* 9.2 GENERATOR TAGIHAN BRIVA 5-KOLOM (TAB 3) CONTRAST & CARD SYSTEM */
-    html.dark #tab-briva .bg-white:not([class*="dark:bg-"]) {
-      background: #111827 !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-    }
-    html.dark #brivaEstimatedBadge {
-      background: rgba(30, 58, 138, 0.5) !important;
-      color: #7dd3fc !important;
-      border-color: rgba(56, 189, 248, 0.45) !important;
-    }
-    html.dark #brivaSummaryBadge {
-      background: rgba(124, 45, 18, 0.5) !important;
-      color: #fdba74 !important;
-      border-color: rgba(251, 146, 60, 0.45) !important;
-    }
-
-    /* 7 Component Cards - Dedicated Sleek Dark Backdrops & Luminous Accents */
-    .briva-component-card {
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    html.dark .briva-card-bulanan {
-      background-color: rgba(15, 23, 42, 0.9) !important;
-      border-color: rgba(59, 130, 246, 0.6) !important;
-    }
-    html.dark .briva-card-awal {
-      background-color: rgba(28, 19, 10, 0.9) !important;
-      border-color: rgba(245, 158, 11, 0.6) !important;
-    }
-    html.dark .briva-card-sergsek {
-      background-color: rgba(26, 14, 38, 0.9) !important;
-      border-color: rgba(168, 85, 247, 0.6) !important;
-    }
-    html.dark .briva-card-sergpond {
-      background-color: rgba(17, 19, 42, 0.9) !important;
-      border-color: rgba(99, 102, 241, 0.6) !important;
-    }
-    html.dark .briva-card-akhir {
-      background-color: rgba(8, 28, 22, 0.9) !important;
-      border-color: rgba(16, 185, 129, 0.6) !important;
-    }
-    html.dark .briva-card-bimbel {
-      background-color: rgba(33, 11, 19, 0.9) !important;
-      border-color: rgba(244, 63, 94, 0.6) !important;
-    }
-    html.dark .briva-card-extra {
-      background-color: rgba(8, 29, 29, 0.9) !important;
-      border-color: rgba(20, 184, 166, 0.6) !important;
-    }
-
-    /* Active Highlight Glowing Ring when Card Checkbox is Checked */
-    .briva-card-bulanan:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.8), 0 8px 24px -4px rgba(59, 130, 246, 0.25) !important;
-    }
-    .briva-card-awal:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.8), 0 8px 24px -4px rgba(245, 158, 11, 0.25) !important;
-    }
-    .briva-card-sergsek:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.8), 0 8px 24px -4px rgba(168, 85, 247, 0.25) !important;
-    }
-    .briva-card-sergpond:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.8), 0 8px 24px -4px rgba(99, 102, 241, 0.25) !important;
-    }
-    .briva-card-akhir:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.8), 0 8px 24px -4px rgba(16, 185, 129, 0.25) !important;
-    }
-    .briva-card-bimbel:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.8), 0 8px 24px -4px rgba(244, 63, 94, 0.25) !important;
-    }
-    .briva-card-extra:has(input[type="checkbox"]:checked) {
-      box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.8), 0 8px 24px -4px rgba(20, 184, 166, 0.25) !important;
-    }
-
-    /* High-contrast Text Colors for Dark Mode in Cards */
-    html.dark #tab-briva .text-amber-800,
-    html.dark #tab-briva .text-amber-900,
-    html.dark #brivaPreviewAwalTahun {
-      color: #fcd34d !important; /* Luminous Amber-300 */
-    }
-    html.dark #tab-briva .text-purple-800,
-    html.dark #tab-briva .text-purple-900,
-    html.dark #brivaPreviewSeragamSekolah {
-      color: #d8b4fe !important; /* Luminous Purple-300 */
-    }
-    html.dark #tab-briva .text-indigo-800,
-    html.dark #tab-briva .text-indigo-900,
-    html.dark #brivaPreviewSeragamPondok {
-      color: #a5b4fc !important; /* Luminous Indigo-300 */
-    }
-    html.dark #tab-briva .text-emerald-800,
-    html.dark #tab-briva .text-emerald-900,
-    html.dark #brivaPreviewAkhirTahun {
-      color: #6ee7b7 !important; /* Luminous Emerald-300 */
-    }
-    html.dark #tab-briva .text-rose-800,
-    html.dark #tab-briva .text-rose-900,
-    html.dark #tab-briva .text-rose-950,
-    html.dark #tab-briva [class*="text-rose-800"],
-    html.dark #tab-briva [class*="text-rose-900"],
-    html.dark #tab-briva [class*="text-rose-950"] {
-      color: #fda4af !important; /* Luminous Rose-300 */
-    }
-    html.dark #tab-briva .text-teal-800,
-    html.dark #tab-briva .text-teal-900,
-    html.dark #tab-briva .text-teal-950,
-    html.dark #tab-briva [class*="text-teal-950"] {
-      color: #5eead4 !important; /* Luminous Teal-300 */
-    }
-
-    /* ID Badges inside Cards in Dark Mode */
-    html.dark #tab-briva .bg-amber-100 {
-      background-color: rgba(120, 53, 15, 0.65) !important;
-      border-color: rgba(245, 158, 11, 0.6) !important;
-      color: #fcd34d !important;
-    }
-    html.dark #tab-briva .bg-purple-100 {
-      background-color: rgba(88, 28, 135, 0.65) !important;
-      border-color: rgba(168, 85, 247, 0.6) !important;
-      color: #d8b4fe !important;
-    }
-    html.dark #tab-briva .bg-indigo-100 {
-      background-color: rgba(49, 46, 129, 0.65) !important;
-      border-color: rgba(99, 102, 241, 0.6) !important;
-      color: #a5b4fc !important;
-    }
-    html.dark #tab-briva .bg-emerald-100 {
-      background-color: rgba(6, 78, 59, 0.65) !important;
-      border-color: rgba(168, 85, 247, 0.6) !important;
-      color: #6ee7b7 !important;
-    }
-    html.dark #tab-briva .bg-rose-100 {
-      background-color: rgba(136, 19, 55, 0.65) !important;
-      border-color: rgba(244, 63, 94, 0.6) !important;
-      color: #fda4af !important;
-    }
-    html.dark #tab-briva .bg-teal-100 {
-      background-color: rgba(19, 78, 74, 0.65) !important;
-      border-color: rgba(20, 184, 166, 0.6) !important;
-      color: #5eead4 !important;
-    }
-    html.dark #tab-briva .bg-blue-100 {
-      background-color: rgba(30, 58, 138, 0.65) !important;
-      border-color: rgba(59, 130, 246, 0.6) !important;
-      color: #93c5fd !important;
-    }
-
-    /* Inputs & Selects inside Cards in Dark Mode */
-    html.dark #tab-briva .briva-component-card input[type="text"],
-    html.dark #tab-briva .briva-component-card input[type="number"],
-    html.dark #tab-briva .briva-component-card select {
-      background-color: #0b1120 !important;
-      color: #f8fafc !important;
-      border-color: rgba(100, 116, 139, 0.75) !important;
-    }
-    html.dark #tab-briva .briva-component-card input[type="text"]:focus,
-    html.dark #tab-briva .briva-component-card input[type="number"]:focus,
-    html.dark #tab-briva .briva-component-card select:focus {
-      border-color: #38bdf8 !important;
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3) !important;
-    }
-
-    /* Work Area Inputs & Tables */
-    html.dark #brivaInput {
-      background-color: #090d16 !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-      color: #f8fafc !important;
-    }
-    html.dark #brivaInput::placeholder {
-      color: #64748b !important;
-    }
-    html.dark #brivaTableSearch {
-      background-color: #0f172a !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-      color: #f8fafc !important;
-    }
-    html.dark #btnCopyBriva5,
-    html.dark button[onclick*="copyBrivaAmountsOnly"],
-    html.dark button[onclick*="downloadBrivaCsv"] {
-      background-color: #1e293b !important;
-      color: #e2e8f0 !important;
-      border-color: rgba(71, 85, 105, 0.7) !important;
-    }
-    /* 9.3 MODAL 31 KODE ID TAGIHAN BRI CONTRAST ENGINE */
-    html.dark #modalBriCodes > div {
-      background-color: #0f172a !important;
-      border-color: rgba(51, 65, 85, 0.9) !important;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75) !important;
-    }
-    html.dark #modalBriCodes .bg-slate-50 {
-      background-color: #0b1120 !important;
-      border-color: rgba(51, 65, 85, 0.7) !important;
-    }
-    html.dark #modalBriCodes table thead {
-      background-color: #0b1120 !important;
-      border-color: rgba(51, 65, 85, 0.7) !important;
-    }
-    html.dark #modalBriCodes table thead th {
-      color: #94a3b8 !important;
-      border-bottom-color: rgba(51, 65, 85, 0.7) !important;
-    }
-    html.dark #modalBriCodes table tbody tr {
-      border-color: rgba(30, 41, 59, 0.7) !important;
-    }
-    html.dark #modalBriCodes table tbody tr:hover {
-      background-color: rgba(30, 58, 138, 0.25) !important;
-    }
-    html.dark #modalBriCodes tr.bri-code-row-active,
-    html.dark #modalBriCodes tr[class*="bg-blue-50"],
-    html.dark #modalBriCodes tr[class*="bg-blue-100"] {
-      background-color: rgba(30, 58, 138, 0.55) !important;
-      border-top: 1px solid rgba(59, 130, 246, 0.6) !important;
-      border-bottom: 1px solid rgba(59, 130, 246, 0.6) !important;
-    }
-    html.dark #modalBriCodes tr.bri-code-row-active td,
-    html.dark #modalBriCodes tr[class*="bg-blue-50"] td,
-    html.dark #modalBriCodes tr[class*="bg-blue-100"] td {
-      color: #ffffff !important;
-    }
-    html.dark #modalBriCodes tr.bri-code-row-active td span,
-    html.dark #modalBriCodes tr[class*="bg-blue-50"] td span {
-      color: #7dd3fc !important;
-    }
-    html.dark #briCodeModalSearch {
-      background-color: #030712 !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-      color: #f8fafc !important;
-    }
-    html.dark #briCodeModalSearch::placeholder {
-      color: #64748b !important;
-    }
-    html.dark #briCodeModalSearch:focus {
-      border-color: #38bdf8 !important;
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25) !important;
-    }
-    html.dark #briCodeModalBadge {
-      background-color: rgba(30, 58, 138, 0.6) !important;
-      border-color: rgba(59, 130, 246, 0.5) !important;
-      color: #7dd3fc !important;
-    }
-    html.dark #modalBriCodes button[onclick*="closeBriCodeModal"] {
-      background-color: #1e293b !important;
-      border-color: rgba(71, 85, 105, 0.7) !important;
-      color: #e2e8f0 !important;
-    }
-    html.dark #modalBriCodes button[onclick*="closeBriCodeModal"]:hover {
-      background-color: #334155 !important;
-      color: #ffffff !important;
-    }
-
-    html.dark #tab-panduan .bg-white {
-      background: #111827 !important;
-      border-color: rgba(51, 65, 85, 0.8) !important;
-    }
-    html.dark #tab-panduan .bg-blue-50\/60,
-    html.dark #tab-panduan .bg-blue-50 {
-      background: rgba(30, 58, 138, 0.3) !important;
-      border-color: rgba(59, 130, 246, 0.45) !important;
-    }
-    html.dark #tab-panduan .text-blue-900 {
-      color: #93c5fd !important;
-    }
-    html.dark #tab-panduan .bg-indigo-50\/60,
-    html.dark #tab-panduan .bg-indigo-50 {
-      background: rgba(49, 46, 129, 0.3) !important;
-      border-color: rgba(99, 102, 241, 0.45) !important;
-    }
-    html.dark #tab-panduan .text-indigo-900 {
-      color: #c7d2fe !important;
-    }
-    html.dark #tab-panduan .bg-emerald-50\/60,
-    html.dark #tab-panduan .bg-emerald-50 {
-      background: rgba(6, 78, 59, 0.3) !important;
-      border-color: rgba(16, 185, 129, 0.45) !important;
-    }
-    html.dark #tab-panduan .text-emerald-900 {
-      color: #a7f3d0 !important;
-    }
-    html.dark #tab-panduan code {
-      background: #1e293b !important;
-      color: #f1f5f9 !important;
-      border: 1px solid rgba(71, 85, 105, 0.6) !important;
-    }
-    html.dark #tab-panduan kbd {
-      background: #1e293b !important;
-      color: #f8fafc !important;
-      border-color: #475569 !important;
-    }
-    html.dark #tab-panduan .text-slate-600 {
-      color: #cbd5e1 !important;
-    }
-
-    /* ==========================================================================
-       10. REFERENCE BENTO & LUXURY SMART-HOME GLASSMORPHISM STYLING
-       ========================================================================== */
-    /* Ambient Aurora Background - Rich multi-point vibrant luminous mesh */
-    .aurora-bg {
-      background-color: #f1f4f9 !important;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(199, 210, 254, 0.85) 0px, transparent 48%), 
-        radial-gradient(at 100% 0%, rgba(254, 215, 170, 0.8) 0px, transparent 45%), 
-        radial-gradient(at 50% 50%, rgba(224, 231, 255, 0.75) 0px, transparent 50%),
-        radial-gradient(at 90% 90%, rgba(245, 208, 254, 0.8) 0px, transparent 48%), 
-        radial-gradient(at 0% 100%, rgba(254, 205, 211, 0.75) 0px, transparent 45%),
-        radial-gradient(at 35% 85%, rgba(167, 243, 208, 0.65) 0px, transparent 42%) !important;
-      background-attachment: fixed;
-    }
-    html.dark .aurora-bg {
-      background-color: #070a12 !important;
-      background-image: 
-        radial-gradient(at 5% 0%, rgba(99, 102, 241, 0.60) 0px, transparent 55%), 
-        radial-gradient(at 95% 5%, rgba(245, 158, 11, 0.50) 0px, transparent 50%), 
-        radial-gradient(at 50% 40%, rgba(14, 165, 233, 0.45) 0px, transparent 55%),
-        radial-gradient(at 90% 90%, rgba(168, 85, 247, 0.60) 0px, transparent 55%), 
-        radial-gradient(at 5% 95%, rgba(244, 63, 94, 0.50) 0px, transparent 50%),
-        radial-gradient(at 40% 90%, rgba(16, 185, 129, 0.40) 0px, transparent 45%) !important;
-      background-attachment: fixed;
-    }
-
-    /* Detached Left Floating Pill Dock */
-    #floatingDockNav {
-      background: rgba(18, 22, 32, 0.72) !important;
-      backdrop-filter: blur(45px) saturate(210%) !important;
-      -webkit-backdrop-filter: blur(45px) saturate(210%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.22) !important;
-      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.35) !important;
-    }
-    html.dark #floatingDockNav {
-      background: rgba(10, 14, 24, 0.42) !important;
-      backdrop-filter: blur(45px) saturate(210%) !important;
-      -webkit-backdrop-filter: blur(45px) saturate(210%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.16) !important;
-      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.65), inset 0 1px 1.5px rgba(255, 255, 255, 0.15) !important;
-    }
-
-    /* Dock Items */
-    .dock-item {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .dock-item svg {
-      width: 20px !important;
-      height: 20px !important;
-      transition: all 0.2s ease;
-      display: inline-block;
-      flex-shrink: 0;
-    }
-    .dock-item:not(.dock-item-active) svg {
-      color: rgba(255, 255, 255, 0.7) !important;
-      stroke: rgba(255, 255, 255, 0.7) !important;
-    }
-    .dock-item:hover svg {
-      color: #ffffff !important;
-      stroke: #ffffff !important;
-      transform: scale(1.1);
-    }
-    .dock-item-active {
-      background-color: rgba(255, 255, 255, 0.22) !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.3) !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
-    }
-    .dock-item-active svg {
-      color: #ffffff !important;
-      stroke: #ffffff !important;
-      transform: scale(1.05);
-    }
-
-    /* Main Floating Canvas Window - Deep Liquid Frosted Glass */
-    #mainCanvas {
-      background: rgba(255, 255, 255, 0.52) !important;
-      backdrop-filter: blur(55px) saturate(210%) !important;
-      -webkit-backdrop-filter: blur(55px) saturate(210%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
-      box-shadow: 0 30px 80px -15px rgba(15, 23, 42, 0.16), 
-                  inset 0 1.5px 2px rgba(255, 255, 255, 1), 
-                  inset 0 0 25px rgba(255, 255, 255, 0.35) !important;
-    }
-    html.dark #mainCanvas {
-      background: rgba(10, 14, 24, 0.28) !important;
-      backdrop-filter: blur(55px) saturate(220%) !important;
-      -webkit-backdrop-filter: blur(55px) saturate(220%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
-      box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.75), 
-                  inset 0 1.5px 2px rgba(255, 255, 255, 0.22), 
-                  inset 0 0 35px rgba(255, 255, 255, 0.02) !important;
-    }
-
-    /* Top Room / Category Navigation Pills - Luxury Amber-BRIVA Glassmorphism */
-    /* Top Room / Category Navigation Pills - Ultra-Clean Luxury Segmented Glassmorphism */
-    .room-pill-active {
-      background: linear-gradient(135deg, #ea580c 0%, #d97706 100%) !important;
-      color: #ffffff !important;
-      font-weight: 700 !important;
-      border-radius: 0.75rem !important;
-      box-shadow: 0 2px 10px -1px rgba(234, 88, 12, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    }
-    html.dark .room-pill-active {
-      background: linear-gradient(135deg, rgba(234, 88, 12, 0.6) 0%, rgba(217, 119, 6, 0.45) 100%) !important;
-      color: #ffffff !important;
-      font-weight: 700 !important;
-      border-radius: 0.75rem !important;
-      box-shadow: 0 2px 12px -1px rgba(249, 115, 22, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
-      border: 1.5px solid rgba(251, 146, 60, 0.5) !important;
-    }
-    /* Room Pill Badges with Crisp Contrast */
-    .room-pill-badge-emerald {
-      background-color: rgba(16, 185, 129, 0.14) !important;
-      color: #047857 !important;
-      border: 1px solid rgba(16, 185, 129, 0.25) !important;
-      font-weight: 800 !important;
-    }
-    html.dark .room-pill-badge-emerald {
-      background-color: rgba(16, 185, 129, 0.18) !important;
-      color: #6ee7b7 !important;
-      border: 1px solid rgba(16, 185, 129, 0.3) !important;
-    }
-    .room-pill-active .room-pill-badge-emerald {
-      background-color: rgba(255, 255, 255, 0.22) !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.35) !important;
-    }
-    html.dark .room-pill-active .room-pill-badge-emerald {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      color: #fed7aa !important;
-      border: 1px solid rgba(251, 146, 60, 0.35) !important;
-    }
-    .room-pill-inactive {
-      background-color: transparent !important;
-      color: #64748b !important;
-      font-weight: 600 !important;
-      border-radius: 0.75rem !important;
-      border: 1px solid transparent !important;
-    }
-    html.dark .room-pill-inactive {
-      background-color: transparent !important;
-      color: #94a3b8 !important;
-      font-weight: 600 !important;
-      border-radius: 0.75rem !important;
-      border: 1px solid transparent !important;
-    }
-    .room-pill-inactive:hover {
-      background-color: rgba(255, 255, 255, 0.85) !important;
-      color: #0f172a !important;
-      border-color: rgba(226, 232, 240, 0.8) !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    }
-    html.dark .room-pill-inactive:hover {
-      background-color: rgba(255, 255, 255, 0.08) !important;
-      color: #f8fafc !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
-    }
-
-    /* 10. WHATSAPP WEB AUTHENTIC PREVIEW SYSTEM */
-    .wa-web-frame {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-    }
-    html.dark .wa-web-frame {
-      background-color: #111b21 !important;
-      border-color: #222d34 !important;
-    }
-    .wa-web-header {
-      background-color: #f0f2f5 !important;
-      border-color: #d1d7db !important;
-    }
-    html.dark .wa-web-header {
-      background-color: #202c33 !important;
-      border-color: #2a3942 !important;
-    }
-    .wa-web-title {
-      color: #111b21 !important;
-    }
-    html.dark .wa-web-title {
-      color: #e9edef !important;
-    }
-    .wa-web-subtitle {
-      color: #667781 !important;
-    }
-    html.dark .wa-web-subtitle {
-      color: #8696a0 !important;
-    }
-    #waChatCanvas {
-      background-color: #efeae2 !important;
-      overflow-y: auto !important;
-      scroll-behavior: smooth !important;
-    }
-    html.dark #waChatCanvas {
-      background-color: #0c1317 !important;
-    }
-    #waChatCanvas::-webkit-scrollbar {
-      width: 6px;
-    }
-    #waChatCanvas::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    #waChatCanvas::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 9999px;
-    }
-    html.dark #waChatCanvas::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .wa-web-actionbar {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-    }
-    html.dark .wa-web-actionbar {
-      background-color: #111b21 !important;
-      border-color: #222d34 !important;
-    }
-
-    /* Bento Grid Card Micro-Animations & Liquid Frosted Glass */
-    .bento-card {
-      background: rgba(255, 255, 255, 0.55) !important;
-      backdrop-filter: blur(35px) saturate(200%) !important;
-      -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.85) !important;
-      box-shadow: 0 15px 35px -8px rgba(15, 23, 42, 0.08), inset 0 1.5px 2px rgba(255, 255, 255, 0.95) !important;
-      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    html.dark .bento-card {
-      background: rgba(16, 22, 36, 0.32) !important;
-      backdrop-filter: blur(35px) saturate(200%) !important;
-      -webkit-backdrop-filter: blur(35px) saturate(200%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), inset 0 1px 1.5px rgba(255, 255, 255, 0.12) !important;
-    }
-    .bento-card.bg-gradient-to-br {
-      background: linear-gradient(135deg, rgba(18, 23, 38, 0.88), rgba(26, 33, 54, 0.82), rgba(15, 20, 34, 0.92)) !important;
-      backdrop-filter: blur(40px) saturate(200%) !important;
-      -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.18) !important;
-    }
-    html.dark .bento-card.bg-gradient-to-br {
-      background: linear-gradient(135deg, rgba(20, 26, 45, 0.50), rgba(28, 36, 62, 0.35), rgba(16, 22, 38, 0.50)) !important;
-      backdrop-filter: blur(40px) saturate(200%) !important;
-      -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    }
-    .bento-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 45px -8px rgba(15, 23, 42, 0.12), inset 0 1.5px 2px rgba(255, 255, 255, 1) !important;
-    }
-    html.dark .bento-card:hover {
-      box-shadow: 0 25px 55px -10px rgba(0, 0, 0, 0.75), inset 0 1px 1.5px rgba(255, 255, 255, 0.18) !important;
-    }
-
-    /* ==========================================================================
-       DYNAMIC SCROLL INTERACTIVE SYSTEM (GLASS MORPHING, DOCK GLOW & PROGRESS)
-       ========================================================================== */
-    /* Header Dynamic Glass & Elevation on Scroll */
-    #canvasHeader {
-      background: rgba(255, 255, 255, 0.40) !important;
-      backdrop-filter: blur(45px) saturate(200%) !important;
-      -webkit-backdrop-filter: blur(45px) saturate(200%) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.7) !important;
-      transition: background 0.25s ease, backdrop-filter 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    }
-    html.dark #canvasHeader {
-      background: rgba(10, 14, 24, 0.25) !important;
-      backdrop-filter: blur(45px) saturate(200%) !important;
-      -webkit-backdrop-filter: blur(45px) saturate(200%) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    #canvasHeader.header-scrolled {
-      background: rgba(255, 255, 255, 0.70) !important;
-      backdrop-filter: blur(60px) saturate(220%) !important;
-      -webkit-backdrop-filter: blur(60px) saturate(220%) !important;
-      box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.8) !important;
-      border-bottom-color: rgba(255, 255, 255, 0.85) !important;
-    }
-    html.dark #canvasHeader.header-scrolled {
-      background: rgba(10, 14, 24, 0.55) !important;
-      backdrop-filter: blur(60px) saturate(220%) !important;
-      -webkit-backdrop-filter: blur(60px) saturate(220%) !important;
-      box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.7) !important;
-      border-bottom-color: rgba(255, 255, 255, 0.15) !important;
-    }
-
-    /* Floating Dock Dynamic Glow & Depth on Scroll */
-    #floatingDockNav.dock-scrolled {
-      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.55), 0 0 25px rgba(249, 115, 22, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
-      transform: translateY(-2px);
-    }
-
-    /* Glowing Top Scroll Progress Bar */
-    #scrollProgressTrack {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      z-index: 50;
-      background: rgba(255, 255, 255, 0.05);
-      pointer-events: none;
-    }
-    #scrollProgressBar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #f97316 0%, #fbbf24 50%, #10b981 100%);
-      box-shadow: 0 0 12px rgba(249, 115, 22, 0.8), 0 0 4px rgba(251, 191, 36, 0.6);
-      transition: width 0.08s ease-out;
-      border-radius: 0 2px 2px 0;
-    }
-
-    /* Floating Back to Top Pill */
-    #btnBackToTop {
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    #btnBackToTop.btn-visible {
-      opacity: 1 !important;
-      transform: translateY(0) scale(1) !important;
-      pointer-events: auto !important;
-    }
-
-    /* Bento Section Chassis - Sleek Frosted Glass matching Left Floating Dock */
-    #bentoSection {
-      flex-shrink: 0 !important;
-      min-height: fit-content !important;
-      background: rgba(255, 255, 255, 0.40);
-      backdrop-filter: blur(45px) saturate(210%);
-      -webkit-backdrop-filter: blur(45px) saturate(210%);
-      border: 1px solid rgba(255, 255, 255, 0.70);
-      border-radius: 32px;
-      box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.06), inset 0 1.5px 2px rgba(255, 255, 255, 0.9);
-      transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    html.dark #bentoSection {
-      background: rgba(10, 14, 24, 0.52) !important;
-      backdrop-filter: blur(14px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.16) !important;
-      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.55), inset 0 1px 1.5px rgba(255, 255, 255, 0.15) !important;
-    }
-    #bentoSection.bento-scrolled-down {
-      border-color: rgba(255, 255, 255, 0.22) !important;
-    }
-    @media (max-width: 639px) {
-      #bentoSection {
-        display: none !important;
-      }
-    }
-
-    /* ==========================================================================
-       11. UNIVERSAL BENTO GLASSMORPHISM HARMONIZATION FOR ALL TABS & WORKSPACES
-       ========================================================================== */
-    /* Universal Bento Glass Cards for All Sections */
-    [id^="tab-"] > .bg-white,
-    [id^="tab-"] .bg-white.rounded-2xl,
-    [id^="tab-"] .bg-white.rounded-3xl,
-    [id^="viewMode"] .bg-white.rounded-2xl,
-    .workspace-card,
-    #modalBriCodes .bg-white,
-    #studentModal .bg-white,
-    #detailModal .bg-white,
-    #confirmModal .bg-white {
-      background: rgba(255, 255, 255, 0.72) !important;
-      backdrop-filter: blur(12px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.85) !important;
-      border-radius: 26px !important;
-      box-shadow: 0 12px 32px -6px rgba(15, 23, 42, 0.07), inset 0 1.5px 2px rgba(255, 255, 255, 0.95) !important;
-      contain: layout paint;
-    }
-    html.dark [id^="tab-"] > .bg-white,
-    html.dark [id^="tab-"] .bg-white.rounded-2xl,
-    html.dark [id^="tab-"] .bg-white.rounded-3xl,
-    html.dark [id^="viewMode"] .bg-white.rounded-2xl,
-    html.dark .workspace-card,
-    html.dark #modalBriCodes .bg-white,
-    html.dark #studentModal .bg-white,
-    html.dark #detailModal .bg-white,
-    html.dark #confirmModal .bg-white {
-      background: rgba(16, 22, 36, 0.45) !important;
-      backdrop-filter: blur(12px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
-      border-radius: 26px !important;
-      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1.5px rgba(255, 255, 255, 0.1) !important;
-      color: #f1f5f9 !important;
-      contain: layout paint;
-    }
-
-    /* Enhanced Frosted Glass for Teacher Podium, Tables & Chips */
-    #ppdbGuruPodiumWrapper > div {
-      backdrop-filter: blur(10px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.8) !important;
-      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95) !important;
-    }
-    html.dark #ppdbGuruPodiumWrapper > div {
-      background: rgba(18, 24, 38, 0.45) !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-    }
-    thead.sticky {
-      backdrop-filter: blur(10px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
-      background: rgba(248, 250, 252, 0.85) !important;
-    }
-    html.dark thead.sticky {
-      background: rgba(10, 14, 24, 0.65) !important;
-    }
-    #tbodyPpdbGuru tr span.bg-white {
-      background: rgba(255, 255, 255, 0.68) !important;
-      backdrop-filter: blur(15px) !important;
-      -webkit-backdrop-filter: blur(15px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.85) !important;
-    }
-    html.dark #tbodyPpdbGuru tr span.bg-white {
-      background: rgba(255, 255, 255, 0.08) !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      color: #e2e8f0 !important;
-    }
-
-    /* Subtab Pill Capsule System - Pure Square (Kotak Tegas) */
-    .subtab-pill-container {
-      background: rgba(241, 245, 249, 0.85);
-      border-radius: 0px !important;
-      padding: 3px;
-      border: 1px solid rgba(226, 232, 240, 0.8);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    html.dark .subtab-pill-container {
-      background: rgba(14, 18, 26, 0.85) !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
-    }
-    .subtab-active,
-    #btnSubtabOrtu.subtab-active,
-    #btnSubtabSiswa.subtab-active,
-    #btnSubtabGuru.subtab-active {
-      background-color: #0f172a !important;
-      color: #ffffff !important;
-      border-radius: 0px !important;
-      font-weight: 700 !important;
-      box-shadow: none !important;
-      border: none !important;
-    }
-    html.dark .subtab-active,
-    html.dark #btnSubtabOrtu.subtab-active,
-    html.dark #btnSubtabSiswa.subtab-active,
-    html.dark #btnSubtabGuru.subtab-active {
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-      border-radius: 0px !important;
-      font-weight: 700 !important;
-      box-shadow: none !important;
-      border: none !important;
-    }
-
-    /* Desain Kotak Tegas Khusus Generator Akun PPDB */
-    #tabContentPpdbAkun button,
-    #tabContentPpdbAkun input,
-    #tabContentPpdbAkun select,
-    #tabContentPpdbAkun textarea,
-    #tabContentPpdbAkun div.rounded-none,
-    #ppdbOrtuCardsContainer > div,
-    #ppdbSiswaCardsContainer > div,
-    #ppdbGuruPodiumWrapper > div {
-      border-radius: 0px !important;
-    }
-
-    /* Table Container Styling - Desain KOTAK Tegas & Scroll Lancar Mobile */
-    .table-container-bento,
-    #scrollWrapperPpdbOrtu,
-    #scrollWrapperPpdbSiswa,
-    #scrollWrapperPpdbGuru {
-      border-radius: 0px !important;
-      overflow-x: auto !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-x pan-y !important;
-      border: 1px solid rgba(226, 232, 240, 0.8);
-      position: relative;
-    }
-    html.dark .table-container-bento,
-    html.dark #scrollWrapperPpdbOrtu,
-    html.dark #scrollWrapperPpdbSiswa,
-    html.dark #scrollWrapperPpdbGuru {
-      border-color: rgba(255, 255, 255, 0.15) !important;
-      background-color: #0d1322 !important;
-    }
-
-    /* Scrollbar horizontal jelas dan responsif untuk mobile */
-    #scrollWrapperPpdbOrtu::-webkit-scrollbar,
-    #scrollWrapperPpdbSiswa::-webkit-scrollbar,
-    #scrollWrapperPpdbGuru::-webkit-scrollbar {
-      height: 7px !important;
-      width: 6px !important;
-      display: block !important;
-    }
-    #scrollWrapperPpdbOrtu::-webkit-scrollbar-track,
-    #scrollWrapperPpdbSiswa::-webkit-scrollbar-track,
-    #scrollWrapperPpdbGuru::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.8) !important;
-      border-radius: 0px !important;
-    }
-    #scrollWrapperPpdbOrtu::-webkit-scrollbar-thumb,
-    #scrollWrapperPpdbSiswa::-webkit-scrollbar-thumb,
-    #scrollWrapperPpdbGuru::-webkit-scrollbar-thumb {
-      background: #3b82f6 !important;
-      border-radius: 0px !important;
-    }
-    #scrollWrapperPpdbOrtu::-webkit-scrollbar-thumb:hover,
-    #scrollWrapperPpdbSiswa::-webkit-scrollbar-thumb:hover,
-    #scrollWrapperPpdbGuru::-webkit-scrollbar-thumb:hover {
-      background: #60a5fa !important;
-    }
-
-    /* Modern Soft Glassy Inputs & Form Controls */
-    input[type="text"],
-    input[type="number"],
-    input[type="search"],
-    select,
-    textarea {
-      border-radius: 14px !important;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-    html.dark input[type="text"],
-    html.dark input[type="number"],
-    html.dark input[type="search"],
-    html.dark select,
-    html.dark textarea {
-      background-color: rgba(18, 23, 34, 0.85) !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-      color: #ffffff !important;
-    }
-    html.dark input:focus,
-    html.dark select:focus,
-    html.dark textarea:focus {
-      border-color: #f97316 !important;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
-    }
-
-    /* Parameter Cards in BRIVA Generator (Kolom B, D, E, C) */
-    html.dark .bg-blue-50\/50 {
-      background-color: rgba(30, 58, 138, 0.2) !important;
-      border-color: rgba(59, 130, 246, 0.35) !important;
-    }
-    html.dark .bg-emerald-50\/50 {
-      background-color: rgba(6, 78, 59, 0.2) !important;
-      border-color: rgba(16, 185, 129, 0.35) !important;
-    }
-    html.dark .bg-rose-50\/50 {
-      background-color: rgba(136, 19, 55, 0.2) !important;
-      border-color: rgba(244, 63, 94, 0.35) !important;
-    }
-    html.dark .bg-amber-50\/50 {
-      background-color: rgba(120, 53, 15, 0.2) !important;
-      border-color: rgba(245, 158, 11, 0.35) !important;
-    }
-
-    /* Modal Backdrop & Container */
-    #modalBriCodes > div,
-    #studentModal > div,
-    #detailModal > div,
-    #confirmModal > div {
-      border-radius: 32px !important;
-      overflow: hidden !important;
-      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.5) !important;
-    }
-    html.dark #modalBriCodes > div,
-    html.dark #studentModal > div,
-    html.dark #detailModal > div,
-    html.dark #confirmModal > div {
-      background: rgba(22, 27, 38, 0.96) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-
-    /* High Contrast Text in Dark Mode Parameter & Stat Cards */
-    html.dark .text-blue-950,
-    html.dark .text-blue-900 {
-      color: #bfdbfe !important;
-    }
-    html.dark .text-emerald-950,
-    html.dark .text-emerald-900 {
-      color: #a7f3d0 !important;
-    }
-    html.dark .text-rose-950,
-    html.dark .text-rose-900 {
-      color: #fecdd3 !important;
-    }
-    html.dark .text-amber-950,
-    html.dark .text-amber-900 {
-      color: #fde68a !important;
-    }
-    html.dark .text-purple-950,
-    html.dark .text-purple-900 {
-      color: #e9d5ff !important;
-    }
-    html.dark .text-cyan-950,
-    html.dark .text-cyan-900 {
-      color: #a5f3fc !important;
-    }
-
-    /* Table Credential Badges (Password, Username, Email) - High Contrast in Light & Dark Mode */
-    .ppdb-credential-pwd,
-    button.ppdb-credential-pwd,
-    span.ppdb-credential-pwd {
-      background-color: #fef3c7 !important; /* amber-100 */
-      border: 1px solid #fcd34d !important; /* amber-300 */
-      color: #78350f !important; /* amber-900: deep dark readable amber */
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-    }
-    .ppdb-credential-pwd span,
-    .ppdb-credential-pwd code {
-      color: #78350f !important;
-      font-weight: 800 !important;
-    }
-    .ppdb-credential-pwd i,
-    .ppdb-credential-pwd svg {
-      color: #b45309 !important; /* amber-700 */
-    }
-    .ppdb-credential-pwd:hover {
-      background-color: #fde68a !important; /* amber-200 */
-      border-color: #f59e0b !important;
-    }
-
-    /* Dark Mode: Prevent Text Invisibility on Amber/Yellow Chips & Badges */
-    html.dark .ppdb-credential-pwd,
-    html.dark button.ppdb-credential-pwd,
-    html.dark span.ppdb-credential-pwd {
-      color: #78350f !important;
-    }
-    html.dark .ppdb-credential-pwd span {
-      color: #78350f !important;
-    }
-    html.dark .ppdb-credential-pwd i,
-    html.dark .ppdb-credential-pwd svg {
-      color: #b45309 !important;
-    }
-
-    /* Tahfidz Unit Filter Chip - Butuh Pamflet (Kontras Terang & Jelas di Dark Mode) */
-    #tahfidzChip_PENDING_PAMFLET:not(.bg-amber-500) {
-      background-color: #fef3c7 !important;
-      border: 1px solid #f59e0b !important;
-      color: #92400e !important;
-    }
-    #tahfidzChip_PENDING_PAMFLET:not(.bg-amber-500) span {
-      color: #92400e !important;
-    }
-    #tahfidzChip_PENDING_PAMFLET:not(.bg-amber-500) #tahfidzPendingPamfletCountBadge {
-      background-color: #d97706 !important;
-      color: #ffffff !important;
-    }
-
-    html.dark #tahfidzChip_PENDING_PAMFLET:not(.bg-amber-500) {
-      background-color: rgba(245, 158, 11, 0.22) !important;
-      border: 1px solid rgba(245, 158, 11, 0.7) !important;
-      color: #fef08a !important;
-    }
-    html.dark #tahfidzChip_PENDING_PAMFLET:not(.bg-amber-500) span {
-      color: #fef08a !important; /* Tulisan 'Butuh Pamflet' kuning terang benderang */
-      font-weight: 800 !important;
-    }
-    html.dark #tahfidzChip_PENDING_PAMFLET:not(.bg-amber-500) #tahfidzPendingPamfletCountBadge {
-      background-color: #f59e0b !important;
-      color: #0b0f19 !important; /* Angka 0 hitam pekat di atas pill amber terang */
-      font-weight: 900 !important;
-    }
-
-    #tahfidzChip_PENDING_PAMFLET.bg-amber-500,
-    html.dark #tahfidzChip_PENDING_PAMFLET.bg-amber-500 {
-      background-color: #f59e0b !important;
-      border: 1px solid #d97706 !important;
-      color: #ffffff !important;
-    }
-    #tahfidzChip_PENDING_PAMFLET.bg-amber-500 span,
-    html.dark #tahfidzChip_PENDING_PAMFLET.bg-amber-500 span {
-      color: #ffffff !important;
-    }
-    #tahfidzChip_PENDING_PAMFLET.bg-amber-500 #tahfidzPendingPamfletCountBadge,
-    html.dark #tahfidzChip_PENDING_PAMFLET.bg-amber-500 #tahfidzPendingPamfletCountBadge {
-      background-color: #ffffff !important;
-      color: #92400e !important;
-    }
-
-    /* Fix Dark-on-Dark Contrast for Table Columns & Badges in Dark Mode */
-    html.dark .text-blue-800:not(.ppdb-credential-pwd),
-    html.dark td .text-blue-800,
-    html.dark td .text-blue-700 {
-      color: #7dd3fc !important; /* sky-300: crisp luminous sky blue */
-    }
-    html.dark td .text-blue-600 {
-      color: #38bdf8 !important; /* sky-400 */
-    }
-    html.dark .text-emerald-900:not(.ppdb-credential-pwd),
-    html.dark td .text-emerald-900,
-    html.dark td .text-emerald-800,
-    html.dark td .text-emerald-700 {
-      color: #6ee7b7 !important; /* emerald-300: glowing mint green */
-    }
-    html.dark td .text-emerald-600 {
-      color: #34d399 !important; /* emerald-400 */
-    }
-    html.dark .text-teal-800,
-    html.dark td .text-teal-800 {
-      color: #5eead4 !important; /* teal-300: clear glowing teal */
-    }
-    html.dark td .text-teal-600 {
-      color: #2dd4bf !important;
-    }
-    html.dark .bg-teal-50 {
-      background-color: rgba(19, 78, 74, 0.45) !important;
-      border-color: rgba(20, 184, 166, 0.45) !important;
-    }
-    html.dark .bg-blue-100 {
-      background-color: rgba(30, 58, 138, 0.5) !important;
-      color: #93c5fd !important;
-    }
-    html.dark .bg-pink-100 {
-      background-color: rgba(136, 19, 55, 0.5) !important;
-      color: #f472b6 !important;
-    }
-    html.dark td .bg-white {
-      background-color: #1e293b !important;
-      border-color: rgba(255, 255, 255, 0.15) !important;
-      color: #f1f5f9 !important;
-    }
-    html.dark td .bg-white span {
-      color: #f1f5f9 !important;
-    }
-
-    /* Frosted Glowing Preset Badges & Chips in Dark Mode */
-    html.dark .bg-amber-100,
-    html.dark .bg-amber-100\/90,
-    html.dark label:has(#brivaLockLeadingZero) {
-      background-color: rgba(245, 158, 11, 0.22) !important;
-      color: #fef08a !important;
-      border-color: rgba(245, 158, 11, 0.45) !important;
-    }
-    html.dark label:has(#brivaLockLeadingZero) b {
-      background-color: rgba(0, 0, 0, 0.65) !important;
-      color: #fef08a !important;
-      border-color: rgba(245, 158, 11, 0.55) !important;
-    }
-    html.dark .bg-emerald-100 {
-      background-color: rgba(16, 185, 129, 0.22) !important;
-      color: #a7f3d0 !important;
-      border-color: rgba(16, 185, 129, 0.45) !important;
-    }
-    html.dark .bg-rose-100 {
-      background-color: rgba(244, 63, 94, 0.22) !important;
-      color: #fecdd3 !important;
-      border-color: rgba(244, 63, 94, 0.45) !important;
-    }
-    html.dark .bg-blue-100 {
-      background-color: rgba(59, 130, 246, 0.22) !important;
-      color: #bfdbfe !important;
-      border-color: rgba(59, 130, 246, 0.45) !important;
-    }
-    html.dark .bg-indigo-100 {
-      background-color: rgba(99, 102, 241, 0.22) !important;
-      color: #c7d2fe !important;
-      border-color: rgba(99, 102, 241, 0.45) !important;
-    }
-    html.dark .bg-purple-100 {
-      background-color: rgba(168, 85, 247, 0.22) !important;
-      color: #e9d5ff !important;
-      border-color: rgba(168, 85, 247, 0.45) !important;
-    }
-    html.dark .bg-teal-100 {
-      background-color: rgba(20, 184, 166, 0.22) !important;
-      color: #99f6e4 !important;
-      border-color: rgba(20, 184, 166, 0.45) !important;
-    }
-    html.dark .bg-sky-100 {
-      background-color: rgba(14, 165, 233, 0.22) !important;
-      color: #bae6fd !important;
-      border-color: rgba(14, 165, 233, 0.45) !important;
-    }
-    html.dark .bg-orange-100 {
-      background-color: rgba(249, 115, 22, 0.22) !important;
-      color: #fed7aa !important;
-      border-color: rgba(249, 115, 22, 0.45) !important;
-    }
-
-    /* WhatsApp Web Authentic Dark Mode Theme */
-    html.dark .bg-\[\#efeae2\] {
-      background-color: #0c1317 !important;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0) !important;
-    }
-    html.dark .bg-\[\#d9fdd3\] {
-      background-color: #005c4b !important;
-      border-color: rgba(0, 92, 75, 0.7) !important;
-      color: #e9edef !important;
-    }
-    html.dark #waLiveBubbleContent {
-      color: #e9edef !important;
-    }
-    html.dark .text-\[\#d9fdd3\] {
-      color: #005c4b !important;
-      fill: #005c4b !important;
-    }
-
-    /* WhatsApp Template Selector Dark Mode */
-    html.dark .wa-template-btn.active,
-    html.dark .wa-template-btn[class*="bg-emerald-50"] {
-      background: rgba(6, 78, 59, 0.35) !important;
-      border-color: #10b981 !important;
-      color: #a7f3d0 !important;
-    }
-    html.dark .wa-template-btn:not([class*="bg-emerald-50"]) {
-      background: rgba(18, 23, 34, 0.6) !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
-      color: #cbd5e1 !important;
-    }
-    html.dark .wa-template-btn:hover {
-      background: rgba(30, 41, 59, 0.75) !important;
-    }
-
-    /* ==========================================================================
-       CURVED SCOOP BOTTOM NAVIGATION BAR (FLOATING ACTIVE CIRCLE WITH NOTCH CUTOUT)
-       ========================================================================== */
-    :root {
-      --bnav-bar-bg: #090d16;
-      --bnav-cutout-bg: #e2e8f0;
-      --bnav-active-circle: #ffffff;
-      --bnav-active-content: #0f172a;
-      --bnav-inactive: #94a3b8;
-    }
-
-    html.dark {
-      --bnav-bar-bg: #0b1120;
-      --bnav-cutout-bg: #060911;
-      --bnav-active-circle: #ffffff;
-      --bnav-active-content: #0f172a;
-      --bnav-inactive: #94a3b8;
-    }
-
-    #mobileBottomNav.magic-bottom-nav {
-      position: fixed !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      height: 60px !important;
-      padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-      background-color: var(--bnav-bar-bg) !important;
-      border-top-left-radius: 20px !important;
-      border-top-right-radius: 20px !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.45) !important;
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      overflow: visible !important;
-      z-index: 40 !important;
-      box-sizing: border-box !important;
-      user-select: none !important;
-    }
-
-    .magic-nav-list {
-      display: flex !important;
-      position: relative !important;
-      width: 100% !important;
-      height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      list-style: none !important;
-      overflow: visible !important;
-      align-items: center !important;
-    }
-
-    .magic-nav-item {
-      position: relative !important;
-      flex: 1 1 0% !important;
-      height: 100% !important;
-      z-index: 2 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    .magic-nav-link {
-      position: relative !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: center !important;
-      align-items: center !important;
-      width: 100% !important;
-      height: 100% !important;
-      text-align: center !important;
-      text-decoration: none !important;
-      background: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      cursor: pointer !important;
-      -webkit-tap-highlight-color: transparent !important;
-    }
-
-    .magic-icon-wrapper {
-      position: relative !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1) !important;
-      z-index: 10 !important;
-      width: 100% !important;
-    }
-
-    .magic-icon {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 22px !important;
-      height: 22px !important;
-      color: var(--bnav-inactive) !important;
-      transition: color 0.25s ease !important;
-    }
-
-    .magic-label {
-      font-size: 10px !important;
-      font-weight: 600 !important;
-      line-height: 1 !important;
-      margin-top: 3px !important;
-      color: var(--bnav-inactive) !important;
-      letter-spacing: -0.01em !important;
-      transition: color 0.25s ease, font-weight 0.25s ease !important;
-    }
-
-    /* Active state: elevated into the white floating circle */
-    .magic-nav-item.active .magic-icon-wrapper {
-      transform: translateY(-23px) !important;
-    }
-
-    .magic-nav-item.active .magic-icon {
-      color: var(--bnav-active-content) !important;
-    }
-
-    .magic-nav-item.active .magic-label {
-      color: var(--bnav-active-content) !important;
-      font-weight: 800 !important;
-      font-size: 9.5px !important;
-      margin-top: 2px !important;
-    }
-
-    /* Floating White Circle Indicator with Scoop Cutout Wings */
-    .magic-indicator {
-      position: absolute !important;
-      top: -24px !important;
-      width: 56px !important;
-      height: 56px !important;
-      background-color: var(--bnav-active-circle) !important;
-      border-radius: 50% !important;
-      border: 5px solid var(--bnav-cutout-bg) !important;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
-      z-index: 1 !important;
-      pointer-events: none !important;
-      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1) !important;
-      left: 0 !important;
-      will-change: transform !important;
-      box-sizing: border-box !important;
-    }
-
-    /* Left Shoulder Cutout Curve */
-    .magic-indicator::before {
-      content: '' !important;
-      position: absolute !important;
-      top: 23px !important;
-      left: -19px !important;
-      width: 18px !important;
-      height: 18px !important;
-      background: transparent !important;
-      border-top-right-radius: 18px !important;
-      box-shadow: 1px -9px 0 0 var(--bnav-cutout-bg) !important;
-    }
-
-    /* Right Shoulder Cutout Curve */
-    .magic-indicator::after {
-      content: '' !important;
-      position: absolute !important;
-      top: 23px !important;
-      right: -19px !important;
-      width: 18px !important;
-      height: 18px !important;
-      background: transparent !important;
-      border-top-left-radius: 18px !important;
-      box-shadow: -1px -9px 0 0 var(--bnav-cutout-bg) !important;
-    }
-
-    /* 15. CATALOG CLASS GROUPING BENTO CARDS */
-    .catalog-class-card {
-      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.2s ease;
-    }
-    .catalog-class-card:hover {
-      transform: translateY(-2px);
-    }
-    html.dark .catalog-class-card {
-      background: rgba(18, 25, 42, 0.78) !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45) !important;
-    }
-
-    /* --- HARMONIZED MOBILE TYPOGRAPHY & TOUCH ERGONOMICS --- */
-    @media (max-width: 639px) {
-      button, a, input[type="button"], input[type="submit"] {
-        touch-action: manipulation;
-      }
-      /* Harmonized 12px form controls: perfectly legible, never squinting, never bloated */
-      input:not([type="checkbox"]):not([type="radio"]), select, textarea {
-        font-size: 12px !important;
-        line-height: 1.4 !important;
-      }
-    }
-
-    /* iOS smooth momentum scrolling */
-    .mobile-touch-scroll {
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-    }
-
-    /* Mobile Bottom Sheet Animation */
-    .modal-bottom-sheet {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
-    }
-
-    /* Mobile Sticky Floating Action Bar Spring Animation */
-    #mobileStickyActionBar.show-bar {
-      transform: translateY(0) !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-    }
-
-    /* Active view toggle pill */
-    .view-toggle-active {
-      background-color: #0f172a !important;
-      color: #ffffff !important;
-      font-weight: 700 !important;
-    }
-    html.dark .view-toggle-active {
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-    }
-
-    /* ==========================================================================
-       STUDIO HUMAS & SOSMED: RADAR PENGINGAT H-7 STYLES
-       ========================================================================== */
-    @keyframes radarPulse {
-      0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.6); }
-      70% { box-shadow: 0 0 0 8px rgba(244, 63, 94, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
-    }
-    .radar-pulse-badge {
-      animation: radarPulse 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
-    }
-
-    @keyframes radarWave {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(0.95); opacity: 0.8; }
-    }
-    .radar-wave-anim {
-      animation: radarWave 2.5s ease-in-out infinite;
-    }
-
-    /* GLOBAL SELECT & OPTION CRISP DARK THEME (Fixes ugly white dropdown box on Windows/Edge) */
-    html.dark select,
-    html.dark select option {
-      background-color: #0f172a !important;
-      color: #f8fafc !important;
-    }
-    html.dark select option:hover,
-    html.dark select option:focus,
-    html.dark select option:checked {
-      background-color: #1e293b !important;
-      color: #38bdf8 !important;
-    }
-
-    /* HUMAS STATUS SELECT PILL (Theme-adaptive with glowing indicator) */
-    .humas-status-select {
-      appearance: none;
-      -webkit-appearance: none;
-      padding: 5px 22px 5px 10px !important;
-      border-radius: 9999px !important;
-      font-size: 11px !important;
-      font-weight: 800 !important;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      background-repeat: no-repeat;
-      background-position: right 7px center;
-      background-size: 9px;
-      transition: all 0.2s ease;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
-    }
-
-    /* Status variants - Light & Dark */
-    .humas-status-select.status-belum {
-      background-color: #fff1f2;
-      color: #e11d48;
-      border: 1px solid #fecdd3;
-    }
-    html.dark .humas-status-select.status-belum {
-      background-color: rgba(225, 29, 72, 0.16) !important;
-      color: #fda4af !important;
-      border: 1px solid rgba(244, 63, 94, 0.5) !important;
-      box-shadow: 0 0 10px rgba(244, 63, 94, 0.18);
-    }
-
-    .humas-status-select.status-proses {
-      background-color: #fffbeb;
-      color: #d97706;
-      border: 1px solid #fde68a;
-    }
-    html.dark .humas-status-select.status-proses {
-      background-color: rgba(217, 119, 6, 0.16) !important;
-      color: #fcd34d !important;
-      border: 1px solid rgba(245, 158, 11, 0.5) !important;
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.18);
-    }
-
-    .humas-status-select.status-siap {
-      background-color: #f0f9ff;
-      color: #0284c7;
-      border: 1px solid #bae6fd;
-    }
-    html.dark .humas-status-select.status-siap {
-      background-color: rgba(2, 132, 199, 0.16) !important;
-      color: #7dd3fc !important;
-      border: 1px solid rgba(56, 189, 248, 0.5) !important;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.18);
-    }
-
-    .humas-status-select.status-selesai {
-      background-color: #ecfdf5;
-      color: #059669;
-      border: 1px solid #a7f3d0;
-    }
-    html.dark .humas-status-select.status-selesai {
-      background-color: rgba(5, 150, 105, 0.2) !important;
-      color: #6ee7b7 !important;
-      border: 1px solid rgba(16, 185, 129, 0.5) !important;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.18);
-    }
-
-    .humas-status-select option {
-      background-color: #0f172a !important;
-      color: #f8fafc !important;
-      font-weight: 600;
-      padding: 6px 12px;
-    }
-
-    /* Branded Channel Badges */
-    .channel-tag-ig {
-      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-      color: #ffffff !important;
-      box-shadow: 0 2px 8px rgba(220, 39, 67, 0.35);
-    }
-    .channel-tag-fb {
-      background: #1877f2;
-      color: #ffffff !important;
-      box-shadow: 0 2px 8px rgba(24, 119, 242, 0.35);
-    }
-    .channel-tag-wa {
-      background: #10b981;
-      color: #ffffff !important;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
-    }
-    .channel-tag-tt {
-      background: #000000;
-      color: #ffffff !important;
-      box-shadow: -1px -1px 0px #00f2fe, 1px 1px 0px #fe0979;
-    }
-
-    /* Subtle Channel Pills in Table */
-    .channel-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2px 6px;
-      border-radius: 6px;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 0.03em;
-      transition: all 0.15s ease;
-    }
-    .channel-pill-ig {
-      background: rgba(225, 48, 108, 0.15);
-      color: #f43f5e;
-      border: 1px solid rgba(244, 63, 94, 0.3);
-    }
-    html.dark .channel-pill-ig {
-      background: rgba(225, 48, 108, 0.2);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.4);
-    }
-
-    .channel-pill-fb {
-      background: rgba(24, 119, 242, 0.15);
-      color: #2563eb;
-      border: 1px solid rgba(37, 99, 235, 0.3);
-    }
-    html.dark .channel-pill-fb {
-      background: rgba(24, 119, 242, 0.2);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.4);
-    }
-
-    .channel-pill-wa {
-      background: rgba(16, 185, 129, 0.15);
-      color: #059669;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    html.dark .channel-pill-wa {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-
-    .channel-pill-tt {
-      background: rgba(15, 23, 42, 0.2);
-      color: #0f172a;
-      border: 1px solid rgba(15, 23, 42, 0.3);
-    }
-    html.dark .channel-pill-tt {
-      background: rgba(0, 242, 254, 0.12);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.35);
-    }
-
-    /* Dark Mode Table Enhancements */
-    html.dark #humasTableBody tr {
-      border-bottom: 1px solid rgba(51, 65, 85, 0.45) !important;
-    }
-    html.dark #humasTableBody tr:hover {
-      background-color: rgba(30, 41, 59, 0.45) !important;
-    }
-    html.dark #humasTableBody tr:nth-child(even) {
-      background-color: rgba(15, 23, 42, 0.25);
-    }
-
-    /* ==========================================================================
-       GENERATOR AKUN (PPDB & CBT): DESAIN KOTAK TEGAS & ANTI-TABRAKAN (0px RADIUS)
-       ========================================================================== */
-    #tab-akun,
-    #tab-akun *,
-    #tabContentPpdbAkun,
-    #tabContentPpdbAkun *,
-    #viewModePpdb,
-    #viewModePpdb *,
-    #viewModeManual,
-    #viewModeManual *,
-    #viewModeAi,
-    #viewModeAi *,
-    #ppdbOrtuCardsContainer,
-    #ppdbOrtuCardsContainer *,
-    #ppdbSiswaCardsContainer,
-    #ppdbSiswaCardsContainer *,
-    #ppdbGuruPodiumWrapper,
-    #ppdbGuruPodiumWrapper *,
-    #accTableWrapper,
-    #accTableWrapper *,
-    #accTableBody,
-    #accTableBody * {
-      border-radius: 0px !important;
-    }
-  </style>
-
-</head>
-
-<body class="aurora-bg h-full max-h-full w-full flex flex-row justify-center sm:justify-start items-stretch font-sans antialiased text-slate-800 overflow-hidden p-0 sm:p-2.5 lg:p-3 gap-0 sm:gap-3 box-border mx-auto">
-
-  <!-- 1. DETACHED LEFT FLOATING PILL DOCK (Sleek Glass Capsule matching Reference) -->
-  <aside id="floatingDockNav" class="hidden sm:flex flex-col items-center justify-between py-3 px-2 sm:px-2.5 rounded-full bg-[#12151d]/90 dark:bg-[#10131a]/95 backdrop-blur-3xl border border-white/20 shadow-2xl z-40 flex-shrink-0 w-14 lg:w-16 h-full max-h-full self-stretch box-border">
-    
-    <!-- Top Brand Logo & Squircle Navigation Group -->
-    <div class="flex flex-col items-center gap-3">
-      <!-- Logo Squircle -->
-      <div onclick="switchTab('akun')" class="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/30 cursor-pointer hover:scale-105 active:scale-95 transition-transform" title="Partner Fatih - Raudlatul Muta'allimin">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-
-      <div class="w-6 h-[1px] bg-white/15 my-1"></div>
-
-      <!-- Navigation Icons Group -->
-      <nav class="flex flex-col items-center gap-2.5" id="dockNavIcons">
-        <!-- 1. Humas & Sosmed - Radar H-7 (Megaphone Icon - PRIORITY #1) -->
-        <button 
-          onclick="switchTab('humas')" 
-          id="dock-humas" 
-          title="Studio Humas & Sosmed - Radar H-7 (Fokus Utama)" 
-          class="dock-item dock-item-active w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-white bg-white/20 shadow-inner border border-white/25 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Humas & Sosmed (H-7)
-          </span>
-          <span id="humasDockH7Badge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-        </button>
-
-        <!-- 2. Home / Akun PPDB -->
-        <button 
-          onclick="switchTab('akun')" 
-          id="dock-akun" 
-          title="Generator Akun & PPDB" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Generator Akun PPDB
-          </span>
-        </button>
-
-        <!-- 3. Tagihan Massal BRIVA (Chart / Analytics Icon) -->
-        <button 
-          onclick="switchTab('briva')" 
-          id="dock-briva" 
-          title="Tagihan Massal BRIVA 5-Kolom" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Tagihan BRIVA 5-Kolom
-          </span>
-        </button>
-
-        <!-- 4. Konverter Massal (Compass Icon) -->
-        <button 
-          onclick="switchTab('konverter')" 
-          id="dock-konverter" 
-          title="Konverter Massal Excel" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Konverter Massal
-          </span>
-        </button>
-
-        <!-- 5. Panggil Tagihan (Receipt Icon) -->
-        <button 
-          onclick="switchTab('panggil')" 
-          id="dock-panggil" 
-          title="Panggil Data & Slip Kwitansi" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Panggil Tagihan
-          </span>
-        </button>
-
-        <!-- 6. Katalog Database Biaya (Grid Icon) -->
-        <button 
-          onclick="switchTab('katalog')" 
-          id="dock-katalog" 
-          title="Katalog Database Tarif & 31 Kode" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Katalog Biaya & Kode
-          </span>
-        </button>
-
-        <!-- 7. Tahfidz Tasmi' (Book Open Icon) -->
-        <button 
-          onclick="switchTab('tahfidz')" 
-          id="dock-tahfidz" 
-          title="Tahfidz Caption Generator & Rekap Data" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Tahfidz Tasmi'
-          </span>
-        </button>
-
-        <!-- 8. Pembersih & SUM (Sliders Icon) -->
-        <button 
-          onclick="switchTab('pembersih')" 
-          id="dock-pembersih" 
-          title="Pembersih & SUM" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-        >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
-          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Pembersih & SUM
-          </span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Bottom: Search Trigger Icon -->
-    <div class="flex flex-col items-center gap-2 pt-2">
-      <div class="w-6 h-[1px] bg-white/15 my-1"></div>
-      <button 
-        onclick="document.getElementById('globalSearchInput')?.focus()" 
-        title="Pencarian Global (Ctrl+K)" 
-        class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
-      >
-        <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-          Pencarian Global (Ctrl+K)
-        </span>
-      </button>
-    </div>
-  </aside>
-
-  <!-- MOBILE BACKDROP OVERLAY FOR DRAWER -->
-  <div 
-    id="drawerBackdrop" 
-    onclick="toggleMobileDrawer(false)" 
-    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 opacity-0 pointer-events-none transition-opacity duration-300"
-    style="display: none; pointer-events: none;"
-  ></div>
-
-  <!-- MOBILE SLIDE-IN DRAWER -->
-  <aside 
-    id="appSidebar"
-    class="sm:hidden fixed top-0 bottom-0 left-0 z-50 w-72 bg-white dark:bg-[#151922] border-r border-slate-200/80 dark:border-white/10 text-slate-800 dark:text-slate-200 flex flex-col justify-between p-4 flex-shrink-0 select-none shadow-2xl transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto min-h-0"
-  >
-    <div class="space-y-3.5">
-      <div class="flex items-center justify-between px-1">
-        <div class="flex items-center gap-2.5" onclick="switchTab('akun'); toggleMobileDrawer(false);">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-500/30 flex-shrink-0">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <div>
-            <span class="text-base font-black tracking-tight text-slate-900 dark:text-white">Partner Fatih<span class="text-orange-600">.</span></span>
-            <span class="text-[10.5px] block font-semibold text-slate-400 -mt-1 tracking-wider uppercase">HUB BRIVA</span>
-          </div>
-        </div>
-        <button onclick="toggleMobileDrawer(false)" class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <nav class="space-y-1" id="sidebarMenuNav">
-        <!-- 1. Humas & Sosmed (PRIORITY #1) -->
-        <button onclick="switchTab('humas'); toggleMobileDrawer(false);" id="nav-humas" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white bg-white dark:bg-[#1e293b] shadow-xs border border-slate-200/80 dark:border-indigo-500/40 transition-all sidebar-active group">
-          <i data-lucide="megaphone" class="w-4 h-4 text-indigo-500"></i>
-          <span>Humas & Sosmed (H-7)</span>
-          <span id="humasDrawerH7Badge" class="hidden ml-auto text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-rose-500 text-white">H-7</span>
-        </button>
-        <button onclick="switchTab('akun'); toggleMobileDrawer(false);" id="nav-akun" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="user-check" class="w-4 h-4 text-orange-600"></i>
-          <span>Generator Akun PPDB</span>
-        </button>
-        <button onclick="switchTab('konverter'); toggleMobileDrawer(false);" id="nav-konverter" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="table" class="w-4 h-4 text-blue-500"></i>
-          <span>Konverter Massal</span>
-        </button>
-        <button onclick="switchTab('briva'); toggleMobileDrawer(false);" id="nav-briva" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="layers" class="w-4 h-4 text-orange-500"></i>
-          <span>Tagihan BRIVA</span>
-        </button>
-        <button onclick="switchTab('panggil'); toggleMobileDrawer(false);" id="nav-panggil" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="receipt" class="w-4 h-4 text-emerald-500"></i>
-          <span>Panggil Tagihan</span>
-        </button>
-        <button onclick="switchTab('katalog'); toggleMobileDrawer(false);" id="nav-katalog" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="folder-kanban" class="w-4 h-4 text-amber-500"></i>
-          <span>Katalog Tarif</span>
-        </button>
-        <button onclick="switchTab('tahfidz'); toggleMobileDrawer(false);" id="nav-tahfidz" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="book-open" class="w-4 h-4 text-emerald-500"></i>
-          <span>Tahfidz Tasmi'</span>
-        </button>
-        <button onclick="switchTab('pembersih'); toggleMobileDrawer(false);" id="nav-pembersih" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="sparkles" class="w-4 h-4 text-cyan-500"></i>
-          <span>Pembersih & SUM</span>
-        </button>
-        <button onclick="switchTab('panduan'); toggleMobileDrawer(false);" id="nav-panduan" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="book-open-check" class="w-4 h-4 text-rose-500"></i>
-          <span>Panduan Excel</span>
-        </button>
-        <button onclick="switchTab('wa'); toggleMobileDrawer(false);" id="nav-wa" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-          <i data-lucide="message-square-text" class="w-4 h-4 text-emerald-500"></i>
-          <span>Template WA</span>
-        </button>
-      </nav>
-    </div>
-  </aside>
-
-  <!-- 2. MAIN FLOATING CHASSIS WINDOW (Frosted Luxury Curved Canvas matching Reference) -->
-  <div id="mainCanvas" class="floating-chassis flex-1 h-full max-h-full flex flex-col overflow-hidden bg-white/60 dark:bg-[#0c101a]/40 backdrop-blur-3xl rounded-none sm:rounded-[38px] lg:rounded-[44px] border-0 sm:border border-white/80 dark:border-white/12 relative shadow-none sm:shadow-2xl min-w-0 min-h-0">
-
-    <!-- Glowing Top Scroll Progress Bar -->
-    <div id="scrollProgressTrack">
-      <div id="scrollProgressBar"></div>
-    </div>
-
-    <!-- 1. TOP ROOM / CATEGORY PILL BAR & PROFILE -->
-    <header id="canvasHeader" class="h-14 sm:h-16 lg:h-[68px] px-3 sm:px-5 lg:px-6 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between bg-white/80 dark:bg-[#0c101a]/80 backdrop-blur-xl z-30 flex-shrink-0 gap-2 sm:gap-3 w-full max-w-full min-w-0 box-border">
-      
-      <!-- MOBILE VIEW: Minimalist Native App Bar (sm:hidden) -->
-      <div id="mobileHeaderBrand" class="flex sm:hidden items-center gap-2 min-w-0 flex-1">
-        <button 
-          onclick="toggleMobileDrawer()" 
-          class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 dark:text-slate-200 bg-slate-100/90 dark:bg-white/10 active:scale-95 transition-all flex-shrink-0 cursor-pointer shadow-2xs border border-slate-200/60 dark:border-white/10"
-          title="Menu Navigasi"
-        >
-          <i data-lucide="menu" class="w-4 h-4"></i>
-        </button>
-        <div class="flex items-center gap-1.5 min-w-0">
-          <span id="mobileHeaderDot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse flex-shrink-0"></span>
-          <span id="mobileHeaderTitle" class="text-sm font-extrabold text-slate-900 dark:text-white truncate leading-tight">Humas &amp; Sosmed</span>
-          <span id="mobileHeaderBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-md border bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40 flex-shrink-0">Radar H-7</span>
-        </div>
-      </div>
-
-      <!-- DESKTOP VIEW: Horizontal Segmented Control / Room Pills (hidden sm:flex) -->
-      <div class="hidden sm:flex items-center min-w-0 flex-1 pr-2">
-        <div id="roomPillContainer" class="flex items-center gap-1 p-1 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] shadow-inner overflow-x-auto no-scrollbar scroll-smooth">
-
-          <!-- Category Pill 1: Studio Humas & Sosmed (Radar H-7) - FOCUS #1 -->
-          <button onclick="switchTab('humas')" id="room-humas" class="room-pill-active inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span class="active-dot w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse flex-shrink-0"></span>
-            <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
-            <span>Humas &amp; Sosmed</span>
-            <span id="humasRoomH7Badge" class="hidden text-[10px] px-1.5 py-0.5 rounded-md font-extrabold bg-rose-500 text-white shadow-xs animate-pulse leading-none">H-7</span>
-          </button>
-
-          <!-- Category Pill 2: Generator Akun PPDB -->
-          <button onclick="switchTab('akun')" id="room-akun" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Akun PPDB</span>
-          </button>
-
-          <!-- Category Pill 3: Konverter Massal -->
-          <button onclick="switchTab('konverter')" id="room-konverter" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Konverter</span>
-          </button>
-
-          <!-- Category Pill 4: Tagihan BRIVA -->
-          <button onclick="switchTab('briva')" id="room-briva" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Tagihan BRIVA</span>
-          </button>
-
-          <!-- Category Pill 5: Panggil Tagihan -->
-          <button onclick="switchTab('panggil')" id="room-panggil" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Panggil Tagihan</span>
-          </button>
-
-          <!-- Category Pill 6: Katalog Biaya -->
-          <button onclick="switchTab('katalog')" id="room-katalog" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Katalog Biaya</span>
-          </button>
-
-          <!-- Category Pill 7: Tahfidz Tasmi' -->
-          <button onclick="switchTab('tahfidz')" id="room-tahfidz" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Tahfidz</span>
-          </button>
-
-          <!-- Category Pill 8: Pembersih & SUM -->
-          <button onclick="switchTab('pembersih')" id="room-pembersih" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Pembersih</span>
-          </button>
-
-          <!-- Category Pill 9: Panduan Excel -->
-          <button onclick="switchTab('panduan')" id="room-panduan" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Panduan</span>
-          </button>
-
-          <!-- Category Pill 10: Template WA -->
-          <button onclick="switchTab('wa')" id="room-wa" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
-            <span>Template WA</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Hidden search input for Ctrl+K search shortcut -->
-      <input type="text" id="globalSearchInput" class="hidden" />
-
-      <!-- Breadcrumb indicator hidden container for backward compatibility -->
-      <span id="topHeaderBreadcrumb" class="hidden">Generator Akun &amp; PPDB</span>
-
-      <!-- Right Toolbar: Clock, PWA, Sound, Theme, Profile -->
-      <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-auto">
-        
-        <!-- Live Clock & Date Pill (Compact & Ultra-Sharp) -->
-        <div class="hidden xl:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100/90 dark:bg-white/[0.04] text-[11px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/[0.08] select-none flex-shrink-0 shadow-2xs">
-          <span class="inline-flex items-center gap-1.5">
-            <i data-lucide="calendar" class="w-3.5 h-3.5 text-orange-500"></i>
-            <span id="liveHeaderDate" class="font-semibold text-slate-700 dark:text-slate-200">Kamis, 17 Sep 2026</span>
-          </span>
-          <span class="text-slate-300 dark:text-white/20">•</span>
-          <span class="inline-flex items-center gap-1">
-            <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span id="liveHeaderClock" class="tabular-nums font-bold text-slate-800 dark:text-white">15.01 WIB</span>
-          </span>
-        </div>
-
-        <!-- PWA Install Button -->
-        <button 
-          id="pwaInstallBtn" 
-          onclick="triggerPwaInstall()" 
-          title="Pasang Aplikasi ke Layar Utama (HP Android/iOS atau Desktop)" 
-          class="hidden px-2.5 py-1.5 rounded-xl items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
-        >
-          <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-          <span class="hidden 2xl:inline">Pasang App</span>
-        </button>
-
-        <!-- Audio Toggle Button -->
-        <button id="soundToggleBtn" title="Toggle Efek Audio Feedback" class="hidden sm:flex w-9 h-9 rounded-xl items-center justify-center text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-white/[0.04] hover:bg-orange-50 hover:text-orange-600 dark:hover:bg-white/[0.1] dark:hover:text-amber-400 border border-slate-200/80 dark:border-white/[0.08] shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0">
-          <svg id="soundIcon" data-lucide="volume-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-orange-600 dark:text-orange-400 pointer-events-none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-        </button>
-
-        <!-- Theme Toggle Button -->
-        <button 
-          id="themeToggleBtn" 
-          onclick="toggleTheme()" 
-          title="Beralih Tema Siang / Malam" 
-          class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-white/[0.04] hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-white/[0.1] dark:hover:text-amber-300 border border-slate-200/80 dark:border-white/[0.08] shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
-        >
-          <svg id="themeIcon" data-lucide="moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-slate-700 dark:text-amber-400 transition-transform pointer-events-none"><path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"/></svg>
-        </button>
-
-        <!-- User Profile Capsule -->
-        <div class="hidden sm:flex items-center pl-1 sm:pl-1.5 border-l border-slate-200/80 dark:border-white/10 flex-shrink-0">
-          <div class="flex items-center gap-2 p-1 pr-2.5 rounded-xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] hover:bg-slate-200/70 dark:hover:bg-white/[0.08] transition-all cursor-pointer select-none">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-extrabold text-[10.5px] flex items-center justify-center shadow-xs flex-shrink-0" title="Yayasan Tarbiyatul Aulad">
-              RM
-            </div>
-            <div class="hidden lg:flex flex-col text-left">
-              <span class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">Hallo Mas</span>
-              <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 leading-none">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                <span>Online</span>
-              </span>
-            </div>
-            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 ml-0.5 hidden lg:block"></i>
-          </div>
-        </div>
-
-      </div>
-    </header>
-
-    <!-- 2. MAIN SCROLLABLE CONTENT AREA (Retains Perfect Mouse Scroll & Bento Layout) -->
-    <main class="flex-1 block overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 box-border pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] sm:pb-8 lg:pb-8 min-h-0 relative focus:outline-none custom-scrollbar" id="mainContentContainer" tabindex="0">
-      
-      <!-- ============================================================== -->
-      <!-- BENTO GRID ARCHITECTURE (SMART DASHBOARD HUB MATCHING REFERENCE) -->
-      <!-- ============================================================== -->
-      <section id="bentoSection" class="hidden sm:block flex-shrink-0 mx-[2px] sm:mx-5 lg:mx-6 mt-2 sm:mt-4 p-2.5 sm:p-5 lg:p-6 space-y-2 sm:space-y-4 rounded-2xl sm:rounded-[32px] max-w-full overflow-x-hidden">
-        
-        <!-- Mobile Bento Collapsible Toggle Header (Quick Hub Glance on Mobile) -->
-        <div class="flex lg:hidden items-center justify-between px-2.5 py-1 rounded-xl bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 shadow-2xs backdrop-blur-md">
-          <div class="flex items-center gap-1.5 min-w-0">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span>
-            <span class="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate">Bento Dashboard Hub</span>
-            <span id="bentoMobileHubBadge" class="text-[10.5px] font-semibold px-1.5 py-0.2 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/40 dark:border-indigo-800/30 flex-shrink-0">Studio PPDB</span>
-          </div>
-          <button type="button" onclick="toggleMobileBento()" id="btnToggleMobileBento" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50/90 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all cursor-pointer">
-            <span id="labelToggleMobileBento">Buka Hub (6 Widget)</span>
-            <i data-lucide="chevron-down" id="iconToggleMobileBento" class="w-3 h-3 transition-transform duration-300"></i>
-          </button>
-        </div>
-
-        <!-- DEDICATED PRIORITY REMINDER HUB (HUMAS PRIORITY #1 - MATCHING USER IMAGE 2) -->
-        <div id="humasPriorityReminderHub" class="space-y-2.5 sm:space-y-4 max-w-full min-w-0">
-          <!-- Top Bar: Action Buttons & Simulator -->
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-xs min-w-0 max-w-full">
-            <div class="flex items-center gap-2 min-w-0 flex-1">
-              <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-rose-500 to-indigo-600 text-white flex items-center justify-center font-bold shadow-xs flex-shrink-0">
-                <i data-lucide="megaphone" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                  <h3 class="text-xs sm:text-base font-black text-slate-900 dark:text-white tracking-tight truncate">
-                    Prioritas Humas &amp; Sosmed
-                  </h3>
-                  <span class="text-[9px] sm:text-[10px] font-black px-1.5 py-0.2 rounded-full bg-rose-500 text-white animate-pulse flex-shrink-0">
-                    Radar H-7
-                  </span>
-                </div>
-                <p class="text-[9.5px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                  Monitoring kesiapan pamflet &amp; publikasi 2026-2027
-                </p>
-              </div>
-            </div>
-
-            <!-- Quick Actions Bar (Clean 2x2 on Mobile, Inline Flex on Desktop) -->
-            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto mt-1 sm:mt-0 min-w-0">
-              <button 
-                type="button" 
-                onclick="openModalHumasBulkImport()" 
-                class="bg-gradient-to-r from-rose-600 via-indigo-600 to-purple-600 hover:from-rose-500 hover:to-indigo-500 active:scale-95 text-white font-black text-[11px] sm:text-xs px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-md shadow-indigo-600/25 flex items-center justify-center gap-1 transition-all cursor-pointer min-h-[36px] w-full min-w-0"
-                title="Impor massal dari Excel atau Tempel Spreadsheet"
-              >
-                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                <span class="truncate">Impor Massal</span>
-              </button>
-
-              <button 
-                type="button" 
-                onclick="openModalAddProgram()" 
-                class="bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 active:scale-95 text-slate-800 dark:text-white font-bold text-[11px] sm:text-xs px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-xl border border-slate-200/80 dark:border-white/15 flex items-center justify-center gap-1 transition-all cursor-pointer min-h-[36px] w-full min-w-0"
-                title="Tambah agenda kegiatan baru"
-              >
-                <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0"></i>
-                <span class="truncate">+ Agenda</span>
-              </button>
-
-              <button 
-                type="button" 
-                onclick="openModalSupabaseConfig()" 
-                class="bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold text-[11px] sm:text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200/80 dark:border-white/10 flex items-center justify-center gap-1 transition-all cursor-pointer min-h-[36px] w-full min-w-0"
-                title="Konfigurasi Database Supabase & Vercel"
-              >
-                <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0"></i>
-                <span class="truncate">Supabase</span>
-              </button>
-
-              <button 
-                type="button" 
-                onclick="syncHumasFromCloud()" 
-                class="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 transition-all cursor-pointer min-h-[36px] flex items-center justify-center gap-1 w-full min-w-0 text-[11px] sm:text-xs font-semibold"
-                title="Sinkronkan data"
-              >
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-400 flex-shrink-0"></i>
-                <span class="truncate">Sinkronkan</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- ========================================================================= -->
-          <!-- 2 BARIS MONITORING PRIORITAS: 1. PAMFLET UMUM & 2. PAMFLET TAHFIDZ TASMI' -->
-          <!-- ========================================================================= -->
-          <div class="space-y-3 sm:space-y-4">
-            
-            <!-- ROW 1: MONITORING PAMFLET UMUM & PROGRAM KERJA (4 KARTU) -->
-            <div class="space-y-1.5 sm:space-y-2">
-              <div class="flex items-center justify-between gap-1">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-indigo-500 animate-pulse flex-shrink-0"></span>
-                  <h4 class="text-[11px] sm:text-sm font-black text-slate-800 dark:text-slate-200 tracking-wider uppercase flex items-center gap-1 truncate">
-                    <i data-lucide="megaphone" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 dark:text-indigo-400 flex-shrink-0"></i>
-                    <span class="truncate">1. Pamflet Umum & Agenda</span>
-                  </h4>
-                </div>
-                <span class="text-[9px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 flex-shrink-0">
-                  Madrasah & Pondok
-                </span>
-              </div>
-
-              <!-- THE 4 CARDS FOR PAMFLET UMUM -->
-              <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-                <!-- Metric 1: RADAR H-7 UMUM -->
-                <div onclick="openHumasMetricDetailModal('h7', 'umum')" class="bg-[#121727]/90 dark:bg-[#111728]/95 rounded-xl sm:rounded-2xl border border-rose-500/40 p-2.5 sm:p-5 shadow-lg relative overflow-hidden cursor-pointer hover:border-rose-400 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian agenda umum H-7">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-rose-400 uppercase tracking-wider truncate">RADAR H-7 UMUM</span>
-                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 animate-ping flex-shrink-0"></span>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoUmumH7Count" class="text-xl sm:text-4xl font-black text-rose-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-rose-400 truncate">Event Mendesak</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Jatuh tempo 7 hr &bull; <span class="text-rose-400 font-semibold underline">Rincian</span></p>
-                </div>
-
-                <!-- Metric 2: BUTUH PAMFLET UMUM -->
-                <div onclick="openHumasMetricDetailModal('belum', 'umum')" class="bg-[#121727]/90 dark:bg-[#111728]/95 rounded-xl sm:rounded-2xl border border-amber-500/30 p-2.5 sm:p-5 shadow-lg cursor-pointer hover:border-amber-400 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian agenda umum yang butuh pamflet">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-amber-400 uppercase tracking-wider truncate">BUTUH PAMFLET</span>
-                    <i data-lucide="clock" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 flex-shrink-0"></i>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoUmumNeedPamflet" class="text-xl sm:text-4xl font-black text-amber-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-slate-300 truncate">Event Umum</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Belum ada flyer &bull; <span class="text-amber-400 font-semibold underline">Rincian</span></p>
-                </div>
-
-                <!-- Metric 3: PROSES DESAIN UMUM -->
-                <div onclick="openHumasMetricDetailModal('proses', 'umum')" class="bg-[#121727]/90 dark:bg-[#111728]/95 rounded-xl sm:rounded-2xl border border-indigo-500/30 p-2.5 sm:p-5 shadow-lg cursor-pointer hover:border-indigo-400 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian desain umum yang sedang diproses">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-indigo-400 uppercase tracking-wider truncate">PROSES DESAIN</span>
-                    <i data-lucide="palette" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 flex-shrink-0"></i>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoUmumInDesign" class="text-xl sm:text-4xl font-black text-indigo-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-slate-300 truncate">Desain Umum</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Di Canva/Corel &bull; <span class="text-indigo-400 font-semibold underline">Rincian</span></p>
-                </div>
-
-                <!-- Metric 4: SUDAH PUBLISH UMUM -->
-                <div onclick="openHumasMetricDetailModal('selesai', 'umum')" class="bg-[#121727]/90 dark:bg-[#111728]/95 rounded-xl sm:rounded-2xl border border-blue-500/30 p-2.5 sm:p-5 shadow-lg cursor-pointer hover:border-blue-400 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian agenda umum yang sudah publish">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-blue-400 uppercase tracking-wider truncate">SUDAH PUBLISH</span>
-                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0"></i>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoUmumPublished" class="text-xl sm:text-4xl font-black text-blue-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-slate-300 truncate">Event Umum</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Di IG, FB, WA &bull; <span class="text-blue-400 font-semibold underline">Rincian</span></p>
-                </div>
-              </div>
-            </div>
-
-            <!-- ROW 2: MONITORING PAMFLET TAHFIDZ TASMI' BIL GHOIB (4 KARTU EMERALD THEME) -->
-            <div class="space-y-1.5 sm:space-y-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/60">
-              <div class="flex items-center justify-between gap-1">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse flex-shrink-0"></span>
-                  <h4 class="text-[11px] sm:text-sm font-black text-emerald-800 dark:text-emerald-300 tracking-wider uppercase flex items-center gap-1 truncate">
-                    <i data-lucide="book-open" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0"></i>
-                    <span class="truncate">2. Pamflet Tahfidz Tasmi'</span>
-                  </h4>
-                </div>
-                <span class="text-[9px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 flex-shrink-0">
-                  <span>31 Santri</span>
-                </span>
-              </div>
-
-              <!-- THE 4 CARDS FOR PAMFLET TASMI' (EMERALD LUXURY THEME) -->
-              <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-                <!-- Metric 1: RADAR H-7 TASMI' -->
-                <div onclick="openHumasMetricDetailModal('h7', 'tasmi')" class="bg-gradient-to-br from-[#0c221b]/90 to-[#121727]/95 dark:from-[#09221b]/95 dark:to-[#111728]/95 rounded-xl sm:rounded-2xl border border-emerald-500/40 p-2.5 sm:p-5 shadow-lg relative overflow-hidden cursor-pointer hover:border-emerald-400 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian agenda ujian tasmi' H-7">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1 truncate">
-                      <i data-lucide="bell-ring" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
-                      <span class="truncate">RADAR H-7 TASMI'</span>
-                    </span>
-                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoTasmiH7Count" class="text-xl sm:text-4xl font-black text-emerald-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-emerald-400 truncate">Tasmi' Dekat</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Ujian 7 hr ke depan &bull; <span class="text-emerald-400 font-semibold underline">Rincian</span></p>
-                </div>
-
-                <!-- Metric 2: BUTUH PAMFLET TASMI' -->
-                <div onclick="openHumasMetricDetailModal('belum', 'tasmi')" class="bg-gradient-to-br from-[#1d1f11]/90 to-[#121727]/95 dark:from-[#1e2010]/95 dark:to-[#111728]/95 rounded-xl sm:rounded-2xl border border-amber-500/40 p-2.5 sm:p-5 shadow-lg cursor-pointer hover:border-amber-300 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian ujian tasmi' yang butuh pamflet">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1 truncate">
-                      <i data-lucide="file-plus-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 flex-shrink-0"></i>
-                      <span class="truncate">BUTUH PAMFLET</span>
-                    </span>
-                    <span class="text-[9px] sm:text-[10px] font-black px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 flex-shrink-0">Santri</span>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoTasmiNeedPamflet" class="text-xl sm:text-4xl font-black text-amber-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-amber-400/90 truncate">Agenda Tasmi'</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Belum ada flyer &bull; <span class="text-amber-300 font-semibold underline">Rincian</span></p>
-                </div>
-
-                <!-- Metric 3: PROSES DESAIN TASMI' -->
-                <div onclick="openHumasMetricDetailModal('proses', 'tasmi')" class="bg-gradient-to-br from-[#0c242b]/90 to-[#121727]/95 dark:from-[#0a232b]/95 dark:to-[#111728]/95 rounded-xl sm:rounded-2xl border border-teal-500/40 p-2.5 sm:p-5 shadow-lg cursor-pointer hover:border-teal-300 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian pamflet tasmi' yang sedang didesain">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1 truncate">
-                      <i data-lucide="palette" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400 flex-shrink-0"></i>
-                      <span class="truncate">PROSES DESAIN</span>
-                    </span>
-                    <i data-lucide="sparkles" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400 flex-shrink-0"></i>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoTasmiInDesign" class="text-xl sm:text-4xl font-black text-teal-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-teal-400/90 truncate">Desain Tasmi'</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Template Syahadah &bull; <span class="text-teal-300 font-semibold underline">Rincian</span></p>
-                </div>
-
-                <!-- Metric 4: SUDAH PUBLISH TASMI' -->
-                <div onclick="openHumasMetricDetailModal('selesai', 'tasmi')" class="bg-gradient-to-br from-[#092b1e]/90 to-[#121727]/95 dark:from-[#06291c]/95 dark:to-[#111728]/95 rounded-xl sm:rounded-2xl border border-emerald-400/50 p-2.5 sm:p-5 shadow-lg cursor-pointer hover:border-emerald-300 hover:scale-[1.01] transition-all group min-w-0 box-border" title="Klik untuk melihat rincian pamflet tasmi' yang sudah publish">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-[10px] sm:text-[11px] font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1 truncate">
-                      <i data-lucide="award" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 flex-shrink-0"></i>
-                      <span class="truncate">SUDAH PUBLISH</span>
-                    </span>
-                    <i data-lucide="check-circle-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 flex-shrink-0"></i>
-                  </div>
-                  <div class="mt-1.5 sm:mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                    <h4 id="bentoTasmiPublished" class="text-xl sm:text-4xl font-black text-emerald-300">0</h4>
-                    <span class="text-[10px] sm:text-xs font-bold text-emerald-400/90 truncate">Tayang Resmi</span>
-                  </div>
-                  <p class="text-[9.5px] sm:text-[10.5px] text-slate-400 dark:text-slate-400 mt-1 truncate">Syahadah tayang &bull; <span class="text-emerald-300 font-semibold underline">Rincian</span></p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div id="bentoContentGrid" class="hidden lg:block transition-all duration-300" style="display: none;">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
-          
-          <!-- LEFT 8-9 COLUMNS: SMART WIDGETS & MEDIA CONTROLLER -->
-          <div class="lg:col-span-8 xl:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-            
-            <!-- BENTO 1: HERO MEDIA PLAYER STYLE CARD (Wide 2-cols on md/xl) -->
-            <div id="bentoHeroCard" class="bento-card md:col-span-2 xl:col-span-2 rounded-[28px] p-5 sm:p-6 bg-gradient-to-br from-[#121726]/80 via-[#1a2136]/60 to-[#0f1422]/80 dark:from-[#121726]/40 dark:via-[#1a2136]/30 dark:to-[#0f1422]/40 text-white border border-white/15 shadow-xl relative overflow-hidden flex flex-col justify-between group">
-              <!-- Ambient decorative glow -->
-              <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/30 transition-all"></div>
-              <div class="absolute -left-10 -top-10 w-40 h-40 bg-orange-500/15 rounded-full blur-2xl pointer-events-none"></div>
-
-              <div>
-                <!-- Top Badge Row -->
-                <div class="flex items-center justify-between gap-2 mb-3 relative z-10">
-                  <div id="bentoHeroBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-bold text-indigo-300">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="bentoHeroBadgeText">PPDB STUDIO SUITE &bull; 2026-2027</span>
-                  </div>
-                  <div id="bentoHeroSubBadge" class="flex items-center gap-1.5 text-xs text-slate-300">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                    <span id="bentoHeroSubBadgeText" class="font-medium">11 Kolom Standar</span>
-                  </div>
-                </div>
-
-                <!-- Title & Description -->
-                <div class="relative z-10 my-1">
-                  <h2 id="bentoHeroTitle" class="text-xl sm:text-2xl font-black tracking-tight text-white leading-snug">
-                    Studio Generator Akun & Analisis PPDB
-                  </h2>
-                  <p id="bentoHeroDesc" class="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-xl font-normal leading-relaxed">
-                    Otomasi pemisahan Akun Orang Tua (11 Kolom), Akun Siswa Baru & Akumulasi Siswa per Guru Pendamping &mdash; YTPAI Tegalrejo.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Media-Player Style Action Controls Bar -->
-              <div id="bentoHeroActions" class="relative z-10 mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                <button 
-                  type="button" 
-                  onclick="document.getElementById('ppdbFileInput').click()" 
-                  class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px]"
-                >
-                  <i data-lucide="file-up" class="w-4 h-4"></i>
-                  <span>Pilih File Excel</span>
-                </button>
-                <button 
-                  type="button" 
-                  onclick="loadPpdbSampleData()" 
-                  class="bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl border border-white/15 backdrop-blur-md flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[44px]"
-                >
-                  <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-                  <span>Muat Contoh Data (15 Siswa)</span>
-                </button>
-                <button 
-                  type="button" 
-                  onclick="togglePpdbPasteArea()" 
-                  class="bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-semibold text-xs px-3.5 py-2.5 rounded-2xl border border-white/10 flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
-                >
-                  <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
-                  <span>Tempel Baris</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- BENTO 2: DIGITAL LIVE CLOCK WIDGET (1-col) -->
-            <div id="bentoCard2" class="bento-card rounded-[28px] p-5 bg-white/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-lg flex flex-col justify-between relative overflow-hidden">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
-                      <i data-lucide="clock" class="w-4 h-4"></i>
-                    </div>
-                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Waktu & Sinkron</span>
-                  </div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                    Live
-                  </span>
-                </div>
-
-                <!-- Big Live Clock Display with Seconds -->
-                <div class="mt-3">
-                  <div id="bentoClockTime" class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
-                    15:05:22 <span class="text-xs text-orange-600 dark:text-orange-400 font-bold">WIB</span>
-                  </div>
-                  <p id="bentoClockDate" class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-                    Minggu, 13 September 2026
-                  </p>
-                </div>
-              </div>
-
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs">
-                <span id="bentoClockFooterStatus" class="text-slate-500 dark:text-slate-400 text-[11px] flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span id="bentoClockFooterText">Spreadsheet Ready</span>
-                </span>
-                <span class="font-mono text-[10px] text-slate-400">GMT+7</span>
-              </div>
-            </div>
-
-            <!-- BENTO 3: GOOGLE SHEETS YTPAI CONNECTIVITY CARD -->
-            <div id="bentoCard3" class="bento-card rounded-[28px] p-4 sm:p-5 bg-white/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-lg flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                      <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                      <p class="text-xs font-bold text-slate-900 dark:text-white leading-tight">Google Sheets YTPAI</p>
-                      <p class="text-[10px] text-slate-400">Database Pendaftaran</p>
-                    </div>
-                  </div>
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Tersambung"></span>
-                </div>
-                <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 font-medium">
-                  Format kolom PPDB terstandar 11 atribut (Ortu, Siswa, Guru, Rekening BRIVA).
-                </p>
-              </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/40">Status: Sinkron</span>
-                <button onclick="switchAccountMode('ppdb'); document.getElementById('ppdbFileInput').click();" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">Unggah File &rsaquo;</button>
-              </div>
-            </div>
-
-            <!-- BENTO 4: BRIVA 5-KOLOM CMS GATEWAY STATUS -->
-            <div id="bentoCard4" class="bento-card rounded-[28px] p-4 sm:p-5 bg-white/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-lg flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
-                      <i data-lucide="layers" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                      <p class="text-xs font-bold text-slate-900 dark:text-white leading-tight">BRIVA CMS Gateway</p>
-                      <p class="text-[10px] text-slate-400">Standar Bank BRI 5-Kolom</p>
-                    </div>
-                  </div>
-                  <span class="text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800">77992</span>
-                </div>
-                <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 font-medium">
-                  Format: Nomor Briva, Nama, Tagihan, Keterangan, Expired Date.
-                </p>
-              </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-                <span class="text-[10px] text-slate-400">Prefix: 77992 + ID Siswa</span>
-                <button onclick="switchTab('briva')" class="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer">Buka BRIVA &rsaquo;</button>
-              </div>
-            </div>
-
-            <!-- BENTO 5: PARAMETER ANGKATAN QUICK HUB -->
-            <div id="bentoCard5" class="bento-card rounded-[28px] p-4 sm:p-5 bg-white/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-lg flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
-                      <i data-lucide="sliders" class="w-4 h-4"></i>
-                    </div>
-                    <p class="text-xs font-bold text-slate-900 dark:text-white leading-tight">Parameter Angkatan</p>
-                  </div>
-                  <span class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-lg">2026</span>
-                </div>
-                <div class="mt-2 space-y-1.5">
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="text-slate-500 dark:text-slate-400">Suffix Username:</span>
-                    <code class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">26</code>
-                  </div>
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="text-slate-500 dark:text-slate-400">Kata Sandi Default:</span>
-                    <code class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">P@ssword123</code>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-                <span class="text-[10px] text-slate-400">Otomatisasi Username</span>
-                <button onclick="document.getElementById('ppdbSuffixInput')?.focus()" class="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline cursor-pointer">Edit Parameter &rsaquo;</button>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- RIGHT 4-3 COLUMNS: SMART CIRCULAR ARC GAUGE (Tall Card matching Reference) -->
-          <div id="bentoCard6" class="bento-card lg:col-span-4 xl:col-span-3 rounded-[28px] p-5 sm:p-6 bg-white/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 shadow-xl flex flex-col justify-between relative overflow-hidden">
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <div id="bentoGaugeIcon" class="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
-                    <i data-lucide="gauge" class="w-4 h-4"></i>
-                  </div>
-                  <div>
-                    <h3 id="bentoGaugeTitle" class="text-xs font-bold text-slate-900 dark:text-white leading-tight">Target Verifikasi</h3>
-                    <p id="bentoGaugeSubtitle" class="text-[10px] text-slate-400">Kelengkapan Akun & Tagihan</p>
-                  </div>
-                </div>
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              </div>
-
-              <!-- CIRCULAR ARC GAUGE DIAL (Matching Reference Circular Widget) -->
-              <div class="flex flex-col items-center justify-center my-3 relative">
-                <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 120 120">
-                  <!-- Background Track Arc -->
-                  <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="10" fill="transparent" class="text-slate-100 dark:text-slate-800" stroke-dasharray="314.159" stroke-dashoffset="62.83" stroke-linecap="round" />
-                  <!-- Foreground Gradient Arc (98% Complete) -->
-                  <circle id="bentoGaugeArc" cx="60" cy="60" r="50" stroke="url(#arcGaugeGrad)" stroke-width="10" fill="transparent" stroke-dasharray="314.159" stroke-dashoffset="75" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
-                  <defs>
-                    <linearGradient id="arcGaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#f97316" />
-                      <stop offset="50%" stop-color="#8b5cf6" />
-                      <stop offset="100%" stop-color="#06b6d4" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <!-- Center Gauge Number & Label -->
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                  <span class="text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums" id="gaugePercentText">98%</span>
-                  <span id="gaugePercentLabel" class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Verifikasi</span>
-                </div>
-              </div>
-
-              <!-- Metric Breakdown Legend List with Color Dots -->
-              <div id="bentoGaugeLegend" class="space-y-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-white/5">
-                <div class="flex items-center justify-between text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white" onclick="switchTab('akun'); switchPpdbSubtab('ortu');">
-                  <span class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span class="font-medium">Akun Orang Tua</span>
-                  </span>
-                  <span class="font-extrabold text-slate-800 dark:text-slate-100 tabular-nums" id="bentoOrtuCount">93 Ortu</span>
-                </div>
-
-                <div class="flex items-center justify-between text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white" onclick="switchTab('akun'); switchPpdbSubtab('siswa');">
-                  <span class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <span class="font-medium">Akun Siswa PPDB</span>
-                  </span>
-                  <span class="font-extrabold text-slate-800 dark:text-slate-100 tabular-nums" id="bentoSiswaCount">93 Siswa</span>
-                </div>
-
-                <div class="flex items-center justify-between text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white" onclick="switchTab('akun'); switchPpdbSubtab('guru');">
-                  <span class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                    <span class="font-medium">Guru Pendamping</span>
-                  </span>
-                  <span class="font-extrabold text-slate-800 dark:text-slate-100 tabular-nums" id="bentoGuruCount">13 Guru</span>
-                </div>
-
-                <div class="flex items-center justify-between text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white" onclick="switchTab('briva');">
-                  <span class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span class="font-medium">Tagihan BRIVA</span>
-                  </span>
-                  <span class="font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">Siap CMS</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Quick Action Bar -->
-            <div id="bentoGaugeActions" class="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
-              <button onclick="copyCurrentPpdbTableExcel()" class="flex-1 bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white text-xs font-bold py-2.5 px-2.5 rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                <span>Salin Excel</span>
-              </button>
-              <button onclick="exportCurrentPpdbToNativeXlsx()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-2.5 rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
-                <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                <span>Unduh .xlsx</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-        </div>
-      </section>
-
-      <!-- SECTION B: PROJECT TIMELINE WORKSPACE WITH DYNAMIC TABS -->
-      <section class="px-[2px] sm:px-5 lg:px-6 pt-2 sm:pt-3 pb-6 w-full max-w-full min-w-0 box-border">
-          
-          <!-- Unified Frosted Glass Workspace Container -->
-          <div class="rounded-2xl sm:rounded-[32px] bg-transparent sm:bg-white/52 dark:sm:bg-[#0c101a]/30 backdrop-blur-none sm:backdrop-blur-3xl border-0 sm:border border-white/80 dark:border-white/12 shadow-none sm:shadow-2xl w-full max-w-full min-w-0 box-border">
-            
-            <!-- Timeline Header Bar -->
-            <div class="hidden sm:flex p-2.5 sm:p-5 border-b border-slate-200/60 dark:border-white/10 items-center justify-between gap-2 sm:gap-3 flex-shrink-0 bg-white/35 dark:bg-white/5 backdrop-blur-xl">
-              <!-- Left: Clock Icon + Title -->
-              <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold flex-shrink-0 shadow-xs border border-orange-200/60 dark:border-orange-800/40">
-                  <i data-lucide="clock" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                </div>
-                <div class="min-w-0">
-                  <h3 class="font-black text-xs sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-2 truncate" id="projectTimelineTitle">
-                    Project Timeline
-                  </h3>
-                  <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate" id="projectTimelineSubtitle">
-                    Active Workspaces &amp; Schedule Pipeline — Raudlatul Muta'allimin
-                  </p>
-                </div>
-              </div>
-
-              <!-- Right: Action & Date Controls (Clean & Responsive) -->
-              <div class="hidden sm:flex items-center gap-2 flex-shrink-0">
-                <!-- Date Pill -->
-                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-white/10 text-xs font-semibold text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 select-none">
-                  <i data-lucide="calendar" class="w-3.5 h-3.5 text-orange-600 dark:text-orange-400"></i>
-                  <span id="projectTimelineDate">14/09/2026</span>
-                </div>
-
-                <!-- Filter Dropdown Button -->
-                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-white/10 hover:bg-white text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200/90 dark:border-white/10 shadow-2xs transition-colors cursor-pointer">
-                  <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                  <span>Filter</span>
-                  <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
-                </button>
-
-                <!-- Dynamic Contextual Action Button (Auto-adapts to active tab) -->
-                <button 
-                  id="timelineHeaderActionBtn"
-                  onclick="handleTimelineHeaderAction()" 
-                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
-                >
-                  <i id="timelineHeaderActionIcon" data-lucide="search" class="w-3.5 h-3.5"></i>
-                  <span id="timelineHeaderActionLabel">Cari Santri</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Tab Content Panels Container (2px Margin Mobile Presisi) -->
-            <div class="px-0 sm:px-5 lg:px-6 py-2.5 sm:py-5 w-full max-w-full min-w-0 box-border">
-
-
-            <!-- START COMPONENT: Tab01_Konverter.html -->
-          <div id="tab-konverter" class="hidden space-y-2.5 sm:space-y-4 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
-            
-            <!-- Controls Bar -->
-            <div class="bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 p-2 sm:p-4 shadow-xs space-y-1.5 sm:space-y-3">
-              <div class="flex items-center justify-between gap-2 pb-1.5 sm:pb-2.5 border-b border-slate-100 dark:border-white/10">
-                <div class="flex items-center gap-1.5">
-                  <div class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
-                  <h3 class="font-bold text-slate-800 dark:text-white text-[11px] sm:text-xs tracking-wide uppercase">Parameter Konversi Excel</h3>
-                </div>
-                <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-lg text-[10px] sm:text-xs">
-                  <label class="inline-flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded-md transition-colors font-medium has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-blue-600 dark:has-[:checked]:text-blue-400 has-[:checked]:shadow-2xs text-slate-600 dark:text-slate-400">
-                    <input type="radio" name="parserMode" value="simple" checked onchange="runBulkConversion()" class="hidden">
-                    <span>Sederhana</span>
-                  </label>
-                  <label class="inline-flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded-md transition-colors font-medium has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-blue-600 dark:has-[:checked]:text-blue-400 has-[:checked]:shadow-2xs text-slate-600 dark:text-slate-400">
-                    <input type="radio" name="parserMode" value="multi" onchange="runBulkConversion()" class="hidden">
-                    <span>Multi-Kolom</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Parameter Selectors Grid: 2 columns on mobile, 4 columns on md -->
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-                
-                <div>
-                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5 truncate">Jenjang / Kelas Global</label>
-                  <select id="bulkKelasSelect" onchange="runBulkConversion()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 sm:py-1.5 text-[11px] sm:text-xs h-7 sm:h-8 text-slate-800 dark:text-slate-100 font-bold focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all truncate">
-                    <optgroup label="MTs / SMP (SLTP)">
-                      <option value="7">Kelas 7 (MTs)</option>
-                      <option value="8">Kelas 8 (MTs)</option>
-                      <option value="9">Kelas 9 (MTs)</option>
-                    </optgroup>
-                    <optgroup label="MA / SMA (SLTA)">
-                      <option value="10" selected>Kelas 10 (MA)</option>
-                      <option value="11">Kelas 11 (MA)</option>
-                      <option value="12">Kelas 12 (MA)</option>
-                    </optgroup>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5 truncate">Jenis Tagihan</label>
-                  <select id="bulkJenisTagihan" onchange="runBulkConversion()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 sm:py-1.5 text-[11px] sm:text-xs h-7 sm:h-8 text-slate-800 dark:text-slate-100 font-bold focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all truncate">
-                    <option value="bulanan">Bulanan (Per Bulan)</option>
-                    <option value="bulanan_setahun">Bulanan (1 Tahun - 12x)</option>
-                    <option value="awal_tahun">Awal Tahun (Daftar Ulang)</option>
-                    <option value="akhir_tahun">Akhir Tahun (Ujian/Wisuda)</option>
-                    <option value="seragam_sekolah">Seragam Sekolah Baru</option>
-                    <option value="seragam_pondok">Seragam Khusus Pondok</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5 truncate">Format Output</label>
-                  <select id="bulkFormatSelect" onchange="renderBulkResults()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 sm:py-1.5 text-[11px] sm:text-xs h-7 sm:h-8 text-slate-800 dark:text-slate-100 font-bold focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all truncate">
-                    <option value="safe" selected>'1,000 (Excel Aman)</option>
-                    <option value="comma">1,000 (Pemisah Koma)</option>
-                    <option value="dot">1.000 (Pemisah Titik IDR)</option>
-                    <option value="raw">1000 (Angka Polos - Rumus)</option>
-                  </select>
-                </div>
-
-                <div class="flex items-end gap-1.5">
-                  <button 
-                    onclick="copySafeExcelColumn()" 
-                    id="btnCopySafe"
-                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold py-1 px-2 rounded-lg shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer truncate h-7 sm:h-[34px]"
-                    title="Salin hasil kolom siap paste ke Microsoft Excel"
-                  >
-                    <i data-lucide="copy-check" class="w-3.5 h-3.5 shrink-0"></i>
-                    <span>Salin Hasil</span>
-                  </button>
-                  <button 
-                    onclick="resetBulkConverter()" 
-                    class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold p-1.5 rounded-lg transition-all active:scale-95 cursor-pointer shrink-0 border border-slate-200/60 dark:border-slate-700 h-7 w-7 sm:h-[34px] sm:w-[34px] flex items-center justify-center" 
-                    title="Bersihkan Input"
-                  >
-                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Two-Column Converter: Input Area & Live Table Results -->
-            <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2.5 sm:gap-4">
-              
-              <!-- Left Input Box -->
-              <div class="lg:col-span-4 bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 p-2 sm:p-3.5 shadow-xs flex flex-col min-h-[160px] h-44 sm:h-48 lg:h-[490px]">
-                <div class="flex items-center justify-between mb-1.5">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200">Kotak Tempel Excel</span>
-                    <span id="bulkLineCount" class="text-[10.5px] sm:text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 tabular-nums font-bold px-1.5 py-0.2 rounded-full">0 baris</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="pasteFromClipboardToInput('bulkInput', 'runBulkConversion')" class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold flex items-center gap-1 cursor-pointer" title="Tempel dari Clipboard">
-                      <i data-lucide="clipboard-paste" class="w-3 h-3"></i>
-                      <span>Tempel</span>
-                    </button>
-                    <button onclick="insertBulkSample()" class="text-[10px] sm:text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">Contoh Data</button>
-                  </div>
-                </div>
-                
-                <textarea 
-                  id="bulkInput" 
-                  oninput="runBulkConversion()"
-                  placeholder="Tempelkan (Ctrl+V) kolom status siswa di sini... (Contoh: Mukim Reguler PI, VIP, Reguler PA)" 
-                  class="w-full flex-1 p-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-50/80 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs tabular-nums text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/30 outline-none resize-none leading-normal transition-all placeholder:text-slate-400 font-medium"
-                ></textarea>
-
-                <div class="mt-1 text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
-                  <span>Mendukung PA/PI & spasi</span>
-                  <button onclick="document.getElementById('bulkInput').value = ''; runBulkConversion();" class="text-red-500 hover:underline font-semibold cursor-pointer">Hapus</button>
-                </div>
-              </div>
-
-              <!-- Right Live Preview Table with Color-Coded Categories -->
-              <div class="lg:col-span-8 bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs flex flex-col min-h-[260px] lg:h-[490px] overflow-hidden">
-                
-                <div class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between bg-slate-50/70 dark:bg-white/5 gap-2">
-                  <div class="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
-                    <span class="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide uppercase truncate">Pratinjau Pemetaan</span>
-                    <span id="summaryBadge" class="whitespace-nowrap shrink-0 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60 tabular-nums">
-                      Total: Rp 0
-                    </span>
-                  </div>
-                  <button onclick="copyRawNumberColumn()" class="text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 shrink-0 cursor-pointer">
-                    <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> <span>Polos</span>
-                  </button>
-                </div>
-
-                <!-- Instant Search / Filter Bar for Bulk Table -->
-                <div class="px-2.5 sm:px-4 py-1.5 bg-slate-50/90 dark:bg-slate-800/60 border-b border-slate-100 dark:border-white/10 flex items-center justify-between gap-2">
-                  <div class="relative flex-1">
-                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input 
-                      type="text" 
-                      id="bulkTableSearch" 
-                      oninput="renderBulkResults()" 
-                      placeholder="Cari teks, kriteria, nominal..." 
-                      class="w-full pl-7 pr-7 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all"
-                    />
-                    <button 
-                      id="clearBulkSearchBtn" 
-                      onclick="document.getElementById('bulkTableSearch').value = ''; renderBulkResults();" 
-                      class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-                    >
-                      <i data-lucide="x" class="w-3 h-3"></i>
-                    </button>
-                  </div>
-                  <div class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0 font-medium">
-                    <span>Tampil:</span>
-                    <b id="bulkFilterCount" class="text-blue-700 dark:text-blue-400 font-bold tabular-nums">0</b>
-                  </div>
-                </div>
-
-                <div class="flex-1 overflow-x-auto overflow-y-auto" id="bulkTableWrapper">
-                  <table class="w-full text-left border-collapse text-xs min-w-[540px] sm:min-w-full">
-                    <thead class="bg-slate-50/90 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-white/10 sticky top-0 z-10 backdrop-blur-xs text-[11px]">
-                      <tr>
-                        <th class="py-2 px-2.5 w-10 text-center">No</th>
-                        <th class="py-2 px-2.5">Teks Sumber</th>
-                        <th class="py-2 px-2.5">Kriteria Terdeteksi</th>
-                        <th class="py-2 px-2.5">Kelas</th>
-                        <th class="py-2 px-2.5 text-right">Nominal</th>
-                        <th class="py-2 px-2.5 w-16 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody id="bulkTableBody" class="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-200">
-                      <tr>
-                        <td colspan="6" class="py-8 sm:py-16 text-center text-slate-400 dark:text-slate-500">
-                          <i data-lucide="inbox" class="w-7 h-7 mx-auto mb-1.5 text-slate-300 dark:text-slate-600"></i>
-                          <p class="font-medium text-xs">Belum ada data input</p>
-                          <p class="text-[11px] text-slate-400 dark:text-slate-500">Tempelkan kolom status dari Excel di kotak sebelah kiri/atas.</p>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div class="px-2.5 sm:px-4 py-1.5 bg-slate-50 dark:bg-slate-800/70 border-t border-slate-100 dark:border-white/10 flex flex-wrap items-center justify-between text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono gap-1.5">
-                  <div class="flex items-center gap-2.5">
-                    <span>Sukses: <b id="statSuccess" class="text-emerald-600 dark:text-emerald-400 font-bold">0</b></span>
-                    <span>Galat: <b id="statFailed" class="text-rose-600 dark:text-rose-400 font-bold">0</b></span>
-                  </div>
-                  <div>
-                    <span>Rata-rata: <b id="statAverage" class="text-slate-700 dark:text-slate-200">Rp 0</b></span>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-<!-- END COMPONENT: Tab01_Konverter.html -->
-
-<!-- START COMPONENT: Tab02_AkunPPDB.html -->
-          <div id="tab-akun" class="hidden space-y-3.5 sm:space-y-6 pb-8 px-1 sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
-            
-              <!-- Clean Segmented Mode Switcher (Symmetric 3-Pill Layout) -->
-              <div class="flex items-center justify-between gap-2 max-w-xl mx-auto w-full">
-                <div class="grid grid-cols-3 p-1 bg-slate-200/70 dark:bg-white/[0.05] rounded-xl text-xs font-semibold w-full border border-slate-300/60 dark:border-white/[0.08] backdrop-blur-md">
-                  <!-- 1. WhatsApp (Primary) -->
-                  <button 
-                    id="btnTabModeAi" 
-                    onclick="switchAccountMode('ai')" 
-                    class="py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all bg-emerald-500 text-white shadow-sm cursor-pointer"
-                  >
-                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                    <span>WhatsApp</span>
-                  </button>
-
-                  <!-- 2. File Excel -->
-                  <button 
-                    id="btnTabModePpdb" 
-                    onclick="switchAccountMode('ppdb')" 
-                    class="py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
-                  >
-                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                    <span>File Excel</span>
-                  </button>
-
-                  <!-- 3. Manual -->
-                  <button 
-                    id="btnTabModeManual" 
-                    onclick="switchAccountMode('manual')" 
-                    class="py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
-                  >
-                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                    <span>Manual</span>
-                  </button>
-                </div>
-
-                <!-- Quick Reset Link (Desktop) -->
-                <div class="hidden sm:flex items-center shrink-0">
-                  <button type="button" onclick="resetPpdbAnalysis()" class="text-xs text-slate-400 hover:text-red-500 font-semibold flex items-center gap-1 cursor-pointer transition-colors">
-                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                    <span>Reset</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- ================= VIEW 1: ANALISIS PPDB (UTAMA) ================= -->
-              <div id="viewModePpdb" class="space-y-3 sm:space-y-4">
-                
-                <!-- Upload Box & Parameters Grid (Excel Mode) -->
-                <div id="ppdbInputExcelSection" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-4">
-                  
-                  <!-- Upload Dropzone (Lg: Col 7) -->
-                  <div 
-                    ondragover="event.preventDefault(); this.classList.add('border-emerald-500', 'bg-emerald-50/20');" 
-                    ondragleave="this.classList.remove('border-emerald-500', 'bg-emerald-50/20');" 
-                    ondrop="handlePpdbDrop(event);"
-                    class="lg:col-span-7 bg-white dark:bg-[#121724] rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/10 hover:border-emerald-400 p-3.5 sm:p-5 shadow-xs flex flex-col justify-center items-center text-center transition-all bg-gradient-to-b from-slate-50/50 dark:from-white/[0.02] to-transparent relative group"
-                  >
-                    <!-- VIP WhatsApp Quick Callout Banner -->
-                    <div 
-                      onclick="switchAccountMode('ai')" 
-                      class="cursor-pointer mb-3 w-full p-2.5 sm:p-3 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/5 dark:from-emerald-500/20 dark:via-teal-500/10 dark:to-transparent border border-emerald-500/35 hover:border-emerald-400 shadow-[0_4px_16px_rgba(16,185,129,0.15)] flex items-center justify-between gap-2.5 transition-all group/wa hover:scale-[1.01]"
-                    >
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/30 ring-1 ring-white/30 group-hover/wa:scale-105 transition-transform shrink-0">
-                          <i data-lucide="message-circle" class="w-4 h-4 text-white"></i>
-                        </div>
-                        <div class="text-left">
-                          <div class="flex items-center gap-1.5">
-                            <span class="text-xs font-extrabold font-display text-emerald-700 dark:text-emerald-400 tracking-tight">Sering Terima Data dari WhatsApp?</span>
-                            <span class="text-[8.5px] font-black px-1.5 py-0.5 rounded-md bg-emerald-500 text-slate-950 uppercase tracking-wider">Paling Cepat</span>
-                          </div>
-                          <p class="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight">Klik untuk langsung tempel chat santri &amp; ekstrak 2 akun (Ortu &amp; Siswa) instan.</p>
-                        </div>
-                      </div>
-                      <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold shrink-0">
-                        <span class="hidden sm:inline">Buka WA</span>
-                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover/wa:translate-x-1 transition-transform"></i>
-                      </div>
-                    </div>
-
-                    <input type="file" id="ppdbFileInput" accept=".xlsx,.xls,.csv" onchange="handlePpdbFileInput(event)" class="hidden" />
-                    
-                    <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 dark:bg-white/[0.06] text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-1.5 sm:mb-2 group-hover:scale-105 transition-transform shadow-xs border border-indigo-200 dark:border-white/10">
-                      <i data-lucide="upload-cloud" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                    </div>
-                    
-                    <h4 class="font-extrabold font-display text-slate-800 dark:text-white text-xs sm:text-base mb-0.5">Unggah Formulir PPDB (.xlsx / .csv)</h4>
-                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 max-w-md mb-2.5 hidden sm:block">Tarik & lepas file spreadsheet hasil formulir PPDB ke sini, atau klik tombol di bawah.</p>
-                    
-                    <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-                      <!-- HERO WHATSAPP BUTTON (EYE-CATCHING) -->
-                      <button 
-                        type="button" 
-                        onclick="switchAccountMode('ai')" 
-                        class="col-span-2 sm:col-span-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-extrabold text-xs px-3 sm:px-4 py-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] ring-2 ring-emerald-400/50 flex items-center justify-center gap-2 transition-all cursor-pointer h-9 sm:h-10 transform hover:scale-[1.02] group/btn"
-                        title="Buka AI Chat Parser untuk pesan WhatsApp santri"
-                      >
-                        <i data-lucide="message-circle" class="w-4 h-4 text-emerald-100 group-hover/btn:scale-110 transition-transform"></i>
-                        <span class="font-display tracking-tight">AI Chat WA (Instan)</span>
-                        <span class="text-[8.5px] font-black px-1.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 uppercase tracking-wide">Populer</span>
-                      </button>
-
-                      <button 
-                        type="button" 
-                        onclick="document.getElementById('ppdbFileInput').click()" 
-                        class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold text-xs px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer h-9 sm:h-10"
-                      >
-                        <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
-                        <span class="truncate">Pilih File Excel</span>
-                      </button>
-
-                      <button 
-                        type="button" 
-                        onclick="loadPpdbSampleData()" 
-                        class="bg-indigo-50 dark:bg-white/[0.06] hover:bg-indigo-100 dark:hover:bg-white/[0.1] text-indigo-700 dark:text-indigo-300 font-semibold text-xs px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-indigo-200 dark:border-white/10 flex items-center justify-center gap-1.5 transition-all cursor-pointer h-9 sm:h-10"
-                      >
-                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-500"></i>
-                        <span class="truncate">Contoh Data</span>
-                      </button>
-
-                      <button 
-                        type="button" 
-                        onclick="togglePpdbPasteArea()" 
-                        class="bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-700 dark:text-slate-300 text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-center gap-1 transition-colors cursor-pointer h-9 sm:h-10"
-                      >
-                        <i data-lucide="clipboard" class="w-3 h-3"></i>
-                        <span class="truncate">Tempel Manual</span>
-                      </button>
-                    </div>
-
-                  <!-- Optional Paste Area (Collapsible) -->
-                  <div id="ppdbPasteAreaWrapper" class="hidden w-full mt-3 pt-2.5 border-t border-indigo-100 dark:border-indigo-900/40 text-left">
-                    <div class="flex items-center justify-between mb-1">
-                      <label class="text-[10px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-300">Atau Tempel Baris dari Google Sheet (Ctrl+V):</label>
-                      <button onclick="clearPpdbPaste()" class="text-[10px] sm:text-[11px] text-red-500 hover:underline">Bersihkan</button>
-                    </div>
-                    <textarea 
-                      id="ppdbPasteInput" 
-                      rows="2" 
-                      oninput="handlePpdbPasteInput()" 
-                      placeholder="Tempel baris tabel data pendaftaran lengkap di sini..." 
-                      class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none text-xs font-mono text-slate-800 dark:text-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none resize-none"
-                    ></textarea>
-                  </div>
-                </div>
-
-                <!-- Parameters Box: Sleek Accordion on Mobile, Expanded Card on Desktop (Kotak Tegas) -->
-                <details class="lg:col-span-5 group bg-white dark:bg-[#151e30] rounded-none border border-slate-200/80 dark:border-slate-700 p-3 sm:p-4 shadow-none">
-                  <summary class="flex items-center justify-between cursor-pointer select-none outline-none">
-                    <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-7 h-7 rounded-none bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200 dark:border-indigo-800">
-                        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-                      </div>
-                      <div class="min-w-0 text-left">
-                        <h4 class="font-bold text-slate-800 dark:text-white text-xs">Parameter Akun Otomatis</h4>
-                        <p class="text-[11px] text-slate-400 truncate">Sandi: P@ssword123 &bull; Suffix: 26</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0 text-slate-400 group-hover:text-slate-600">
-                      <span class="text-[10.5px] font-semibold text-indigo-600 dark:text-indigo-400 hidden sm:inline">Ubah</span>
-                      <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i>
-                    </div>
-                  </summary>
-
-                  <div class="pt-2.5 border-t border-slate-100 dark:border-white/10 mt-2 space-y-2">
-                    <div class="grid grid-cols-2 gap-2">
-                      <!-- Format Username Siswa -->
-                      <div class="col-span-2">
-                        <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Format Username Siswa</label>
-                        <select 
-                          id="ppdbUsernameStyle" 
-                          onchange="reprocessCurrentPpdbData()" 
-                          class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none truncate h-8.5"
-                        >
-                          <option value="joined_all" selected>Gabung Semua Kata (salsanabilayusnia26)</option>
-                          <option value="joined_if_3">Gabung Jika 3 Kata / Titik Jika 2 Kata</option>
-                          <option value="first_second_dot">Kata 1 & 2 Pakai Titik (salsa.nabila26)</option>
-                          <option value="first_only">Kata Pertama Saja (salsa26)</option>
-                        </select>
-                      </div>
-
-                      <!-- Kata Sandi Default -->
-                      <div>
-                        <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Kata Sandi Default</label>
-                        <input 
-                          type="text" 
-                          id="ppdbPasswordInput" 
-                          value="P@ssword123" 
-                          oninput="reprocessCurrentPpdbData()" 
-                          class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2.5 py-1.5 text-xs font-bold text-slate-900 dark:text-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none h-8.5"
-                        />
-                      </div>
-
-                      <!-- Domain Email -->
-                      <div>
-                        <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Domain Email (@)</label>
-                        <div class="relative">
-                          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">@</span>
-                          <input 
-                            type="text" 
-                            id="ppdbDomainInput" 
-                            value="gmail.com" 
-                            oninput="reprocessCurrentPpdbData()" 
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none pl-6 pr-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500/30 outline-none h-8"
-                          />
-                        </div>
-                      </div>
-
-                      <!-- Suffix Angkatan (di Belakang Username) -->
-                      <div class="col-span-2 flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1.5 rounded-none border border-slate-200/60 dark:border-slate-700/60">
-                        <div class="min-w-0">
-                          <span class="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 block">Suffix Angkatan (Username):</span>
-                          <span class="text-[10.5px] text-slate-400 dark:text-slate-500">Contoh: salsanabila<strong class="text-indigo-600 dark:text-indigo-400 font-bold">26</strong></span>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                          <input 
-                            type="text" 
-                            id="ppdbSuffixInput" 
-                            value="26" 
-                            oninput="reprocessCurrentPpdbData()" 
-                            placeholder="26" 
-                            class="w-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-none px-1.5 py-1 text-xs font-bold text-center text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500/40 outline-none h-7"
-                          />
-                        </div>
-                      </div>
-
-                      <!-- Nomor Registrasi (Diinput oleh Admin untuk Fitur WA) -->
-                      <div class="col-span-2 flex items-center justify-between gap-2 bg-emerald-50/70 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-none border border-emerald-200/80 dark:border-emerald-800/60">
-                        <div class="min-w-0">
-                          <span class="text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                            <span>No. Registrasi Custom:</span>
-                          </span>
-                          <span class="text-[10px] sm:text-[10.5px] text-emerald-700/80 dark:text-emerald-400/80">Kode Sekolah: <b class="font-bold text-emerald-900 dark:text-emerald-200">1600</b> | Masukkan nomor registrasi jika ditentukan custom oleh Admin</span>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                          <input 
-                            type="text" 
-                            id="ppdbBrivaInput" 
-                            value="" 
-                            oninput="syncPpdbBrivaInput(this.value)" 
-                            placeholder="No. Registrasi (Opsional)" 
-                            class="w-28 sm:w-36 bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-none px-2 py-1 text-xs font-bold font-mono text-center text-emerald-950 dark:text-emerald-100 focus:ring-2 focus:ring-emerald-500/40 outline-none h-7 sm:h-8"
-                            title="Nomor registrasi yang dimasukkan custom oleh admin"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="pt-1.5 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
-                      <span class="text-slate-500 dark:text-slate-400 text-[11px] truncate max-w-[200px]" id="ppdbFileStatusText">Belum ada file dipilih</span>
-                      <button type="button" onclick="resetPpdbAnalysis()" class="text-slate-400 hover:text-red-600 text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        <span>Reset</span>
-                      </button>
-                    </div>
-                  </div>
-                </details>
-
-              </div>
-
-              <!-- ================= INPUT MODE: WHATSAPP CHAT PARSER (CLEAN & MINIMALIST) ================= -->
-              <div id="ppdbInputAiSection" class="space-y-3 max-w-xl mx-auto w-full">
-                <div class="bg-white dark:bg-[#121724] rounded-2xl border border-slate-200 dark:border-white/[0.08] p-3.5 sm:p-5 shadow-xs space-y-3">
-                  
-                  <!-- Top Bar: Title & Discreet Presets -->
-                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-white/[0.06]">
-                    <div class="flex items-center gap-2">
-                      <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i>
-                      </div>
-                      <span class="font-bold text-xs sm:text-sm text-slate-800 dark:text-white font-display">Ekstrak Chat WhatsApp</span>
-                    </div>
-
-                    <!-- Clean Uniform Presets -->
-                    <div class="flex items-center gap-1">
-                      <span class="text-[10px] text-slate-400 hidden sm:inline mr-0.5">Contoh:</span>
-                      <button 
-                        type="button" 
-                        onclick="loadAiPreset(1)" 
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
-                        title="Contoh chat santri pindahan"
-                      >
-                        Pindahan
-                      </button>
-                      <button 
-                        type="button" 
-                        onclick="loadAiPreset(2)" 
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
-                        title="Contoh chat dengan NIK/NISN terbalik"
-                      >
-                        Terbalik
-                      </button>
-                      <button 
-                        type="button" 
-                        onclick="loadAiPreset(3)" 
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
-                        title="Contoh teks formulir PPDB"
-                      >
-                        Formulir
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Textarea Container with Integrated Action Bar -->
-                  <div class="rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden focus-within:border-emerald-500/70 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                    <!-- Textarea Action Header -->
-                    <div class="flex items-center justify-between px-3 py-1.5 bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200/70 dark:border-white/5 text-xs">
-                      <span class="text-[10.5px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
-                        <i data-lucide="align-left" class="w-3 h-3 text-slate-400"></i>
-                        <span>Pesan Chat WhatsApp</span>
-                      </span>
-                      <div class="flex items-center gap-2">
-                        <button 
-                          type="button" 
-                          onclick="pasteClipboardToAiChat()" 
-                          class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold flex items-center gap-1 text-[11px] cursor-pointer"
-                        >
-                          <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
-                          <span>Tempel</span>
-                        </button>
-                        <span class="text-slate-300 dark:text-slate-700">|</span>
-                        <button 
-                          type="button" 
-                          onclick="clearAiChatInput()" 
-                          class="text-slate-400 hover:text-rose-500 text-[11px] cursor-pointer transition-colors"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Clean Textarea -->
-                    <textarea 
-                      id="aiChatRawInput" 
-                      rows="6" 
-                      placeholder="Tempel pesan chat pendaftaran santri/wali dari WhatsApp di sini..." 
-                      class="w-full p-3 bg-white dark:bg-[#0c1017] text-xs sm:text-sm font-sans text-slate-800 dark:text-slate-200 placeholder:text-slate-400/60 dark:placeholder:text-slate-600 outline-none resize-y leading-relaxed"
-                    ></textarea>
-                  </div>
-
-                  <!-- Single Clean Hero Action Button -->
-                  <div>
-                    <button 
-                      type="button" 
-                      onclick="processAiChatToDualAccounts()" 
-                      class="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                      <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
-                      <span>Ekstrak Menjadi Akun Ortu &amp; Siswa</span>
-                      <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-200"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Quick Metrics Grid: Sharp Kotak Elegan -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/60 dark:border-indigo-800/40">
-                    <i data-lucide="users" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Akun Ortu</p>
-                    <p class="text-sm sm:text-base font-black text-indigo-600 dark:text-indigo-400 tabular-nums leading-tight" id="metricPpdbOrtu">0 Akun</p>
-                  </div>
-                </div>
-
-                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/60 dark:border-blue-800/40">
-                    <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Akun Siswa</p>
-                    <p class="text-sm sm:text-base font-black text-blue-600 dark:text-blue-400 tabular-nums leading-tight" id="metricPpdbSiswa">0 Akun</p>
-                  </div>
-                </div>
-
-                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/60 dark:border-emerald-800/40">
-                    <i data-lucide="award" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Guru</p>
-                    <p class="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-tight" id="metricPpdbGuru">0 Guru</p>
-                  </div>
-                </div>
-
-                <div class="bg-white dark:bg-[#151e30] rounded-none border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3 shadow-none flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-none bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-200/60 dark:border-purple-800/40">
-                    <i data-lucide="user-check" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Total Siswa</p>
-                    <p class="text-sm sm:text-base font-black text-purple-600 dark:text-purple-400 tabular-nums leading-tight" id="metricPpdbTotal">0 Siswa</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Sub-Tabs Navigation for Results (Sharp Kotak Elegan) -->
-              <div class="bg-white/90 dark:bg-slate-900/90 rounded-none border border-slate-200 dark:border-slate-800 shadow-none overflow-hidden flex flex-col">
-                
-                <!-- Subtab Headers & Mobile View Toggle (Kartu vs Tabel) -->
-                <div class="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 w-full box-border">
-                  <!-- 3 Subtabs (Penuh 3 Kolom di Mobile, Kotak) -->
-                  <div class="subtab-pill-container grid grid-cols-3 sm:flex sm:items-center gap-1 p-0.5 rounded-none bg-slate-200/80 dark:bg-slate-950 border border-slate-300/60 dark:border-slate-800 w-full sm:w-auto box-border">
-                    <button 
-                      id="btnSubtabOrtu" 
-                      onclick="switchPpdbSubtab('ortu')" 
-                      class="justify-center whitespace-nowrap px-2 sm:px-3 py-1.5 rounded-none font-bold text-[11px] sm:text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-none flex items-center gap-1 sm:gap-1.5 transition-all subtab-active cursor-pointer min-w-0"
-                    >
-                      <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>
-                      <span class="hidden sm:inline">1. Akun Orang Tua (11 Kolom)</span>
-                      <span class="inline sm:hidden truncate">1. Ortu</span>
-                      <span id="badgeSubtabOrtu" class="ml-0.5 sm:ml-1 text-[9px] sm:text-[10px] bg-white/25 dark:bg-slate-900/25 text-white dark:text-slate-900 font-bold px-1 py-0.2 rounded-none shrink-0">0</span>
-                    </button>
-                    <button 
-                      id="btnSubtabSiswa" 
-                      onclick="switchPpdbSubtab('siswa')" 
-                      class="justify-center whitespace-nowrap px-2 sm:px-3 py-1.5 rounded-none font-semibold text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0"
-                    >
-                      <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
-                      <span class="hidden sm:inline">2. Akun Siswa</span>
-                      <span class="inline sm:hidden truncate">2. Siswa</span>
-                      <span id="badgeSubtabSiswa" class="ml-0.5 sm:ml-1 text-[9px] sm:text-[10px] bg-slate-300/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-1 py-0.2 rounded-none shrink-0">0</span>
-                    </button>
-                    <button 
-                      id="btnSubtabGuru" 
-                      onclick="switchPpdbSubtab('guru')" 
-                      class="justify-center whitespace-nowrap px-2 sm:px-3 py-1.5 rounded-none font-semibold text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer min-w-0"
-                    >
-                      <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                      <span class="hidden sm:inline">3. Siswa per Guru</span>
-                      <span class="inline sm:hidden truncate">3. Guru</span>
-                      <span id="badgeSubtabGuru" class="ml-0.5 sm:ml-1 text-[9px] sm:text-[10px] bg-slate-300/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-1 py-0.2 rounded-none shrink-0">0</span>
-                    </button>
-                  </div>
-
-                  <!-- Segmented View Toggle: Kartu vs Tabel (Kotak) -->
-                  <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto shrink-0 pt-0.5 sm:pt-0">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 sm:hidden flex items-center gap-1">
-                      <i data-lucide="sliders-horizontal" class="w-3 h-3"></i> Mode Tampilan:
-                    </span>
-                    <div class="flex items-center bg-slate-200/80 dark:bg-slate-950 p-0.5 rounded-none text-xs font-bold shrink-0 border border-slate-300/60 dark:border-slate-800">
-                      <button type="button" id="btnPpdbViewCards" onclick="togglePpdbViewMode('cards')" class="px-2.5 py-1 rounded-none transition-all flex items-center gap-1 view-toggle-active cursor-pointer">
-                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-                        <span>Kartu</span>
-                      </button>
-                      <button type="button" id="btnPpdbViewTable" onclick="togglePpdbViewMode('table')" class="px-2.5 py-1 rounded-none text-slate-600 dark:text-slate-400 transition-all flex items-center gap-1 cursor-pointer">
-                        <i data-lucide="table" class="w-3.5 h-3.5"></i>
-                        <span>Tabel</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SUBTAB 1: TABEL AKUN ORANG TUA (11 KOLOM TEMPLATE RESMI) -->
-                <div id="subtabContentOrtu" class="p-2.5 sm:p-4 space-y-2.5">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-0.5">
-                    <div class="relative w-full sm:flex-1 min-w-[200px]">
-                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                      <input 
-                        type="text" 
-                        id="searchPpdbOrtuInput" 
-                        oninput="filterPpdbOrtuTable()" 
-                        placeholder="Cari nama wali, NIK, username, profesi..." 
-                        class="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-none text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 w-full sm:w-auto">
-                      <!-- Tombol Geser Kolom (Tampil di Tablet/Desktop, di HP langsung usap layar) -->
-                      <div class="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-none border border-slate-200 dark:border-slate-700 shrink-0">
-                        <button type="button" onclick="scrollPpdbTable('ortu', -300)" class="p-1 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kiri">
-                          <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 px-1 select-none">Geser</span>
-                        <button type="button" onclick="scrollPpdbTable('ortu', 300)" class="p-1 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kanan">
-                          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                        </button>
-                      </div>
-
-                      <!-- Tombol Aksi: Anti-Tabrakan & Kotak Tegas -->
-                      <div class="grid grid-cols-3 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
-                        <button onclick="copyPpdbOrtuToClipboard()" class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2 sm:px-3.5 rounded-none shadow-none flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Salin semua kolom & baris ke Excel">
-                          <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span class="hidden sm:inline">Salin Tabel</span>
-                          <span class="inline sm:hidden">Tabel</span>
-                        </button>
-
-                        <!-- Dropdown Salin per Kategori Ortu -->
-                        <div class="relative w-full sm:w-auto" id="dropdownPpdbOrtuWrapper">
-                          <button type="button" onclick="togglePpdbCategoryMenu('ortu')" class="w-full sm:w-auto justify-center bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2 sm:px-3 rounded-none shadow-none flex items-center justify-center gap-1 transition-all cursor-pointer whitespace-nowrap" title="Salin data per item kategori">
-                            <i data-lucide="copy" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span class="hidden sm:inline">Salin Kategori</span>
-                            <span class="inline sm:hidden">Kategori</span>
-                            <i data-lucide="chevron-down" class="w-3 h-3 shrink-0 opacity-80"></i>
-                          </button>
-                          <div id="dropdownPpdbOrtuMenu" class="hidden absolute right-0 mt-1 w-52 sm:w-56 bg-white dark:bg-[#1e293b] rounded-none shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50 text-xs text-slate-700 dark:text-slate-200 divide-y divide-slate-100 dark:divide-slate-800">
-                            <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Salin Kolom Kategori:</div>
-                            <div class="py-1 max-h-60 overflow-y-auto">
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaWali', 'Nama Wali')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-500 shrink-0"></i>
-                                <span>Nama Orangtua / Wali</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'email', 'Email')" class="w-full px-3 py-1.5 text-left hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="mail" class="w-3.5 h-3.5 text-sky-500 shrink-0"></i>
-                                <span>Email Wali</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'username', 'Username')" class="w-full px-3 py-1.5 text-left hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:text-purple-600 dark:hover:text-purple-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="at-sign" class="w-3.5 h-3.5 text-purple-500 shrink-0"></i>
-                                <span>Nama Pengguna (Username)</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'password', 'Kata Sandi')" class="w-full px-3 py-1.5 text-left hover:bg-amber-50 dark:hover:bg-amber-950/50 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
-                                <span>Kata Sandi (Password)</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'ktp', 'No KTP')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="id-card" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
-                                <span>No KTP / NIK</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaAyah', 'Nama Ayah')" class="w-full px-3 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
-                                <span>Nama Ayah</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaIbu', 'Nama Ibu')" class="w-full px-3 py-1.5 text-left hover:bg-pink-50 dark:hover:bg-pink-950/50 hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="heart" class="w-3.5 h-3.5 text-pink-500 shrink-0"></i>
-                                <span>Nama Ibu</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiAyah', 'Profesi Ayah')" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
-                                <span>Profesi Ayah</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiIbu', 'Profesi Ibu')" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
-                                <span>Profesi Ibu</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'telepon', 'No Telepon')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                                <span>No Telepon / WA</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'alamat', 'Alamat')" class="w-full px-3 py-1.5 text-left hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
-                                <span>Alamat Lengkap</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'siswaTerkait', 'Siswa Terkait')" class="w-full px-3 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
-                                <span>Siswa Terkait</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <button onclick="exportPpdbOrtuToExcel()" class="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2 sm:px-3 rounded-none shadow-none flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Unduh file Excel .xlsx">
-                          <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span class="hidden sm:inline">Unduh .xlsx</span>
-                          <span class="inline sm:hidden">Unduh</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Kontrol & Navigasi Geser Tabel Mobile Ortu -->
-                  <div class="flex items-center justify-between gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-none text-[11px]">
-                    <div class="flex items-center gap-1.5 min-w-0">
-                      <span class="px-1.5 py-0.5 rounded-none bg-indigo-600 text-white font-bold text-[10px] uppercase shrink-0">Terkunci</span>
-                      <span class="text-slate-700 dark:text-slate-300 font-medium truncate">Nama Wali</span>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0">
-                      <button type="button" onclick="scrollPpdbTable('ortu', -240)" class="h-6.5 px-2.5 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer" title="Geser tabel ke kiri">
-                        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-                        <span>Kiri</span>
-                      </button>
-                      <button type="button" onclick="scrollPpdbTable('ortu', 240)" class="h-6.5 px-2.5 rounded-none bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer shadow-none" title="Geser tabel ke kanan untuk data lengkap">
-                        <span>Kanan</span>
-                        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Table 11 Kolom Ortu -->
-                  <!-- Mobile Cards View for PPDB Ortu -->
-                  <div id="ppdbOrtuCardsContainer" class="p-1 sm:p-2 space-y-2.5 max-h-[500px] overflow-y-auto mobile-touch-scroll"></div>
-
-                  <div id="scrollWrapperPpdbOrtu" class="hidden drag-scroll-container mobile-touch-scroll overflow-x-auto overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-none max-h-[480px]">
-                    <table class="w-full text-left text-[13px] border-collapse min-w-[1100px]">
-                      <thead class="bg-slate-100 dark:bg-[#1a2234] text-slate-800 dark:text-slate-100 font-extrabold text-xs tracking-wider uppercase sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700 select-none">
-                        <tr>
-                          <!-- 1. No -->
-                          <th class="py-2 sm:py-3 px-1 sm:px-2 w-8 sm:w-10 text-center text-slate-600 dark:text-slate-300 sticky left-0 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[1px_0_0_#cbd5e1] dark:shadow-[1px_0_0_#334155] text-[10px] sm:text-xs">No</th>
-                          
-                          <!-- 2. Nama Wali* -->
-                          <th class="py-2 sm:py-3 px-1.5 sm:px-3 whitespace-nowrap text-indigo-950 dark:text-white sticky left-8 sm:left-10 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[3px_0_6px_-2px_rgba(0,0,0,0.15)] w-[120px] min-w-[120px] max-w-[120px] sm:w-auto sm:min-w-[200px] sm:max-w-none border-r-2 border-indigo-300 dark:border-indigo-800 text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1">
-                              <span class="truncate">Nama Wali*</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaWali', 'Nama Wali')" class="p-0.5 sm:p-1 rounded-none hover:bg-indigo-100 dark:hover:bg-white/10 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer shrink-0" title="Salin seluruh kolom Nama Wali">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 3. Opsi Salin -->
-                          <th class="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap text-indigo-950 dark:text-indigo-200 bg-indigo-50/80 dark:bg-indigo-950/40 min-w-[100px] sm:min-w-[150px] text-[10.5px] sm:text-xs">Opsi Salin</th>
-                          
-                          <!-- 4. Email* -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-sky-950 dark:text-sky-300 min-w-[125px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Email*</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'email', 'Email')" class="p-1 rounded-none hover:bg-sky-100 dark:hover:bg-white/10 text-sky-600 dark:text-sky-400 transition-all cursor-pointer" title="Salin seluruh kolom Email">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 5. Nama Pengguna* -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-purple-950 dark:text-purple-300 min-w-[160px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Nama Pengguna*</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'username', 'Username')" class="p-1 rounded-none hover:bg-purple-100 dark:hover:bg-white/10 text-purple-600 dark:text-purple-400 transition-all cursor-pointer" title="Salin seluruh kolom Username">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 6. Kata Sandi* -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-amber-950 dark:text-amber-300 min-w-[90px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Kata Sandi*</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'password', 'Kata Sandi')" class="p-1 rounded-none hover:bg-amber-100 dark:hover:bg-white/10 text-amber-600 dark:text-amber-400 transition-all cursor-pointer" title="Salin seluruh kolom Kata Sandi">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 7. KTP Wali -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-900 dark:text-slate-100 min-w-[110px] sm:min-w-[160px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>KTP Wali</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'ktp', 'No KTP')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer" title="Salin seluruh kolom No KTP">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 8. Nama Ayah -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 min-w-[105px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Nama Ayah</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaAyah', 'Nama Ayah')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 transition-all cursor-pointer" title="Salin seluruh kolom Nama Ayah">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 9. Nama Ibu -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 min-w-[105px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Nama Ibu</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'namaIbu', 'Nama Ibu')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-pink-600 dark:text-pink-400 transition-all cursor-pointer" title="Salin seluruh kolom Nama Ibu">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 10. Profesi Ayah -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[95px] sm:min-w-[140px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Profesi Ayah</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiAyah', 'Profesi Ayah')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Salin seluruh kolom Profesi Ayah">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 11. Profesi Ibu -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[95px] sm:min-w-[140px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Profesi Ibu</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'profesiIbu', 'Profesi Ibu')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Salin seluruh kolom Profesi Ibu">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 12. Telepon -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 dark:text-slate-200 min-w-[100px] sm:min-w-[130px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Telepon</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'telepon', 'No Telepon')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom No Telepon">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 13. Alamat -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-700 dark:text-slate-300 min-w-[130px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Alamat</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'alamat', 'Alamat')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-rose-600 dark:text-rose-400 transition-all cursor-pointer" title="Salin seluruh kolom Alamat">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          
-                          <!-- 14. Siswa Terkait -->
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 min-w-[140px] sm:min-w-[170px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Siswa Terkait</span>
-                              <button type="button" onclick="copyPpdbColumn('ortu', 'siswaTerkait', 'Siswa Terkait')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 transition-all cursor-pointer" title="Salin seluruh kolom Siswa Terkait">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody id="tbodyPpdbOrtu" class="divide-y divide-slate-100 text-slate-800">
-                        <tr>
-                          <td colspan="14" class="py-12 text-center text-slate-400">
-                            <i data-lucide="folder-up" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                            <p class="font-medium">Belum ada data</p>
-                            <p class="text-xs text-slate-400">Silakan unggah file Excel PPDB atau klik "Muat Contoh Data" di atas.</p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <!-- SUBTAB 2: TABEL AKUN SISWA (LENGKAP BRIVA & DETAIL) -->
-                <div id="subtabContentSiswa" class="hidden p-2.5 sm:p-4 space-y-2.5">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-0.5">
-                    <div class="relative w-full sm:flex-1 min-w-[200px]">
-                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                      <input 
-                        type="text" 
-                        id="searchPpdbSiswaInput" 
-                        oninput="filterPpdbSiswaTable()" 
-                        placeholder="Cari nama siswa, username, email, status, sekolah asal..." 
-                        class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-none text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div class="flex items-center gap-1.5 w-full sm:w-auto">
-                      <!-- Tombol Geser Kolom (Tampil di Tablet/Desktop) -->
-                      <div class="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-white/10 p-0.5 rounded-none border border-slate-200 dark:border-white/10 shadow-none shrink-0">
-                        <button type="button" onclick="scrollPpdbTable('siswa', -300)" class="p-1 rounded-none bg-white dark:bg-[#1e293b] hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kiri">
-                          <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 px-1 select-none">Geser</span>
-                        <button type="button" onclick="scrollPpdbTable('siswa', 300)" class="p-1 rounded-none bg-white dark:bg-[#1e293b] hover:bg-slate-200 text-slate-700 active:scale-95 transition-all cursor-pointer" title="Geser ke kanan">
-                          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                        </button>
-                      </div>
-
-                      <!-- Tombol Aksi Siswa: Grid 2x2 di Mobile, 1 Baris di Desktop -->
-                      <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
-                        <!-- 1. Tombol Format WA Semua -->
-                        <button onclick="copyAllPpdbStudentsWa(false)" class="w-full sm:w-auto justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Salin format pesan WhatsApp akun santri sekaligus">
-                          <i data-lucide="message-square-share" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span class="hidden sm:inline">Salin Format WA (Semua)</span>
-                          <span class="inline sm:hidden">Format WA</span>
-                        </button>
-
-                        <!-- 2. Tombol Salin Tabel Lengkap -->
-                        <button onclick="copyPpdbSiswaToClipboard()" class="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Salin semua kolom & baris ke Excel">
-                          <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span class="hidden sm:inline">Salin Tabel Lengkap</span>
-                          <span class="inline sm:hidden">Salin Tabel</span>
-                        </button>
-
-                        <!-- 3. Dropdown Salin per Kategori Siswa -->
-                        <div class="relative w-full sm:w-auto" id="dropdownPpdbSiswaWrapper">
-                          <button type="button" onclick="togglePpdbCategoryMenu('siswa')" class="w-full sm:w-auto justify-center bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center justify-center gap-1 transition-all cursor-pointer whitespace-nowrap" title="Salin data per item kategori">
-                            <i data-lucide="copy" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span class="hidden sm:inline">Salin Kategori</span>
-                            <span class="inline sm:hidden">Kategori</span>
-                            <i data-lucide="chevron-down" class="w-3 h-3 shrink-0 opacity-80"></i>
-                          </button>
-                          <div id="dropdownPpdbSiswaMenu" class="hidden absolute right-0 mt-1.5 w-52 sm:w-56 bg-white dark:bg-[#1e293b] rounded-none shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-50 text-xs text-slate-700 dark:text-slate-200 divide-y divide-slate-100 dark:divide-slate-800">
-                            <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">Salin Kolom Kategori:</div>
-                            <div class="py-1 max-h-60 overflow-y-auto">
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'namaSiswa', 'Nama Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="user" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
-                                <span>Nama Lengkap Siswa</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'briva', 'Nomor BRIVA')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="credit-card" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                                <span>Nomor BRIVA Siswa</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'username', 'Username')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="at-sign" class="w-3.5 h-3.5 text-indigo-500 shrink-0"></i>
-                                <span>Nama Pengguna (Username)</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'email', 'Email Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="mail" class="w-3.5 h-3.5 text-sky-500 shrink-0"></i>
-                                <span>Email Siswa</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'password', 'Kata Sandi')" class="w-full px-3 py-1.5 text-left hover:bg-amber-50 dark:hover:bg-amber-950/50 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
-                                <span>Kata Sandi (Password)</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'gender', 'Jenis Kelamin')" class="w-full px-3 py-1.5 text-left hover:bg-pink-50 dark:hover:bg-pink-950/50 hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="users" class="w-3.5 h-3.5 text-pink-500 shrink-0"></i>
-                                <span>Jenis Kelamin (JK)</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'hp', 'No HP Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                                <span>No HP Siswa</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'alamat', 'Alamat Siswa')" class="w-full px-3 py-1.5 text-left hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
-                                <span>Alamat Lengkap Siswa</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'rencanaStatus', 'Status Santri')" class="w-full px-3 py-1.5 text-left hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:text-teal-600 dark:hover:text-teal-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="tag" class="w-3.5 h-3.5 text-teal-500 shrink-0"></i>
-                                <span>Status Santri (Mukim/Non)</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'sekolahAsal', 'Sekolah Asal')" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="school" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
-                                <span>Sekolah Asal</span>
-                              </button>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'guru', 'Guru Pendamping')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
-                                <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                                <span>Guru Pendamping</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 4. Unduh Excel -->
-                        <button onclick="exportPpdbSiswaToExcel()" class="w-full sm:w-auto justify-center bg-slate-800 hover:bg-slate-900 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-2.5 sm:px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" title="Unduh file Excel .xlsx">
-                          <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span class="hidden sm:inline">Unduh .xlsx</span>
-                          <span class="inline sm:hidden">Unduh</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Input Cepat Nomor Registrasi & Kontrol Geser Tabel Mobile Siswa (1 Baris Ringkas & Rapi) -->
-                  <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 p-1.5 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-none text-xs">
-                    <div class="flex items-center gap-1.5 min-w-0">
-                      <span class="px-1.5 py-0.5 rounded-none bg-emerald-600 text-white font-bold text-[10px] uppercase shrink-0 flex items-center gap-1" title="Kode Sekolah: 1600">
-                        <i data-lucide="clipboard-list" class="w-3 h-3"></i> No. Registrasi
-                      </span>
-                      <input 
-                        type="text" 
-                        id="ppdbBrivaQuickInput" 
-                        value="" 
-                        oninput="syncPpdbBrivaInput(this.value)" 
-                        placeholder="No. Registrasi Custom" 
-                        class="w-28 sm:w-36 h-6 px-1.5 bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-none font-mono font-bold text-center text-xs text-emerald-950 dark:text-emerald-100 outline-none focus:ring-1 focus:ring-emerald-500"
-                        title="Nomor Registrasi custom dari admin untuk dimasukkan ke pesan WA (Kode Sekolah: 1600)"
-                      />
-                      <button type="button" onclick="copyToClipboard(document.getElementById('ppdbBrivaQuickInput')?.value || '', 'No. Registrasi Disalin!', 'Nomor Registrasi siap dibagikan.')" class="h-6 px-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-[10px] rounded-none cursor-pointer flex items-center gap-1 transition-all shrink-0" title="Salin No. Registrasi">
-                        <i data-lucide="copy" class="w-2.5 h-2.5"></i> Salin
-                      </button>
-                      <button type="button" onclick="openPpdbBulkSetBrivaModal()" class="h-6 px-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-[10px] rounded-none cursor-pointer flex items-center gap-1 transition-all shrink-0" title="Tempel Kolom No. Registrasi Masal dari Excel atau Buat Urut">
-                        <i data-lucide="layers" class="w-2.5 h-2.5"></i> Tempel Masal
-                      </button>
-                    </div>
-                    
-                    <div class="flex items-center gap-1 shrink-0 ml-auto">
-                      <span class="hidden sm:inline-block px-1.5 py-0.5 rounded-none bg-blue-600 text-white font-bold text-[10px] uppercase shrink-0">Terkunci</span>
-                      <button type="button" onclick="scrollPpdbTable('siswa', -240)" class="h-6 px-2 rounded-none bg-white dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer" title="Geser tabel ke kiri">
-                        <i data-lucide="chevron-left" class="w-3 h-3"></i>
-                        <span>Kiri</span>
-                      </button>
-                      <button type="button" onclick="scrollPpdbTable('siswa', 240)" class="h-6 px-2 rounded-none bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer shadow-none" title="Geser tabel ke kanan untuk data lengkap">
-                        <span>Kanan</span>
-                        <i data-lucide="chevron-right" class="w-3 h-3"></i>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Mobile Cards View for PPDB Siswa -->
-                  <div id="ppdbSiswaCardsContainer" class="p-1 sm:p-2 space-y-2.5 max-h-[500px] overflow-y-auto mobile-touch-scroll"></div>
-
-                  <!-- Table Siswa Container with Drag Scroll -->
-                  <div id="scrollWrapperPpdbSiswa" class="hidden drag-scroll-container mobile-touch-scroll overflow-x-auto overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-none max-h-[490px] relative">
-                    <table class="w-full text-left text-[13px] border-collapse min-w-[1100px]">
-                      <thead class="bg-slate-100 dark:bg-[#1a2234] text-slate-800 dark:text-slate-100 font-extrabold text-xs tracking-wider uppercase sticky top-0 z-30 border-b border-slate-200 dark:border-slate-700 select-none">
-                        <tr>
-                          <th class="py-2 sm:py-3 px-1 sm:px-2 w-8 sm:w-10 text-center text-slate-600 dark:text-slate-300 sticky left-0 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[1px_0_0_#cbd5e1] dark:shadow-[1px_0_0_#334155] text-[10px] sm:text-xs">No</th>
-                          <th class="py-2 sm:py-3 px-1.5 sm:px-3 whitespace-nowrap text-blue-950 dark:text-white sticky left-8 sm:left-10 z-40 bg-slate-100 dark:bg-[#1a2234] shadow-[3px_0_6px_-2px_rgba(0,0,0,0.15)] w-[115px] min-w-[115px] max-w-[115px] sm:w-auto sm:min-w-[190px] sm:max-w-none border-r-2 border-blue-300 dark:border-blue-800 text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1">
-                              <span class="truncate">Nama Siswa*</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'namaSiswa', 'Nama Siswa')" class="p-0.5 sm:p-1 rounded-none hover:bg-blue-100 dark:hover:bg-white/10 text-blue-600 dark:text-blue-400 transition-all cursor-pointer shrink-0" title="Salin seluruh kolom Nama Siswa">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-1.5 sm:px-3 text-center whitespace-nowrap text-indigo-950 dark:text-indigo-200 bg-indigo-50/80 dark:bg-indigo-950/40 min-w-[120px] sm:min-w-[280px] text-[10.5px] sm:text-xs">Opsi Salin</th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-emerald-950 min-w-[100px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>No. Registrasi</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'briva', 'No. Registrasi')" class="p-1 rounded-none hover:bg-emerald-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom No. Registrasi">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-indigo-950 min-w-[105px] sm:min-w-[160px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Nama Pengguna*</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'username', 'Username Siswa')" class="p-1 rounded-none hover:bg-indigo-100 dark:hover:bg-white/10 text-indigo-600 dark:text-indigo-400 transition-all cursor-pointer" title="Salin seluruh kolom Username Siswa">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-sky-950 min-w-[125px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Email Siswa*</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'email', 'Email Siswa')" class="p-1 rounded-none hover:bg-sky-100 dark:hover:bg-white/10 text-sky-600 dark:text-sky-400 transition-all cursor-pointer" title="Salin seluruh kolom Email Siswa">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-amber-950 min-w-[85px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Kata Sandi*</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'password', 'Kata Sandi Siswa')" class="p-1 rounded-none hover:bg-amber-100 dark:hover:bg-white/10 text-amber-600 dark:text-amber-400 transition-all cursor-pointer" title="Salin seluruh kolom Kata Sandi Siswa">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-1 sm:px-2.5 whitespace-nowrap text-center text-slate-800 w-12 sm:w-16 text-[10px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1">
-                              <span>JK</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'gender', 'Jenis Kelamin')" class="p-0.5 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-pink-600 dark:text-pink-400 transition-all cursor-pointer" title="Salin seluruh kolom JK">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 min-w-[100px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>No HP Siswa</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'hp', 'No HP Siswa')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom No HP Siswa">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-rose-950 min-w-[130px] sm:min-w-[200px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Alamat Siswa</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'alamat', 'Alamat Siswa')" class="p-1 rounded-none hover:bg-rose-100 dark:hover:bg-white/10 text-rose-600 dark:text-rose-400 transition-all cursor-pointer" title="Salin seluruh kolom Alamat Siswa">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-900 bg-slate-200/50 min-w-[110px] sm:min-w-[150px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Status Santri</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'rencanaStatus', 'Status Santri')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-teal-600 dark:text-teal-400 transition-all cursor-pointer" title="Salin seluruh kolom Status Santri">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 min-w-[115px] sm:min-w-[160px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Sekolah Asal</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'sekolahAsal', 'Sekolah Asal')" class="p-1 rounded-none hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Salin seluruh kolom Sekolah Asal">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                          <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-emerald-950 min-w-[125px] sm:min-w-[180px] text-[10.5px] sm:text-xs">
-                            <div class="flex items-center justify-between gap-1.5">
-                              <span>Guru Pendamping</span>
-                              <button type="button" onclick="copyPpdbColumn('siswa', 'guru', 'Guru Pendamping')" class="p-1 rounded-none hover:bg-emerald-100 dark:hover:bg-white/10 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer" title="Salin seluruh kolom Guru Pendamping">
-                                <i data-lucide="copy" class="w-3 h-3"></i>
-                              </button>
-                            </div>
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody id="tbodyPpdbSiswa" class="divide-y divide-slate-100 text-slate-800">
-                        <tr>
-                          <td colspan="13" class="py-12 text-center text-slate-400">
-                            <i data-lucide="folder-up" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                            <p class="font-medium">Belum ada data</p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <!-- SUBTAB 3: AKUMULASI GURU PENDAMPING (TOTAL SISWA DIPEROLEH) -->
-                <div id="subtabContentGuru" class="hidden p-3 sm:p-4 space-y-3">
-                  
-                  <!-- Top 3 Guru Pendamping Leaderboard Podium Cards -->
-                  <div id="ppdbGuruPodiumWrapper" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
-
-                  <div class="flex flex-wrap items-center justify-between gap-2.5 pb-1">
-                    <div class="relative flex-1 min-w-[220px]">
-                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                      <input 
-                        type="text" 
-                        id="searchPpdbGuruInput" 
-                        oninput="filterPpdbGuruTable()" 
-                        placeholder="Cari nama guru pendamping atau nama siswa..." 
-                        class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-none text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 font-medium"
-                      />
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 w-full sm:w-auto">
-                      <button 
-                        onclick="copyPpdbGuruWaReport()" 
-                        class="w-full sm:w-auto justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-3.5 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
-                        title="Salin rekap siap kirim ke WhatsApp dewan guru"
-                      >
-                        <i data-lucide="message-square-share" class="w-3.5 h-3.5 shrink-0"></i>
-                        <span>Format WA</span>
-                      </button>
-                      <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
-                        <button 
-                          onclick="copyPpdbGuruToClipboard()" 
-                          class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
-                          title="Salin tabel ke format Excel"
-                        >
-                          <i data-lucide="sheet" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span>Salin Rekap</span>
-                        </button>
-                        <button 
-                          onclick="exportPpdbGuruToExcel()" 
-                          class="w-full sm:w-auto justify-center bg-teal-700 hover:bg-teal-800 active:scale-95 text-white text-[11px] sm:text-xs font-bold h-8 px-3 rounded-none shadow-none flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
-                          title="Unduh file .xlsx"
-                        >
-                          <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i>
-                          <span class="hidden sm:inline">Unduh Excel</span>
-                          <span class="inline sm:hidden">Unduh .xlsx</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Table Guru -->
-                  <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-none max-h-[480px]">
-                    <table class="w-full text-left text-[13px] border-collapse min-w-[750px]">
-                      <thead class="bg-slate-100 text-slate-800 font-extrabold text-xs tracking-wider uppercase sticky top-0 z-10 border-b border-slate-200 select-none">
-                        <tr>
-                          <th class="py-3 px-3.5 w-16 text-center text-slate-600">Peringkat</th>
-                          <th class="py-3 px-3.5 whitespace-nowrap text-emerald-950">Nama Guru Pendamping</th>
-                          <th class="py-3 px-3.5 whitespace-nowrap text-center w-48 text-emerald-950">Total Siswa & Kontribusi</th>
-                          <th class="py-3 px-3.5 text-slate-800">Rincian Siswa yang Dibawa</th>
-                        </tr>
-                      </thead>
-                      <tbody id="tbodyPpdbGuru" class="divide-y divide-slate-100 text-slate-800">
-                        <tr>
-                          <td colspan="4" class="py-12 text-center text-slate-400">
-                            <i data-lucide="award" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                            <p class="font-medium">Belum ada data guru</p>
-                          </td>
-                        </tr>
-                      </tbody>
-                      <tfoot id="tfootPpdbGuru" class="bg-slate-50 font-bold border-t-2 border-slate-200 text-slate-800 text-[13px]"></tfoot>
-                    </table>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            <!-- ================= VIEW 2: GENERATOR MANUAL (SEDERHANA) ================= -->
-            <div id="viewModeManual" class="hidden space-y-3 sm:space-y-4">
-              <!-- Controls Bar -->
-              <div class="bg-white dark:bg-[#151e30] rounded-none border border-indigo-100 dark:border-indigo-900/40 p-3.5 sm:p-5 shadow-none space-y-3 sm:space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-3 border-b border-indigo-50 dark:border-slate-800">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-none bg-indigo-600"></div>
-                    <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm tracking-wide uppercase">Pengaturan Generator Username & Email Cepat</h3>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-none bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Mode Manual Nama Santri</span>
-                  </div>
-                </div>
-
-                <!-- Parameter Form Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                  
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Susunan Nama</label>
-                    <select id="accNameStyle" onchange="runAccountGenerator()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
-                      <option value="first_last" selected>Nama Depan . Belakang (ahmad.fikri)</option>
-                      <option value="joined">Nama Sambung (ahmadfikri)</option>
-                      <option value="first_only">Nama Depan Saja (ahmad)</option>
-                      <option value="initial_last">Inisial Depan . Belakang (a.fikri)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Pemisah Kata</label>
-                    <select id="accSeparator" onchange="runAccountGenerator()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
-                      <option value="." selected>Titik ( . )</option>
-                      <option value="_">Garis Bawah ( _ )</option>
-                      <option value="-">Strip ( - )</option>
-                      <option value="">Tanpa Pemisah</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Angka Custom di Belakang</label>
-                    <select id="accNumberMode" onchange="onNumberModeChange(); runAccountGenerator();" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
-                      <option value="static" selected>Angka Statis / Angkatan (misal: 26)</option>
-                      <option value="increment">Nomor Urut Otomatis (001, 002...)</option>
-                      <option value="column">Ambil dari Kolom Excel (NIS/No Induk)</option>
-                      <option value="random">Digit Acak (3 Digit Unik)</option>
-                      <option value="none">Tanpa Angka Tambahan</option>
-                    </select>
-                  </div>
-
-                  <div id="wrapperStaticNumber">
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nilai Angka Statis</label>
-                    <input 
-                      type="text" 
-                      id="accStaticValue" 
-                      value="26" 
-                      placeholder="Contoh: 26 / 2026 / 10" 
-                      oninput="runAccountGenerator()" 
-                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                    />
-                  </div>
-
-                  <div id="wrapperIncrementNumber" class="hidden grid grid-cols-2 gap-2">
-                    <div>
-                      <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Mulai Dari</label>
-                      <input 
-                        type="number" 
-                        id="accIncStart" 
-                        value="1" 
-                        min="1" 
-                        oninput="runAccountGenerator()" 
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Digit Padding</label>
-                      <select id="accIncPadding" onchange="runAccountGenerator()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-2 py-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium focus:bg-white outline-none">
-                        <option value="1">1, 2, 3</option>
-                        <option value="2">01, 02, 03</option>
-                        <option value="3" selected>001, 002</option>
-                        <option value="4">0001, 0002</option>
-                      </select>
-                    </div>
-                  </div>
-
-                </div>
-
-                <!-- Row 2: Domain Email & Password -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  
-                  <div class="lg:col-span-5">
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Domain Email Institusi</label>
-                    <div class="relative flex items-center">
-                      <span class="absolute left-3 text-slate-400 font-mono text-xs">@</span>
-                      <input 
-                        type="text" 
-                        id="accDomainInput" 
-                        value="ytpai.sch.id" 
-                        placeholder="ytpai.sch.id atau gmail.com" 
-                        oninput="runAccountGenerator()" 
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none pl-8 pr-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all font-mono"
-                      />
-                    </div>
-                    <div class="flex items-center gap-2 mt-1.5 text-[10px] text-slate-500">
-                      <span>Pilihan Cepat:</span>
-                      <button onclick="setDomainPreset('ytpai.sch.id')" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">@ytpai.sch.id</button>
-                      <button onclick="setDomainPreset('santri.ytpai.sch.id')" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">@santri.ytpai.sch.id</button>
-                      <button onclick="setDomainPreset('gmail.com')" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">@gmail.com</button>
-                    </div>
-                  </div>
-
-                  <div class="lg:col-span-4">
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Password Default</label>
-                    <input 
-                      type="text" 
-                      id="accPasswordInput" 
-                      value="P@ssword123" 
-                      placeholder="Contoh: P@ssword123 / Santri#2026" 
-                      oninput="runAccountGenerator()" 
-                      class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 font-medium focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none transition-all font-mono"
-                    />
-                    <p class="text-[10px] text-slate-400 mt-1">Sertakan saat ekspor multi-kolom Excel.</p>
-                  </div>
-
-                  <div class="lg:col-span-3 flex items-end gap-2">
-                    <button 
-                      onclick="copyFullExcelAccountSheet()" 
-                      class="flex-1 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-semibold py-2.5 px-3 rounded-none shadow-none flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                      title="Salin tabel lengkap siap tempel ke Excel"
-                    >
-                      <i data-lucide="sheet" class="w-4 h-4"></i>
-                      <span>Salin Tabel Excel</span>
-                    </button>
-                    <button 
-                      onclick="resetAccountGenerator()" 
-                      class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold p-2.5 rounded-none transition-all active:scale-95 cursor-pointer" 
-                      title="Bersihkan Input"
-                    >
-                      <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Two-Column Area: Input vs Live Results Table with Distinct Column Colors -->
-              <div class="flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4">
-                
-                <!-- Left Input Box -->
-                <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-xs flex flex-col h-48 sm:h-64 lg:h-[490px]">
-                  <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-slate-700">Daftar Nama Siswa dari Excel</span>
-                      <span id="accLineCount" class="text-[10px] bg-indigo-50 text-indigo-700 font-mono px-2 py-0.5 rounded-full font-bold">0 nama</span>
-                    </div>
-                    <button onclick="insertAccountSample()" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold">Contoh Data</button>
-                  </div>
-                  
-                  <textarea 
-                    id="accInput" 
-                    oninput="runAccountGenerator()"
-                    placeholder="Tempelkan (Ctrl+V) daftar nama siswa di sini...&#10;&#10;Contoh 1 (Nama Saja):&#10;Muhammad Wildan&#10;Siti Fatimah Azzahra&#10;Ahmad Fikri Pratama&#10;&#10;Contoh 2 (Nama + NIS Tabulasi):&#10;Ahmad Fikri	2026101&#10;Siti Fatimah	2026102" 
-                    class="w-full flex-1 p-2.5 sm:p-3 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:ring-2 focus:ring-indigo-500/30 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400"
-                  ></textarea>
-
-                  <div class="mt-2 text-[11px] text-slate-400 flex items-center justify-between">
-                    <span>Mendukung teks gelar & tanda petik</span>
-                    <button onclick="document.getElementById('accInput').value = ''; runAccountGenerator();" class="text-red-500 hover:underline">Hapus</button>
-                  </div>
-                </div>
-
-                <!-- Right Live Preview Table with Color Coded Items -->
-                <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col min-h-[300px] lg:h-[490px] overflow-hidden">
-                  
-                  <!-- Table Header Bar -->
-                  <div class="px-4 py-2.5 sm:py-3 border-b border-slate-100 flex flex-wrap items-center justify-between bg-slate-50/70 gap-2">
-                    <div class="flex items-center gap-2 sm:gap-3">
-                      <span class="text-xs font-bold text-slate-700 tracking-wider uppercase">Pratinjau Akun Santri</span>
-                      <span id="accSummaryBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
-                        0 Akun Siap
-                      </span>
-                    </div>
-                    <!-- Quick Copy Buttons with Color Badges -->
-                    <div class="flex items-center gap-1.5">
-                      <button 
-                        onclick="copyUsernamesOnly()" 
-                        class="text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-all shadow-2xs flex items-center gap-1 active:scale-95"
-                        title="Salin hanya kolom username ke bawah"
-                      >
-                        <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-600"></i>
-                        <span>Salin Username</span>
-                      </button>
-                      <button 
-                        onclick="copyEmailsOnly()" 
-                        class="text-xs font-semibold bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-all shadow-2xs flex items-center gap-1 active:scale-95"
-                        title="Salin hanya kolom email ke bawah"
-                      >
-                        <i data-lucide="mail" class="w-3.5 h-3.5 text-sky-600"></i>
-                        <span>Salin Email</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Instant Search / Filter Bar for Account Table -->
-                  <div class="px-4 py-2 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between gap-3">
-                    <div class="relative flex-1">
-                      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                      <input 
-                        type="text" 
-                        id="accTableSearch" 
-                        oninput="renderAccountResults()" 
-                        placeholder="Cari item siswa (nama, nomor urut, username, email)..." 
-                        class="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all"
-                      />
-                      <button 
-                        id="clearAccSearchBtn" 
-                        onclick="document.getElementById('accTableSearch').value = ''; renderAccountResults();" 
-                        class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      >
-                        <i data-lucide="x" class="w-3 h-3"></i>
-                      </button>
-                    </div>
-                    <div class="text-[11px] text-slate-500 flex items-center gap-1 shrink-0 font-medium">
-                      <span>Tampil:</span>
-                      <b id="accFilterCount" class="text-indigo-700 font-bold">0</b>
-                    </div>
-                  </div>
-
-                  <!-- Table Container: Color Distinct Column Cells for Rapid Visual Search -->
-                  <div class="flex-1 overflow-x-auto overflow-y-auto" id="accTableWrapper">
-                    <table class="w-full text-left border-collapse text-xs min-w-[650px] sm:min-w-full">
-                      <thead class="bg-slate-50/90 text-slate-500 font-semibold border-b border-slate-200 sticky top-0 z-10 backdrop-blur-xs">
-                        <tr>
-                          <th class="py-2.5 px-3 w-10 text-center">No</th>
-                          <th class="py-2.5 px-3">Nama Santri</th>
-                          <th class="py-2.5 px-3 text-indigo-700">Username (Ungu)</th>
-                          <th class="py-2.5 px-3 text-sky-700">Email Institusi (Biru)</th>
-                          <th class="py-2.5 px-3 text-amber-700">Password (Kuning)</th>
-                          <th class="py-2.5 px-3 w-16 text-center">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody id="accTableBody" class="divide-y divide-slate-100 text-slate-700">
-                        <tr>
-                          <td colspan="6" class="py-16 text-center text-slate-400">
-                            <i data-lucide="user-plus" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                            <p class="font-medium">Belum ada daftar nama</p>
-                            <p class="text-[11px] text-slate-400">Tempelkan daftar nama siswa di kotak sebelah kiri/atas.</p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <!-- Table Bottom Metrics Bar -->
-                  <div class="px-4 py-2 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono gap-2">
-                    <div class="flex items-center gap-2">
-                      <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
-                      <span>Format Aktif: <b id="statAccPattern" class="text-indigo-700 font-bold">ahmad.fikri26@ytpai.sch.id</b></span>
-                    </div>
-                    <div class="text-[11px] text-slate-400">
-                      &#128161; Klik langsung pada kotak berwarna untuk salin instan.
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <!-- ================= MODAL KELOLA & TEMPEL NOMOR BRIVA MASAL ================= -->
-            <div id="modalPpdbBulkBriva" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
-              <div class="bg-white dark:bg-[#131b2c] border border-slate-200 dark:border-slate-700 w-full max-w-xl shadow-2xl rounded-none flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                
-                <!-- Modal Header -->
-                <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                      <i data-lucide="credit-card" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                      <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm">Kelola & Tempel Nomor BRIVA Masal</h3>
-                      <p class="text-[10px] text-slate-500 dark:text-slate-400">Atur nomor BRIVA kustom untuk seluruh santri sekaligus</p>
-                    </div>
-                  </div>
-                  <button type="button" onclick="closePpdbBulkSetBrivaModal()" class="p-1 rounded-none text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-all">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                  </button>
-                </div>
-
-                <!-- Status Badges -->
-                <div class="px-4 py-2 bg-emerald-50/50 dark:bg-emerald-950/20 border-b border-emerald-100 dark:border-emerald-900/40 flex items-center justify-between text-xs">
-                  <div class="flex items-center gap-2">
-                    <span class="text-slate-500 dark:text-slate-400 text-[11px]">Total Target:</span>
-                    <span id="ppdbBulkStudentCount" class="font-bold text-emerald-700 dark:text-emerald-300 font-mono text-[11px]">0 Santri</span>
-                  </div>
-                  <span id="ppdbBulkEmptyCount" class="px-2 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-bold">0 Belum Ada BRIVA</span>
-                </div>
-
-                <!-- Method Switcher Tab Buttons -->
-                <div class="grid grid-cols-3 gap-1 p-2 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs select-none">
-                  <button 
-                    type="button" 
-                    id="ppdbBrivaTabBtn-paste" 
-                    onclick="switchPpdbBrivaModalTab('paste')" 
-                    class="ppdb-briva-modal-tab-btn py-1.5 px-2 text-center font-bold bg-indigo-600 text-white transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px]"
-                  >
-                    <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
-                    <span>Tempel Excel</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    id="ppdbBrivaTabBtn-sequence" 
-                    onclick="switchPpdbBrivaModalTab('sequence')" 
-                    class="ppdb-briva-modal-tab-btn py-1.5 px-2 text-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px]"
-                  >
-                    <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
-                    <span>Nomor Urut</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    id="ppdbBrivaTabBtn-fill_empty" 
-                    onclick="switchPpdbBrivaModalTab('fill_empty')" 
-                    class="ppdb-briva-modal-tab-btn py-1.5 px-2 text-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px]"
-                  >
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                    <span>Isi Kosong</span>
-                  </button>
-                </div>
-
-                <!-- Hidden radio storage for active method -->
-                <div class="hidden">
-                  <input type="radio" name="ppdbBrivaMethod" value="paste" checked>
-                  <input type="radio" name="ppdbBrivaMethod" value="sequence">
-                  <input type="radio" name="ppdbBrivaMethod" value="fill_empty">
-                </div>
-
-                <!-- Modal Body (Panes) -->
-                <div class="p-4 space-y-3 overflow-y-auto flex-1">
-                  
-                  <!-- PANE 1: TEMPEL KOLOM EXCEL -->
-                  <div id="ppdbBrivaPane-paste" class="ppdb-briva-modal-pane space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                      <label class="font-bold text-slate-700 dark:text-slate-200">Tempel Kolom BRIVA dari Spreadsheet / Excel:</label>
-                      <span id="ppdbBulkPasteLineCount" class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">0 Baris Terdeteksi</span>
-                    </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                      Salin 1 kolom berisi nomor BRIVA dari Excel (Ctrl+C), lalu tempelkan (Ctrl+V) di bawah. Nomor akan dipasangkan berurutan sesuai urutan siswa.
-                    </p>
-                    <textarea 
-                      id="ppdbBulkPasteTextarea" 
-                      rows="6" 
-                      oninput="onPpdbBulkPasteInput(this.value)"
-                      placeholder="Contoh:&#10;1600001&#10;1600002&#10;1600003&#10;1600004&#10;..."
-                      class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-none text-xs font-mono text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500 resize-none leading-relaxed"
-                    ></textarea>
-                  </div>
-
-                  <!-- PANE 2: NOMOR URUT OTOMATIS -->
-                  <div id="ppdbBrivaPane-sequence" class="ppdb-briva-modal-pane space-y-3 hidden">
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                      Buat nomor BRIVA berurutan secara otomatis untuk seluruh santri dengan format <b>Prefix + Nomor Urut</b>.
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                      <div>
-                        <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">Prefix / Kode</label>
-                        <input 
-                          type="text" 
-                          id="ppdbSeqPrefix" 
-                          value="1600" 
-                          placeholder="1600" 
-                          class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 outline-none text-center"
-                        />
-                      </div>
-                      <div>
-                        <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">Mulai Dari</label>
-                        <input 
-                          type="number" 
-                          id="ppdbSeqStart" 
-                          value="1" 
-                          min="1" 
-                          class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 outline-none text-center"
-                        />
-                      </div>
-                      <div>
-                        <label class="block font-bold text-slate-600 dark:text-slate-300 mb-1">Digit Padding</label>
-                        <select 
-                          id="ppdbSeqDigits" 
-                          class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono font-bold text-slate-800 dark:text-slate-100 outline-none"
-                        >
-                          <option value="3" selected>3 digit (001, 002...)</option>
-                          <option value="4">4 digit (0001, 0002...)</option>
-                          <option value="2">2 digit (01, 02...)</option>
-                          <option value="1">Tanpa padding (1, 2, 3...)</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="p-2 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-[11px] text-indigo-900 dark:text-indigo-200 font-mono">
-                      Contoh Hasil: <b>1600001</b>, <b>1600002</b>, <b>1600003</b>, ...
-                    </div>
-                  </div>
-
-                  <!-- PANE 3: ISI DEFAULT YANG KOSONG -->
-                  <div id="ppdbBrivaPane-fill_empty" class="ppdb-briva-modal-pane space-y-2 hidden">
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                      Hanya mengisi santri yang kolom nomor BRIVA-nya masih kosong dengan nomor BRIVA standar (default institusi), tanpa mengubah santri yang sudah memiliki nomor kustom.
-                    </p>
-                    <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
-                      <span class="text-xs text-slate-700 dark:text-slate-200 font-medium">Nomor Standar yang Digunakan:</span>
-                      <span class="font-mono font-black text-xs text-emerald-600 dark:text-emerald-400 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800">
-                        1600 (Sesuai Input Cepat)
-                      </span>
-                    </div>
-                  </div>
-
-                </div>
-
-                <!-- Modal Footer -->
-                <div class="px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-2">
-                  <button 
-                    type="button" 
-                    onclick="closePpdbBulkSetBrivaModal()" 
-                    class="px-3 py-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer transition-all"
-                  >
-                    Batal
-                  </button>
-                  <button 
-                    type="button" 
-                    onclick="applyPpdbBulkBriva()" 
-                    class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer transition-all"
-                  >
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                    <span>Terapkan Nomor BRIVA</span>
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-
-<!-- END COMPONENT: Tab02_AkunPPDB.html -->
-
-<!-- START COMPONENT: Tab03_TagihanBriva.html -->
-          <div id="tab-briva" class="hidden space-y-3.5 sm:space-y-5 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
-            
-            <!-- Controls & Parameters Bar -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-2.5 sm:p-4 shadow-xs space-y-3 rounded-none">
-              
-              <!-- Header Row -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-white/10">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <div class="w-2.5 h-2.5 bg-gradient-to-tr from-orange-500 to-amber-400 shadow-2xs flex-shrink-0"></div>
-                  <div class="min-w-0">
-                    <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm tracking-wide uppercase flex items-center gap-1.5 flex-wrap">
-                      <span class="inline sm:hidden">Parameter BRIVA</span>
-                      <span class="hidden sm:inline">Parameter Tagihan Massal BRIVA</span>
-                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-none bg-orange-100 dark:bg-orange-950/70 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800/40 normal-case font-bold">5 Kolom BRI</span>
-                    </h3>
-                    <p class="text-[11px] text-slate-500 hidden sm:block">Format resmi template Bank BRI: No. Registrasi (A) | ID Tagihan (B) | Jumlah (C) | Tgl Efektif (D) | Tgl Jatuh Tempo (E)</p>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-1 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                  <span class="text-xs font-bold text-slate-500 hidden md:inline">Mode Baris:</span>
-                  <div class="flex items-center p-0.5 rounded-none bg-slate-200/70 dark:bg-[#0c101a]/80 border border-slate-300/40 dark:border-white/5 text-[11px] sm:text-xs shadow-2xs select-none gap-0.5 sm:gap-1 flex-1 sm:flex-initial">
-                    <button 
-                      type="button" 
-                      id="brivaModeBtn_split_full"
-                      onclick="setBrivaRowMode('split_full')" 
-                      class="flex-1 sm:flex-initial justify-center min-w-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-none font-bold transition-all bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap text-[11px] sm:text-xs"
-                      title="Satu nomor dipecah ke bawah per bulan & per jenis tagihan"
-                    >
-                      <i data-lucide="layers-3" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
-                      <span class="inline sm:hidden">Rinci</span>
-                      <span class="hidden sm:inline">Pecah Rinci ke Bawah</span>
-                    </button>
-                    <button 
-                      type="button" 
-                      id="brivaModeBtn_split_category"
-                      onclick="setBrivaRowMode('split_category')" 
-                      class="flex-1 sm:flex-initial justify-center min-w-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-none font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap text-[11px] sm:text-xs"
-                      title="Bulanan digabung 1 baris, komponen lain baris terpisah"
-                    >
-                      <i data-lucide="folder-tree" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
-                      <span class="inline sm:hidden">Kategori</span>
-                      <span class="hidden sm:inline">Pecah Kategori</span>
-                    </button>
-                    <button 
-                      type="button" 
-                      id="brivaModeBtn_accumulate"
-                      onclick="setBrivaRowMode('accumulate')" 
-                      class="flex-1 sm:flex-initial justify-center min-w-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-none font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap text-[11px] sm:text-xs"
-                      title="Semua tagihan digabung jadi 1 baris total per siswa"
-                    >
-                      <i data-lucide="combine" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
-                      <span class="inline sm:hidden">1 Baris</span>
-                      <span class="hidden sm:inline">Akumulasi 1 Baris</span>
-                    </button>
-                  </div>
-                  <button 
-                    onclick="resetBrivaGenerator()" 
-                    class="bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 text-xs font-semibold p-1.5 sm:p-2 rounded-none transition-all active:scale-95 border border-slate-200/80 dark:border-white/10 flex-shrink-0 cursor-pointer" 
-                    title="Reset Parameter ke Default"
-                  >
-                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Parameter Input Grid: Kotak Tegas, Anti-Tabrakan & Rapi Maksimal -->
-              <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-                
-                <!-- 1. ID Tagihan (Kolom B) - BLUE THEME -->
-                <div class="bg-blue-50/50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-blue-200/80 dark:border-blue-800/60">
-                      <div class="flex items-center gap-1 min-w-0">
-                        <span class="bg-blue-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM B</span>
-                        <label class="block text-xs font-bold text-blue-950 dark:text-blue-200 truncate">ID Tagihan</label>
-                      </div>
-                      <span class="text-[9.5px] font-bold text-blue-700 dark:text-sky-300 bg-blue-100/90 dark:bg-blue-900/60 px-1 py-0.5 rounded-none border border-blue-200 dark:border-blue-700/60 shrink-0">Std: 62</span>
-                    </div>
-                    <input 
-                      type="text" 
-                      id="brivaIdTagihan" 
-                      value="62" 
-                      oninput="runBrivaGenerator()" 
-                      class="w-full h-8 bg-white dark:bg-slate-900 border border-blue-400 dark:border-blue-700 rounded-none px-2 text-xs sm:text-sm font-mono font-black text-blue-900 dark:text-sky-100 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-400/30 outline-none text-center shadow-2xs"
-                      placeholder="62"
-                    />
-                  </div>
-                  <!-- Preset Chips: Grid 2 Kolom Kotak, Terkunci & Tidak Akan Pernah Meluber -->
-                  <div class="grid grid-cols-2 gap-1 pt-1.5 border-t border-blue-200/80 dark:border-blue-800/60">
-                    <button type="button" onclick="setBrivaIdPreset('48')" title="48 - Biaya Awal Tahun" class="h-6 text-[10px] px-1 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/70 text-amber-900 dark:text-amber-200 font-bold rounded-none border border-amber-300 dark:border-amber-700 truncate cursor-pointer text-center">48 Awal</button>
-                    <button type="button" onclick="setBrivaIdPreset('49')" title="49 - Biaya Akhir Tahun" class="h-6 text-[10px] px-1 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800/70 text-emerald-900 dark:text-emerald-200 font-bold rounded-none border border-emerald-300 dark:border-emerald-700 truncate cursor-pointer text-center">49 Akhir</button>
-                    <button type="button" onclick="setBrivaIdPreset('80')" title="80 - Bimbel" class="h-6 text-[10px] px-1 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-800/70 text-rose-900 dark:text-rose-200 font-bold rounded-none border border-rose-300 dark:border-rose-700 truncate cursor-pointer text-center">80 Bimbel</button>
-                    <select onchange="if(this.value==='modal'){ openBriCodeModal(); } else if(this.value){ setBrivaIdPreset(this.value); } this.value='';" class="h-6 text-[9.5px] px-0.5 bg-blue-100/90 dark:bg-slate-800 text-blue-900 dark:text-sky-200 font-bold rounded-none border border-blue-300 dark:border-slate-700 outline-none cursor-pointer truncate" title="Pilih Kode Tagihan BRI Lainnya">
-                      <option value="" selected disabled>+ Lainnya &#x25BE;</option>
-                      <option value="53">53 - Bimbel / UN</option>
-                      <option value="51">51 - Seragam Sekolah</option>
-                      <option value="79">79 - Seragam Santri</option>
-                      <option value="50">50 - Tabungan Santri</option>
-                      <option value="52">52 - Tagihan LKS</option>
-                      <option value="71">71 - Ujian USP</option>
-                      <option value="60">60 - Syahriyah Juli</option>
-                      <option value="62">62 - Syahriyah Sep</option>
-                      <option value="modal">📖 31 Kode BRI...</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- 2. Tanggal Efektif (Kolom D) - EMERALD THEME -->
-                <div class="bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-emerald-200/80 dark:border-emerald-800/60">
-                      <div class="flex items-center gap-1 min-w-0">
-                        <span class="bg-emerald-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM D</span>
-                        <label class="block text-xs font-bold text-emerald-950 dark:text-emerald-200 truncate">Tgl Efektif</label>
-                      </div>
-                      <span class="text-[9px] font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/60 px-1 py-0.5 rounded-none border border-emerald-200 dark:border-emerald-700/60 shrink-0">DD-MM-YYYY</span>
-                    </div>
-                    <input 
-                      type="text" 
-                      id="brivaTglEfektif" 
-                      value="01-09-2026" 
-                      oninput="runBrivaGenerator()" 
-                      class="w-full h-8 bg-white dark:bg-slate-900 border border-emerald-400 dark:border-emerald-700 rounded-none px-2 text-xs sm:text-sm font-mono font-bold text-emerald-900 dark:text-emerald-100 focus:border-emerald-600 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-400/30 outline-none text-center shadow-2xs"
-                      placeholder="01-09-2026"
-                    />
-                  </div>
-                  <!-- Preset Tanggal Efektif: Grid 2 Kolom Kotak, Presisi Rata Tinggi -->
-                  <div class="grid grid-cols-2 gap-1 pt-1.5 border-t border-emerald-200/80 dark:border-emerald-800/60">
-                    <button type="button" onclick="setBrivaQuickDate('01-09-2026', '10-09-2026')" class="h-6 text-[10px] px-1 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800/70 text-emerald-900 dark:text-emerald-200 font-bold rounded-none border border-emerald-300 dark:border-emerald-700 flex items-center justify-center gap-1 truncate cursor-pointer">
-                      <i data-lucide="calendar" class="w-3 h-3 shrink-0"></i>
-                      <span class="truncate">Sep 2026</span>
-                    </button>
-                    <button type="button" onclick="setBrivaCurrentMonthDate()" class="h-6 text-[10px] px-1 bg-teal-100 dark:bg-teal-900/50 hover:bg-teal-200 dark:hover:bg-teal-800/70 text-teal-900 dark:text-teal-200 font-bold rounded-none border border-teal-300 dark:border-teal-700 flex items-center justify-center gap-1 truncate cursor-pointer">
-                      <i data-lucide="clock" class="w-3 h-3 shrink-0"></i>
-                      <span class="truncate">Berjalan</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- 3. Tanggal Jatuh Tempo (Kolom E) - ROSE THEME -->
-                <div class="bg-rose-50/50 dark:bg-rose-950/30 border border-rose-300 dark:border-rose-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-rose-200/80 dark:border-rose-800/60">
-                      <div class="flex items-center gap-1 min-w-0">
-                        <span class="bg-rose-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM E</span>
-                        <label class="block text-xs font-bold text-rose-950 dark:text-rose-200 truncate">Jatuh Tempo</label>
-                      </div>
-                      <span class="text-[9px] font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-900/60 px-1 py-0.5 rounded-none border border-rose-200 dark:border-rose-700/60 shrink-0">DD-MM-YYYY</span>
-                    </div>
-                    <input 
-                      type="text" 
-                      id="brivaTglJatuhTempo" 
-                      value="10-09-2026" 
-                      oninput="runBrivaGenerator()" 
-                      class="w-full h-8 bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded-none px-2 text-xs sm:text-sm font-mono font-bold text-rose-900 dark:text-rose-100 focus:border-rose-600 dark:focus:border-rose-500 focus:ring-1 focus:ring-rose-400/30 outline-none text-center shadow-2xs"
-                      placeholder="10-09-2026"
-                    />
-                  </div>
-                  <!-- Preset Jatuh Tempo: Grid 3 Kolom Kotak, Presisi Rata Tinggi -->
-                  <div class="grid grid-cols-3 gap-1 pt-1.5 border-t border-rose-200/80 dark:border-rose-800/60">
-                    <button type="button" onclick="setBrivaDueDateDay(10)" class="h-6 text-[10px] px-0.5 rounded-none bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-800/70 text-rose-900 dark:text-rose-200 font-bold border border-rose-300 dark:border-rose-700 text-center truncate cursor-pointer">Tgl 10</button>
-                    <button type="button" onclick="setBrivaDueDateDay(20)" class="h-6 text-[10px] px-0.5 rounded-none bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/70 text-amber-900 dark:text-amber-200 font-bold border border-amber-300 dark:border-amber-700 text-center truncate cursor-pointer">Tgl 20</button>
-                    <button type="button" onclick="setBrivaDueDateDay(28)" class="h-6 text-[10px] px-0.5 rounded-none bg-orange-100 dark:bg-orange-900/50 hover:bg-orange-200 dark:hover:bg-orange-800/70 text-orange-900 dark:text-orange-200 font-bold border border-orange-300 dark:border-orange-700 text-center truncate cursor-pointer">Akhir</button>
-                  </div>
-                </div>
-
-                <!-- 4. Format Output Kolom C (Jumlah) - PURPLE THEME -->
-                <div class="bg-purple-50/50 dark:bg-purple-950/30 border border-purple-300 dark:border-purple-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-purple-200/80 dark:border-purple-800/60">
-                      <div class="flex items-center gap-1 min-w-0">
-                        <span class="bg-purple-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM C</span>
-                        <label class="block text-xs font-bold text-purple-950 dark:text-purple-200 truncate">Format Jumlah</label>
-                      </div>
-                      <span class="text-[9px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100/90 dark:bg-purple-900/60 px-1 py-0.5 rounded-none border border-purple-200 dark:border-purple-700/60 shrink-0">Nominal</span>
-                    </div>
-                    <select id="brivaFormatSelect" onchange="runBrivaGenerator()" class="w-full h-8 bg-white dark:bg-slate-900 border border-purple-400 dark:border-purple-700 rounded-none px-1.5 text-xs text-purple-950 dark:text-purple-100 font-bold focus:border-purple-600 dark:focus:border-purple-500 focus:ring-1 focus:ring-purple-400/30 outline-none transition-all shadow-2xs cursor-pointer">
-                      <option value="comma" selected>281,000 (Foto BRI)</option>
-                      <option value="safe">'281,000 (Teks Aman)</option>
-                      <option value="dot">281.000 (Titik IDR)</option>
-                      <option value="raw">281000 (Angka Polos)</option>
-                    </select>
-                  </div>
-                  <div class="pt-1.5 border-t border-purple-200/80 dark:border-purple-800/60">
-                    <label class="h-6 flex items-center gap-1 cursor-pointer text-[10px] text-amber-950 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/60 hover:bg-amber-200/80 dark:hover:bg-amber-900/60 border border-amber-300 dark:border-amber-700 px-1 rounded-none select-none transition-colors w-full">
-                      <input type="checkbox" id="brivaLockLeadingZero" checked class="w-3 h-3 rounded-none text-amber-600 focus:ring-0 border-amber-400 cursor-pointer shrink-0">
-                      <span class="truncate">Kunci Nol <b class="font-mono bg-white dark:bg-slate-900 px-1 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 font-bold">'015660</b></span>
-                    </label>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- Default Student Context: Sleek 3-column Single-row Grid on Mobile (Kotak) -->
-              <div class="pt-1.5 border-t border-slate-100 dark:border-white/10 space-y-1">
-                <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-bold px-0.5">
-                  <span class="flex items-center gap-1.5">
-                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-slate-500"></i>
-                    <span>Konteks Siswa Default:</span>
-                  </span>
-                  <span class="hidden sm:inline text-[11px] italic text-slate-400">*Bisa deteksi otomatis status di input (cth: "015660 VIP")</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1.5 sm:gap-2 w-full">
-                  <div class="bg-cyan-50/80 dark:bg-cyan-950/40 border border-cyan-300 dark:border-cyan-700/60 rounded-none px-2 py-1">
-                    <label class="block text-[10.5px] text-cyan-800 dark:text-cyan-300 font-extrabold uppercase leading-tight">Kelas</label>
-                    <select id="brivaKelasDefault" onchange="runBrivaGenerator()" class="w-full bg-transparent text-xs text-cyan-950 dark:text-cyan-100 font-bold outline-none cursor-pointer">
-                      <option value="7" selected>7 MTs</option>
-                      <option value="8">8 MTs</option>
-                      <option value="9">9 MTs</option>
-                      <option value="10">10 MA</option>
-                      <option value="11">11 MA</option>
-                      <option value="12">12 MA</option>
-                    </select>
-                  </div>
-                  <div class="bg-amber-50/80 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 rounded-none px-2 py-1">
-                    <label class="block text-[10.5px] text-amber-800 dark:text-amber-300 font-extrabold uppercase leading-tight">Status</label>
-                    <select id="brivaStatusDefault" onchange="runBrivaGenerator()" class="w-full bg-transparent text-xs text-amber-950 dark:text-amber-100 font-bold outline-none cursor-pointer">
-                      <option value="reguler" selected>Reguler</option>
-                      <option value="vip">VIP (PI)</option>
-                      <option value="mbajak">Mbajak</option>
-                    </select>
-                  </div>
-                  <div class="bg-pink-50/80 dark:bg-pink-950/40 border border-pink-300 dark:border-pink-700/60 rounded-none px-2 py-1">
-                    <label class="block text-[10.5px] text-pink-800 dark:text-pink-300 font-extrabold uppercase leading-tight">Gender</label>
-                    <select id="brivaGenderDefault" onchange="runBrivaGenerator()" class="w-full bg-transparent text-xs text-pink-950 dark:text-pink-100 font-bold outline-none cursor-pointer">
-                      <option value="PA" selected>Putra (PA)</option>
-                      <option value="PI">Putri (PI)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Multi-Component Fee Checklist (Akumulasi Tagihan) -->
-            <div class="bg-white dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
-                <div class="flex items-center gap-2">
-                  <div class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-sky-400 shadow-sm shadow-blue-500/50"></div>
-                  <h4 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm tracking-wide uppercase">Pilih Komponen Tagihan yang Diakumulasikan</h4>
-                </div>
-                <div id="brivaEstimatedBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/70 dark:text-sky-300 dark:border-blue-800/70 shadow-xs">
-                  Estimasi Default: Rp 281.000 / siswa
-                </div>
-              </div>
-
-              <!-- Component Checkboxes Grid (Responsive 1/2/3/4 cols) -->
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                
-                <!-- 1. Biaya Bulanan (Syahriyah) Card with Month Selector -->
-                <div class="briva-component-card briva-card-bulanan md:col-span-2 p-3.5 rounded-xl border-2 border-blue-300 dark:border-blue-500/60 bg-blue-50/50 dark:bg-blue-950/25 space-y-2.5 transition-all shadow-2xs">
-                  <div class="flex flex-wrap items-center justify-between gap-2">
-                    <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-white">
-                      <input type="checkbox" id="brivaCheckBulanan" checked onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-blue-600 focus:ring-0 cursor-pointer">
-                      <span>1. Biaya Bulanan (Syahriyah)</span>
-                    </label>
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-[10px] font-bold text-blue-900 dark:text-sky-200 bg-blue-100 dark:bg-blue-900/60 border border-blue-300 dark:border-blue-700/80 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdBulanan" value="auto" oninput="runBrivaGenerator()" class="w-10 text-center bg-white dark:bg-slate-900 rounded border border-blue-400 dark:border-blue-500 font-mono font-bold text-blue-900 dark:text-sky-100 focus:ring-1 focus:ring-blue-500 outline-none text-[10px]" title="Ketik 'auto' untuk ID resmi per bulan (Jan=54 s/d Des=65), atau ketik nomor manual">
-                      </span>
-                      <span id="brivaMonthCountBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-600 dark:bg-blue-500 text-white shadow-xs">
-                        1 Bulan Terpilih
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Academic Month Pills & Presets -->
-                  <div id="brivaMonthSection" class="space-y-2 pt-1">
-                    <!-- Presets -->
-                    <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[10px]">
-                      <span class="text-slate-600 dark:text-slate-300 font-bold text-[11px] mr-1 flex items-center gap-1">
-                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-500 dark:text-amber-400"></i>
-                        <span>Preset:</span>
-                      </span>
-                      <button type="button" onclick="setBrivaMonthPreset('1')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">1 Bln (Sep)</button>
-                      <button type="button" onclick="setBrivaMonthPreset('triwulan')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">3 Bln (Triwulan)</button>
-                      <button type="button" onclick="setBrivaMonthPreset('semester')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">6 Bln (Semester)</button>
-                      <button type="button" onclick="setBrivaMonthPreset('12')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">12 Bln (1 Thn Penuh)</button>
-                      <button type="button" onclick="setBrivaMonthPreset('clear')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 font-semibold text-[11px] transition-all cursor-pointer">Kosongkan</button>
-                    </div>
-
-                    <!-- 12 Academic Month Pills Container with Official IDs -->
-                    <div id="brivaMonthPillsContainer" class="grid grid-cols-4 sm:grid-cols-6 gap-1.5 pt-1">
-                      <!-- Rendered dynamically by JavaScript -->
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 2. Biaya Awal Tahun (Daftar Ulang) Card - OFFICIAL ID 48 -->
-                <div class="briva-component-card briva-card-awal p-3.5 rounded-xl border-2 border-amber-300/80 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/25 hover:bg-amber-50/80 dark:hover:bg-amber-950/35 transition-all flex flex-col justify-between shadow-2xs">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 mb-1">
-                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-amber-100">
-                        <input type="checkbox" id="brivaCheckAwalTahun" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-amber-600 focus:ring-0 cursor-pointer">
-                        <span>2. Awal Tahun</span>
-                      </label>
-                      <span class="text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50 border border-amber-300 dark:border-amber-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdAwalTahun" value="48" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-amber-400 dark:border-amber-600 font-mono font-bold text-amber-900 dark:text-amber-200 focus:ring-1 focus:ring-amber-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 48">
-                      </span>
-                    </div>
-                    <p class="text-[11px] text-slate-600 dark:text-amber-200/80 mt-1 font-medium">Daftar ulang santri baru & lama</p>
-                  </div>
-                  <div class="mt-2.5 pt-2 border-t border-amber-200/80 dark:border-amber-800/40 flex items-center justify-between text-[11px]">
-                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
-                    <b id="brivaPreviewAwalTahun" class="text-amber-900 dark:text-amber-300 font-extrabold text-xs tracking-tight">Rp 410.000</b>
-                  </div>
-                </div>
-
-                <!-- 3. Paket Seragam Sekolah Card - OFFICIAL ID 51 (Tahap 1) / 72 -->
-                <div class="briva-component-card briva-card-sergsek p-3.5 rounded-xl border-2 border-purple-300/80 dark:border-purple-700/60 bg-purple-50/50 dark:bg-purple-950/25 hover:bg-purple-50/80 dark:hover:bg-purple-950/35 transition-all flex flex-col justify-between shadow-2xs">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 mb-1">
-                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-purple-100">
-                        <input type="checkbox" id="brivaCheckSeragamSekolah" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-purple-600 focus:ring-0 cursor-pointer">
-                        <span>3. Seragam Sekolah</span>
-                      </label>
-                      <span class="text-[10px] font-bold text-purple-900 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 border border-purple-300 dark:border-purple-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdSeragamSekolah" value="51" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-purple-400 dark:border-purple-600 font-mono font-bold text-purple-900 dark:text-purple-200 focus:ring-1 focus:ring-purple-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 51 (Tahap 1) / 72 (Jadi Satu)">
-                      </span>
-                    </div>
-                    <p class="text-[11px] text-slate-600 dark:text-purple-200/80 mt-1 font-medium">Paket seragam formal MTs/MA</p>
-                  </div>
-                  <div class="mt-2.5 pt-2 border-t border-purple-200/80 dark:border-purple-800/40 flex items-center justify-between text-[11px]">
-                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
-                    <b id="brivaPreviewSeragamSekolah" class="text-purple-900 dark:text-purple-300 font-extrabold text-xs tracking-tight">Rp 736.000</b>
-                  </div>
-                </div>
-
-                <!-- 4. Paket Seragam Khusus Pondok / Santri - OFFICIAL ID 79 -->
-                <div class="briva-component-card briva-card-sergpond p-3.5 rounded-xl border-2 border-indigo-300/80 dark:border-indigo-700/60 bg-indigo-50/50 dark:bg-indigo-950/25 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/35 transition-all flex flex-col justify-between shadow-2xs">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 mb-1">
-                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-indigo-100">
-                        <input type="checkbox" id="brivaCheckSeragamPondok" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer">
-                        <span>4. Seragam Santri</span>
-                      </label>
-                      <span class="text-[10px] font-bold text-indigo-900 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-300 dark:border-indigo-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdSeragamPondok" value="79" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-indigo-400 dark:border-indigo-600 font-mono font-bold text-indigo-900 dark:text-indigo-200 focus:ring-1 focus:ring-indigo-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 79 (Seragam Santri)">
-                      </span>
-                    </div>
-                    <p class="text-[11px] text-slate-600 dark:text-indigo-200/80 mt-1 font-medium">Gamis/Koko atribut pesantren</p>
-                  </div>
-                  <div class="mt-2.5 pt-2 border-t border-indigo-200/80 dark:border-indigo-800/40 flex items-center justify-between text-[11px]">
-                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
-                    <b id="brivaPreviewSeragamPondok" class="text-indigo-900 dark:text-indigo-300 font-extrabold text-xs tracking-tight">Rp 90.000</b>
-                  </div>
-                </div>
-
-                <!-- 5. Biaya Akhir Tahun Card - OFFICIAL ID 49 -->
-                <div class="briva-component-card briva-card-akhir p-3.5 rounded-xl border-2 border-emerald-300/80 dark:border-emerald-700/60 bg-emerald-50/50 dark:bg-emerald-950/25 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/35 transition-all flex flex-col justify-between shadow-2xs">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 mb-1">
-                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-emerald-100">
-                        <input type="checkbox" id="brivaCheckAkhirTahun" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-emerald-600 focus:ring-0 cursor-pointer">
-                        <span>5. Akhir Tahun</span>
-                      </label>
-                      <span class="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 border border-emerald-300 dark:border-emerald-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdAkhirTahun" value="49" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-emerald-400 dark:border-emerald-600 font-mono font-bold text-emerald-900 dark:text-emerald-200 focus:ring-1 focus:ring-emerald-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 49 (Biaya Akhir Tahun)">
-                      </span>
-                    </div>
-                    <p class="text-[11px] text-slate-600 dark:text-emerald-200/80 mt-1 font-medium">Ujian, Haflah & Kelulusan</p>
-                  </div>
-                  <div class="mt-2.5 pt-2 border-t border-emerald-200/80 dark:border-emerald-800/40 flex items-center justify-between text-[11px]">
-                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
-                    <b id="brivaPreviewAkhirTahun" class="text-emerald-900 dark:text-emerald-300 font-extrabold text-xs tracking-tight">Rp 325.000</b>
-                  </div>
-                </div>
-
-                <!-- 6. BIMBEL (BIMBINGAN BELAJAR) - OFFICIAL ID 80 / 53 (BARU) -->
-                <div class="briva-component-card briva-card-bimbel p-3.5 rounded-xl border-2 border-rose-300/80 dark:border-rose-700/60 bg-rose-50/50 dark:bg-rose-950/25 hover:bg-rose-50/80 dark:hover:bg-rose-950/35 transition-all flex flex-col justify-between shadow-2xs">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 mb-1">
-                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-rose-950 dark:text-rose-100">
-                        <input type="checkbox" id="brivaCheckBimbel" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-rose-600 focus:ring-0 cursor-pointer">
-                        <span class="flex items-center gap-1.5">
-                          <span>6. Bimbel / UN</span>
-                          <span class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">Baru</span>
-                        </span>
-                      </label>
-                      <span class="text-[10px] font-bold text-rose-900 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/50 border border-rose-300 dark:border-rose-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdBimbel" value="80" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-rose-400 dark:border-rose-600 font-mono font-bold text-rose-900 dark:text-rose-200 focus:ring-1 focus:ring-rose-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 80 (Bimbel) atau 53 (Bimbel/UN)">
-                      </span>
-                    </div>
-                    <p class="text-[11px] text-rose-900/80 dark:text-rose-200/90 mt-1 font-medium">Program bimbel & pemantapan UN</p>
-                    <div class="flex items-center gap-1 mt-1.5">
-                      <button type="button" onclick="document.getElementById('brivaIdBimbel').value='80'; runBrivaGenerator();" class="text-[10.5px] px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-900 dark:text-rose-300 rounded-md border border-rose-200 dark:border-rose-700 font-bold transition-all cursor-pointer">80 Bimbel</button>
-                      <button type="button" onclick="document.getElementById('brivaIdBimbel').value='53'; runBrivaGenerator();" class="text-[10.5px] px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-900 dark:text-rose-300 rounded-md border border-rose-200 dark:border-rose-700 font-bold transition-all cursor-pointer">53 Bimbel/UN</button>
-                    </div>
-                  </div>
-                  <div class="mt-2.5 pt-2 border-t border-rose-200/80 dark:border-rose-800/40 flex items-center justify-between text-[11px]">
-                    <span class="text-rose-900 dark:text-rose-300 font-bold">Nominal:</span>
-                    <div class="flex items-center gap-1 font-mono">
-                      <span class="text-rose-900 dark:text-rose-300 font-bold text-xs">Rp</span>
-                      <input type="number" id="brivaNominalBimbel" value="150000" step="10000" oninput="runBrivaGenerator()" class="w-24 text-right bg-white dark:bg-slate-900 rounded-lg border border-rose-300 dark:border-rose-600 px-2 py-0.5 font-extrabold text-rose-950 dark:text-rose-100 text-xs focus:ring-1 focus:ring-rose-500 outline-none">
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 7. TAGIHAN LAINNYA / KHUSUS (USP, LKS, TABUNGAN, TAS, DLL) (BARU) -->
-                <div class="briva-component-card briva-card-extra p-3.5 rounded-xl border-2 border-teal-300/80 dark:border-teal-700/60 bg-teal-50/50 dark:bg-teal-950/25 hover:bg-teal-50/80 dark:hover:bg-teal-950/35 transition-all flex flex-col justify-between shadow-2xs">
-                  <div>
-                    <div class="flex items-center justify-between gap-1 mb-1">
-                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-teal-950 dark:text-teal-100">
-                        <input type="checkbox" id="brivaCheckExtra" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-teal-600 focus:ring-0 cursor-pointer">
-                        <span class="flex items-center gap-1.5">
-                          <span>7. Tagihan Lainnya</span>
-                          <span class="bg-teal-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">Pilihan</span>
-                        </span>
-                      </label>
-                      <span class="text-[10px] font-bold text-teal-900 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/50 border border-teal-300 dark:border-teal-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
-                        ID: <input type="text" id="brivaIdExtra" value="52" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-teal-400 dark:border-teal-600 font-mono font-bold text-teal-900 dark:text-teal-200 focus:ring-1 focus:ring-teal-500 outline-none" title="Pilih tipe di bawah atau ketik nomor ID BRI">
-                      </span>
-                    </div>
-                    <select id="brivaExtraType" onchange="handleBrivaExtraChange()" class="w-full bg-white dark:bg-slate-900 border border-teal-300 dark:border-teal-600 rounded-lg px-2 py-1 text-[11px] text-teal-950 dark:text-teal-100 font-bold outline-none focus:ring-1 focus:ring-teal-500 mt-1 cursor-pointer">
-                      <option value="52|LKS|50000" selected class="dark:bg-slate-900 dark:text-white">52 - LKS (Rp 50.000)</option>
-                      <option value="50|Tabungan|100000" class="dark:bg-slate-900 dark:text-white">50 - Tabungan Santri (Rp 100.000)</option>
-                      <option value="66|Biaya USP Tahap 1|200000" class="dark:bg-slate-900 dark:text-white">66 - Biaya USP Tahap 1</option>
-                      <option value="69|Biaya USP Tahap 2|250000" class="dark:bg-slate-900 dark:text-white">69 - Biaya USP Tahap 2</option>
-                      <option value="71|Biaya USP (Kelas Akhir)|350000" class="dark:bg-slate-900 dark:text-white">71 - Biaya USP Kelas Akhir</option>
-                      <option value="73|Tas Almamater|120000" class="dark:bg-slate-900 dark:text-white">73 - Tas Almamater</option>
-                      <option value="74|Sepatu|150000" class="dark:bg-slate-900 dark:text-white">74 - Sepatu</option>
-                      <option value="75|Kekurangan Tagihan|50000" class="dark:bg-slate-900 dark:text-white">75 - Kekurangan Tagihan</option>
-                      <option value="76|Kekurangan Ziarah|100000" class="dark:bg-slate-900 dark:text-white">76 - Kekurangan Ziarah & Wisata</option>
-                      <option value="78|Dispen dan Denda|25000" class="dark:bg-slate-900 dark:text-white">78 - Dispen dan Denda Pondok</option>
-                      <option value="70|Seragam Tahap 2|300000" class="dark:bg-slate-900 dark:text-white">70 - Seragam Tahap 2</option>
-                      <option value="72|Seragam Dijadikan Satu|800000" class="dark:bg-slate-900 dark:text-white">72 - Seragam Dijadikan Satu</option>
-                    </select>
-                  </div>
-                  <div class="mt-2.5 pt-2 border-t border-teal-200/80 dark:border-teal-800/40 flex items-center justify-between text-[11px]">
-                    <span class="text-teal-900 dark:text-teal-300 font-bold">Nominal:</span>
-                    <div class="flex items-center gap-1 font-mono">
-                      <span class="text-teal-900 dark:text-teal-300 font-bold text-xs">Rp</span>
-                      <input type="number" id="brivaNominalExtra" value="50000" step="5000" oninput="runBrivaGenerator()" class="w-24 text-right bg-white dark:bg-slate-900 rounded-lg border border-teal-300 dark:border-teal-600 px-2 py-0.5 font-extrabold text-teal-950 dark:text-teal-100 text-xs focus:ring-1 focus:ring-teal-500 outline-none">
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            <!-- Two-Column Work Area: Input Column & Live 5-Column Table -->
-            <div class="flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4">
-              
-              <!-- Left Input Box (Supports Massal & Manual Per-BRIVA) -->
-              <div class="lg:col-span-5 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-4 shadow-xs flex flex-col min-h-[460px] lg:h-[600px]">
-                <!-- Mode Switcher Header: Massal (Teks) vs Santri Manual (Per-BRIVA) -->
-                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 gap-2 flex-wrap flex-shrink-0">
-                  <div class="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs shadow-2xs select-none">
-                    <button 
-                      type="button" 
-                      id="brivaInputModeBtn_mass" 
-                      onclick="setBrivaInputMode('mass')" 
-                      class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-blue-900 dark:text-sky-300 font-bold shadow-2xs transition-all flex items-center gap-1 border border-slate-200/60 dark:border-slate-700"
-                      title="Tempel banyak nomor registrasi sekaligus dalam satu teks"
-                    >
-                      <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                      <span>Massal (Teks)</span>
-                    </button>
-                    <button 
-                      type="button" 
-                      id="brivaInputModeBtn_manual" 
-                      onclick="setBrivaInputMode('manual')" 
-                      class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium transition-all flex items-center gap-1.5"
-                      title="Atur tagihan dan nominal manual untuk masing-masing nomor BRIVA"
-                    >
-                      <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                      <span>Santri Manual</span>
-                      <span class="bg-amber-500 text-white text-[10.5px] px-1.5 py-0.2 rounded-full font-black uppercase shadow-2xs">3+ Siswa</span>
-                    </button>
-                  </div>
-
-                  <!-- Actions for Massal Mode -->
-                  <div id="brivaMassalActions" class="flex items-center gap-1.5 text-xs">
-                    <span id="brivaLineCount" class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums font-semibold px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-slate-700">0 baris</span>
-                    <button type="button" onclick="insertBrivaSample(true)" class="text-[11px] text-orange-600 dark:text-amber-400 hover:text-orange-800 dark:hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-amber-500 dark:text-amber-400"></i>
-                      <span>Screenshot BRI</span>
-                    </button>
-                  </div>
-
-                  <!-- Actions for Manual Mode -->
-                  <div id="brivaManualActions" class="hidden flex items-center gap-1.5 text-xs">
-                    <button 
-                      type="button" 
-                      onclick="loadSample3SantriManual()" 
-                      class="px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 font-bold text-[11px] transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                      title="Muat simulasi 3 santri dengan jenis tagihan berbeda masing-masing"
-                    >
-                      <i data-lucide="wand-2" class="w-3 h-3 text-amber-600 dark:text-amber-400"></i>
-                      <span>Contoh 3 Santri</span>
-                    </button>
-                    <button 
-                      type="button" 
-                      onclick="addManualSantri()" 
-                      class="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                      title="Tambah slot santri baru"
-                    >
-                      <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                      <span>Tambah Santri</span>
-                    </button>
-                  </div>
-                </div>
-                
-                <!-- VIEW 1: Massal Textarea Container -->
-                <div id="brivaMassalContainer" class="flex-1 flex flex-col">
-                  <textarea 
-                    id="brivaInput" 
-                    oninput="runBrivaGenerator()"
-                    placeholder="Tempelkan (Ctrl+V) daftar No. Registrasi siswa di sini...&#10;&#10;Contoh dari Screenshot BRI:&#10;015660&#10;015661&#10;015662&#10;015663&#10;015665&#10;015666&#10;015667&#10;&#10;Atau dengan status (opsional):&#10;015660 VIP&#10;015661 Reguler&#10;015662 Mbajak" 
-                    class="w-full flex-1 p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-950/80 hover:bg-slate-50/80 dark:hover:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs tabular-nums text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-orange-500/30 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 font-medium"
-                  ></textarea>
-
-                  <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 flex-shrink-0">
-                    <div class="flex items-center gap-1">
-                      <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
-                      <span>Awalan '0' tetap utuh (015660)</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <button type="button" onclick="pasteFromClipboardToInput('brivaInput', 'runBrivaGenerator')" class="text-emerald-600 dark:text-emerald-400 hover:underline font-bold flex items-center gap-1 cursor-pointer" title="Tempel dari Clipboard">
-                        <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
-                        <span>Tempel</span>
-                      </button>
-                      <button type="button" onclick="insertBrivaMultiStatusSample()" class="text-blue-600 dark:text-sky-400 hover:underline font-medium cursor-pointer">Contoh Campuran</button>
-                      <button type="button" onclick="document.getElementById('brivaInput').value = ''; runBrivaGenerator();" class="text-red-500 dark:text-rose-400 hover:underline font-medium cursor-pointer">Hapus</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- VIEW 2: Manual Per-BRIVA Santri Cards Container -->
-                <div id="brivaManualContainer" class="hidden flex-1 flex flex-col overflow-hidden">
-                  <div class="flex items-center justify-between pb-1.5 text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
-                    <span class="font-medium text-[11px]">Rincian & tagihan khusus per nomor BRIVA:</span>
-                    <span id="brivaManualTotalSantriBadge" class="font-bold text-blue-700 dark:text-sky-300 bg-blue-50 dark:bg-blue-950/70 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 text-[10px]">
-                      0 Santri
-                    </span>
-                  </div>
-
-                  <!-- Scrollable Cards List -->
-                  <div id="brivaManualCardsList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 py-1">
-                    <!-- Dynamic Santri Cards rendered by JS -->
-                  </div>
-
-                  <!-- Bottom Toolbar for Manual Mode -->
-                  <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] flex-shrink-0">
-                    <button 
-                      type="button" 
-                      onclick="addManualSantri()" 
-                      class="px-2.5 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-sky-300 border border-blue-200 dark:border-blue-800 font-bold transition-all flex items-center gap-1 cursor-pointer"
-                    >
-                      <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                      <span>+ Tambah Santri</span>
-                    </button>
-                    <div class="flex items-center gap-2">
-                      <button type="button" onclick="clearAllManualSantri()" class="text-red-500 dark:text-rose-400 hover:underline cursor-pointer">Hapus Semua</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right Live 5-Column Table & Action Toolbar -->
-              <div class="lg:col-span-7 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col min-h-[460px] lg:h-[600px] overflow-hidden">
-                
-                <!-- Action Header Toolbar -->
-                <div class="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex flex-wrap items-center justify-between gap-2">
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Tabel 5 Kolom BRIVA</span>
-                    <span id="brivaSummaryBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/70 text-orange-800 dark:text-amber-300 border border-orange-200 dark:border-orange-800/60 shadow-2xs">
-                      Total: Rp 0
-                    </span>
-                  </div>
-
-                  <!-- Quick Copy / Export Buttons -->
-                  <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
-                    <button 
-                      onclick="exportBrivaToExcel()" 
-                      id="btnExportBrivaExcel"
-                      class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold py-1.5 px-3 rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                      title="Unduh File Excel (.xlsx) 5 Kolom dengan tanggal format hyphen (-)"
-                    >
-                      <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                      <span>Export Excel (.xlsx)</span>
-                    </button>
-
-                    <button 
-                      onclick="copyBriva5Columns()" 
-                      id="btnCopyBriva5"
-                      class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 active:scale-95 text-xs font-semibold py-1.5 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      title="Salin 5 Kolom lengkap (A s.d E) siap paste langsung ke Microsoft Excel"
-                    >
-                      <i data-lucide="copy-check" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                      <span>Salin 5 Kolom</span>
-                    </button>
-
-                    <button 
-                      onclick="copyBrivaAmountsOnly()" 
-                      class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium py-1.5 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
-                      title="Salin hanya kolom Jumlah (Kolom C)"
-                    >
-                      <i data-lucide="clipboard-copy" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
-                      <span class="hidden sm:inline">Salin</span> Jumlah
-                    </button>
-
-                    <button 
-                      onclick="downloadBrivaCsv()" 
-                      class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white text-xs font-medium py-1.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-all active:scale-95 flex items-center cursor-pointer"
-                      title="Unduh Cadangan File CSV BRI"
-                    >
-                      <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                      <span class="text-[10px] ml-0.5 hidden xl:inline">CSV</span>
-                    </button>
-
-                    <button 
-                      type="button"
-                      onclick="openWaFromBriva()" 
-                      class="bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold py-1.5 px-2.5 rounded-xl border border-emerald-300 dark:border-emerald-800/60 transition-all active:scale-95 flex items-center gap-1 shadow-2xs cursor-pointer"
-                      title="Buat Laporan Format WhatsApp dari hasil tagihan saat ini"
-                    >
-                      <i data-lucide="message-square-text" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
-                      <span>Format WA</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Instant Search Bar & View Mode Toggle for BRIVA Table -->
-                <div class="px-3 sm:px-4 py-2 bg-slate-50/90 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
-                  <!-- View Switcher (Kartu vs Tabel) -->
-                  <div class="flex items-center p-0.5 rounded-lg bg-slate-200/80 dark:bg-slate-800 border border-slate-300/60 dark:border-white/10 text-[10px] sm:text-xs font-semibold shrink-0">
-                    <button type="button" id="btnBrivaViewCards" onclick="setBrivaViewMode('cards')" class="px-2.5 py-1 rounded-md font-bold transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer" title="Tampilan Kartu Ponsel (Tanpa geser layar)">
-                      <i data-lucide="layout-grid" class="w-3 h-3"></i>
-                      <span>Kartu</span>
-                    </button>
-                    <button type="button" id="btnBrivaViewTable" onclick="setBrivaViewMode('table')" class="px-2.5 py-1 rounded-md font-semibold transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer" title="Tampilan Tabel Lengkap">
-                      <i data-lucide="table" class="w-3 h-3"></i>
-                      <span>Tabel</span>
-                    </button>
-                  </div>
-                  <div class="relative flex-1">
-                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input 
-                      type="text" 
-                      id="brivaTableSearch" 
-                      oninput="renderBrivaTable()" 
-                      placeholder="Cari No. Registrasi (015660), ID Tagihan, Jumlah, atau Komponen..." 
-                      class="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500/30 outline-none transition-all"
-                    />
-                    <button 
-                      id="clearBrivaSearchBtn" 
-                      onclick="document.getElementById('brivaTableSearch').value = ''; renderBrivaTable();" 
-                      class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      <i data-lucide="x" class="w-3 h-3"></i>
-                    </button>
-                  </div>
-
-                  <div id="brivaFilterCountBadge" class="text-[11px] text-slate-500 font-mono hidden sm:block whitespace-nowrap">
-                    0 baris cocok
-                  </div>
-                </div>
-
-                <!-- Table Content Container with Horizontal Scroll Support -->
-                <div class="flex-1 overflow-x-auto overflow-y-auto no-scrollbar relative">
-                  <table class="w-full text-left text-xs text-slate-600 border-collapse min-w-[620px]">
-                    <thead class="bg-slate-100/90 sticky top-0 z-10 text-[11px] font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200 backdrop-blur-xs">
-                      <tr>
-                        <th class="py-2.5 px-3 w-10 text-center">#</th>
-                        <th class="py-2.5 px-3">Kolom A: No. Registrasi</th>
-                        <th class="py-2.5 px-3">Kolom B: ID Tagihan</th>
-                        <th class="py-2.5 px-3 text-right">Kolom C: Jumlah</th>
-                        <th class="py-2.5 px-3 text-center">Kolom D: Tgl Efektif</th>
-                        <th class="py-2.5 px-3 text-center">Kolom E: Jatuh Tempo</th>
-                        <th class="py-2.5 px-3">Rincian Komponen</th>
-                      </tr>
-                    </thead>
-                    <tbody id="brivaTableBody" class="divide-y divide-slate-100 tabular-nums">
-                      <tr>
-                        <td colspan="7" class="py-16 text-center text-slate-400">
-                          <i data-lucide="layers" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
-                          <p class="font-medium">Belum ada data nomor registrasi</p>
-                          <p class="text-[11px] text-slate-400 mt-1">Tempelkan nomor registrasi di kotak sebelah kiri atau klik <b>"Screenshot BRI"</b> untuk menguji data.</p>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- CARDS VIEW CONTAINER: Ergonomic Mobile Cards (No Horizontal Scroll Needed) -->
-                <div id="brivaCardsContainer" class="hidden flex-1 overflow-y-auto mobile-touch-scroll p-2 sm:p-3 space-y-2 max-h-[520px]">
-                  <!-- Rendered dynamically by JS -->
-                </div>
-
-                <!-- Bottom Stats Bar -->
-                <div class="px-4 py-2 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono gap-2">
-                  <div class="flex items-center gap-3">
-                    <span>Total Siswa: <b id="brivaStatCount" class="text-orange-600 font-bold">0</b></span>
-                    <span>Total Nominal: <b id="brivaStatTotal" class="text-emerald-600 font-bold">Rp 0</b></span>
-                  </div>
-                  <div>
-                    <span>Rata-rata: <b id="brivaStatAverage" class="text-slate-700">Rp 0</b></span>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-<!-- END COMPONENT: Tab03_TagihanBriva.html -->
-
-<!-- START COMPONENT: Tab04_PanggilTagihan.html -->
-          <div id="tab-panggil" class="hidden space-y-2.5 sm:space-y-4 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
-            <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2.5 lg:gap-4">
-              
-              <!-- Form Panel -->
-              <div class="lg:col-span-5 bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 p-2 sm:p-4 shadow-xs space-y-1.5 sm:space-y-3">
-                <div class="flex items-center gap-2 pb-1.5 sm:pb-2 border-b border-slate-100 dark:border-white/10">
-                  <div class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></div>
-                  <h3 class="font-bold text-slate-800 dark:text-white text-[11px] sm:text-xs tracking-wide uppercase">Formulir Data Santri</h3>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Nama Lengkap Siswa</label>
-                  <input 
-                    type="text" 
-                    id="singleNama" 
-                    placeholder="Contoh: Muhammad Wildan / Siti Fatimah" 
-                    value="Ahmad Fikri Pratama"
-                    oninput="calculateSingleReceipt()"
-                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all"
-                  />
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
-                  <div>
-                    <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Kelas</label>
-                    <select id="singleKelas" onchange="calculateSingleReceipt()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:bg-white dark:focus:bg-slate-900 outline-none">
-                      <option value="7">Kelas 7 (MTs)</option>
-                      <option value="8">Kelas 8 (MTs)</option>
-                      <option value="9">Kelas 9 (MTs)</option>
-                      <option value="10" selected>Kelas 10 (MA)</option>
-                      <option value="11">Kelas 11 (MA)</option>
-                      <option value="12">Kelas 12 (MA)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Jenis Kelamin</label>
-                    <div class="flex items-center gap-1 mt-0.5">
-                      <label class="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] sm:text-xs font-semibold cursor-pointer hover:bg-blue-50 has-[:checked]:bg-blue-600 has-[:checked]:text-white has-[:checked]:border-blue-600 transition-all text-slate-700 dark:text-slate-200">
-                        <input type="radio" name="singleGender" value="PA" checked onchange="calculateSingleReceipt()" class="hidden">
-                        <span>Putra (PA)</span>
-                      </label>
-                      <label class="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] sm:text-xs font-semibold cursor-pointer hover:bg-pink-50 has-[:checked]:bg-pink-600 has-[:checked]:text-white has-[:checked]:border-pink-600 transition-all text-slate-700 dark:text-slate-200">
-                        <input type="radio" name="singleGender" value="PI" onchange="calculateSingleReceipt()" class="hidden">
-                        <span>Putri (PI)</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Status Tempat Tinggal</label>
-                  <select id="singleStatus" onchange="calculateSingleReceipt()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:bg-white dark:focus:bg-slate-900 outline-none">
-                    <option value="reguler" selected>Mukim Reguler (Pondok)</option>
-                    <option value="vip">Mukim VIP (Khusus Putri)</option>
-                    <option value="mbajak">Non-Mukim (Mbajak / Laju)</option>
-                  </select>
-                  <p class="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="vipWarningText"></p>
-                </div>
-
-                <div class="bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-700/60 space-y-1.5">
-                  <span class="block text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-300">Komponen Biaya dalam Kwitansi:</span>
-                  <div class="grid grid-cols-2 gap-1.5 text-[11px] sm:text-xs">
-                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
-                      <input type="checkbox" id="checkBulanan" checked onchange="calculateSingleReceipt()" class="rounded text-blue-600 focus:ring-0">
-                      <span class="truncate">Syahriyah Bulanan</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
-                      <input type="checkbox" id="checkAwalTahun" checked onchange="calculateSingleReceipt()" class="rounded text-amber-600 focus:ring-0">
-                      <span class="truncate">Biaya Awal Tahun</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
-                      <input type="checkbox" id="checkAkhirTahun" checked onchange="calculateSingleReceipt()" class="rounded text-emerald-600 focus:ring-0">
-                      <span class="truncate">Biaya Akhir Tahun</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
-                      <input type="checkbox" id="checkSeragamSekolah" onchange="calculateSingleReceipt()" class="rounded text-purple-600 focus:ring-0">
-                      <span class="truncate">Seragam Sekolah</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer col-span-2">
-                      <input type="checkbox" id="checkSeragamPondok" onchange="calculateSingleReceipt()" class="rounded text-purple-600 focus:ring-0">
-                      <span class="truncate">Seragam Khusus Pondok (Taqwa / Jubah)</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="pt-0.5 flex items-center justify-between text-[11px] sm:text-xs">
-                  <span class="text-slate-400 dark:text-slate-500">Pilihan Cepat:</span>
-                  <div class="flex items-center gap-2">
-                    <button onclick="setSinglePreset('vip')" class="text-purple-600 dark:text-purple-400 font-semibold hover:underline cursor-pointer">VIP PI 10</button>
-                    <button onclick="setSinglePreset('reguler')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer">Reguler PA 7</button>
-                    <button onclick="setSinglePreset('mbajak')" class="text-amber-600 dark:text-amber-400 font-semibold hover:underline cursor-pointer">Mbajak 12</button>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- Output Panel -->
-              <div class="lg:col-span-7 space-y-2.5 sm:space-y-4">
-                
-                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg border border-slate-700/50">
-                  <div class="flex items-center justify-between mb-2 sm:mb-3">
-                    <div class="flex items-center gap-2">
-                      <span class="text-[10px] sm:text-[11px] font-sans font-bold tracking-wider text-blue-300 uppercase">NOMINAL INSTAN</span>
-                      <span id="singleCategoryLabel" class="text-[10.5px] sm:text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.2 rounded-full">Bulanan</span>
-                    </div>
-                    <div class="flex items-center bg-white/10 rounded-lg p-0.5 text-[10px] sm:text-xs font-sans font-bold tabular-nums">
-                      <button onclick="setSingleFormat('safe')" id="btnFormatSafe" class="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded bg-blue-600 text-white font-bold cursor-pointer">'1,000</button>
-                      <button onclick="setSingleFormat('comma')" id="btnFormatComma" class="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-slate-300 hover:text-white cursor-pointer">1,000</button>
-                      <button onclick="setSingleFormat('dot')" id="btnFormatDot" class="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-slate-300 hover:text-white cursor-pointer">1.000</button>
-                    </div>
-                  </div>
-
-                  <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 sm:gap-3">
-                    <div>
-                      <p class="text-2xl sm:text-4xl font-black tracking-tight font-sans tabular-nums text-emerald-400" id="singleBigNominal">
-                        '330,000
-                      </p>
-                      <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5" id="singleNominalDesc">Tarif Syahriyah Per Bulan (Kelas 10 MA - Reguler)</p>
-                    </div>
-                    <button 
-                      onclick="copySingleNominal()" 
-                      class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all self-start sm:self-auto cursor-pointer"
-                    >
-                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                      <span>Salin Angka</span>
-                    </button>
-                  </div>
-
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-white/10">
-                    <button onclick="switchSingleCategory('bulanan')" id="btnCatBulanan" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/20 text-white text-center transition-all cursor-pointer">
-                      Per Bulan
-                    </button>
-                    <button onclick="switchSingleCategory('awal_tahun')" id="btnCatAwal" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-300 text-center transition-all cursor-pointer">
-                      Awal Tahun
-                    </button>
-                    <button onclick="switchSingleCategory('akhir_tahun')" id="btnCatAkhir" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-300 text-center transition-all cursor-pointer">
-                      Akhir Tahun
-                    </button>
-                    <button onclick="switchSingleCategory('bulanan_setahun')" id="btnCatSetahun" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-300 text-center transition-all cursor-pointer">
-                      1 Tahun Penuh
-                    </button>
-                  </div>
-                </div>
-
-                <div class="bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs overflow-hidden flex flex-col">
-                  <div class="px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
-                    <div class="flex items-center gap-1.5">
-                      <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-600 dark:text-slate-400"></i>
-                      <span class="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide uppercase">Rincian Kwitansi</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <button onclick="copyFullReceiptText()" class="text-[11px] sm:text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 px-2 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer">
-                        <i data-lucide="copy" class="w-3 h-3"></i> <span class="hidden sm:inline">Salin Teks</span>
-                      </button>
-                      <button onclick="window.print()" class="text-[11px] sm:text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 px-2 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer">
-                        <i data-lucide="printer" class="w-3 h-3"></i> Cetak
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="p-3 sm:p-4 font-sans tabular-nums text-xs text-slate-800 dark:text-slate-200 space-y-2 bg-[#fafbfc] dark:bg-slate-900/40">
-                    <div class="pb-1.5 border-b border-dashed border-slate-300 dark:border-slate-700 flex justify-between">
-                      <div>
-                        <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm" id="receiptNama">AHMAD FIKRI PRATAMA</p>
-                        <p class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-[11px]" id="receiptSub">Kelas 10 MA | Putra (PA) | Mukim Reguler</p>
-                      </div>
-                      <div class="text-right text-[10px] sm:text-[11px] text-slate-400">
-                        <p>#BRV-2026</p>
-                        <p id="receiptDate">11-Sep-2026</p>
-                      </div>
-                    </div>
-
-                    <div class="space-y-1 py-1" id="receiptItems"></div>
-
-                    <div class="pt-2 border-t-2 border-slate-800 dark:border-slate-600 flex items-center justify-between">
-                      <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">TOTAL AKUMULASI:</span>
-                      <span class="text-xs sm:text-sm font-black text-blue-700 dark:text-blue-400 tabular-nums" id="receiptTotalText">Rp 330.000</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-
-<!-- END COMPONENT: Tab04_PanggilTagihan.html -->
-
-<!-- START COMPONENT: Tab05_KatalogBiaya.html -->
-          <div id="tab-katalog" class="hidden space-y-4 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
-            
-            <!-- Top Control Bar: View Switcher, Class Filter & Live Search -->
-            <div class="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-white/10 p-3.5 sm:p-4 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5">
-              
-              <!-- Left: View Mode Switcher -->
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <i data-lucide="layers" class="w-3.5 h-3.5 text-orange-500"></i> Mode:
-                </span>
-                <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#0c101a] border border-slate-200/70 dark:border-white/5 text-xs select-none gap-1">
-                  <button 
-                    id="catModeBtn-class" 
-                    onclick="setCatalogViewMode('class')" 
-                    class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
-                  >
-                    <i data-lucide="grid-2x2" class="w-3.5 h-3.5"></i>
-                    <span>Per Kelas</span>
-                  </button>
-                  <button 
-                    id="catModeBtn-category" 
-                    onclick="setCatalogViewMode('category')" 
-                    class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all cursor-pointer flex items-center gap-1.5"
-                  >
-                    <i data-lucide="table" class="w-3.5 h-3.5"></i>
-                    <span>Matriks Kategori</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Center: Class Filter Pills -->
-              <div class="flex items-center gap-1.5 flex-wrap overflow-x-auto py-0.5">
-                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Kelas:</span>
-                <button onclick="filterCatalogClass('all')" id="catFilter-all" class="px-3 py-1 rounded-full text-[11px] font-bold bg-orange-500 text-white shadow-xs transition-all cursor-pointer">Semua</button>
-                <button onclick="filterCatalogClass('7mts')" id="catClassPill-7mts" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">7 MTs</button>
-                <button onclick="filterCatalogClass('8mts')" id="catClassPill-8mts" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">8 MTs</button>
-                <button onclick="filterCatalogClass('9mts')" id="catClassPill-9mts" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">9 MTs</button>
-                <button onclick="filterCatalogClass('10ma')" id="catClassPill-10ma" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">10 MA</button>
-                <button onclick="filterCatalogClass('11ma')" id="catClassPill-11ma" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">11 MA</button>
-                <button onclick="filterCatalogClass('12ma')" id="catClassPill-12ma" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">12 MA</button>
-                <button onclick="filterCatalogClass('seragam')" id="catClassPill-seragam" class="px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer border border-slate-200/80 dark:border-slate-700">Seragam</button>
-              </div>
-
-              <!-- Right: Search Box for Catalog -->
-              <div class="relative w-full lg:w-64">
-                <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input 
-                  type="text" 
-                  id="catalogSearchInput" 
-                  oninput="searchCatalogTables()" 
-                  placeholder="Cari kelas, nominal, seragam..." 
-                  class="w-full pl-8 pr-8 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-orange-500/30 outline-none transition-all"
-                />
-                <button 
-                  id="clearCatalogSearchBtn" 
-                  onclick="document.getElementById('catalogSearchInput').value = ''; searchCatalogTables();" 
-                  class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                >
-                  <i data-lucide="x" class="w-3 h-3"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- VIEW MODE 1: PENGELOMPOKAN PER KELAS (BENTO CARDS)             -->
-            <!-- ============================================================== -->
-            <div id="catalogViewByClass" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4.5 lg:gap-5">
-
-              <!-- KELAS 7 MTS (SANTRI BARU) -->
-              <div id="classCard-7mts" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-emerald-200/90 dark:border-emerald-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all" data-class="7mts">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border-b border-emerald-100 dark:border-emerald-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        7
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Kelas 7 MTs</h4>
-                          <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded-full">Santri Baru</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Tingkat Pertama MTs / SMP</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('7mts')" class="px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap ke format WhatsApp orang tua">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 space-y-2.5 text-xs">
-                    <!-- Syahriyah Bulanan -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i> Syahriyah Bulanan</span>
-                        <span class="text-[10px] font-normal text-slate-400">Per Bulan</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(301000, 'Syahriyah 7 MTs VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 301,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(281000, 'Syahriyah 7 MTs Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 281,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(73000, 'Syahriyah 7 MTs Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 73,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Awal Tahun / Daftar Ulang -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> Awal Tahun (Daftar Ulang)</span>
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">1x / Thn</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(560000, 'Awal Th 7 MTs VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 560,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(410000, 'Awal Th 7 MTs Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 410,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(270000, 'Awal Th 7 MTs Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 270,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Akhir Tahun & Seragam MTs -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div onclick="copyCatalogRate(325000, 'Akhir Th 7 MTs')" class="p-2 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200/70 dark:border-emerald-800/40 cursor-pointer transition-all flex items-center justify-between" title="Klik untuk salin">
-                        <div>
-                          <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-medium">Akhir Tahun (Flat)</div>
-                          <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200 tabular-nums">Rp 325,000</div>
-                        </div>
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                      </div>
-
-                      <div class="p-2 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-200/70 dark:border-purple-800/40 space-y-1">
-                        <div class="text-[10px] text-purple-800 dark:text-purple-300 font-medium flex items-center justify-between">
-                          <span>Paket Seragam MTs</span>
-                          <i data-lucide="shirt" class="w-3.5 h-3.5 text-purple-500"></i>
-                        </div>
-                        <div class="flex items-center justify-between text-[11px] tabular-nums font-bold">
-                          <span onclick="copyCatalogRate(736000, 'Seragam MTs Putra')" class="text-purple-900 dark:text-purple-200 hover:underline cursor-pointer" title="Klik salin">Pa: Rp 736k</span>
-                          <span class="text-slate-300 dark:text-slate-600">|</span>
-                          <span onclick="copyCatalogRate(897000, 'Seragam MTs Putri')" class="text-purple-900 dark:text-purple-200 hover:underline cursor-pointer" title="Klik salin">Pi: Rp 897k</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- KELAS 8 MTS (SANTRI LANJUTAN) -->
-              <div id="classCard-8mts" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-blue-200/90 dark:border-blue-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all" data-class="8mts">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border-b border-blue-100 dark:border-blue-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        8
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Kelas 8 MTs</h4>
-                          <span class="text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 px-2 py-0.5 rounded-full">Santri Lanjutan</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Tingkat Kedua MTs / SMP</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('8mts')" class="px-2.5 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold border border-blue-200 dark:border-blue-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap ke format WhatsApp orang tua">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 space-y-2.5 text-xs">
-                    <!-- Syahriyah Bulanan -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i> Syahriyah Bulanan</span>
-                        <span class="text-[10px] font-normal text-slate-400">Per Bulan</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(301000, 'Syahriyah 8 MTs VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 301,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(281000, 'Syahriyah 8 MTs Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 281,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(73000, 'Syahriyah 8 MTs Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 73,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Awal Tahun / Daftar Ulang -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> Awal Tahun (Daftar Ulang)</span>
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">1x / Thn</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(250000, 'Awal Th 8 MTs VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 250,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(100000, 'Awal Th 8 MTs Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 100,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(100000, 'Awal Th 8 MTs Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 100,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Akhir Tahun & Keterangan Seragam -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div onclick="copyCatalogRate(325000, 'Akhir Th 8 MTs')" class="p-2 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200/70 dark:border-emerald-800/40 cursor-pointer transition-all flex items-center justify-between" title="Klik untuk salin">
-                        <div>
-                          <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-medium">Akhir Tahun (Flat)</div>
-                          <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200 tabular-nums">Rp 325,000</div>
-                        </div>
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                      </div>
-
-                      <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 flex items-center gap-2">
-                        <i data-lucide="check-circle-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
-                        <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Seragam melanjutkan kelas sebelumnya. <i>(Khusus santri pindahan wajib membeli paket seragam sesuai status MTs Putra/Putri)</i></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- KELAS 9 MTS (TINGKAT AKHIR) -->
-              <div id="classCard-9mts" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-indigo-200/90 dark:border-indigo-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all" data-class="9mts">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent border-b border-indigo-100 dark:border-indigo-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        9
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Kelas 9 MTs</h4>
-                          <span class="text-[10px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 px-2 py-0.5 rounded-full">Tingkat Akhir</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Ujian Madrasah & Kelulusan MTs</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('9mts')" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap ke format WhatsApp orang tua">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 space-y-2.5 text-xs">
-                    <!-- Syahriyah Bulanan -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i> Syahriyah Bulanan</span>
-                        <span class="text-[10px] font-normal text-slate-400">Per Bulan</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(297000, 'Syahriyah 9 MTs VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 297,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(277000, 'Syahriyah 9 MTs Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 277,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(69000, 'Syahriyah 9 MTs Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 69,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Awal Tahun / Daftar Ulang -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> Awal Tahun (Daftar Ulang)</span>
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">1x / Thn</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(360000, 'Awal Th 9 MTs VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 360,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(210000, 'Awal Th 9 MTs Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 210,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(210000, 'Awal Th 9 MTs Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 210,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Akhir Tahun & Keterangan Seragam -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div onclick="copyCatalogRate(475000, 'Akhir Th 9 MTs Ujian')" class="p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/80 dark:border-amber-800/40 cursor-pointer transition-all flex items-center justify-between" title="Klik untuk salin">
-                        <div>
-                          <div class="text-[10px] text-amber-800 dark:text-amber-300 font-medium">Akhir Tahun (Ujian Madrasah & Kelulusan)</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 475,000 (Flat)</div>
-                        </div>
-                        <i data-lucide="award" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
-                      </div>
-
-                      <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 flex items-center gap-2">
-                        <i data-lucide="check-circle-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
-                        <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Seragam melanjutkan kelas sebelumnya. <i>(Khusus santri pindahan wajib membeli paket seragam sesuai status MTs Putra/Putri)</i></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- KELAS 10 MA (SANTRI BARU MA) -->
-              <div id="classCard-10ma" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-orange-200/90 dark:border-orange-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all" data-class="10ma">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent border-b border-orange-100 dark:border-orange-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        10
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Kelas 10 MA</h4>
-                          <span class="text-[10px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300 px-2 py-0.5 rounded-full">Santri Baru</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Tingkat Pertama MA / SMA</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('10ma')" class="px-2.5 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/60 hover:bg-orange-100 dark:hover:bg-orange-900/60 text-orange-700 dark:text-orange-300 text-xs font-bold border border-orange-200 dark:border-orange-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap ke format WhatsApp orang tua">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 space-y-2.5 text-xs">
-                    <!-- Syahriyah Bulanan -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i> Syahriyah Bulanan</span>
-                        <span class="text-[10px] font-normal text-slate-400">Per Bulan</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(350000, 'Syahriyah 10 MA VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 350,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(330000, 'Syahriyah 10 MA Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 330,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(122000, 'Syahriyah 10 MA Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 122,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Awal Tahun / Daftar Ulang -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> Awal Tahun (Daftar Ulang)</span>
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">1x / Thn</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(570000, 'Awal Th 10 MA VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 570,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(420000, 'Awal Th 10 MA Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 420,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(280000, 'Awal Th 10 MA Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 280,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Akhir Tahun & Seragam MA -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div onclick="copyCatalogRate(335000, 'Akhir Th 10 MA')" class="p-2 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200/70 dark:border-emerald-800/40 cursor-pointer transition-all flex items-center justify-between" title="Klik untuk salin">
-                        <div>
-                          <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-medium">Akhir Tahun (Flat)</div>
-                          <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200 tabular-nums">Rp 335,000</div>
-                        </div>
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                      </div>
-
-                      <div class="p-2 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 border border-purple-200/70 dark:border-purple-800/40 space-y-1">
-                        <div class="text-[10px] text-purple-800 dark:text-purple-300 font-medium flex items-center justify-between">
-                          <span>Paket Seragam MA</span>
-                          <i data-lucide="shirt" class="w-3.5 h-3.5 text-purple-500"></i>
-                        </div>
-                        <div class="flex items-center justify-between text-[11px] tabular-nums font-bold">
-                          <span onclick="copyCatalogRate(759000, 'Seragam MA Putra')" class="text-purple-900 dark:text-purple-200 hover:underline cursor-pointer" title="Klik salin">Pa: Rp 759k</span>
-                          <span class="text-slate-300 dark:text-slate-600">|</span>
-                          <span onclick="copyCatalogRate(938000, 'Seragam MA Putri')" class="text-purple-900 dark:text-purple-200 hover:underline cursor-pointer" title="Klik salin">Pi: Rp 938k</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- KELAS 11 MA (SANTRI LANJUTAN) -->
-              <div id="classCard-11ma" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-rose-200/90 dark:border-rose-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all" data-class="11ma">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-rose-500/10 via-pink-500/5 to-transparent border-b border-rose-100 dark:border-rose-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        11
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Kelas 11 MA</h4>
-                          <span class="text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 px-2 py-0.5 rounded-full">Santri Lanjutan</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Tingkat Kedua MA / SMA</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('11ma')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold border border-rose-200 dark:border-rose-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap ke format WhatsApp orang tua">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 space-y-2.5 text-xs">
-                    <!-- Syahriyah Bulanan -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i> Syahriyah Bulanan</span>
-                        <span class="text-[10px] font-normal text-slate-400">Per Bulan</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(350000, 'Syahriyah 11 MA VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 350,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(330000, 'Syahriyah 11 MA Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 330,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(122000, 'Syahriyah 11 MA Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 122,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Awal Tahun / Daftar Ulang -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> Awal Tahun (Daftar Ulang)</span>
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">1x / Thn</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(250000, 'Awal Th 11 MA VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 250,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(100000, 'Awal Th 11 MA Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 100,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(100000, 'Awal Th 11 MA Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 100,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Akhir Tahun & Keterangan Seragam -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div onclick="copyCatalogRate(335000, 'Akhir Th 11 MA')" class="p-2 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200/70 dark:border-emerald-800/40 cursor-pointer transition-all flex items-center justify-between" title="Klik untuk salin">
-                        <div>
-                          <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-medium">Akhir Tahun (Flat)</div>
-                          <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200 tabular-nums">Rp 335,000</div>
-                        </div>
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                      </div>
-
-                      <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 flex items-center gap-2">
-                        <i data-lucide="check-circle-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
-                        <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Seragam melanjutkan kelas sebelumnya. <i>(Khusus santri pindahan wajib membeli paket seragam sesuai status MA Putra/Putri)</i></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- KELAS 12 MA (WISUDA & KELULUSAN) -->
-              <div id="classCard-12ma" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-violet-200/90 dark:border-violet-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all" data-class="12ma">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-violet-500/10 via-purple-500/5 to-transparent border-b border-violet-100 dark:border-violet-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        12
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Kelas 12 MA</h4>
-                          <span class="text-[10px] font-bold bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300 px-2 py-0.5 rounded-full">Wisuda & Akhir</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Tingkat Akhir, Ujian & Wisuda Pelepasan</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('12ma')" class="px-2.5 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/60 hover:bg-violet-100 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 text-xs font-bold border border-violet-200 dark:border-violet-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap ke format WhatsApp orang tua">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 space-y-2.5 text-xs">
-                    <!-- Syahriyah Bulanan -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i> Syahriyah Bulanan</span>
-                        <span class="text-[10px] font-normal text-slate-400">Per Bulan</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(345000, 'Syahriyah 12 MA VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 345,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(325000, 'Syahriyah 12 MA Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 325,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(117000, 'Syahriyah 12 MA Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 117,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Awal Tahun / Daftar Ulang -->
-                    <div class="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i> Awal Tahun (Daftar Ulang)</span>
-                        <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">1x / Thn</span>
-                      </div>
-                      <div class="grid grid-cols-3 gap-1.5 text-center">
-                        <div onclick="copyCatalogRate(460000, 'Awal Th 12 MA VIP')" class="p-1.5 rounded-lg bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-purple-700 dark:text-purple-300 font-medium">VIP (Putri)</div>
-                          <div class="text-xs font-bold text-purple-900 dark:text-purple-200 tabular-nums">Rp 460,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(310000, 'Awal Th 12 MA Reguler')" class="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200/70 dark:border-blue-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-blue-700 dark:text-blue-300 font-medium">Reguler</div>
-                          <div class="text-xs font-bold text-blue-900 dark:text-blue-200 tabular-nums">Rp 310,000</div>
-                        </div>
-                        <div onclick="copyCatalogRate(310000, 'Awal Th 12 MA Mbajak')" class="p-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-200/70 dark:border-amber-800/40 cursor-pointer transition-all" title="Klik untuk salin">
-                          <div class="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Mbajak</div>
-                          <div class="text-xs font-bold text-amber-900 dark:text-amber-200 tabular-nums">Rp 310,000</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Akhir Tahun & Keterangan Seragam -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div onclick="copyCatalogRate(560000, 'Akhir Th 12 MA Wisuda')" class="p-2 rounded-xl bg-violet-50/80 dark:bg-violet-950/40 hover:bg-violet-100 border border-violet-200/80 dark:border-violet-800/40 cursor-pointer transition-all flex items-center justify-between" title="Klik untuk salin">
-                        <div>
-                          <div class="text-[10px] text-violet-800 dark:text-violet-300 font-medium">Akhir Tahun (Wisuda & Pelepasan Siswa)</div>
-                          <div class="text-xs font-bold text-violet-900 dark:text-violet-200 tabular-nums">Rp 560,000 (Flat)</div>
-                        </div>
-                        <i data-lucide="award" class="w-4 h-4 text-violet-600 dark:text-violet-400"></i>
-                      </div>
-
-                      <div class="p-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 flex items-center gap-2">
-                        <i data-lucide="check-circle-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
-                        <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Seragam melanjutkan kelas sebelumnya. <i>(Khusus santri pindahan wajib membeli paket seragam sesuai status MA Putra/Putri)</i></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- CARD 7: PAKET SERAGAM & ATRIBUT PONDOK LENGKAP -->
-              <div id="classCard-seragam" class="catalog-class-card bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-purple-200/90 dark:border-purple-500/30 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-all xl:col-span-3" data-class="seragam">
-                <div>
-                  <div class="px-4 py-3 bg-gradient-to-r from-purple-500/10 via-indigo-500/5 to-transparent border-b border-purple-100 dark:border-purple-500/20 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
-                        <i data-lucide="shirt" class="w-4 h-4"></i>
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h4 class="font-bold text-slate-900 dark:text-white text-sm">Katalog Lengkap Seragam & Atribut</h4>
-                          <span class="text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 px-2 py-0.5 rounded-full">Sekolah & Pondok</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Pakaian seragam resmi MTs, MA & busana muslim pondok pesantren</p>
-                      </div>
-                    </div>
-                    <button onclick="copyClassSummary('seragam')" class="px-2.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-700/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer" title="Salin rincian lengkap seragam">
-                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                      <span class="hidden sm:inline">Salin WA</span>
-                    </button>
-                  </div>
-
-                  <div class="p-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
-                    <!-- Seragam MTs Pa -->
-                    <div onclick="copyCatalogRate(736000, 'Seragam MTs Putra')" class="p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all flex items-center justify-between">
-                      <div>
-                        <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-200">Seragam MTs (Putra)</div>
-                        <div class="text-[10px] text-slate-400">Paket lengkap sekolah</div>
-                      </div>
-                      <span class="text-xs font-bold text-purple-800 dark:text-purple-300 tabular-nums">Rp 736,000</span>
-                    </div>
-
-                    <!-- Seragam MTs Pi -->
-                    <div onclick="copyCatalogRate(897000, 'Seragam MTs Putri')" class="p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all flex items-center justify-between">
-                      <div>
-                        <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-200">Seragam MTs (Putri)</div>
-                        <div class="text-[10px] text-slate-400">Termasuk jilbab seragam</div>
-                      </div>
-                      <span class="text-xs font-bold text-purple-800 dark:text-purple-300 tabular-nums">Rp 897,000</span>
-                    </div>
-
-                    <!-- Seragam MA Pa -->
-                    <div onclick="copyCatalogRate(759000, 'Seragam MA Putra')" class="p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all flex items-center justify-between">
-                      <div>
-                        <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-200">Seragam MA (Putra)</div>
-                        <div class="text-[10px] text-slate-400">Paket lengkap sekolah</div>
-                      </div>
-                      <span class="text-xs font-bold text-purple-800 dark:text-purple-300 tabular-nums">Rp 759,000</span>
-                    </div>
-
-                    <!-- Seragam MA Pi -->
-                    <div onclick="copyCatalogRate(938000, 'Seragam MA Putri')" class="p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/40 hover:bg-purple-100 border border-purple-200/70 dark:border-purple-800/40 cursor-pointer transition-all flex items-center justify-between">
-                      <div>
-                        <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-200">Seragam MA (Putri)</div>
-                        <div class="text-[10px] text-slate-400">Termasuk jilbab seragam</div>
-                      </div>
-                      <span class="text-xs font-bold text-purple-800 dark:text-purple-300 tabular-nums">Rp 938,000</span>
-                    </div>
-
-                    <!-- Baju Taqwa Pa -->
-                    <div onclick="copyCatalogRate(90000, 'Baju Taqwa Putra')" class="p-2.5 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-200/70 dark:border-indigo-800/40 cursor-pointer transition-all flex items-center justify-between">
-                      <div>
-                        <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-200">Pondok: Baju Taqwa (Putra)</div>
-                        <div class="text-[10px] text-slate-400">Atribut sholat & ibadah</div>
-                      </div>
-                      <span class="text-xs font-bold text-indigo-800 dark:text-indigo-300 tabular-nums">Rp 90,000</span>
-                    </div>
-
-                    <!-- Jubah Kerudung Pi -->
-                    <div onclick="copyCatalogRate(160000, 'Jubah Kerudung Putri')" class="p-2.5 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/40 hover:bg-indigo-100 border border-indigo-200/70 dark:border-indigo-800/40 cursor-pointer transition-all flex items-center justify-between">
-                      <div>
-                        <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-200">Pondok: Jubah + Kerudung (Putri)</div>
-                        <div class="text-[10px] text-slate-400">Atribut santriwati putri</div>
-                      </div>
-                      <span class="text-xs font-bold text-indigo-800 dark:text-indigo-300 tabular-nums">Rp 160,000</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- VIEW MODE 2: MATRIKS KATEGORI BIAYA (4 TABEL KLASIK)            -->
-            <!-- ============================================================== -->
-            <div id="catalogViewByCategory" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-              
-              <!-- 1. Matriks Bulanan (Blue Theme) -->
-              <div id="catalogCard-bulanan" class="bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-blue-200/90 dark:border-blue-500/30 shadow-xs overflow-hidden">
-                <div class="px-4 py-2.5 sm:py-3 bg-blue-50/80 dark:bg-blue-950/40 border-b border-blue-200 dark:border-blue-500/20 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center">
-                      <i data-lucide="calendar-range" class="w-3.5 h-3.5"></i>
-                    </div>
-                    <h4 class="font-bold text-blue-950 dark:text-blue-100 text-xs tracking-wider uppercase">1. Biaya Bulanan (Syahriyah)</h4>
-                  </div>
-                  <span class="text-[10px] font-bold bg-blue-200 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 px-2 py-0.5 rounded">Per Bulan</span>
-                </div>
-                <div class="p-0 overflow-x-auto">
-                  <table class="w-full text-xs text-left min-w-[340px]">
-                    <thead class="bg-blue-50/30 dark:bg-blue-950/20 text-slate-600 dark:text-slate-300 border-b border-blue-100 dark:border-blue-900/40">
-                      <tr>
-                        <th class="py-2.5 px-3 sm:px-4 font-semibold">Kelas</th>
-                        <th class="py-2.5 px-2.5 sm:px-3 font-semibold text-right text-purple-700 dark:text-purple-300">VIP (Putri)</th>
-                        <th class="py-2.5 px-2.5 sm:px-3 font-semibold text-right text-blue-700 dark:text-blue-300">Reguler</th>
-                        <th class="py-2.5 px-3 sm:px-4 font-semibold text-right text-amber-700 dark:text-amber-300">Mbajak</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 tabular-nums">
-                      <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/40 transition-colors" data-class="7mts 8mts">
-                        <td class="py-2.5 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 7 & 8 (MTs)</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(301000, 'VIP Kelas 7-8')">Rp 301,000</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(281000, 'Reguler Kelas 7-8')">Rp 281,000</td>
-                        <td class="py-2.5 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(73000, 'Mbajak Kelas 7-8')">Rp 73,000</td>
-                      </tr>
-                      <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/40 transition-colors" data-class="9mts">
-                        <td class="py-2.5 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 9 (MTs)</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(297000, 'VIP Kelas 9')">Rp 297,000</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(277000, 'Reguler Kelas 9')">Rp 277,000</td>
-                        <td class="py-2.5 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(69000, 'Mbajak Kelas 9')">Rp 69,000</td>
-                      </tr>
-                      <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/40 transition-colors bg-slate-50/40 dark:bg-slate-800/20" data-class="10ma 11ma">
-                        <td class="py-2.5 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 10 & 11 (MA)</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(350000, 'VIP Kelas 10-11')">Rp 350,000</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(330000, 'Reguler Kelas 10-11')">Rp 330,000</td>
-                        <td class="py-2.5 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(122000, 'Mbajak Kelas 10-11')">Rp 122,000</td>
-                      </tr>
-                      <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/40 transition-colors bg-slate-50/40 dark:bg-slate-800/20" data-class="12ma">
-                        <td class="py-2.5 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 12 (MA)</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(345000, 'VIP Kelas 12')">Rp 345,000</td>
-                        <td class="py-2.5 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(325000, 'Reguler Kelas 12')">Rp 325,000</td>
-                        <td class="py-2.5 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(117000, 'Mbajak Kelas 12')">Rp 117,000</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- 2. Matriks Awal Tahun (Amber Theme) -->
-              <div id="catalogCard-awal" class="bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-amber-200/90 dark:border-amber-500/30 shadow-xs overflow-hidden">
-                <div class="px-4 py-2.5 sm:py-3 bg-amber-50/80 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-500/20 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-md bg-amber-500 text-white flex items-center justify-center">
-                      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                    </div>
-                    <h4 class="font-bold text-amber-950 dark:text-amber-100 text-xs tracking-wider uppercase">2. Biaya Awal Tahun (Daftar Ulang)</h4>
-                  </div>
-                  <span class="text-[10px] font-bold bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded">Per Tahun</span>
-                </div>
-                <div class="p-0 overflow-x-auto">
-                  <table class="w-full text-xs text-left min-w-[340px]">
-                    <thead class="bg-amber-50/30 dark:bg-amber-950/20 text-slate-600 dark:text-slate-300 border-b border-amber-100 dark:border-amber-900/40">
-                      <tr>
-                        <th class="py-2.5 px-3 sm:px-4 font-semibold">Kelas</th>
-                        <th class="py-2.5 px-2.5 sm:px-3 font-semibold text-right text-purple-700 dark:text-purple-300">VIP (Putri)</th>
-                        <th class="py-2.5 px-2.5 sm:px-3 font-semibold text-right text-blue-700 dark:text-blue-300">Reguler</th>
-                        <th class="py-2.5 px-3 sm:px-4 font-semibold text-right text-amber-700 dark:text-amber-300">Mbajak</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 tabular-nums">
-                      <tr class="hover:bg-amber-50/40 dark:hover:bg-slate-800/40 transition-colors" data-class="7mts">
-                        <td class="py-2 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 7 MTs</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(560000, 'Awal Th Kelas 7 VIP')">Rp 560,000</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(410000, 'Awal Th Kelas 7 Reguler')">Rp 410,000</td>
-                        <td class="py-2 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(270000, 'Awal Th Kelas 7 Mbajak')">Rp 270,000</td>
-                      </tr>
-                      <tr class="hover:bg-amber-50/40 dark:hover:bg-slate-800/40 transition-colors" data-class="8mts">
-                        <td class="py-2 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 8 MTs</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(250000, 'Awal Th Kelas 8 VIP')">Rp 250,000</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(100000, 'Awal Th Kelas 8 Reguler')">Rp 100,000</td>
-                        <td class="py-2 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(100000, 'Awal Th Kelas 8 Mbajak')">Rp 100,000</td>
-                      </tr>
-                      <tr class="hover:bg-amber-50/40 dark:hover:bg-slate-800/40 transition-colors" data-class="9mts">
-                        <td class="py-2 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 9 MTs</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(360000, 'Awal Th Kelas 9 VIP')">Rp 360,000</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(210000, 'Awal Th Kelas 9 Reguler')">Rp 210,000</td>
-                        <td class="py-2 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(210000, 'Awal Th Kelas 9 Mbajak')">Rp 210,000</td>
-                      </tr>
-                      <tr class="hover:bg-amber-50/40 dark:hover:bg-slate-800/40 transition-colors bg-slate-50/40 dark:bg-slate-800/20" data-class="10ma">
-                        <td class="py-2 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 10 MA</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(570000, 'Awal Th Kelas 10 VIP')">Rp 570,000</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(420000, 'Awal Th Kelas 10 Reguler')">Rp 420,000</td>
-                        <td class="py-2 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(280000, 'Awal Th Kelas 10 Mbajak')">Rp 280,000</td>
-                      </tr>
-                      <tr class="hover:bg-amber-50/40 dark:hover:bg-slate-800/40 transition-colors bg-slate-50/40 dark:bg-slate-800/20" data-class="11ma">
-                        <td class="py-2 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 11 MA</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(250000, 'Awal Th Kelas 11 VIP')">Rp 250,000</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(100000, 'Awal Th Kelas 11 Reguler')">Rp 100,000</td>
-                        <td class="py-2 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(100000, 'Awal Th Kelas 11 Mbajak')">Rp 100,000</td>
-                      </tr>
-                      <tr class="hover:bg-amber-50/40 dark:hover:bg-slate-800/40 transition-colors bg-slate-50/40 dark:bg-slate-800/20" data-class="12ma">
-                        <td class="py-2 px-3 sm:px-4 font-semibold text-slate-800 dark:text-slate-200">Kelas 12 MA</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-purple-700 dark:text-purple-300 font-bold hover:underline" onclick="copyCatalogRate(460000, 'Awal Th Kelas 12 VIP')">Rp 460,000</td>
-                        <td class="py-2 px-2.5 sm:px-3 text-right cursor-pointer text-blue-700 dark:text-blue-300 font-bold hover:underline" onclick="copyCatalogRate(310000, 'Awal Th Kelas 12 Reguler')">Rp 310,000</td>
-                        <td class="py-2 px-3 sm:px-4 text-right cursor-pointer text-amber-700 dark:text-amber-300 font-bold hover:underline" onclick="copyCatalogRate(310000, 'Awal Th Kelas 12 Mbajak')">Rp 310,000</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- 3. Matriks Akhir Tahun (Emerald Theme) -->
-              <div id="catalogCard-akhir" class="bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-emerald-200/90 dark:border-emerald-500/30 shadow-xs overflow-hidden">
-                <div class="px-4 py-2.5 sm:py-3 bg-emerald-50/80 dark:bg-emerald-950/40 border-b border-emerald-200 dark:border-emerald-500/20 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center">
-                      <i data-lucide="award" class="w-3.5 h-3.5"></i>
-                    </div>
-                    <h4 class="font-bold text-emerald-950 dark:text-emerald-100 text-xs tracking-wider uppercase">3. Biaya Akhir Tahun (Flat)</h4>
-                  </div>
-                  <span class="text-[10px] font-bold bg-emerald-200 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 px-2 py-0.5 rounded">Flat Tarif</span>
-                </div>
-                <div class="p-3 sm:p-4 space-y-2 text-xs">
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/30 hover:bg-emerald-100/60 transition-colors cursor-pointer border border-emerald-100 dark:border-emerald-800/40" onclick="copyCatalogRate(325000, 'Akhir Tahun Kelas 7 & 8')" data-class="7mts 8mts">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Kelas 7 & 8 (MTs)</span>
-                    <span class="tabular-nums font-bold text-emerald-800 dark:text-emerald-300 text-sm">Rp 325,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/30 hover:bg-emerald-100/60 transition-colors cursor-pointer border border-emerald-100 dark:border-emerald-800/40" onclick="copyCatalogRate(475000, 'Akhir Tahun Kelas 9')" data-class="9mts">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Kelas 9 (MTs - Tingkat Akhir)</span>
-                    <span class="tabular-nums font-bold text-emerald-800 dark:text-emerald-300 text-sm">Rp 475,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/30 hover:bg-emerald-100/60 transition-colors cursor-pointer border border-emerald-100 dark:border-emerald-800/40" onclick="copyCatalogRate(335000, 'Akhir Tahun Kelas 10 & 11')" data-class="10ma 11ma">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Kelas 10 & 11 (MA)</span>
-                    <span class="tabular-nums font-bold text-emerald-800 dark:text-emerald-300 text-sm">Rp 335,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/30 hover:bg-emerald-100/60 transition-colors cursor-pointer border border-emerald-100 dark:border-emerald-800/40" onclick="copyCatalogRate(560000, 'Akhir Tahun Kelas 12')" data-class="12ma">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Kelas 12 (MA - Wisuda)</span>
-                    <span class="tabular-nums font-bold text-emerald-800 dark:text-emerald-300 text-sm">Rp 560,000</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 4. Matriks Seragam (Purple Theme) -->
-              <div id="catalogCard-seragam" class="bg-white/90 dark:bg-slate-900/80 rounded-2xl border-2 border-purple-200/90 dark:border-purple-500/30 shadow-xs overflow-hidden" data-class="seragam">
-                <div class="px-4 py-2.5 sm:py-3 bg-purple-50/80 dark:bg-purple-950/40 border-b border-purple-200 dark:border-purple-500/20 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-md bg-purple-600 text-white flex items-center justify-center">
-                      <i data-lucide="shirt" class="w-3.5 h-3.5"></i>
-                    </div>
-                    <h4 class="font-bold text-purple-950 dark:text-purple-100 text-xs tracking-wider uppercase">4. Biaya Paket Seragam</h4>
-                  </div>
-                  <span class="text-[10px] font-bold bg-purple-200 dark:bg-purple-900/60 text-purple-900 dark:text-purple-200 px-2 py-0.5 rounded">Sekolah & Pondok</span>
-                </div>
-                <div class="p-3 sm:p-4 space-y-2 text-xs">
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/30 hover:bg-purple-100/60 transition-colors cursor-pointer border border-purple-100 dark:border-purple-800/40" onclick="copyCatalogRate(736000, 'Seragam MTs Putra')">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Seragam MTs/SMP (Putra)</span>
-                    <span class="tabular-nums font-bold text-purple-800 dark:text-purple-300 text-sm">Rp 736,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/30 hover:bg-purple-100/60 transition-colors cursor-pointer border border-purple-100 dark:border-purple-800/40" onclick="copyCatalogRate(897000, 'Seragam MTs Putri')">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Seragam MTs/SMP (Putri)</span>
-                    <span class="tabular-nums font-bold text-purple-800 dark:text-purple-300 text-sm">Rp 897,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/30 hover:bg-purple-100/60 transition-colors cursor-pointer border border-purple-100 dark:border-purple-800/40" onclick="copyCatalogRate(759000, 'Seragam MA/SMA Putra')">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Seragam MA/SMA (Putra)</span>
-                    <span class="tabular-nums font-bold text-purple-800 dark:text-purple-300 text-sm">Rp 759,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-purple-50/40 dark:bg-purple-950/30 hover:bg-purple-100/60 transition-colors cursor-pointer border border-purple-100 dark:border-purple-800/40" onclick="copyCatalogRate(938000, 'Seragam MA/SMA Putri')">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Seragam MA/SMA (Putri)</span>
-                    <span class="tabular-nums font-bold text-purple-800 dark:text-purple-300 text-sm">Rp 938,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 transition-colors cursor-pointer border border-indigo-100 dark:border-indigo-800/40" onclick="copyCatalogRate(90000, 'Seragam Pondok Taqwa Putra')">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Pondok: Baju Taqwa (Putra)</span>
-                    <span class="tabular-nums font-bold text-indigo-800 dark:text-indigo-300 text-sm">Rp 90,000</span>
-                  </div>
-                  <div class="flex items-center justify-between p-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 transition-colors cursor-pointer border border-indigo-100 dark:border-indigo-800/40" onclick="copyCatalogRate(160000, 'Seragam Pondok Jubah Putri')">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Pondok: Jubah + Kerudung (Putri)</span>
-                    <span class="tabular-nums font-bold text-indigo-800 dark:text-indigo-300 text-sm">Rp 160,000</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-<!-- END COMPONENT: Tab05_KatalogBiaya.html -->
-
-<!-- START COMPONENT: Tab06_Tahfidz.html -->
-          <div id="tab-tahfidz" class="hidden space-y-3 sm:space-y-4 pb-8 px-[2px] sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
-            
-            <!-- Tahfidz Module Header with Sub-Navigation & Cloud Sync (Kotak Tegas, Padat & 100% Rapi) -->
-            <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 sm:p-4 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 min-w-0 max-w-full box-border">
-              <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-none bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 flex-shrink-0">
-                  <i data-lucide="book-open" class="w-4.5 h-4.5"></i>
-                </div>
-                <div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <h3 class="font-black text-sm sm:text-base text-slate-800 dark:text-white tracking-tight">
-                      Tahfidz Caption Generator & Rekap Data
-                    </h3>
-                    <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-none bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60">
-                      YTPAI Lamongan
-                    </span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
-                    Apresiasi Ujian Tasmi' Bil Ghoib Sekali Duduk — 5 Unit Pendidikan (MI, MTs, SMP, MA, SMA)
-                  </p>
-                </div>
-              </div>
-
-              <!-- Action Toolbar: Sub-tab Switcher & Spreadsheet Cloud (Kotak Tegas & 1 Baris Lega) -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <!-- Sub-tab Switcher: Generator vs Rekap -->
-                <div class="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-none w-full sm:w-auto">
-                  <button 
-                    type="button" 
-                    id="tahfidzSubBtnGen" 
-                    onclick="switchTahfidzSubView('generator')" 
-                    class="flex-1 sm:flex-initial px-3 py-1.5 rounded-none text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-2xs cursor-pointer whitespace-nowrap"
-                  >
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"></i>
-                    <span>Generator Teks</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    id="tahfidzSubBtnRekap" 
-                    onclick="switchTahfidzSubView('rekap')" 
-                    class="flex-1 sm:flex-initial px-3 py-1.5 rounded-none text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
-                  >
-                    <i data-lucide="database" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0"></i>
-                    <span>Rekap Data</span>
-                    <span id="tahfidzRekapCountBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded-none bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-sky-300">
-                      31
-                    </span>
-                  </button>
-                </div>
-
-                <!-- Google Sheets Cloud Multi-Device Sync Button -->
-                <button 
-                  type="button" 
-                  id="tahfidzCloudSyncBtn" 
-                  onclick="syncTahfidzWithGoogleSheets()" 
-                  class="px-3 py-1.5 rounded-none text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap"
-                  title="Sinkronkan database santri & status pamflet dengan Google Spreadsheet Cloud"
-                >
-                  <i data-lucide="cloud" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" id="tahfidzCloudSyncIcon"></i>
-                  <span id="tahfidzCloudSyncText">Spreadsheet Cloud</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- SUB-VIEW 1: GENERATOR TEKS                                     -->
-            <!-- ============================================================== -->
-            <div id="tahfidzViewGenerator" class="space-y-3">
-
-              <!-- Filter Unit Chips & Search Autocomplete Card (Kotak Tegas & Padat) -->
-              <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-2.5 sm:p-3.5 shadow-xs space-y-2">
-                
-                <!-- 6 Units Full Visible Grid: Semua, MI, MTs, SMP, MA, SMA (100% Kotak Tegas & Terlihat) -->
-                <div class="grid grid-cols-6 gap-1 w-full box-border" id="tahfidzUnitChipsContainer">
-                  <button type="button" onclick="setTahfidzUnitFilter('ALL')" id="tahfidzChip_ALL" class="tahfidz-unit-chip py-1 px-0.5 rounded-none text-center font-bold transition-all bg-emerald-600 text-white shadow-2xs border border-emerald-600 cursor-pointer flex flex-col items-center justify-center">
-                    <span class="text-[10px] sm:text-xs font-black leading-tight">Semua</span>
-                    <span class="text-[9px] font-extrabold opacity-90">31</span>
-                  </button>
-                  <button type="button" onclick="setTahfidzUnitFilter('MI')" id="tahfidzChip_MI" class="tahfidz-unit-chip py-1 px-0.5 rounded-none text-center font-semibold transition-all bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer flex flex-col items-center justify-center">
-                    <span class="text-[10px] sm:text-xs font-black leading-tight">MI</span>
-                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">8</span>
-                  </button>
-                  <button type="button" onclick="setTahfidzUnitFilter('MTs')" id="tahfidzChip_MTs" class="tahfidz-unit-chip py-1 px-0.5 rounded-none text-center font-semibold transition-all bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer flex flex-col items-center justify-center">
-                    <span class="text-[10px] sm:text-xs font-black leading-tight">MTs</span>
-                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">9</span>
-                  </button>
-                  <button type="button" onclick="setTahfidzUnitFilter('SMP')" id="tahfidzChip_SMP" class="tahfidz-unit-chip py-1 px-0.5 rounded-none text-center font-semibold transition-all bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer flex flex-col items-center justify-center">
-                    <span class="text-[10px] sm:text-xs font-black leading-tight">SMP</span>
-                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">3</span>
-                  </button>
-                  <button type="button" onclick="setTahfidzUnitFilter('MA')" id="tahfidzChip_MA" class="tahfidz-unit-chip py-1 px-0.5 rounded-none text-center font-semibold transition-all bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer flex flex-col items-center justify-center">
-                    <span class="text-[10px] sm:text-xs font-black leading-tight">MA</span>
-                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">5</span>
-                  </button>
-                  <button type="button" onclick="setTahfidzUnitFilter('SMA')" id="tahfidzChip_SMA" class="tahfidz-unit-chip py-1 px-0.5 rounded-none text-center font-semibold transition-all bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer flex flex-col items-center justify-center">
-                    <span class="text-[10px] sm:text-xs font-black leading-tight">SMA</span>
-                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500">6</span>
-                  </button>
-                </div>
-
-                <!-- Row 2: Butuh Pamflet Alert Pill & Terpilih Indicator (Simetris & Kotak) -->
-                <div class="flex items-center justify-between gap-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/80">
-                  <button 
-                    type="button" 
-                    onclick="setTahfidzUnitFilter('PENDING_PAMFLET')" 
-                    id="tahfidzChip_PENDING_PAMFLET" 
-                    class="tahfidz-unit-chip px-2.5 py-1 rounded-none text-[10.5px] font-bold transition-all bg-amber-100 dark:bg-amber-950/70 hover:bg-amber-200 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 cursor-pointer flex items-center gap-1.5 shadow-2xs flex-shrink-0"
-                    title="Tampilkan anak yang sudah tasmi tapi belum dibuatkan pamflet"
-                  >
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>
-                    <span>Butuh Pamflet:</span>
-                    <span id="tahfidzPendingPamfletCountBadge" class="px-1.5 py-0.2 rounded-none bg-amber-500 text-white font-extrabold text-[9.5px]">0 Santri</span>
-                  </button>
-
-                  <div class="flex items-center gap-1 text-[10.5px] text-slate-500 dark:text-slate-400 truncate min-w-0">
-                    <span class="text-slate-400 flex-shrink-0">Terpilih:</span>
-                    <b id="tahfidzActiveStudentBadge" class="text-emerald-600 dark:text-emerald-400 font-bold truncate">Belum Ada</b>
-                  </div>
-                </div>
-
-                <!-- Searchable Autocomplete Bar with Dropdown (Desain Kotak Tegas) -->
-                <div class="relative" id="tahfidzSearchWrapper">
-                  <div class="relative">
-                    <i data-lucide="search" class="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                    <input 
-                      type="text" 
-                      id="tahfidzSearchInput" 
-                      oninput="handleTahfidzSearchInput(this.value)" 
-                      onfocus="handleTahfidzSearchInput(this.value)" 
-                      placeholder="Cari nama santri, unit, atau nama orang tua (cth: Hamim, Aliyah, Supadi, MTs)..." 
-                      class="w-full pl-8 pr-8 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 transition-all shadow-inner"
-                      autocomplete="off"
-                    />
-                    <button 
-                      type="button" 
-                      id="tahfidzSearchClearBtn" 
-                      onclick="clearTahfidzSearch()" 
-                      class="hidden absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-none bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs cursor-pointer"
-                      title="Bersihkan Pencarian"
-                    >
-                      &times;
-                    </button>
-                  </div>
-
-                  <!-- Autocomplete Results Dropdown -->
-                  <div 
-                    id="tahfidzSearchDropdown" 
-                    class="hidden absolute left-0 right-0 top-full mt-1 z-40 bg-white dark:bg-slate-900 rounded-none shadow-2xl border border-slate-300 dark:border-slate-700 max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60 transition-all"
-                  >
-                    <!-- Populated dynamically via JS -->
-                  </div>
-                </div>
-
-                <!-- Rekomendasi Cepat Santri Populer (Kotak Tegas 1 Baris) -->
-                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 touch-pan-x -mx-1 px-1 text-[11px]">
-                  <span class="font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 flex-shrink-0 mr-0.5">
-                    <i data-lucide="sparkles" class="w-3 h-3 text-amber-500"></i>
-                    <span>Rekomendasi Cepat:</span>
-                  </span>
-                  <button type="button" onclick="selectTahfidzStudent('mi-5')" class="px-2 py-0.5 rounded-none bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-300 dark:border-emerald-800/60 font-semibold cursor-pointer transition-all flex-shrink-0 whitespace-nowrap">Ahmad Ahmadinezhad (MI)</button>
-                  <button type="button" onclick="selectTahfidzStudent('mts-1')" class="px-2 py-0.5 rounded-none bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-sky-300 hover:bg-blue-100 border border-blue-300 dark:border-blue-800/60 font-semibold cursor-pointer transition-all flex-shrink-0 whitespace-nowrap">Salsabila (MTs)</button>
-                  <button type="button" onclick="selectTahfidzStudent('ma-1')" class="px-2 py-0.5 rounded-none bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 hover:bg-purple-100 border border-purple-300 dark:border-purple-800/60 font-semibold cursor-pointer transition-all flex-shrink-0 whitespace-nowrap">Raysa Indar (MA)</button>
-                  <button type="button" onclick="selectTahfidzStudent('sma-1')" class="px-2 py-0.5 rounded-none bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 border border-amber-300 dark:border-amber-800/60 font-semibold cursor-pointer transition-all flex-shrink-0 whitespace-nowrap">Fitria Rahma (SMA)</button>
-                  <button type="button" onclick="selectTahfidzStudent('smp-1')" class="px-2 py-0.5 rounded-none bg-pink-50 dark:bg-pink-950/40 text-pink-800 dark:text-pink-300 hover:bg-pink-100 border border-pink-300 dark:border-pink-800/60 font-semibold cursor-pointer transition-all flex-shrink-0 whitespace-nowrap">Aulia Oktaviana (SMP)</button>
-                </div>
-              </div>
-
-              <!-- ============================================================== -->
-              <!-- MASTER DATA BASE SANTRI TAHFIDZ (PREVIEW & EDIT COLLAPSIBLE)   -->
-              <!-- ============================================================== -->
-              <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-2.5 sm:p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 rounded-none bg-blue-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-2xs">
-                    <i data-lucide="users" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">
-                        Database Master Santri
-                      </h4>
-                      <span id="tahfidzMasterTotalCountBadge" class="text-[9.5px] font-black px-1.5 py-0.2 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-sky-300 border border-blue-300 dark:border-blue-800 rounded-none">31 Santri</span>
-                    </div>
-                    <p class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate">
-                      Kelola biodata santri, wali murid & target juz.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Action Button Group: Grid 2 kolom di HP, Flex di Laptop (100% Anti-Overflow & Rapi) -->
-                <div class="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center flex-shrink-0">
-                  <button 
-                    type="button" 
-                    onclick="openTahfidzNewStudentModal()" 
-                    class="w-full sm:w-auto px-3 py-1.5 rounded-none text-xs font-bold bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                    title="Tambah Data Santri Baru"
-                  >
-                    <i data-lucide="user-plus" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                    <span class="truncate">+ Santri Baru</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    id="btnToggleTahfidzMasterTable" 
-                    onclick="toggleTahfidzMasterTable()" 
-                    class="w-full sm:w-auto px-3 py-1.5 rounded-none text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <i data-lucide="eye" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" id="iconToggleTahfidzMaster"></i>
-                    <span id="labelToggleTahfidzMaster" class="truncate">Buka Database</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Collapsible Master Data Preview & Edit Panel -->
-              <div id="tahfidzMasterPreviewPanel" class="hidden bg-white/95 dark:bg-slate-900/95 rounded-none border border-slate-300 dark:border-slate-700 p-3 sm:p-4 shadow-md space-y-3">
-                <!-- Toolbar Filter & Search Inside Panel -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-                  <!-- Filter Unit Pills Inside Table -->
-                  <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-xs py-0.5">
-                    <span class="text-[11px] font-bold text-slate-500 mr-1 flex-shrink-0">Unit:</span>
-                    <button type="button" onclick="filterTahfidzMasterTable('ALL')" id="masterTblFilter_ALL" class="master-tbl-filter-btn px-2 py-0.5 rounded-none text-[11px] font-bold bg-blue-600 text-white border border-blue-600 cursor-pointer">Semua</button>
-                    <button type="button" onclick="filterTahfidzMasterTable('MI')" id="masterTblFilter_MI" class="master-tbl-filter-btn px-2 py-0.5 rounded-none text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer">MI</button>
-                    <button type="button" onclick="filterTahfidzMasterTable('MTs')" id="masterTblFilter_MTs" class="master-tbl-filter-btn px-2 py-0.5 rounded-none text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer">MTs</button>
-                    <button type="button" onclick="filterTahfidzMasterTable('SMP')" id="masterTblFilter_SMP" class="master-tbl-filter-btn px-2 py-0.5 rounded-none text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer">SMP</button>
-                    <button type="button" onclick="filterTahfidzMasterTable('MA')" id="masterTblFilter_MA" class="master-tbl-filter-btn px-2 py-0.5 rounded-none text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer">MA</button>
-                    <button type="button" onclick="filterTahfidzMasterTable('SMA')" id="masterTblFilter_SMA" class="master-tbl-filter-btn px-2 py-0.5 rounded-none text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 cursor-pointer">SMA</button>
-                  </div>
-
-                  <!-- Search input inside Master table -->
-                  <div class="flex items-center gap-1.5">
-                    <div class="relative flex-1 sm:w-60">
-                      <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2"></i>
-                      <input 
-                        type="text" 
-                        id="tahfidzMasterTableSearch" 
-                        oninput="renderTahfidzMasterTable()" 
-                        placeholder="Cari santri, ortu, juz..." 
-                        class="w-full pl-7 pr-2 py-1 text-[11px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <button 
-                      type="button" 
-                      onclick="resetTahfidzMasterToDefault()" 
-                      class="px-2 py-1 rounded-none text-[10.5px] font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-300 dark:border-rose-800 cursor-pointer whitespace-nowrap"
-                      title="Kembalikan ke 31 data santri bawaan resmi YTPAI"
-                    >
-                      Reset Standar
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Master Data Table (Responsive & Scrollable) -->
-                <div class="overflow-x-auto border border-slate-300 dark:border-slate-700 max-h-96 overflow-y-auto">
-                  <table class="w-full text-left text-xs border-collapse divide-y divide-slate-200 dark:divide-slate-800">
-                    <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 uppercase text-[10px] font-bold sticky top-0 z-10">
-                      <tr>
-                        <th class="p-2 text-center w-8">No</th>
-                        <th class="p-2 min-w-[140px]">Nama Santri</th>
-                        <th class="p-2 min-w-[90px]">Unit & Kelas</th>
-                        <th class="p-2 min-w-[160px]">Nama Orang Tua (Wali)</th>
-                        <th class="p-2 min-w-[110px]">Kategori & Juz</th>
-                        <th class="p-2 text-center min-w-[90px]">Status Pamflet</th>
-                        <th class="p-2 text-center min-w-[130px]">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tahfidzMasterTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-[11px]">
-                      <!-- Diisi secara dinamis via JS -->
-                    </tbody>
-                  </table>
-                </div>
-
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10.5px] text-slate-500 dark:text-slate-400 pt-1 gap-1">
-                  <span id="tahfidzMasterTableInfo">Menampilkan 31 santri</span>
-                  <span class="flex items-center gap-1"><i data-lucide="info" class="w-3 h-3 text-blue-500"></i> Klik <b>"Muat ke Form"</b> untuk langsung isi generator, atau <b>"Edit"</b> untuk edit cepat.</span>
-                </div>
-              </div>
-
-              <!-- Main Generator Bento Layout (2 Columns: Form vs Live Preview) -->
-              <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-
-                <!-- Left Column: Form Inputs (7 cols on desktop) -->
-                <div class="lg:col-span-7 space-y-3">
-                  <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 sm:p-3.5 shadow-xs space-y-2.5">
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-none bg-emerald-500"></span>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
-                          Data Santri & Tasmi'
-                        </h4>
-                        <span id="tahfidzMasterStatusBadge" class="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-none">
-                          <i data-lucide="database" class="w-3 h-3 text-emerald-500"></i>
-                          <span>Master DB Terhubung</span>
-                        </span>
-                      </div>
-                      
-                      <!-- Gender Switcher Toggle (Kotak Tegas & Padat) -->
-                      <div class="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-none border border-slate-300 dark:border-slate-700 text-xs">
-                        <button 
-                          type="button" 
-                          id="tahfidzGenderPutra" 
-                          onclick="setTahfidzGender('Putra')" 
-                          class="px-2.5 py-1 rounded-none font-bold text-xs transition-all flex items-center gap-1 bg-blue-600 text-white shadow-2xs cursor-pointer"
-                        >
-                          <i data-lucide="user" class="w-3 h-3"></i>
-                          <span>Putra</span>
-                        </button>
-                        <button 
-                          type="button" 
-                          id="tahfidzGenderPutri" 
-                          onclick="setTahfidzGender('Putri')" 
-                          class="px-2.5 py-1 rounded-none font-semibold text-xs transition-all flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-400 cursor-pointer"
-                        >
-                          <i data-lucide="user" class="w-3 h-3"></i>
-                          <span>Putri</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Form Input Fields Grid (Desain Kotak Tegas & Padat Rapi) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      
-                      <!-- Nama Santri -->
-                      <div class="sm:col-span-2">
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nama Lengkap Santri *</label>
-                        <input 
-                          type="text" 
-                          id="tahfidzNama" 
-                          oninput="updateTahfidzCaptionPreview(true)" 
-                          placeholder="Masukkan nama santri..." 
-                          class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
-                        />
-                      </div>
-
-                      <!-- Unit Madrasah -->
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Unit Pendidikan *</label>
-                        <select 
-                          id="tahfidzUnit" 
-                          onchange="updateTahfidzCaptionPreview(true)" 
-                          class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
-                        >
-                          <option value="MI">MI (Madrasah Ibtidaiyah)</option>
-                          <option value="MTs">MTs (Madrasah Tsanawiyah)</option>
-                          <option value="SMP">SMP (Sekolah Menengah Pertama)</option>
-                          <option value="MA" selected>MA (Madrasah Aliyah)</option>
-                          <option value="SMA">SMA (Sekolah Menengah Atas)</option>
-                        </select>
-                      </div>
-
-                      <!-- Kelas -->
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Kelas *</label>
-                        <input 
-                          type="text" 
-                          id="tahfidzKelas" 
-                          oninput="updateTahfidzCaptionPreview(true)" 
-                          placeholder="cth: Kelas 11, Kelas 4" 
-                          class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
-                        />
-                      </div>
-
-                      <!-- Nama Bapak -->
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nama Bapak *</label>
-                        <input 
-                          type="text" 
-                          id="tahfidzBapak" 
-                          oninput="updateTahfidzCaptionPreview(true)" 
-                          placeholder="cth: KH. Ghozi, Supadi" 
-                          class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
-                        />
-                      </div>
-
-                      <!-- Nama Ibu -->
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nama Ibu *</label>
-                        <input 
-                          type="text" 
-                          id="tahfidzIbu" 
-                          oninput="updateTahfidzCaptionPreview(true)" 
-                          placeholder="cth: Nyai Lely N., Asnah" 
-                          class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
-                        />
-                      </div>
-
-                      <!-- Kategori Hafalan Master -->
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Kategori Hafalan</label>
-                        <input 
-                          type="text" 
-                          id="tahfidzKategori" 
-                          oninput="updateTahfidzCaptionPreview(true)" 
-                          placeholder="cth: 8 Juz, 30 + 29 (2 Juz)" 
-                          class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all"
-                        />
-                      </div>
-
-                      <!-- Juz yang Diujikan Saat Ini -->
-                      <div>
-                        <label class="block text-[11px] font-bold text-emerald-800 dark:text-emerald-300 mb-1 flex items-center justify-between">
-                          <span>Juz yang Diujikan *</span>
-                          <span class="text-[10px] font-normal text-slate-400">Tasmi' saat ini</span>
-                        </label>
-                        <input 
-                          type="text" 
-                          id="tahfidzJuz" 
-                          oninput="updateTahfidzCaptionPreview(true)" 
-                          placeholder="cth: Juz 30, Juz 8, Juz 1 s/d 5" 
-                          class="w-full px-2.5 py-1.5 bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-none text-xs font-bold text-emerald-900 dark:text-emerald-200 focus:outline-none focus:border-emerald-500 transition-all"
-                        />
-                      </div>
-
-                      <!-- Predikat Kelulusan (Kotak Tegas & Simetris 1 Baris) -->
-                      <div class="sm:col-span-2">
-                        <label class="block text-[11px] font-bold text-amber-800 dark:text-amber-300 mb-1">Predikat Kelulusan Tasmi' *</label>
-                        <div class="grid grid-cols-3 gap-1.5" id="tahfidzPredikatChips">
-                          <button type="button" onclick="setTahfidzPredikat('Mumtaz')" id="predikat_Mumtaz" class="tahfidz-pred-btn py-1.5 px-1 rounded-none border text-[11px] font-bold transition-all flex items-center justify-center gap-1 bg-amber-500 text-white border-amber-500 shadow-2xs cursor-pointer">
-                            <i data-lucide="award" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                            <span>Mumtaz</span>
-                          </button>
-                          <button type="button" onclick="setTahfidzPredikat('Jayyid Jiddan')" id="predikat_Jayyid Jiddan" class="tahfidz-pred-btn py-1.5 px-1 rounded-none border text-[11px] font-semibold transition-all flex items-center justify-center gap-1 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 cursor-pointer">
-                            <i data-lucide="star" class="w-3.5 h-3.5 flex-shrink-0 text-blue-500"></i>
-                            <span class="whitespace-nowrap">Jayyid Jiddan</span>
-                          </button>
-                          <button type="button" onclick="setTahfidzPredikat('Jayyid')" id="predikat_Jayyid" class="tahfidz-pred-btn py-1.5 px-1 rounded-none border text-[11px] font-semibold transition-all flex items-center justify-center gap-1 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 cursor-pointer">
-                            <i data-lucide="check" class="w-3.5 h-3.5 flex-shrink-0 text-emerald-500"></i>
-                            <span>Jayyid</span>
-                          </button>
-                        </div>
-                        <input type="hidden" id="tahfidzPredikatVal" value="Jayyid">
-                      </div>
-
-                      <!-- Status Pembuatan Pamflet (Kotak Tegas Tanpa Badge Ganda) -->
-                      <div class="sm:col-span-2 bg-slate-50/80 dark:bg-slate-950/70 p-2.5 rounded-none border border-slate-200/80 dark:border-slate-800 space-y-2">
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                          <i data-lucide="image" class="w-3.5 h-3.5 text-amber-500"></i>
-                          <span>Status Pembuatan Pamflet Publikasi *</span>
-                        </label>
-                        <div class="grid grid-cols-2 gap-1.5" id="tahfidzPamfletStatusBtns">
-                          <button 
-                            type="button" 
-                            onclick="setTahfidzPamfletStatus('pending')" 
-                            id="btnPamflet_pending" 
-                            class="py-1.5 px-2 rounded-none border text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 bg-amber-500 text-white border-amber-500 shadow-2xs cursor-pointer"
-                          >
-                            <i data-lucide="clock" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                            <span>Butuh Pamflet</span>
-                          </button>
-                          <button 
-                            type="button" 
-                            onclick="setTahfidzPamfletStatus('selesai')" 
-                            id="btnPamflet_selesai" 
-                            class="py-1.5 px-2 rounded-none border text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 cursor-pointer"
-                          >
-                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"></i>
-                            <span>Pamflet Selesai</span>
-                          </button>
-                        </div>
-                        <input type="hidden" id="tahfidzPamfletStatusVal" value="pending">
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight flex items-start gap-1">
-                          <i data-lucide="info" class="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5"></i>
-                          <span>Santri berstatus <b>"Butuh Pamflet"</b> otomatis masuk ke antrean pengingat.</span>
-                        </p>
-                      </div>
-
-                    </div>
-
-                    <!-- Form Action Buttons: Simpan & Kosongkan Form (Desain Kotak Tegas) -->
-                    <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-                      <div class="flex items-center gap-1.5 flex-wrap">
-                        <button 
-                          type="button" 
-                          id="btnSaveTahfidzMaster"
-                          onclick="saveTahfidzMasterStudent()" 
-                          class="px-3 py-1.5 rounded-none text-xs font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 active:scale-95 shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                          title="Simpan pembenahan nama, orang tua, unit, kelas & juz ke database"
-                        >
-                          <i data-lucide="bookmark-check" class="w-3.5 h-3.5"></i>
-                          <span id="btnSaveTahfidzMasterText">Simpan Perubahan ke Database Santri</span>
-                        </button>
-                        <button
-                          type="button"
-                          onclick="resetTahfidzMasterToDefault()"
-                          class="p-1.5 rounded-none text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 border border-slate-300 dark:border-slate-700 transition-all cursor-pointer"
-                          title="Kembalikan database santri ke 31 data bawaan awal"
-                        >
-                          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                        </button>
-                      </div>
-
-                      <button 
-                        type="button" 
-                        onclick="resetTahfidzForm()" 
-                        class="px-2.5 py-1.5 rounded-none text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <i data-lucide="eraser" class="w-3.5 h-3.5"></i>
-                        <span>Kosongkan Form</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Column: Real-time Live Preview & One-Click Actions (5 cols on desktop) -->
-                <div class="lg:col-span-5 space-y-3">
-                  <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 sm:p-3.5 shadow-xs flex flex-col justify-between h-full space-y-2.5">
-                    
-                    <div>
-                      <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                        <div class="flex items-center gap-1.5">
-                          <i data-lucide="eye" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
-                            Live Preview Caption
-                          </h4>
-                        </div>
-                        <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-none bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-pulse"></span>
-                          <span>Format Baku YTPAI</span>
-                        </span>
-                      </div>
-
-                      <!-- Formatted Caption Box -->
-                      <div class="mt-2.5 relative">
-                        <textarea 
-                          id="tahfidzCaptionPreview" 
-                          readonly 
-                          rows="13" 
-                          class="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-none font-mono text-[11px] sm:text-xs text-slate-800 dark:text-slate-200 leading-relaxed focus:outline-none select-all resize-none shadow-inner"
-                          placeholder="Caption akan muncul di sini secara otomatis..."
-                        ></textarea>
-                      </div>
-                    </div>
-
-                    <!-- One-Click Action Buttons (Kotak Tegas & Padat) -->
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                        <!-- Salin Caption -->
-                        <button 
-                          type="button" 
-                          id="btnCopyTahfidzCaption" 
-                          onclick="copyTahfidzCaption()" 
-                          class="w-full py-2 px-3 rounded-none bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                          <span id="btnCopyTahfidzCaptionText">Salin Caption</span>
-                        </button>
-
-                        <!-- Share WA -->
-                        <button 
-                          type="button" 
-                          onclick="shareTahfidzToWhatsApp()" 
-                          class="w-full py-2 px-3 rounded-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                          title="Buka langsung di WhatsApp Web"
-                        >
-                          <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
-                          <span>Kirim ke WA</span>
-                        </button>
-                      </div>
-
-                      <!-- Simpan ke Rekap & Master -->
-                      <button 
-                        type="button" 
-                        onclick="saveTahfidzToRekap()" 
-                        class="w-full py-2 px-3 rounded-none bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-sky-300 font-bold text-xs border border-blue-300 dark:border-blue-800/60 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                      >
-                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
-                        <span>Simpan ke Rekapitulasi & Database Santri</span>
-                      </button>
-
-                      <!-- Quick 1-Click: Tandai Pamflet Selesai Dibuat -->
-                      <button 
-                        type="button" 
-                        id="btnQuickMarkPamfletDone"
-                        onclick="quickTogglePamfletDone()" 
-                        class="w-full py-1.5 px-2.5 rounded-none bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-300 dark:border-amber-700/60 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                        title="Tandai pamflet anak ini sudah selesai dibuat dan dipublikasikan"
-                      >
-                        <i data-lucide="check-check" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
-                        <span id="btnQuickMarkPamfletDoneText">Tandai Pamflet Selesai Dibuat</span>
-                      </button>
-
-                      <p class="text-[10px] text-center text-slate-400 dark:text-slate-500 font-medium flex items-center justify-center gap-1">
-                        <i data-lucide="save" class="w-3 h-3 text-emerald-500"></i>
-                        <span>Otomatis menyimpan pembenahan nama, orang tua & juz ke database</span>
-                      </p>
-                    </div>
-
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- SUB-VIEW 2: REKAPITULASI DATA & ANALITIK (Kotak Tegas)         -->
-            <!-- ============================================================== -->
-            <div id="tahfidzViewRekap" class="hidden space-y-3">
-              
-              <!-- 3 Analytics Summary Cards -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 shadow-xs flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-none bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-sky-300 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="database" class="w-4.5 h-4.5"></i>
-                  </div>
-                  <div>
-                    <p class="text-[10.5px] font-semibold text-slate-500 dark:text-slate-400">Total Santri Terekap</p>
-                    <h3 id="tahfidzStatTotal" class="text-lg font-black text-slate-900 dark:text-white">0 Santri</h3>
-                  </div>
-                </div>
-
-                <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 shadow-xs flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-none bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-300 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="award" class="w-4.5 h-4.5"></i>
-                  </div>
-                  <div>
-                    <p class="text-[10.5px] font-semibold text-slate-500 dark:text-slate-400">Predikat Mumtaz (Istimewa)</p>
-                    <h3 id="tahfidzStatMumtaz" class="text-lg font-black text-amber-600 dark:text-amber-400">0 Santri</h3>
-                  </div>
-                </div>
-
-                <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 shadow-xs flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-none bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-300 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="school" class="w-4.5 h-4.5"></i>
-                  </div>
-                  <div>
-                    <p class="text-[10.5px] font-semibold text-slate-500 dark:text-slate-400">Unit Terbanyak</p>
-                    <h3 id="tahfidzStatTopUnit" class="text-lg font-black text-emerald-600 dark:text-emerald-400">-</h3>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Rekap Table Card -->
-              <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 sm:p-4 shadow-xs space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
-                  <div class="flex items-center gap-2">
-                    <i data-lucide="list" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
-                      Riwayat Rekapitulasi Tasmi'
-                    </h4>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <button 
-                      type="button" 
-                      onclick="exportTahfidzToCsv()" 
-                      class="px-2.5 py-1.5 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                      title="Unduh data riwayat dalam format Excel / CSV"
-                    >
-                      <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                      <span>Ekspor CSV</span>
-                    </button>
-                    <button 
-                      type="button" 
-                      onclick="clearAllTahfidzRekap()" 
-                      class="px-2.5 py-1.5 rounded-none bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-300 dark:border-rose-800/60 transition-all flex items-center gap-1.5 cursor-pointer"
-                      title="Hapus semua riwayat rekap lokal"
-                    >
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                      <span>Bersihkan Semua</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Table Container -->
-                <div class="overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800">
-                  <table class="w-full text-left text-xs border-collapse min-w-[700px]">
-                    <thead class="bg-slate-100/90 dark:bg-slate-800/90 text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
-                      <tr>
-                        <th class="py-2.5 px-3 w-12 text-center">No</th>
-                        <th class="py-2.5 px-3 w-32">Waktu Simpan</th>
-                        <th class="py-2.5 px-3">Nama Santri</th>
-                        <th class="py-2.5 px-3 w-20 text-center">Unit</th>
-                        <th class="py-2.5 px-3">Orang Tua</th>
-                        <th class="py-2.5 px-3">Juz Diujikan</th>
-                        <th class="py-2.5 px-3 text-center">Predikat</th>
-                        <th class="py-2.5 px-3 text-center w-20">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tahfidzRekapTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
-                      <!-- Rendered by JavaScript -->
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- Empty State -->
-                <div id="tahfidzRekapEmptyState" class="py-12 text-center text-slate-400 dark:text-slate-500 space-y-2 hidden">
-                  <i data-lucide="folder-open" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 stroke-1"></i>
-                  <p class="font-bold text-sm text-slate-600 dark:text-slate-400">Belum Ada Data Rekap Tersimpan</p>
-                  <p class="text-xs text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
-                    Gunakan tombol "Simpan ke Rekapitulasi Data" pada tab Generator Teks untuk menyimpan riwayat tasmi' ke perangkat ini.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Modal Quick Edit / Tambah Santri Tahfidz (Kotak Tegas & Rapi) -->
-            <div id="tahfidzStudentEditModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
-              <div class="bg-white dark:bg-slate-900 rounded-none border border-slate-300 dark:border-slate-700 w-full max-w-lg shadow-2xl p-4 sm:p-5 space-y-3.5 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-none bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
-                      <i data-lucide="edit-3" class="w-4 h-4"></i>
-                    </div>
-                    <h3 id="tahfidzModalTitle" class="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white">
-                      Edit Data Santri Tahfidz
-                    </h3>
-                  </div>
-                  <button type="button" onclick="closeTahfidzStudentModal()" class="w-7 h-7 rounded-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center cursor-pointer">&times;</button>
-                </div>
-
-                <!-- Hidden ID Field -->
-                <input type="hidden" id="modalStudentId" value="">
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div class="sm:col-span-2">
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nama Lengkap Santri *</label>
-                    <input type="text" id="modalStudentNama" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Unit Pendidikan *</label>
-                    <select id="modalStudentUnit" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                      <option value="MI">MI (Madrasah Ibtidaiyah)</option>
-                      <option value="MTs">MTs (Madrasah Tsanawiyah)</option>
-                      <option value="SMP">SMP (Sekolah Menengah Pertama)</option>
-                      <option value="MA">MA (Madrasah Aliyah)</option>
-                      <option value="SMA">SMA (Sekolah Menengah Atas)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Kelas *</label>
-                    <input type="text" id="modalStudentKelas" placeholder="cth: Kelas 4 / Kelas 8" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Jenis Kelamin *</label>
-                    <select id="modalStudentGender" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                      <option value="Putra">Putra (Ananda)</option>
-                      <option value="Putri">Putri (Adinda)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Status Pembuatan Pamflet *</label>
-                    <select id="modalStudentPamflet" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                      <option value="none">Belum Ada Tugas (Normal)</option>
-                      <option value="pending">Butuh Pamflet (Prioritas)</option>
-                      <option value="selesai">Pamflet Sudah Selesai</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nama Ayah (Bapak)</label>
-                    <input type="text" id="modalStudentBapak" placeholder="Nama ayah santri" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nama Ibu</label>
-                    <input type="text" id="modalStudentIbu" placeholder="Nama ibu santri" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Kategori Ujian</label>
-                    <input type="text" id="modalStudentKategori" placeholder="cth: 1 Juz / 5 Juz / 16 Juz" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Perolehan Juz</label>
-                    <input type="text" id="modalStudentJuz" placeholder="cth: Juz 30 / 1 s.d 5" class="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-none text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500">
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-                  <button type="button" onclick="closeTahfidzStudentModal()" class="px-3 py-1.5 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">Batal</button>
-                  <button type="button" onclick="saveTahfidzStudentFromModal()" class="px-4 py-1.5 rounded-none text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs cursor-pointer flex items-center gap-1.5">
-                    <i data-lucide="save" class="w-3.5 h-3.5"></i>
-                    <span>Simpan Data Santri</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-<!-- END COMPONENT: Tab06_Tahfidz.html -->
-
-<!-- START COMPONENT: Tab07_PembersihSum.html -->
-          <div id="tab-pembersih" class="hidden space-y-4 sm:space-y-6 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-              
-              <!-- 1. Pembersih Rupiah & Total SUM Counter -->
-              <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-cyan-100 dark:border-slate-800 p-4 sm:p-5 shadow-xs flex flex-col space-y-3.5">
-                <div class="flex items-center justify-between pb-2.5 border-b border-cyan-50 dark:border-slate-800/80">
-                  <div class="flex items-center gap-2">
-                    <i data-lucide="calculator" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i>
-                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm tracking-wide uppercase">Pembersih Rupiah & SUM</h3>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="pasteFromClipboardToInput('cleanInput', 'processCleanTool')" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-bold flex items-center gap-1 cursor-pointer">
-                      <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
-                      <span>Tempel</span>
-                    </button>
-                    <button onclick="clearCleanTool()" class="text-xs text-rose-500 dark:text-rose-400 hover:underline font-medium">Reset</button>
-                  </div>
-                </div>
-
-                <p class="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                  Tempelkan teks nominal acak (<code class="bg-cyan-50 dark:bg-cyan-950/70 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 px-1.5 py-0.5 rounded font-mono font-bold">Rp 350.000,00</code>). Sistem otomatis menghapus simbol dan menghitung nilai SUM.
-                </p>
-
-                <textarea 
-                  id="cleanInput" 
-                  oninput="processCleanTool()" 
-                  placeholder="Tempelkan daftar nominal di sini...&#10;&#10;Contoh:&#10;Rp 350.000,00&#10;Rp 330.000&#10;Rp. 122.000,00&#10;281.000"
-                  class="w-full h-24 sm:h-44 p-2 sm:p-3 bg-slate-50 dark:bg-[#0b1120] focus:bg-white dark:focus:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none resize-none leading-relaxed focus:ring-1 focus:ring-cyan-500/40"
-                ></textarea>
-
-                <div class="p-3.5 rounded-xl bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-slate-950 dark:to-cyan-950/40 border border-cyan-200 dark:border-cyan-500/30 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-                  <div>
-                    <p class="text-[10px] font-bold text-cyan-800 dark:text-cyan-300 uppercase tracking-wider">Total Kalkulasi (SUM)</p>
-                    <p class="text-xl sm:text-2xl font-extrabold tabular-nums tracking-tight text-cyan-700 dark:text-cyan-400" id="cleanSumText">Rp 0</p>
-                  </div>
-                  <div class="text-right text-xs">
-                    <p class="text-slate-700 dark:text-slate-200 font-medium"><b id="cleanRowCount" class="font-extrabold text-slate-900 dark:text-white">0</b> baris valid</p>
-                    <button onclick="copyCleanResult()" class="mt-1 bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-600 dark:hover:bg-cyan-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 shadow-xs active:scale-95 transition-all">
-                      <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin Angka
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 2. Konverter Teks Otomatis (Alias Status A -> B) -->
-              <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-emerald-100 dark:border-slate-800 p-4 sm:p-5 shadow-xs flex flex-col space-y-3.5">
-                <div class="flex items-center justify-between pb-2.5 border-b border-emerald-50 dark:border-slate-800/80">
-                  <div class="flex items-center gap-2">
-                    <i data-lucide="replace" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm tracking-wide uppercase">Penyeragam Status (A &rarr; B)</h3>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="pasteFromClipboardToInput('aliasInput', 'processAliasTool')" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-bold flex items-center gap-1 cursor-pointer">
-                      <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
-                      <span>Tempel</span>
-                    </button>
-                    <button onclick="document.getElementById('aliasInput').value = ''; processAliasTool();" class="text-xs text-rose-500 dark:text-rose-400 hover:underline font-medium">Reset</button>
-                  </div>
-                </div>
-
-                <p class="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                  Mengubah variasi singkatan spreadsheet menjadi nama baku institusi:
-                  <span class="font-bold text-emerald-700 dark:text-emerald-400">VIP &rarr; Mukim VIP PI, Reguler Pa &rarr; Mukim Reguler PA</span>.
-                </p>
-
-                <textarea 
-                  id="aliasInput" 
-                  oninput="processAliasTool()" 
-                  placeholder="Tempelkan daftar status singkatan di sini...&#10;&#10;Contoh:&#10;VIP&#10;reguler pa&#10;non mukim pi&#10;reguler pi&#10;mbajak"
-                  class="w-full h-24 sm:h-44 p-2 sm:p-3 bg-slate-50 dark:bg-[#0b1120] focus:bg-white dark:focus:bg-[#0f172a] border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none resize-none leading-relaxed focus:ring-1 focus:ring-emerald-500/40"
-                ></textarea>
-
-                <div class="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-700/50 flex items-center justify-between shadow-xs">
-                  <span class="text-xs text-emerald-900 dark:text-emerald-200 font-semibold">Hasil Baku: <b id="aliasCount" class="text-emerald-950 dark:text-emerald-300 font-extrabold">0</b> baris</span>
-                  <button onclick="copyAliasResult()" class="bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1 shadow-xs active:scale-95 transition-all">
-                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin Teks Baku
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-<!-- END COMPONENT: Tab07_PembersihSum.html -->
-
-<!-- START COMPONENT: Tab08_PanduanExcel.html -->
-          <div id="tab-panduan" class="hidden space-y-4 sm:space-y-6 px-[2px] sm:px-4 lg:px-5 pb-8">
-            <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 shadow-xs space-y-4 sm:space-y-6">
-              
-              <div class="flex items-center gap-3 pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-800">
-                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 flex items-center justify-center">
-                  <i data-lucide="book-open" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                </div>
-                <div>
-                  <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100">Panduan Anti Rusak Format Excel</h3>
-                  <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Solusi tuntas masalah nominal berkoma, titik desimal, dan hilangnya digit nol di Excel.</p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 text-xs leading-relaxed">
-                
-                <div class="p-3.5 sm:p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 space-y-2">
-                  <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">1</div>
-                  <h4 class="font-bold text-blue-900 dark:text-blue-300 text-sm">Penyebab Masalah Titik vs Koma</h4>
-                  <p class="text-slate-600 dark:text-slate-300">
-                    Komputer dengan regional <b>English (US)</b> membaca tanda titik (<code class="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">.</code>) sebagai desimal.
-                    Saat menempel angka <code class="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">350.000</code>, Excel membacanya sebagai <code class="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">350</code> koma nol, sehingga nol di belakang lenyap!
-                  </p>
-                </div>
-
-                <div class="p-3.5 sm:p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 space-y-2">
-                  <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">2</div>
-                  <h4 class="font-bold text-indigo-900 dark:text-indigo-300 text-sm">Solusi Kunci Teks Petik Satu (')</h4>
-                  <p class="text-slate-600 dark:text-slate-300">
-                    Gunakan format <b>Aman Excel ('1,000)</b> dari aplikasi ini. Menambahkan tanda petik satu di depan nominal (contoh: <code class="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">'330,000</code>) menginstruksikan Excel untuk mengunci karakter secara presisi tanpa merusak angka.
-                  </p>
-                </div>
-
-                <div class="p-3.5 sm:p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 space-y-2">
-                  <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">3</div>
-                  <h4 class="font-bold text-emerald-900 dark:text-emerald-300 text-sm">Tips Perhitungan Rumus =SUM()</h4>
-                  <p class="text-slate-600 dark:text-slate-300">
-                    Jika kolom di Excel akan dihitung dengan rumus <code class="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">=SUM()</code>, gunakan opsi format <b>Angka Polos (1000)</b> agar Excel membaca data sebagai bilangan bulat murni.
-                  </p>
-                </div>
-
-              </div>
-
-              <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider mb-2.5">Trik Cepat Bendahara & TU:</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
-                    <kbd class="px-2 py-1 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-600 font-mono font-bold text-slate-700 dark:text-slate-200 text-[11px]">Ctrl + C</kbd>
-                    <span class="text-slate-600 dark:text-slate-300 font-medium">Salin kolom status dari spreadsheet</span>
-                  </div>
-                  <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
-                    <kbd class="px-2 py-1 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-600 font-mono font-bold text-slate-700 dark:text-slate-200 text-[11px]">Ctrl + V</kbd>
-                    <span class="text-slate-600 dark:text-slate-300 font-medium">Tempel pada kolom konverter aplikasi</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-<!-- END COMPONENT: Tab08_PanduanExcel.html -->
-
-<!-- START COMPONENT: Tab09_TemplateWA.html -->
-          <div id="tab-wa" class="hidden space-y-4 sm:space-y-6 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
-            
-            <!-- Header Banner -->
-            <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-2xl p-4 sm:p-6 text-white shadow-lg relative overflow-hidden">
-              <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-              <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="space-y-1.5">
-                  <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md text-[11px] font-semibold tracking-wide text-emerald-100 border border-white/20">
-                    <i data-lucide="message-square-text" class="w-3.5 h-3.5"></i>
-                    <span>Official WhatsApp Communication Generator</span>
-                  </div>
-                  <h3 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    Pusat Format WhatsApp & Undangan Rapat
-                  </h3>
-                  <p class="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed">
-                    Generator pesan pemberitahuan resmi untuk Bendahara Unit MTs, SMP, MA, SMA dan Undangan Rapat Yayasan Raudlatul Muta'allimin Tegalrejo. Dilengkapi format teks tebal otomatis (*bold*) dan live bubble WhatsApp Web.
-                  </p>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <button 
-                    onclick="syncWaWithCurrentBriva()" 
-                    class="px-3.5 py-2 rounded-xl bg-white text-emerald-700 font-bold text-xs shadow-md hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-2"
-                    title="Ambil data ringkasan dari BRIVA saat ini"
-                  >
-                    <i data-lucide="zap" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
-                    <span>Tarik Data BRIVA Aktif</span>
-                  </button>
-                  <button 
-                    onclick="copyWaMessage()" 
-                    class="px-3.5 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-800 border border-emerald-400/40 text-white font-bold text-xs shadow-md active:scale-95 transition-all flex items-center gap-2"
-                  >
-                    <i data-lucide="copy" class="w-4 h-4"></i>
-                    <span>Salin Pesan</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Two-Column Workspace Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
-              
-              <!-- LEFT COLUMN: Template Switcher & Parameters (Col 5) -->
-              <div class="lg:col-span-5 space-y-4">
-                
-                <!-- 1. Template Switcher Cards -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-xs space-y-2.5">
-                  <div class="flex items-center justify-between px-1">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                      <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-emerald-600"></i>
-                      <span>Pilih Kategori Pesan</span>
-                    </label>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">6 Pilihan</span>
-                  </div>
-
-                  <div class="grid grid-cols-1 gap-2" id="waTemplateButtonsContainer">
-                    
-                    <!-- Template 1: Santri Baru -->
-                    <button 
-                      type="button"
-                      onclick="selectWaTemplate('santri_baru')" 
-                      id="waBtn_santri_baru" 
-                      class="wa-template-btn w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 bg-emerald-50/80 border-emerald-500 text-emerald-900 shadow-xs"
-                    >
-                      <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <p class="text-xs font-bold truncate">1. Tagihan Santri Baru (Flagging)</p>
-                          <span class="text-[10.5px] font-bold px-1.5 py-0.2 rounded bg-emerald-200/80 text-emerald-800">Baru</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Info daftar ulang, seragam, & tagihan awal dimunculkan di Junio Smart</p>
-                      </div>
-                    </button>
-
-                    <!-- Template 2: Bimbel -->
-                    <button 
-                      type="button"
-                      onclick="selectWaTemplate('bimbel')" 
-                      id="waBtn_bimbel" 
-                      class="wa-template-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all flex items-start gap-3"
-                    >
-                      <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <p class="text-xs font-bold truncate">2. Bimbel Kelas Akhir (Rp 310.000)</p>
-                          <span class="text-[10.5px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">Akumulasi</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Nominal akumulasi bimbel santri akhir sudah dimunculkan</p>
-                      </div>
-                    </button>
-
-                    <!-- Template 3: Syahriyah Bulanan -->
-                    <button 
-                      type="button"
-                      onclick="selectWaTemplate('syahriyah')" 
-                      id="waBtn_syahriyah" 
-                      class="wa-template-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all flex items-start gap-3"
-                    >
-                      <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i data-lucide="calendar-check" class="w-4 h-4"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <p class="text-xs font-bold truncate">3. Syahriyah Bulanan Rutin</p>
-                          <span class="text-[10.5px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">Bulanan</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Tagihan Syahriyah & Operasional bulan berjalan per unit</p>
-                      </div>
-                    </button>
-
-                    <!-- Template 4: Rekap Transaksi -->
-                    <button 
-                      type="button"
-                      onclick="selectWaTemplate('rekap')" 
-                      id="waBtn_rekap" 
-                      class="wa-template-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all flex items-start gap-3"
-                    >
-                      <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i data-lucide="receipt" class="w-4 h-4"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <p class="text-xs font-bold truncate">4. Rekap Transaksi Masuk Junio Smart</p>
-                          <span class="text-[10.5px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">Laporan</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Laporan pembayaran santri masuk periode berjalan</p>
-                      </div>
-                    </button>
-
-                    <!-- Template 5: Undangan Rapat -->
-                    <button 
-                      type="button"
-                      onclick="selectWaTemplate('undangan')" 
-                      id="waBtn_undangan" 
-                      class="wa-template-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all flex items-start gap-3"
-                    >
-                      <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i data-lucide="mail" class="w-4 h-4"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <p class="text-xs font-bold truncate">5. Undangan Rapat Yayasan</p>
-                          <span class="text-[10.5px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-extrabold">Resmi</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Rapat koordinasi teknis flagging & validasi Junio Smart</p>
-                      </div>
-                    </button>
-
-                    <!-- Template 6: Pemberitahuan Akun & Password -->
-                    <button 
-                      type="button"
-                      onclick="selectWaTemplate('akun_santri')" 
-                      id="waBtn_akun_santri" 
-                      class="wa-template-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all flex items-start gap-3"
-                    >
-                      <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i data-lucide="key" class="w-4 h-4"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <p class="text-xs font-bold truncate">6. Pemberitahuan Akun &amp; Password</p>
-                          <span class="text-[10.5px] font-bold px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 font-extrabold">Akun</span>
-                        <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Format simpel: Username, Kode Sekolah 1600 &amp; Password P@ssword123</p>
-                      </div>
-                    </button>
-
-                  </div>
-                </div>
-
-                <!-- 2. Dynamic Parameter Fields -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-5 shadow-xs space-y-3.5">
-                  <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                      <i data-lucide="sliders" class="w-3.5 h-3.5 text-emerald-600"></i>
-                      <span>Parameter & Detail Pesan</span>
-                    </h4>
-                    <button 
-                      onclick="resetWaTemplate()" 
-                      class="text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center gap-1 transition-colors"
-                      title="Kembalikan nilai ke default"
-                    >
-                      <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
-                      <span>Reset</span>
-                    </button>
-                  </div>
-
-                  <!-- Field: Kepada / Yth -->
-                  <div class="space-y-1">
-                    <label class="text-[11px] font-bold text-slate-600">Tujuan / Penerima Pesan:</label>
-                    <input 
-                      type="text" 
-                      id="waInput_tujuan" 
-                      oninput="renderWaLivePreview()"
-                      class="w-full px-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
-                      placeholder="Ibu Bendahara Unit MTs-SMP-MA-SMA RM Tegalrejo"
-                    />
-                  </div>
-
-                  <!-- Field: Periode / Bulan (Shown for bill/rekap) -->
-                  <div id="waField_periode" class="space-y-1">
-                    <label class="text-[11px] font-bold text-slate-600">Periode / Bulan Tagihan:</label>
-                    <input 
-                      type="text" 
-                      id="waInput_periode" 
-                      oninput="renderWaLivePreview()"
-                      class="w-full px-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
-                      placeholder="Bulan September Tahun 2026"
-                    />
-                  </div>
-
-                  <!-- Field: Nominal (Shown for bimbel/bill) -->
-                  <div id="waField_nominal" class="space-y-1">
-                    <label class="text-[11px] font-bold text-slate-600">Nominal / Keterangan Tagihan:</label>
-                    <input 
-                      type="text" 
-                      id="waInput_nominal" 
-                      oninput="renderWaLivePreview()"
-                      class="w-full px-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
-                      placeholder="Rp 310.000"
-                    />
-                  </div>
-
-                  <!-- Undangan Specific Fields (Only for Template 5) -->
-                  <div id="waFields_undangan" class="hidden space-y-3 pt-2 border-t border-slate-100">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-slate-600">Hari & Tanggal:</label>
-                        <input 
-                          type="text" 
-                          id="waInput_hari" 
-                          oninput="renderWaLivePreview()"
-                          class="w-full px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                          placeholder="Kamis, 27 Agustus 2026"
-                        />
-                      </div>
-                      <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-slate-600">Waktu Acara:</label>
-                        <input 
-                          type="text" 
-                          id="waInput_waktu" 
-                          oninput="renderWaLivePreview()"
-                          class="w-full px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                          placeholder="Pukul 09.00 WIB s/d Selesai"
-                        />
-                      </div>
-                    </div>
-
-                    <div class="space-y-1">
-                      <label class="text-[11px] font-bold text-slate-600">Tempat Rapat:</label>
-                      <input 
-                        type="text" 
-                        id="waInput_tempat" 
-                        oninput="renderWaLivePreview()"
-                        class="w-full px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                        placeholder="Kantor Yayasan Raudlatul Muta'allimin Tegalrejo (Lantai 2)"
-                      />
-                    </div>
-
-                    <div class="space-y-1">
-                      <label class="text-[11px] font-bold text-slate-600">Agenda Rapat (1 baris per poin):</label>
-                      <textarea 
-                        id="waInput_agenda" 
-                        oninput="renderWaLivePreview()"
-                        rows="3"
-                        class="w-full px-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none resize-y"
-                        placeholder="1. Flagging Manual & Sinkronisasi BRIVA&#10;2. Validasi data untuk tagihan & Flaging Bulan September 2026&#10;3. Evaluasi kendala pembayaran Junio Smart"
-                      ></textarea>
-                    </div>
-
-                    <div class="space-y-1">
-                      <label class="text-[11px] font-bold text-slate-600">Keterangan / Perlengkapan:</label>
-                      <input 
-                        type="text" 
-                        id="waInput_keterangan" 
-                        oninput="renderWaLivePreview()"
-                        class="w-full px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                        placeholder="Mohon hadir tepat waktu dengan membawa Laptop dan Rekapitulasi Data Santri per Unit."
-                      />
-                    </div>
-
-                    <div class="space-y-1">
-                      <label class="text-[11px] font-bold text-slate-600">Penandatangan / TTD:</label>
-                      <input 
-                        type="text" 
-                        id="waInput_ttd" 
-                        oninput="renderWaLivePreview()"
-                        class="w-full px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none font-semibold"
-                        placeholder="Ketua Yayasan YTPAI - Abdus Shomad, M.Pd."
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Direct Raw Edit Toggle -->
-                  <div class="pt-2 border-t border-slate-100">
-                    <button 
-                      type="button" 
-                      onclick="toggleWaDirectEdit()" 
-                      id="waToggleDirectEditBtn"
-                      class="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5"
-                    >
-                      <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                      <span id="waToggleDirectEditText">Edit Teks Bebas Secara Manual</span>
-                    </button>
-                    
-                    <div id="waDirectEditContainer" class="hidden mt-2">
-                      <textarea 
-                        id="waCustomMessageTextarea" 
-                        oninput="handleWaCustomTextareaInput()"
-                        rows="8"
-                        class="w-full p-3 text-xs font-mono rounded-xl border border-emerald-300 bg-emerald-50/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none resize-y"
-                        placeholder="Ketik atau edit format teks WhatsApp di sini secara leluasa..."
-                      ></textarea>
-                      <p class="text-[10px] text-slate-400 mt-1">Gunakan tanda bintang (*) untuk teks tebal. Contoh: *Teks Tebal*</p>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-
-              <!-- RIGHT COLUMN: Authentic WhatsApp Web Chat Preview & Actions (Col 7) -->
-              <div class="lg:col-span-7 space-y-4">
-                
-                <!-- WhatsApp Web Phone/Window Frame -->
-                <div class="wa-web-frame rounded-2xl border shadow-md overflow-hidden flex flex-col">
-                  
-                  <!-- WhatsApp Chat Header -->
-                  <div class="wa-web-header px-4 py-3 border-b flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <!-- Avatar -->
-                      <div class="w-10 h-10 rounded-full bg-[#00a884] text-white flex items-center justify-center font-bold text-sm shadow-xs flex-shrink-0">
-                        RM
-                      </div>
-                      <div>
-                        <h4 class="text-xs sm:text-sm font-bold wa-web-title flex items-center gap-1.5 leading-tight">
-                          <span id="waPreviewChatTitle">Notifikasi Akun Santri</span>
-                          <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#00a884] fill-[#d9fdd3] dark:fill-[#005c4b]"></i>
-                        </h4>
-                        <p class="text-[10px] sm:text-[11px] wa-web-subtitle flex items-center gap-1 mt-0.5">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[#00a884] inline-block"></span>
-                          <span>online &bull; Raudlatul Muta'allimin Tegalrejo</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <!-- Header Icons -->
-                    <div class="flex items-center gap-2">
-                      <div class="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold border border-emerald-200 dark:border-emerald-700/60 flex items-center gap-1">
-                        <i data-lucide="check" class="w-3 h-3"></i>
-                        <span>WA Web View</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- WhatsApp Chat Canvas / Wallpaper (Fully Scrollable) -->
-                  <div id="waChatCanvas" class="p-4 sm:p-5 min-h-[380px] max-h-[560px] overflow-y-auto space-y-3.5" style="background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 0); background-size: 16px 16px;">
-                    
-                    <!-- Date Pill -->
-                    <div class="flex justify-center mb-1">
-                      <span class="px-3 py-1 rounded-lg bg-white/90 dark:bg-[#182229] backdrop-blur-xs text-[10px] font-semibold text-slate-600 dark:text-[#8696a0] shadow-2xs border border-slate-200/60 dark:border-[#222d34]">
-                        HARI INI
-                      </span>
-                    </div>
-
-                    <!-- Rendered Bubble(s) Container -->
-                    <div id="waLiveBubbleContent" class="space-y-3.5">
-                      <!-- Content populated via JavaScript -->
-                    </div>
-
-                  </div>
-
-                  <!-- Quick Action Bar -->
-                  <div class="wa-web-actionbar p-3.5 sm:p-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
-                      <i data-lucide="info" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
-                      <span>Format tebal (*bold*) akan langsung aktif saat ditempel ke WhatsApp.</span>
-                    </div>
-                    
-                    <div class="flex items-center flex-wrap gap-2 w-full sm:w-auto">
-                      <!-- 3 TOMBOL LANGKAH CEPAT (UNTUK MENGHASILKAN 3 PESAN TERPISAH DI WHATSAPP) -->
-                      <div id="waIndividualButtonsGroup" class="hidden flex items-center flex-wrap gap-2">
-                        <button 
-                          type="button" 
-                          onclick="copyWaMessagePart(1)" 
-                          id="waCopyMsg1Btn"
-                          class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-                          title="Salin Pesan 1: Pengantar, Kode Sekolah & Himbauan P Kapital"
-                        >
-                          <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
-                          <span>1. Salin Intro</span>
-                        </button>
-
-                        <button 
-                          type="button" 
-                          onclick="copyWaMessagePart(2)" 
-                          id="waCopyMsg2Btn"
-                          class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-                          title="Salin Pesan 2: Username Santri Saja (Siap Langsung Tempel)"
-                        >
-                          <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                          <span>2. Salin Username</span>
-                        </button>
-
-                        <button 
-                          type="button" 
-                          onclick="copyWaMessagePart(3)" 
-                          id="waCopyMsg3Btn"
-                          class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-                          title="Salin Pesan 3: Password P@ssword123 Saja (P Kapital)"
-                        >
-                          <i data-lucide="key" class="w-3.5 h-3.5"></i>
-                          <span>3. Salin Password</span>
-                        </button>
-                      </div>
-
-                      <!-- TOMBOL SALIN PESAN UTUH -->
-                      <button 
-                        type="button" 
-                        onclick="copyWaMessage()" 
-                        id="waCopyBtn"
-                        class="px-4 py-2 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        title="Salin ke dalam 1 pesan utuh"
-                      >
-                        <i data-lucide="copy" class="w-4 h-4"></i>
-                        <span id="waCopyBtnLabel">Salin Pesan WA</span>
-                      </button>
-
-                      <button 
-                        type="button" 
-                        onclick="openWhatsAppDirect()" 
-                        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-bold text-xs transition-all flex items-center justify-center gap-2"
-                        title="Buka langsung di WhatsApp Web / Aplikasi"
-                      >
-                        <i data-lucide="external-link" class="w-4 h-4 text-emerald-600"></i>
-                        <span>Buka di WA</span>
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-
-                <!-- Info & Guidelines Card -->
-                <div class="bg-slate-50 rounded-2xl border border-slate-200/80 p-4 text-xs space-y-2 text-slate-600">
-                  <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
-                    <span>Ketentuan Komunikasi Resmi Bendahara:</span>
-                  </h5>
-                  <ul class="list-disc list-inside space-y-1 text-slate-600 pl-1 text-[11px] leading-relaxed">
-                    <li>Gunakan salam pembuka standar dan ucapan maaf <i>"Ngapunten &#128591;"</i> untuk menjaga adab santun antar pengurus yayasan.</li>
-                    <li>Untuk tagihan <b>Santri Baru</b>, pastikan nominal pada menu <i>Flagging Manual</i> sudah disinkronkan dengan data Excel daftar ulang.</li>
-                    <li>Untuk <b>Bimbel Kelas Akhir</b>, nominal akumulasi resmi sebesar <b>Rp 310.000</b> (MTs/SMP/MA/SMA).</li>
-                    <li>Gunakan tombol <b>Tarik Data BRIVA Aktif</b> bila Anda baru saja men-generate data tagihan di tab BRIVA.</li>
-                  </ul>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          </div>
-
-<!-- END COMPONENT: Tab09_TemplateWA.html -->
-
-<!-- START COMPONENT: Tab10_HumasSosmed.html -->
-          <div id="tab-humas" class="space-y-3.5 sm:space-y-5 pb-8 w-full max-w-full min-w-0 box-border px-[2px] sm:px-4 lg:px-5">
-            
-            <!-- A. Humas Header Banner & Tools (Bernafas Lega, Profesional, Kotak Modern) -->
-            <div class="bg-white/95 dark:bg-slate-900/95 rounded-md border border-slate-200/90 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3 sm:gap-4 min-w-0 max-w-full overflow-hidden box-border">
-              <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-md bg-gradient-to-br from-indigo-600 to-violet-700 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                  <i data-lucide="megaphone" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
-                    <h3 class="text-sm sm:text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
-                      Studio Humas &amp; Sosmed
-                    </h3>
-                    <span class="text-[9.5px] sm:text-[11px] px-2 py-0.5 rounded-md font-bold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 flex-shrink-0">
-                      2026-2027
-                    </span>
-                  </div>
-                  <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                    Pusat Perencanaan Konten, Pembuatan Pamflet &amp; Radar H-7 Otomatis
-                  </p>
-                </div>
-              </div>
-
-              <!-- Top Action Controls -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto min-w-0">
-                <!-- Date Simulator Selector -->
-                <div class="flex items-center justify-between gap-1.5 bg-slate-100/90 dark:bg-slate-800/90 px-2.5 sm:px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-0">
-                  <div class="flex items-center gap-1.5 min-w-0">
-                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0"></i>
-                    <span class="text-[10px] text-slate-400 hidden sm:inline">Ref:</span>
-                    <input 
-                      type="date" 
-                      id="humasSimDate" 
-                      onchange="onHumasSimDateChange()" 
-                      class="bg-transparent border-none text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white focus:outline-none cursor-pointer min-w-0 max-w-[125px] sm:max-w-none" 
-                      title="Ubah tanggal acuan untuk simulasi radar H-7"
-                    />
-                  </div>
-                  <button 
-                    type="button" 
-                    onclick="resetHumasSimDate()" 
-                    class="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white/70 dark:bg-slate-700/60 rounded-[4px] text-[10px] font-bold text-slate-600 dark:text-slate-300 flex-shrink-0 shadow-2xs cursor-pointer" 
-                    title="Gunakan tanggal hari ini"
-                  >
-                    Hari Ini
-                  </button>
-                </div>
-
-                <!-- Action Button Group (Responsive & Anti-Overflow) -->
-                <div class="grid grid-cols-2 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-                  <!-- Tombol Notifikasi HP H-7 -->
-                  <button 
-                    type="button" 
-                    onclick="toggleHumasMobileNotification()" 
-                    id="btnHumasMobileNotif" 
-                    class="justify-center px-2.5 sm:px-3 py-1.5 rounded-[4px] bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 font-bold text-[11px] sm:text-xs border border-rose-200 dark:border-rose-800/60 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 min-h-[34px]"
-                    title="Aktifkan notifikasi pengingat acara H-7 di HP / Layar Kunci"
-                  >
-                    <i data-lucide="bell" id="iconHumasNotif" class="w-3.5 h-3.5 text-rose-500"></i>
-                    <span id="labelHumasNotif" class="truncate">Notif HP (H-7)</span>
-                  </button>
-
-                  <!-- Tombol Tambah Acara Cepat (Khusus Mobile) -->
-                  <button 
-                    type="button" 
-                    onclick="openModalAddProgram()" 
-                    class="sm:hidden justify-center px-2.5 sm:px-3 py-1.5 rounded-[4px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] shadow-xs transition-all flex items-center gap-1 cursor-pointer active:scale-95 min-h-[34px]"
-                    title="Tambah Agenda Baru"
-                  >
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                    <span class="truncate">Tambah Agenda</span>
-                  </button>
-                </div>
-
-                <!-- Bulk Import Button (Excel / Paste TSV) - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="openModalHumasBulkImport()" 
-                  id="btnHumasBulkImport" 
-                  class="hidden sm:inline-flex px-3.5 py-2 rounded-md bg-gradient-to-r from-rose-600 via-indigo-600 to-purple-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black text-xs shadow-xs transition-all items-center gap-1.5 cursor-pointer active:scale-95"
-                  title="Impor massal puluhan atau ratusan agenda dari Excel / Tempel Spreadsheet hingga 2027"
-                >
-                  <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                  <span>Impor Massal</span>
-                </button>
-
-                <!-- Supabase Cloud Config - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="openModalSupabaseConfig()" 
-                  id="btnHumasSupabase" 
-                  class="hidden sm:inline-flex px-3 py-2 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-slate-700 transition-all items-center gap-1.5 cursor-pointer"
-                  title="Pengaturan Database Supabase PostgreSQL & Deploy Vercel"
-                >
-                  <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-400"></i>
-                  <span class="hidden xl:inline">Database</span>
-                  <span>Supabase</span>
-                </button>
-
-                <!-- Sync to Cloud - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="syncHumasFromCloud()" 
-                  id="btnHumasSyncCloud" 
-                  class="hidden sm:inline-flex px-3 py-2 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-slate-700 transition-all items-center gap-1.5 cursor-pointer"
-                  title="Tarik data terbaru dari Google Spreadsheet atau Supabase"
-                >
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-500"></i>
-                  <span>Sinkronkan</span>
-                </button>
-
-                <!-- Add Custom Program Button - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="openModalAddProgram()" 
-                  class="hidden sm:inline-flex px-3.5 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all items-center gap-1.5 cursor-pointer active:scale-95"
-                  title="Tambah Agenda Program Kerja Baru Manual"
-                >
-                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                  <span>Tambah Agenda</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- B.0. TASK & CHECKLIST KEGIATAN: ANTI-LUPA & MONITORING KEBUTUHAN PAMFLET -->
-            <div id="humasTaskTrackerSection" class="bg-white/95 dark:bg-slate-900/95 rounded-md border border-slate-200/90 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs space-y-3.5 min-w-0 max-w-full box-border">
-              <!-- Task Tracker Header & Progress -->
-              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3.5">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-2xs flex-shrink-0">
-                    <i data-lucide="check-square" class="w-4 h-4 sm:w-4.5 sm:h-4.5"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-tight">
-                        Checklist Kegiatan &amp; Kebutuhan Pamflet
-                      </h4>
-                      <span class="text-[9px] sm:text-[10px] px-2 py-0.2 rounded-md font-bold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60">
-                        Anti-Lupa
-                      </span>
-                    </div>
-                    <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                      Tandai kegiatan yang butuh pamflet publikasi vs tugas operasional biasa agar tidak terlewat.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Progress Meter & Action Header -->
-                <div class="flex items-center gap-2.5 sm:gap-3 justify-between lg:justify-end flex-wrap sm:flex-nowrap">
-                  <div class="flex items-center gap-2 min-w-[170px] bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center justify-between text-[10px] font-bold mb-1">
-                        <span id="humasTaskProgressText" class="text-slate-700 dark:text-slate-200">4 / 15 Selesai</span>
-                        <span id="humasTaskProgressPercent" class="text-indigo-600 dark:text-indigo-400 font-extrabold">27%</span>
-                      </div>
-                      <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                        <div id="humasTaskProgressBar" class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: 27%;"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button 
-                    type="button" 
-                    onclick="toggleHumasTaskAddForm()" 
-                    id="btnToggleTaskAddForm" 
-                    class="px-2.5 sm:px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] sm:text-xs shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
-                  >
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                    <span>+ Tugas Baru</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Collapsible Add Task Form -->
-              <div id="humasTaskAddFormCard" class="hidden bg-slate-50/90 dark:bg-slate-800/60 p-3 rounded-md border border-slate-200 dark:border-slate-700 space-y-2.5 transition-all">
-                <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                    <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-indigo-500"></i>
-                    Tambah Kegiatan / Tugas Baru
-                  </span>
-                  <button type="button" onclick="toggleHumasTaskAddForm()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold cursor-pointer">Tutup</button>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                  <div class="sm:col-span-5">
-                    <input 
-                      type="text" 
-                      id="inputTaskTitle" 
-                      placeholder="Uraian kegiatan (misal: Rapat Wali Santri, Pelatihan Asatidz...)" 
-                      class="w-full h-8 px-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
-                  <div class="sm:col-span-3">
-                    <select id="selectTaskCategory" class="w-full h-8 px-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer">
-                      <option value="Acara Pesantren">Acara Pesantren</option>
-                      <option value="Tahfidz Tasmi'">Tahfidz Tasmi'</option>
-                      <option value="Medsos & IG">Medsos &amp; IG</option>
-                      <option value="IT & Web">IT &amp; Web</option>
-                      <option value="Administrasi & Tagihan">Administrasi &amp; Tagihan</option>
-                      <option value="Data & Guru">Data &amp; Guru</option>
-                      <option value="Akademik">Akademik</option>
-                      <option value="Publikasi Prestasi">Publikasi Prestasi</option>
-                    </select>
-                  </div>
-                  <div class="sm:col-span-2">
-                    <select id="selectTaskNeedsPamflet" class="w-full h-8 px-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer">
-                      <option value="true">🎨 Butuh Pamflet</option>
-                      <option value="false">⚡ Tanpa Pamflet</option>
-                    </select>
-                  </div>
-                  <div class="sm:col-span-2">
-                    <button 
-                      type="button" 
-                      onclick="submitNewHumasTask()" 
-                      class="w-full h-8 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-md shadow-2xs flex items-center justify-center gap-1 cursor-pointer transition-all"
-                    >
-                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                      <span>Simpan</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Filter & Search Bar -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5">
-                <!-- Filter Pills -->
-                <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full min-w-0 touch-pan-x">
-                  <button 
-                    type="button" 
-                    onclick="filterHumasTasks('all')" 
-                    id="taskFilter-all" 
-                    class="task-filter-btn active px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs shrink-0 cursor-pointer transition-all"
-                  >
-                    Semua (<span id="countTaskFilter-all">15</span>)
-                  </button>
-                  <button 
-                    type="button" 
-                    onclick="filterHumasTasks('needsPamflet')" 
-                    id="taskFilter-needsPamflet" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
-                  >
-                    <i data-lucide="palette" class="w-3 h-3 text-amber-500"></i>
-                    <span>Butuh Pamflet</span>
-                    <span id="countTaskFilter-needsPamflet" class="px-1.5 py-0.2 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 text-[10px]">8</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    onclick="filterHumasTasks('noPamflet')" 
-                    id="taskFilter-noPamflet" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
-                  >
-                    <i data-lucide="zap" class="w-3 h-3 text-slate-400"></i>
-                    <span>Tanpa Pamflet</span>
-                    <span id="countTaskFilter-noPamflet" class="px-1.5 py-0.2 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px]">7</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    onclick="filterHumasTasks('pending')" 
-                    id="taskFilter-pending" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
-                  >
-                    <i data-lucide="clock" class="w-3 h-3 text-rose-500"></i>
-                    <span>Belum Selesai</span>
-                    <span id="countTaskFilter-pending" class="px-1.5 py-0.2 rounded-md bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 text-[10px]">11</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    onclick="filterHumasTasks('completed')" 
-                    id="taskFilter-completed" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
-                  >
-                    <i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i>
-                    <span>Selesai</span>
-                    <span id="countTaskFilter-completed" class="px-1.5 py-0.2 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-[10px]">4</span>
-                  </button>
-                </div>
-
-                <!-- Search Input -->
-                <div class="relative w-full sm:w-52">
-                  <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                  <input 
-                    type="text" 
-                    id="searchHumasTaskInput" 
-                    oninput="searchHumasTasks(this.value)" 
-                    placeholder="Cari tugas kegiatan..." 
-                    class="w-full pl-8 pr-2.5 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs text-slate-800 dark:text-slate-100 outline-none focus:bg-white focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <!-- Task List Items (Card & Grid View) -->
-              <div id="humasTaskListContainer" class="space-y-1.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-0.5">
-                <!-- Item 1 (Completed) -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-slate-50/80 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/80 opacity-75 transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-1')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all bg-emerald-500 text-white shadow-2xs">
-                      <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug line-through text-slate-400 dark:text-slate-500 break-words">
-                        Menaikkan Kelas
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Akademik</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-1')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 2 (Completed) -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-slate-50/80 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/80 opacity-75 transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-2')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all bg-emerald-500 text-white shadow-2xs">
-                      <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug line-through text-slate-400 dark:text-slate-500 break-words">
-                        Tagihan Pedoman Awal Tahun Kelas Baru
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Administrasi & Tagihan</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-2')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 3 (Completed) -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-slate-50/80 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/80 opacity-75 transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-3')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all bg-emerald-500 text-white shadow-2xs">
-                      <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug line-through text-slate-400 dark:text-slate-500 break-words">
-                        Tagihan Pedoman Awal Tahun, Bulan Juli Siswa Lama
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Administrasi & Tagihan</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-3')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 4 (Completed) -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-slate-50/80 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800/80 opacity-75 transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-4')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all bg-emerald-500 text-white shadow-2xs">
-                      <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug line-through text-slate-400 dark:text-slate-500 break-words">
-                        Menerbitkan Tagihan Bimbel
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Administrasi & Tagihan</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-4')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 5 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-5')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Perubahan Data Bu Zah
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Data & Guru</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-5')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 6 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-6')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Postingan IG
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Medsos & IG</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-6')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-6')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 7 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-7')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        MATSAMA (Masa Ta'aruf Siswa Madrasah)
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Acara Pesantren</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-7')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-7')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 8 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-8')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Iftitah Dirasah
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Acara Pesantren</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-8')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-8')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 9 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-9')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Class Meeting
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Acara Pesantren</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-9')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-9')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 10 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-10')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Juara Class Meeting (Publikasi Prestasi)
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Publikasi Prestasi</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-10')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-10')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 11 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-11')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Tasmik Borongan (Tasmi' Akbar)
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Tahfidz Tasmi'</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-11')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-11')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 12 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-12')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Khutbatul Arsy (Pekan Perkenalan Pondok)
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Acara Pesantren</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-12')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-12')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 13 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-13')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Tasmik Fahri, Zandi
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Tahfidz Tasmi'</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 flex items-center gap-1">
-                          <i data-lucide="palette" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
-                          <span>Butuh Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="loadTaskIntoCaptionStudio('ht-13')" title="Buat Pamflet & Caption di Studio" class="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 text-[10.5px] font-bold border border-indigo-200 dark:border-indigo-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-indigo-500"></i>
-                      <span class="hidden sm:inline">Studio</span>
-                    </button>
-                    <button type="button" onclick="deleteHumasTask('ht-13')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 14 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-14')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Website Bendahara
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">IT & Web</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-14')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Item 15 -->
-                <div class="group flex items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-lg border bg-white dark:bg-slate-850 border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs transition-all">
-                  <div class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="toggleHumasTaskCompleted('ht-15')">
-                    <div class="w-5 h-5 rounded-md mt-0.5 flex-shrink-0 flex items-center justify-center transition-all border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-indigo-500"></div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-xs sm:text-[13px] font-semibold leading-snug text-slate-800 dark:text-slate-100 break-words">
-                        Website Pesantren
-                      </p>
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">IT & Web</span>
-                        <span class="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-2.5 h-2.5 text-slate-400"></i>
-                          <span>Tanpa Pamflet</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1 flex-shrink-0">
-                    <button type="button" onclick="deleteHumasTask('ht-15')" title="Hapus Kegiatan" class="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-all">
-                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Empty State for Tasks -->
-              <div id="humasTaskEmptyState" class="hidden py-8 text-center text-slate-400 dark:text-slate-500 space-y-1.5">
-                <i data-lucide="check-circle" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600"></i>
-                <p class="font-bold text-xs text-slate-600 dark:text-slate-400">Tidak ada kegiatan pada filter ini</p>
-              </div>
-
-              <!-- Bottom Helper & Reset -->
-              <div class="flex items-center justify-between text-[10.5px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
-                <span class="flex items-center gap-1">
-                  <i data-lucide="info" class="w-3 h-3 text-indigo-500"></i>
-                  Centang tugas setelah selesai dikerjakan &bull; Data tersimpan otomatis di perangkat.
-                </span>
-                <button type="button" onclick="resetHumasTasksToDefault()" class="hover:text-rose-500 transition-colors font-medium cursor-pointer" title="Reset ulang ke 12 daftar tugas bawaan">
-                  Reset Default
-                </button>
-              </div>
-            </div>
-
-            <!-- B. MONITORING KESIAPAN PAMFLET: 1. PAMFLET UMUM & 2. PAMFLET TAHFIDZ TASMI' (Lega & Nyaman) -->
-            <div class="space-y-3 sm:space-y-4 max-w-full min-w-0" id="humasMonitoringSection">
-              
-              <!-- ROW 1: MONITORING PAMFLET UMUM & PROGRAM KERJA (4 KARTU BERNAFAS LEGA) -->
-              <div class="space-y-1.5 sm:space-y-2">
-                <div class="flex items-center justify-between gap-2 px-1.5 py-0.5">
-                  <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-indigo-500 animate-pulse flex-shrink-0"></span>
-                    <h4 class="text-[11px] sm:text-xs font-black text-slate-800 dark:text-slate-200 tracking-wider uppercase flex items-center gap-1 truncate">
-                      <i data-lucide="megaphone" class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 flex-shrink-0"></i>
-                      <span class="truncate">1. Pamflet Agenda Umum</span>
-                    </h4>
-                  </div>
-                  <span class="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 flex-shrink-0">
-                    Madrasah &amp; Pondok
-                  </span>
-                </div>
-
-                <!-- THE 4 CARDS FOR PAMFLET UMUM (2x2 di Mobile, 4 Kolom di Desktop - Nyaman & Bernapas Lega) -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-                  <!-- Metric 1: RADAR H-7 UMUM -->
-                  <div onclick="openHumasMetricDetailModal('h7', 'umum')" class="bg-gradient-to-br from-rose-50/90 to-white dark:from-rose-950/50 dark:to-slate-900/90 rounded-xl border border-rose-300/80 dark:border-rose-500/40 p-3 sm:p-4 shadow-sm relative overflow-hidden cursor-pointer hover:border-rose-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian agenda umum H-7">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-rose-700 dark:text-rose-400 uppercase tracking-wide truncate">RADAR H-7</span>
-                      <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping flex-shrink-0"></span>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoUmumH7Count" class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-rose-700 dark:text-rose-400 truncate">Mendesak</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Jatuh tempo 7 hr &bull; <span class="text-rose-600 dark:text-rose-400 font-bold underline">Rincian</span></p>
-                  </div>
-
-                  <!-- Metric 2: BUTUH PAMFLET UMUM -->
-                  <div onclick="openHumasMetricDetailModal('belum', 'umum')" class="bg-gradient-to-br from-amber-50/90 to-white dark:from-amber-950/50 dark:to-slate-900/90 rounded-xl border border-amber-300/80 dark:border-amber-500/40 p-3 sm:p-4 shadow-sm cursor-pointer hover:border-amber-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian agenda umum yang butuh pamflet">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-wide truncate">BUTUH PAMFLET</span>
-                      <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0"></i>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoUmumNeedPamflet" class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 truncate">Event</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Belum flyer &bull; <span class="text-amber-600 dark:text-amber-400 font-bold underline">Rincian</span></p>
-                  </div>
-
-                  <!-- Metric 3: PROSES DESAIN UMUM -->
-                  <div onclick="openHumasMetricDetailModal('proses', 'umum')" class="bg-gradient-to-br from-indigo-50/90 to-white dark:from-indigo-950/50 dark:to-slate-900/90 rounded-xl border border-indigo-300/80 dark:border-indigo-500/40 p-3 sm:p-4 shadow-sm cursor-pointer hover:border-indigo-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian desain umum yang sedang diproses">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wide truncate">PROSES DESAIN</span>
-                      <i data-lucide="palette" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 flex-shrink-0"></i>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoUmumInDesign" class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 truncate">Dikerjakan</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Di Canva/Corel &bull; <span class="text-indigo-600 dark:text-indigo-400 font-bold underline">Rincian</span></p>
-                  </div>
-
-                  <!-- Metric 4: SUDAH PUBLISH UMUM -->
-                  <div onclick="openHumasMetricDetailModal('selesai', 'umum')" class="bg-gradient-to-br from-blue-50/90 to-white dark:from-blue-950/50 dark:to-slate-900/90 rounded-xl border border-blue-300/80 dark:border-blue-500/40 p-3 sm:p-4 shadow-sm cursor-pointer hover:border-blue-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian agenda umum yang sudah publish">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-wide truncate">SUDAH PUBLISH</span>
-                      <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoUmumPublished" class="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 truncate">Tayang</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Di IG, FB, WA &bull; <span class="text-blue-600 dark:text-blue-400 font-bold underline">Rincian</span></p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ROW 2: MONITORING PAMFLET TAHFIDZ TASMI' BIL GHOIB (4 KARTU EMERALD, NYAMAN & LEGA) -->
-              <div class="space-y-1.5 sm:space-y-2 pt-2 sm:pt-2.5 border-t border-slate-200/50 dark:border-slate-800/60">
-                <div class="flex items-center justify-between gap-2 px-1 py-0.5">
-                  <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                    <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] animate-pulse flex-shrink-0"></span>
-                    <h4 class="text-[11px] sm:text-xs font-black text-emerald-800 dark:text-emerald-300 tracking-wider uppercase flex items-center gap-1 min-w-0 truncate">
-                      <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 flex-shrink-0"></i>
-                      <span class="truncate">2. Pamflet Tasmi' Sekali Duduk</span>
-                    </h4>
-                  </div>
-                  <span class="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 flex-shrink-0">
-                    <span>31 Santri</span>
-                  </span>
-                </div>
-
-                <!-- THE 4 CARDS FOR TAHFIDZ TASMI' (2x2 di Mobile, 4 Kolom di Desktop - Nyaman & Lega) -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-                  <!-- Metric 1: RADAR H-7 TASMI' -->
-                  <div onclick="openHumasMetricDetailModal('h7', 'tasmi')" class="bg-gradient-to-br from-rose-50/90 to-white dark:from-[#2a0e14]/70 dark:to-slate-900/90 rounded-xl border border-rose-300/80 dark:border-rose-500/50 p-3 sm:p-4 shadow-sm relative overflow-hidden cursor-pointer hover:border-rose-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian santri tasmi' H-7">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-rose-700 dark:text-rose-300 uppercase tracking-wide flex items-center gap-1 truncate">
-                        <i data-lucide="radio" class="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 flex-shrink-0"></i>
-                        <span class="truncate">RADAR H-7</span>
-                      </span>
-                      <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping flex-shrink-0"></span>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoTasmiH7Count" class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-rose-700 dark:text-rose-300 truncate">Dekat</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Ujian 7 hr &bull; <span class="text-rose-600 dark:text-rose-300 font-bold underline">Rincian</span></p>
-                  </div>
-
-                  <!-- Metric 2: BUTUH PAMFLET TASMI' -->
-                  <div onclick="openHumasMetricDetailModal('belum', 'tasmi')" class="bg-gradient-to-br from-amber-50/90 to-white dark:from-[#2c1f06]/70 dark:to-slate-900/90 rounded-xl border border-amber-300/80 dark:border-amber-500/50 p-3 sm:p-4 shadow-sm cursor-pointer hover:border-amber-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian santri tasmi' yang belum dibuatkan pamflet">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-amber-700 dark:text-amber-300 uppercase tracking-wide flex items-center gap-1 truncate">
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0"></i>
-                        <span class="truncate">BUTUH PAMFLET</span>
-                      </span>
-                      <span class="text-[8.5px] font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded-md border border-amber-300 dark:border-amber-500/30 shrink-0">Santri</span>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoTasmiNeedPamflet" class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-slate-700 dark:text-amber-300 truncate">Santri</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Belum flyer &bull; <span class="text-amber-600 dark:text-amber-300 font-bold underline">Rincian</span></p>
-                  </div>
-
-                  <!-- Metric 3: PROSES DESAIN TASMI' -->
-                  <div onclick="openHumasMetricDetailModal('proses', 'tasmi')" class="bg-gradient-to-br from-cyan-50/90 to-white dark:from-[#08222c]/70 dark:to-slate-900/90 rounded-xl border border-cyan-300/80 dark:border-cyan-500/50 p-3 sm:p-4 shadow-sm cursor-pointer hover:border-cyan-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian santri tasmi' yang pamfletnya sedang dikerjakan">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-cyan-700 dark:text-cyan-300 uppercase tracking-wide flex items-center gap-1 truncate">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0"></i>
-                        <span class="truncate">PROSES DESAIN</span>
-                      </span>
-                      <i data-lucide="palette" class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0"></i>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoTasmiInDesign" class="text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-slate-700 dark:text-cyan-300 truncate">Dikerjakan</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Syahadah &bull; <span class="text-cyan-600 dark:text-cyan-300 font-bold underline">Rincian</span></p>
-                  </div>
-
-                  <!-- Metric 4: SUDAH PUBLISH TASMI' -->
-                  <div onclick="openHumasMetricDetailModal('selesai', 'tasmi')" class="bg-gradient-to-br from-emerald-50/90 to-white dark:from-[#06291c]/70 dark:to-slate-900/90 rounded-xl border border-emerald-300/80 dark:border-emerald-500/50 p-3 sm:p-4 shadow-sm cursor-pointer hover:border-emerald-400 hover:shadow-md active:scale-95 transition-all group min-w-0 box-border flex flex-col justify-between" title="Klik untuk melihat rincian pamflet tasmi' yang sudah publish">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <span class="text-[9.5px] sm:text-[11px] font-black text-emerald-700 dark:text-emerald-300 uppercase tracking-wide flex items-center gap-1 truncate">
-                        <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"></i>
-                        <span class="truncate">SUDAH PUBLISH</span>
-                      </span>
-                      <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"></i>
-                    </div>
-                    <div class="my-1 sm:my-1.5 flex items-baseline gap-1 min-w-0">
-                      <h4 id="bentoTasmiPublished" class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-300 tabular-nums leading-none">0</h4>
-                      <span class="text-[10.5px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 truncate">Selesai</span>
-                    </div>
-                    <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 truncate leading-tight">Tayang &bull; <span class="text-emerald-600 dark:text-emerald-300 font-bold underline">Rincian</span></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- C. RADAR PENGINGAT MULTI-HORIZON (H-7, H-14, H-21, H-30) -->
-            <div class="bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-indigo-500/10 dark:from-rose-950/40 dark:via-amber-950/20 dark:to-indigo-950/20 rounded-2xl border border-rose-200 dark:border-rose-900/60 p-3 sm:p-4.5 space-y-3 sm:space-y-3.5 shadow-2xs w-full max-w-full min-w-0 box-border">
-              <!-- Radar Header & Date -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-200/60 dark:border-rose-900/60 pb-3">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <span class="flex h-3 w-3 relative flex-shrink-0">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
-                  </span>
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                      <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">
-                        Radar Publikasi Multi-Horizon
-                      </h4>
-                      <span class="text-[9.5px] sm:text-[10px] font-black text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-950/80 px-2 py-0.2 rounded-full border border-rose-300 dark:border-rose-800 flex-shrink-0">
-                        H-7 S.D H-30
-                      </span>
-                    </div>
-                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                      Monitoring persiapan pamflet & publikasi dari H-30 hingga H-7.
-                    </p>
-                  </div>
-                </div>
-                <span id="humasRadarDateLabel" class="text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/80 shadow-2xs self-start sm:self-auto flex-shrink-0">
-                  Tanggal Acuan: 14 Sep 2026
-                </span>
-              </div>
-
-              <!-- Horizon Filter Selector (H-1 Bulan, H-3 Minggu, H-2 Minggu, H-1 Minggu, Semua) -->
-              <div class="space-y-1.5">
-                <div class="flex items-center justify-between px-0.5">
-                  <span class="text-[10px] sm:text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                    <i data-lucide="filter" class="w-3 h-3 text-rose-500"></i>
-                    <span>Pilih Jangkauan Waktu:</span>
-                  </span>
-                  <span class="text-[9.5px] text-slate-400 dark:text-slate-500 font-semibold sm:hidden">Geser &rarr;</span>
-                </div>
-
-                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 max-w-full min-w-0 -mx-1 px-1 touch-pan-x">
-                  <!-- 1. Semua Radar (0 - 30 Hari) -->
-                  <button 
-                    type="button" 
-                    onclick="setHumasRadarHorizon('all')" 
-                    id="radarHorizon-all" 
-                    class="radar-horizon-btn active px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs flex-shrink-0 active:scale-95"
-                  >
-                    <i data-lucide="layers" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                    <span>Semua (30 Hr)</span>
-                    <span id="radarCountBadge-all" class="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-white/20 dark:bg-slate-800 text-white dark:text-slate-100">0</span>
-                  </button>
-
-                  <!-- 2. H-1 Minggu (H-7) -->
-                  <button 
-                    type="button" 
-                    onclick="setHumasRadarHorizon('h7')" 
-                    id="radarHorizon-h7" 
-                    class="radar-horizon-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 dark:hover:bg-rose-900/50 shadow-2xs flex-shrink-0 active:scale-95"
-                  >
-                    <i data-lucide="flame" class="w-3.5 h-3.5 text-rose-500 flex-shrink-0"></i>
-                    <span>H-1 Mgg (H-7)</span>
-                    <span id="radarCountBadge-h7" class="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200">0</span>
-                  </button>
-
-                  <!-- 3. H-2 Minggu (H-14) -->
-                  <button 
-                    type="button" 
-                    onclick="setHumasRadarHorizon('h14')" 
-                    id="radarHorizon-h14" 
-                    class="radar-horizon-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 hover:bg-amber-100 dark:hover:bg-amber-900/50 shadow-2xs flex-shrink-0 active:scale-95"
-                  >
-                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i>
-                    <span>H-2 Mgg (H-14)</span>
-                    <span id="radarCountBadge-h14" class="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200">0</span>
-                  </button>
-
-                  <!-- 4. H-3 Minggu (H-21) -->
-                  <button 
-                    type="button" 
-                    onclick="setHumasRadarHorizon('h21')" 
-                    id="radarHorizon-h21" 
-                    class="radar-horizon-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 shadow-2xs flex-shrink-0 active:scale-95"
-                  >
-                    <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0"></i>
-                    <span>H-3 Mgg (H-21)</span>
-                    <span id="radarCountBadge-h21" class="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">0</span>
-                  </button>
-
-                  <!-- 5. H-1 Bulan (H-30) -->
-                  <button 
-                    type="button" 
-                    onclick="setHumasRadarHorizon('h30')" 
-                    id="radarHorizon-h30" 
-                    class="radar-horizon-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 hover:bg-purple-100 dark:hover:bg-purple-900/50 shadow-2xs flex-shrink-0 active:scale-95"
-                  >
-                    <i data-lucide="target" class="w-3.5 h-3.5 text-purple-500 flex-shrink-0"></i>
-                    <span>H-1 Bln (H-30)</span>
-                    <span id="radarCountBadge-h30" class="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-purple-200 dark:bg-purple-900 text-purple-800 dark:text-purple-200">0</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Container Kartu-Kartu Multi-Horizon Radar (Rendered by JS) -->
-              <div id="humasH7RadarCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
-                <!-- Injected via JavaScript -->
-              </div>
-
-              <!-- Radar Empty State (Bila tidak ada acara dlm horizon terpilih) -->
-              <div id="humasH7EmptyState" class="hidden py-8 text-center bg-white/60 dark:bg-slate-900/60 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-6 space-y-2">
-                <i data-lucide="sparkles" class="w-8 h-8 mx-auto text-emerald-500"></i>
-                <h5 class="text-sm font-bold text-slate-700 dark:text-slate-300" id="humasRadarEmptyTitle">Radar Bersih: Tidak Ada Agenda pada Jangkauan Ini</h5>
-                <p class="text-xs text-slate-400 dark:text-slate-500 max-w-md mx-auto" id="humasRadarEmptyDesc">
-                  Semua program kerja terdekat telah terjadwal dengan aman. Anda dapat memilih filter jangkauan lain atau melihat tabel program kerja di bawah.
-                </p>
-              </div>
-            </div>
-
-            <!-- D. ✍️ STUDIO CAPTION HUMAS -->
-            <div id="humasCaptionStudioCard" class="bg-white/80 dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs space-y-4">
-              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                  </div>
-                  <div>
-                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                      Studio Generator Caption & Pamflet Humas
-                    </h4>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                      Klik "⚡ Buat Pamflet & Caption" di kartu agenda mana pun untuk mengisi form ini secara otomatis!
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Template Category Pills -->
-                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 min-w-0 max-w-full">
-                  <button type="button" onclick="setCaptionCategory('resmi')" id="capCat-resmi" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-600 text-white transition-all whitespace-nowrap flex-shrink-0 cursor-pointer flex items-center gap-1">
-                    <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
-                    <span>Resmi / Agenda</span>
-                  </button>
-                  <button type="button" onclick="setCaptionCategory('prestasi')" id="capCat-prestasi" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer flex items-center gap-1">
-                    <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
-                    <span>Prestasi / Tasmi'</span>
-                  </button>
-                  <button type="button" onclick="setCaptionCategory('phbi')" id="capCat-phbi" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer flex items-center gap-1">
-                    <i data-lucide="moon" class="w-3.5 h-3.5 text-emerald-500"></i>
-                    <span>PHBI / Hari Besar</span>
-                  </button>
-                  <button type="button" onclick="setCaptionCategory('kalam')" id="capCat-kalam" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer flex items-center gap-1">
-                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span>Kalam / Mutiara</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Two Column Workspace: Form Left, Preview Right -->
-              <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5">
-                <!-- Left Input Fields (5 Cols) -->
-                <div class="lg:col-span-6 space-y-2.5 sm:space-y-3">
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      Judul Kegiatan / Uraian Acara
-                    </label>
-                    <input 
-                      type="text" 
-                      id="capInputJudul" 
-                      placeholder="Contoh: Seminar Kesehatan Mental Santri Putri" 
-                      oninput="renderCaptionPreview()" 
-                      class="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
-
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                        Tanggal & Waktu
-                      </label>
-                      <input 
-                        type="text" 
-                        id="capInputWaktu" 
-                        placeholder="Contoh: Jumat, 18 September 2026" 
-                        oninput="renderCaptionPreview()" 
-                        class="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                        Penanggung Jawab (PJ)
-                      </label>
-                      <input 
-                        type="text" 
-                        id="capInputPj" 
-                        placeholder="Contoh: Usth. Khuffah / Waka. Kesiswaan" 
-                        oninput="renderCaptionPreview()" 
-                        class="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      Sasaran / Peserta Acara
-                    </label>
-                    <input 
-                      type="text" 
-                      id="capInputSasaran" 
-                      placeholder="Contoh: Seluruh Santri Putri Pondok Pesantren Raudlatul Muta'allimin" 
-                      oninput="renderCaptionPreview()" 
-                      class="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      Poin Penting / Pesan Utama Kegiatan
-                    </label>
-                    <textarea 
-                      id="capInputPoin" 
-                      rows="3" 
-                      placeholder="Tuliskan tujuan kegiatan, materi yang dibahas, atau informasi penting..." 
-                      oninput="renderCaptionPreview()" 
-                      class="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"
-                    ></textarea>
-                  </div>
-
-                  <!-- Checklist Kanal Target -->
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                      Target Kanal Distribusi Postingan
-                    </label>
-                    <div class="grid grid-cols-2 sm:flex items-center gap-1.5                      <label class="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-transform" onclick="setHumasOutputMode('instagram')">
-                        <input type="checkbox" id="capKanalIg" checked onchange="renderCaptionPreview()" class="rounded-sm text-pink-600 focus:ring-pink-500" />
-                        <span class="text-pink-600 font-bold">Instagram</span>
-                      </label>
-                      <label class="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-transform" onclick="setHumasOutputMode('facebook')">
-                        <input type="checkbox" id="capKanalFb" checked onchange="renderCaptionPreview()" class="rounded-sm text-blue-600 focus:ring-blue-500" />
-                        <span class="text-blue-600 font-bold">Facebook</span>
-                      </label>
-                      <label class="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-transform" onclick="setHumasOutputMode('wa')">
-                        <input type="checkbox" id="capKanalWa" checked onchange="renderCaptionPreview()" class="rounded-sm text-emerald-600 focus:ring-emerald-500" />
-                        <span class="text-emerald-600 font-bold">Status WA</span>
-                      </label>
-                      <label class="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-transform" onclick="setHumasOutputMode('tiktok')">
-                        <input type="checkbox" id="capKanalTt" onchange="renderCaptionPreview()" class="rounded-none text-slate-900 focus:ring-slate-900" />
-                        <span class="text-slate-900 dark:text-white font-bold">TikTok</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Live Preview & Action Buttons (6 Cols) -->
-                <div class="lg:col-span-6 flex flex-col justify-between space-y-3">
-                  <div>
-                    <!-- Mode Switch Bar: Instagram, Facebook, TikTok, Warta WA, Story / Reels -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2 w-full min-w-0 max-w-full">
-                      <div class="flex items-center gap-1 p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full min-w-0 flex-1">
-                        <button 
-                          type="button" 
-                          onclick="setHumasOutputMode('instagram')" 
-                          id="btnOutputModeIg" 
-                          class="px-2 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-pink-600 dark:text-pink-400 shadow-2xs transition-all flex items-center gap-1 cursor-pointer ring-1 ring-slate-200 dark:ring-slate-700 whitespace-nowrap flex-shrink-0"
-                        >
-                          <i data-lucide="instagram" class="w-3.5 h-3.5 text-pink-500"></i>
-                          <span>Instagram</span>
-                        </button>
-                        <button 
-                          type="button" 
-                          onclick="setHumasOutputMode('facebook')" 
-                          id="btnOutputModeFb" 
-                          class="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap flex-shrink-0"
-                        >
-                          <i data-lucide="facebook" class="w-3.5 h-3.5 text-blue-500"></i>
-                          <span>Facebook</span>
-                        </button>
-                        <button 
-                          type="button" 
-                          onclick="setHumasOutputMode('tiktok')" 
-                          id="btnOutputModeTt" 
-                          class="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap flex-shrink-0"
-                        >
-                          <i data-lucide="video" class="w-3.5 h-3.5 text-slate-700 dark:text-slate-300"></i>
-                          <span>TikTok</span>
-                        </button>
-                        <button 
-                          type="button" 
-                          onclick="setHumasOutputMode('wa')" 
-                          id="btnOutputModeWa" 
-                          class="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-emerald-600 transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap flex-shrink-0"
-                        >
-                          <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
-                          <span>Warta WA</span>
-                        </button>
-                        <button 
-                          type="button" 
-                          onclick="setHumasOutputMode('story')" 
-                          id="btnOutputModeStory" 
-                          class="px-2 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-rose-600 transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap flex-shrink-0"
-                        >
-                          <i data-lucide="flame" class="w-3.5 h-3.5 text-rose-500"></i>
-                          <span>Story/Reels</span>
-                        </button>
-                        <button type="button" id="btnOutputModeViral" onclick="setHumasOutputMode('instagram')" class="hidden"></button>
-                      </div>
-
-                      <button 
-                        type="button" 
-                        onclick="regenerateViralHook()" 
-                        id="btnRegenerateHook" 
-                        title="Acak Variasi Narasi & Angle Cerita AI"
-                        class="w-full sm:w-auto justify-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs min-h-[32px]"
-                      >
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
-                        <span>Acak Angle Cerita</span>
-                      </button>
-                    </div>
-
-                    <!-- Gaya Bahasa Sosmed Selector -->
-                    <div id="viralMetricsBadge" class="mb-2 p-2 rounded-xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
-                      <div class="flex items-center gap-2">
-                        <span class="flex h-2 w-2 relative">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                        </span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                          <span>Gaya Bahasa Sosmed:</span>
-                          <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono hidden sm:inline">(Mengalir & Humanis)</span>
-                        </span>
-                      </div>
-                      <div class="grid grid-cols-4 sm:flex items-center gap-1 w-full sm:w-auto">
-                        <button type="button" onclick="setViralTone('pro')" id="toneBtn-pro" class="px-1.5 sm:px-2 py-1 sm:py-0.5 rounded-lg text-[10px] font-bold bg-white dark:bg-slate-800 shadow-2xs text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 cursor-pointer text-center truncate">✨ Pro</button>
-                        <button type="button" onclick="setViralTone('emotional')" id="toneBtn-emotional" class="px-1.5 sm:px-2 py-1 sm:py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 cursor-pointer text-center truncate">🤝 Haru</button>
-                        <button type="button" onclick="setViralTone('dinamis')" id="toneBtn-dinamis" class="px-1.5 sm:px-2 py-1 sm:py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 cursor-pointer text-center truncate">⚡ Dinamis</button>
-                        <button type="button" onclick="setViralTone('quotes')" id="toneBtn-quotes" class="px-1.5 sm:px-2 py-1 sm:py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 cursor-pointer text-center truncate">📖 Hikmah</button>
-                        <button type="button" id="toneBtn-fun" onclick="setViralTone('dinamis')" class="hidden"></button>
-                      </div>
-                    </div>
-
-                    <!-- Phone Frame Box -->
-                    <div class="bg-slate-950 text-slate-100 rounded-xl p-3.5 border border-slate-800 font-mono text-xs shadow-inner min-h-[240px] max-h-[320px] overflow-y-auto leading-relaxed relative select-all whitespace-pre-wrap" id="humasCaptionPreviewBox">
-                      <!-- Filled by JS -->
-                    </div>
-                  </div>
-
-                  <!-- Quick Helper Buttons -->
-                  <div class="space-y-1.5 pt-1">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <button 
-                        type="button" 
-                        onclick="copyHumasCaption()" 
-                        id="btnCopyHumasCap" 
-                        class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                      >
-                        <i data-lucide="copy" class="w-4 h-4"></i>
-                        <span id="btnCopyHumasCapText">Salin Caption Lengkap</span>
-                      </button>
-
-                      <button 
-                        type="button" 
-                        onclick="openHumasWhatsAppDirect()" 
-                        id="btnHumasWaDirect" 
-                        class="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                      >
-                        <i data-lucide="share-2" class="w-4 h-4"></i>
-                        <span>Buka Status WhatsApp</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Canva Helper Link -->
-                    <div class="flex items-center justify-between p-2 rounded-none bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-none bg-cyan-400"></span>
-                        <span class="font-semibold text-slate-700 dark:text-slate-300">Format Flyer Pamflet:</span>
-                        <span class="text-slate-500 font-mono text-[11px]">1080x1080 (Square) / 1080x1920 (Story)</span>
-                      </div>
-                      <a 
-                        href="https://www.canva.com" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        class="px-2.5 py-1 rounded-none bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-[11px] flex items-center gap-1 transition-all"
-                      >
-                        <span>Buka Canva</span>
-                        <i data-lucide="external-link" class="w-3 h-3"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            <!-- E. TABEL LENGKAP PROGRAM KERJA TAHUNAN YTPAI 2026-2027 (Kotak Tegas) -->
-            <div class="bg-white/80 dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs space-y-3 sm:space-y-4 w-full max-w-full min-w-0 overflow-hidden box-border">
-              
-              <!-- Filter Bar & Search -->
-              <div class="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800 min-w-0 max-w-full">
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="w-8 h-8 rounded-none bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="table" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
-                      Daftar Program Kerja Tahunan YTPAI 2026-2027
-                    </h4>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      Raudlatul Muta'allimin Lamongan &bull; Pantau status pamflet dan publikasi setiap kegiatan
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Export / Save to Cloud -->
-                <div class="flex items-center gap-2 flex-wrap">
-                  <button 
-                    type="button" 
-                    onclick="syncHumasToSupabase(true)" 
-                    id="btnHumasSaveCloud" 
-                    class="h-7 sm:h-8 px-2.5 sm:px-3 rounded-none bg-cyan-50 dark:bg-cyan-950/50 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 font-bold text-xs border border-cyan-300 dark:border-cyan-800/60 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
-                    title="Simpan seluruh perubahan status pamflet & kegiatan ke database Supabase"
-                  >
-                    <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-500"></i>
-                    <span>Simpan ke Supabase</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    onclick="exportHumasToCsv()" 
-                    id="btnHumasExportCsv" 
-                    class="h-7 sm:h-8 px-2.5 sm:px-3 rounded-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs border border-slate-300 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="Unduh jadwal kegiatan dalam file CSV"
-                  >
-                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                    <span>Ekspor CSV</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Filter Pills (Bulan & Status) & Search Box -->
-              <div class="flex flex-wrap items-center justify-between gap-2 min-w-0 max-w-full">
-                <!-- Tasmi' Quick Filter & Sync Bar: Sleek, Square, Anti-Overlap, Harmonized Colors -->
-                <div class="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 mb-1 border-b border-slate-200/60 dark:border-slate-800 min-w-0">
-                  <div class="flex items-center gap-1.5 w-full sm:w-auto min-w-0">
-                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-0.5">
-                      <i data-lucide="filter" class="w-3 h-3 text-indigo-400"></i>
-                      <span class="inline sm:hidden">Filter:</span>
-                      <span class="hidden sm:inline">Filter Kategori:</span>
-                    </span>
-                    <div class="grid grid-cols-2 gap-1 flex-1 sm:flex-initial">
-                      <button 
-                        type="button" 
-                        onclick="filterHumasTable('kategori', 'all')" 
-                        id="btnFilterAllHumas" 
-                        class="humas-kat-btn active h-7 px-2 text-xs font-bold rounded-none bg-indigo-600 text-white border border-indigo-500 shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center"
-                      >
-                        <i data-lucide="layers" class="w-3 h-3 shrink-0"></i>
-                        <span class="truncate">Semua Agenda</span>
-                      </button>
-                      <button 
-                        type="button" 
-                        onclick="filterHumasTable('kategori', 'tasmi')" 
-                        id="btnFilterTasmiHumas" 
-                        class="humas-kat-btn h-7 px-2 text-xs font-bold rounded-none bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-700/60 transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs truncate text-center"
-                      >
-                        <i data-lucide="book-open" class="w-3 h-3 shrink-0 text-emerald-500"></i>
-                        <span class="truncate">Agenda Tasmi'</span>
-                      </button>
-                    </div>
-                  </div>
-                  <button 
-                    type="button" 
-                    onclick="filterHumasTable('tasmi_belum', true)" 
-                    id="btnFilterTasmiBelum" 
-                    class="w-full sm:w-auto h-7 px-2.5 text-[11px] font-bold rounded-none bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-300/70 dark:border-amber-700/70 transition-all flex items-center justify-between sm:justify-center gap-1.5 cursor-pointer shadow-2xs shrink-0" 
-                    title="Tampilkan hanya agenda Tasmi yang belum dibuatkan pamflet"
-                  >
-                    <span class="flex items-center gap-1 truncate">
-                      <i data-lucide="alert-circle" class="w-3 h-3 text-amber-500 shrink-0"></i>
-                      <span class="truncate">Tasmi' Belum Pamflet</span>
-                    </span>
-                    <span id="badgeTasmiBelumCount" class="px-1.5 py-0.2 rounded-none bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-400/40 text-[10px] font-mono font-black shrink-0">0</span>
-                  </button>
-                </div>
-
-                <!-- Navigator & Pemilih Per Bulan (Kotak Tegas & Presisi) -->
-                <div class="w-full flex flex-wrap items-center justify-between gap-1.5 sm:gap-2.5 bg-slate-50/70 dark:bg-slate-800/40 p-1.5 sm:p-2 rounded-none border border-slate-200/60 dark:border-slate-800 min-w-0 max-w-full">
-                  <div class="flex items-center gap-1 sm:gap-1.5 flex-wrap min-w-0">
-                    <!-- Tombol Panah Bulan Lalu & Berikutnya -->
-                    <div class="flex items-center bg-white dark:bg-slate-900 rounded-none p-0.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex-shrink-0">
-                      <button type="button" onclick="navHumasMonth(-1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-none text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Bulan Sebelumnya">
-                        <i data-lucide="chevron-left" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                      </button>
-                      <button type="button" onclick="navHumasMonth(1)" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-none text-slate-600 dark:text-slate-300 transition-all cursor-pointer" title="Bulan Berikutnya">
-                        <i data-lucide="chevron-right" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                      </button>
-                    </div>
-
-                    <!-- Dropdown Pemilih Bulan Cepat -->
-                    <select 
-                      id="humasMonthSelect" 
-                      onchange="filterHumasTable('bulan', this.value)" 
-                      class="h-7 px-2 rounded-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none shadow-2xs cursor-pointer max-w-[200px]"
-                    >
-                      <option value="September">September 2026 (Bulan Ini)</option>
-                      <option value="Oktober">Oktober 2026</option>
-                      <option value="November">November 2026</option>
-                      <option value="Desember">Desember 2026</option>
-                      <option value="Januari">Januari 2027</option>
-                      <option value="Februari">Februari 2027</option>
-                      <option value="Maret">Maret 2027</option>
-                      <option value="April">April 2027</option>
-                      <option value="Mei">Mei 2027</option>
-                      <option value="Juni">Juni 2026 (Awal Ajaran)</option>
-                      <option value="Juli">Juli 2026</option>
-                      <option value="Agustus">Agustus 2026</option>
-                      <option value="all">Tampilkan Semua Bulan (Setahun)</option>
-                    </select>
-
-                    <span class="text-xs text-slate-400 dark:text-slate-500 font-bold hidden sm:inline">&bull;</span>
-                    <span id="humasActiveMonthBanner" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hidden sm:inline">
-                      Menampilkan Kegiatan Bulan Ini
-                    </span>
-                  </div>
-
-                  <!-- Bulan Pills (Scrollable, Kotak Tegas & Warna Harmonis) -->
-                  <div class="w-full sm:w-auto flex items-center gap-1 overflow-x-auto max-w-full min-w-0 pb-1 sm:pb-0 no-scrollbar" id="humasMonthFilterGroup">
-                    <button type="button" onclick="filterHumasTable('bulan', 'all')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="all">
-                      Semua
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Juni')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Juni">
-                      Jun '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Juli')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Juli">
-                      Jul '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Agustus')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Agustus">
-                      Agu '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'September')" class="humas-month-btn active h-6 sm:h-7 px-2 rounded-none text-xs font-bold bg-indigo-600 text-white border border-indigo-500 shadow-2xs transition-all flex-shrink-0" data-month="September">
-                      Sep '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Oktober')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Oktober">
-                      Okt '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'November')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="November">
-                      Nov '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Desember')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Desember">
-                      Des '26
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Januari')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Januari">
-                      Jan '27
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Februari')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Februari">
-                      Feb '27
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Maret')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Maret">
-                      Mar '27
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'April')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="April">
-                      Apr '27
-                    </button>
-                    <button type="button" onclick="filterHumasTable('bulan', 'Mei')" class="humas-month-btn h-6 sm:h-7 px-2 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex-shrink-0" data-month="Mei">
-                      Mei '27
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Status Filter Dropdown & Search (Kotak Tegas) -->
-                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-                  <select 
-                    id="humasFilterStatus" 
-                    onchange="filterHumasTable('status', this.value)" 
-                    class="h-7 px-2 rounded-none bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
-                  >
-                    <option value="all">Semua Status Pamflet</option>
-                    <option value="h7">🚨 Butuh Tindakan (H-7)</option>
-                    <option value="belum">⏳ Belum Dibuat</option>
-                    <option value="proses">🎨 Sedang Desain</option>
-                    <option value="siap">✨ Siap Publish</option>
-                    <option value="selesai">✅ Selesai / Tayang</option>
-                  </select>
-
-                  <div class="relative flex-1 sm:w-56">
-                    <input 
-                      type="text" 
-                      id="humasSearchInput" 
-                      placeholder="Cari uraian acara / PJ..." 
-                      oninput="onHumasSearchInput(this.value)" 
-                      class="w-full h-7 pl-7 pr-2.5 rounded-none bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2"></i>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Mobile Swipe Hint -->
-              <div class="sm:hidden text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold text-center py-1 flex items-center justify-center gap-1.5 bg-slate-100/60 dark:bg-slate-800/40 rounded-none mb-1.5 border border-slate-200/50 dark:border-slate-800/50">
-                <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-slate-400"></i>
-                <span>Geser tabel ke samping untuk melihat kolom lengkap</span>
-              </div>
-
-              <!-- Table Container (Kotak Tegas) -->
-              <div class="w-full max-w-full min-w-0 overflow-x-auto rounded-none border border-slate-200/80 dark:border-slate-800 shadow-2xs">
-                <table class="w-full text-left text-xs border-collapse min-w-[950px]">
-                  <thead class="bg-slate-100/90 dark:bg-slate-800/90 text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
-                    <tr>
-                      <th class="py-3 px-3 w-12 text-center">No</th>
-                      <th class="py-3 px-3 w-28 text-center">Waktu & Tgl</th>
-                      <th class="py-3 px-4 min-w-[260px]">Uraian Kegiatan</th>
-                      <th class="py-3 px-3 w-44">Penanggung Jawab</th>
-                      <th class="py-3 px-3 w-48">Sasaran Acara</th>
-                      <th class="py-3 px-3 w-32 text-center">Status Pamflet</th>
-                      <th class="py-3 px-3 w-24 text-center">Kanal Tayang</th>
-                      <th class="py-3 px-3 w-32 text-center">Aksi Cepat</th>
-                    </tr>
-                  </thead>
-                  <tbody id="humasTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
-                    <!-- Rendered by JavaScript -->
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Empty State for Table -->
-              <div id="humasTableEmptyState" class="hidden py-12 text-center text-slate-400 dark:text-slate-500 space-y-2">
-                <i data-lucide="search-x" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600"></i>
-                <p class="font-bold text-sm text-slate-600 dark:text-slate-400">Tidak ada agenda yang cocok dengan filter</p>
-                <p class="text-xs text-slate-400">Coba ubah kata kunci pencarian atau ganti filter bulan/status di atas.</p>
-              </div>
-
-              <!-- Table Count Summary -->
-              <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
-                <span id="humasTableCountLabel">Menampilkan 0 agenda</span>
-                <span class="text-[11px]">💡 Klik status pamflet pada tabel untuk memperbarui status secara instan</span>
-              </div>
-
-            </div>
-
-          <!-- Modal Rincian Metric Card Humas (Radar H-7, Butuh Pamflet, Proses Desain, Selesai Publish) -->
-          <div id="modalHumasMetricDetail" class="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/85 backdrop-blur-xs p-3 sm:p-4 hidden overflow-y-auto" style="z-index: 99999 !important;" onclick="if(event.target === this) closeHumasMetricDetailModal()">
-              <div class="bg-white dark:bg-[#111728] rounded-none border border-slate-200 dark:border-slate-800/90 p-4 sm:p-6 w-full max-w-3xl shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col transition-all">
-                
-                <!-- Modal Header -->
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-shrink-0">
-                  <div class="flex items-center gap-3">
-                    <div id="metricDetailHeaderIconBox" class="w-10 h-10 rounded-none bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center flex-shrink-0">
-                      <i id="metricDetailHeaderIcon" data-lucide="radio" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                      <div class="flex flex-wrap items-center gap-2">
-                        <h4 id="metricDetailTitle" class="text-base sm:text-lg font-black text-slate-900 dark:text-white">Rincian Radar H-7: Event Mendesak</h4>
-                        <span id="metricDetailCountBadge" class="px-2.5 py-0.5 rounded-none text-[11px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40">
-                          0 Event
-                        </span>
-                      </div>
-                      <p id="metricDetailSubtitle" class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
-                        Daftar agenda yang jatuh tempo dalam 7 hari ke depan
-                      </p>
-                    </div>
-                  </div>
-                  <button type="button" onclick="closeHumasMetricDetailModal()" class="p-2 rounded-none text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer" title="Tutup">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <!-- Quick Search inside Modal -->
-                <div class="relative flex-shrink-0">
-                  <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                  <input 
-                    id="metricDetailSearchInput" 
-                    type="text" 
-                    oninput="filterMetricDetailList(this.value)"
-                    placeholder="Ketik untuk mencari agenda, nama kegiatan, PJ, sasaran, bulan..." 
-                    class="w-full pl-9 pr-8 py-2 bg-slate-100 dark:bg-slate-800/90 rounded-none text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 border border-slate-200 dark:border-slate-700/80 focus:outline-hidden focus:border-indigo-500 transition-colors"
-                  />
-                  <button 
-                    type="button" 
-                    onclick="const el=document.getElementById('metricDetailSearchInput'); if(el){el.value=''; filterMetricDetailList(''); el.focus();}" 
-                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"
-                    title="Bersihkan"
-                  >
-                    <i data-lucide="circle-x" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
-
-                <!-- Scope Filter Pills: Semua | Pamflet Umum | Pamflet Tasmi' -->
-                <div class="flex items-center gap-1.5 p-1 rounded-none bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs flex-shrink-0">
-                  <button type="button" onclick="setMetricDetailScope('all')" id="scopeBtn-all" class="flex-1 py-1.5 px-2.5 rounded-none font-bold transition-all cursor-pointer text-center text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs">
-                    Semua Pamflet
-                  </button>
-                  <button type="button" onclick="setMetricDetailScope('umum')" id="scopeBtn-umum" class="flex-1 py-1.5 px-2.5 rounded-none font-semibold transition-all cursor-pointer text-center text-xs text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center justify-center gap-1.5">
-                    <i data-lucide="megaphone" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    <span>Pamflet Umum</span>
-                  </button>
-                  <button type="button" onclick="setMetricDetailScope('tasmi')" id="scopeBtn-tasmi" class="flex-1 py-1.5 px-2.5 rounded-none font-semibold transition-all cursor-pointer text-center text-xs text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300 flex items-center justify-center gap-1.5">
-                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i>
-                    <span>Pamflet Tasmi'</span>
-                  </button>
-                </div>
-
-                <!-- Scrollable Items List -->
-                <div id="metricDetailListContainer" class="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar min-h-[160px] max-h-[60vh]">
-                  <!-- Cards rendered dynamically -->
-                </div>
-
-                <!-- Modal Footer -->
-                <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 pt-3 flex-shrink-0 text-xs">
-                  <button 
-                    type="button" 
-                    onclick="applyFilterToHumasTableFromModal()" 
-                    class="px-3 py-1.5 rounded-none bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <i data-lucide="table-2" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    <span>Buka & Filter di Tabel Utama</span>
-                  </button>
-
-                  <button 
-                    type="button" 
-                    onclick="closeHumasMetricDetailModal()" 
-                    class="px-4 py-1.5 rounded-none bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-black hover:opacity-90 transition-all cursor-pointer"
-                  >
-                    Tutup
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Modal Detail & Edit Agenda Kegiatan Humas & Sosmed -->
-            <div id="modalHumasEditProgram" class="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-3 sm:p-4 hidden overflow-y-auto" style="z-index: 99999 !important;">
-              <div class="bg-white dark:bg-slate-900 rounded-none border border-slate-200 dark:border-slate-800 p-5 sm:p-6 w-full max-w-2xl shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
-                <!-- Header -->
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-shrink-0">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-none bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                      <i data-lucide="file-edit" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-base font-bold text-slate-900 dark:text-white" id="modalEditTitle">Detail & Edit Agenda Humas</h4>
-                        <span id="modalEditCategoryBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 flex items-center gap-1">
-                          <i data-lucide="book-open" class="w-3 h-3"></i>
-                          <span>Tasmi' Bil Ghoib</span>
-                        </span>
-                        <div id="modalEditCountdownBadge" class="hidden"></div>
-                      </div>
-                      <p class="text-xs text-slate-500 dark:text-slate-400" id="modalEditSubtitle">
-                        Lihat rincian lengkap dan perbarui keterangan agenda atau status pamflet
-                      </p>
-                    </div>
-                  </div>
-                  <button type="button" onclick="closeModalEditProgram()" class="p-1.5 rounded-none text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <!-- Scrollable Body -->
-                <div class="space-y-4 text-xs overflow-y-auto flex-1 pr-1 custom-scrollbar">
-                  <input type="hidden" id="modalEditProgId" />
-
-                  <!-- Banner Info Khusus Tasmi' (jika agenda tasmi') -->
-                  <div id="modalEditTasmiBox" class="hidden p-3 rounded-none bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 space-y-2">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
-                        <span class="font-black text-xs text-emerald-900 dark:text-emerald-200" id="modalEditTasmiUnitLabel">Agenda Ujian Tasmi' Bil Ghoib</span>
-                      </div>
-                      <span class="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded-none" id="modalEditTasmiCountBadge">
-                        31 Santri
-                      </span>
-                    </div>
-                    <div>
-                      <span class="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block mb-1">Daftar Santri Peserta Terjadwal:</span>
-                      <div id="modalEditTasmiStudentList" class="text-[11px] text-emerald-900 dark:text-emerald-200 leading-relaxed font-medium bg-white/80 dark:bg-slate-900/70 p-2.5 rounded-none border border-emerald-200/60 dark:border-emerald-900/50 max-h-32 overflow-y-auto">
-                        <!-- List nama santri lengkap -->
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Uraian Acara / Nama Kegiatan -->
-                  <div>
-                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      Uraian Acara / Nama Kegiatan *
-                    </label>
-                    <textarea id="modalEditUraian" rows="2" placeholder="Nama kegiatan / judul agenda..." class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium leading-relaxed"></textarea>
-                  </div>
-
-                  <!-- Tanggal, Bulan, Tahun -->
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div>
-                      <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Tanggal (Hari/Rentang) *</label>
-                      <input type="text" id="modalEditTgl" placeholder="Contoh: 18 atau 18-24" class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                    <div>
-                      <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Bulan *</label>
-                      <select id="modalEditBulan" class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        <option value="Juni">Juni</option>
-                        <option value="Juli">Juli</option>
-                        <option value="Agustus">Agustus</option>
-                        <option value="September">September</option>
-                        <option value="Oktober">Oktober</option>
-                        <option value="November">November</option>
-                        <option value="Desember">Desember</option>
-                        <option value="Januari">Januari</option>
-                        <option value="Februari">Februari</option>
-                        <option value="Maret">Maret</option>
-                        <option value="April">April</option>
-                        <option value="Mei">Mei</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Tahun *</label>
-                      <input type="text" id="modalEditTahun" class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                  </div>
-
-                  <!-- PJ & Sasaran Acara -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                      <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Penanggung Jawab (PJ)</label>
-                      <input type="text" id="modalEditPj" placeholder="Contoh: Koord. Tahfidz Unit MI" class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                    <div>
-                      <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Sasaran Peserta</label>
-                      <input type="text" id="modalEditSasaran" placeholder="Contoh: Santri Tahfidz & Wali Santri" class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                    </div>
-                  </div>
-
-                  <!-- Status Pamflet (Kotak Tegas) -->
-                  <div>
-                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Status Pamflet Sosmed *
-                    </label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="modalEditStatusRadioGroup">
-                      <label class="flex items-center gap-1.5 p-2 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-semibold">
-                        <input type="radio" name="modalEditStatus" value="belum" class="rounded-none text-amber-500 focus:ring-amber-500" />
-                        <span class="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span>Belum Dibuat</span></span>
-                      </label>
-                      <label class="flex items-center gap-1.5 p-2 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-semibold">
-                        <input type="radio" name="modalEditStatus" value="proses" class="rounded-none text-blue-500 focus:ring-blue-500" />
-                        <span class="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1"><i data-lucide="palette" class="w-3.5 h-3.5"></i><span>Sedang Desain</span></span>
-                      </label>
-                      <label class="flex items-center gap-1.5 p-2 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-semibold">
-                        <input type="radio" name="modalEditStatus" value="siap" class="rounded-none text-purple-500 focus:ring-purple-500" />
-                        <span class="text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>Siap Publish</span></span>
-                      </label>
-                      <label class="flex items-center gap-1.5 p-2 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-semibold">
-                        <input type="radio" name="modalEditStatus" value="selesai" class="rounded-none text-emerald-500 focus:ring-emerald-500" />
-                        <span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i><span>Sudah Tayang</span></span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <!-- Target Kanal Sosmed (Kotak Tegas) -->
-                  <div>
-                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Target Kanal Publikasi
-                    </label>
-                    <div class="flex flex-wrap gap-1.5">
-                      <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-bold cursor-pointer hover:bg-slate-100">
-                        <input type="checkbox" id="modalEditKanalIg" class="rounded-none text-pink-600" />
-                        <span class="text-pink-600 font-bold">Instagram</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-bold cursor-pointer hover:bg-slate-100">
-                        <input type="checkbox" id="modalEditKanalFb" class="rounded-none text-blue-600" />
-                        <span class="text-blue-600 font-bold">Facebook</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-bold cursor-pointer hover:bg-slate-100">
-                        <input type="checkbox" id="modalEditKanalWa" class="rounded-none text-emerald-600" />
-                        <span class="text-emerald-600 font-bold">WhatsApp</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-none border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs font-bold cursor-pointer hover:bg-slate-100">
-                        <input type="checkbox" id="modalEditKanalTt" class="rounded-none text-slate-800 dark:text-white" />
-                        <span class="text-slate-800 dark:text-white font-bold">TikTok</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <!-- Keterangan Tambahan / Catatan Desain Pamflet -->
-                  <div>
-                    <div class="flex items-center justify-between mb-1">
-                      <label class="block font-bold text-slate-700 dark:text-slate-300">
-                        Catatan Khusus Desain Pamflet & Humas
-                      </label>
-                      <span class="text-[10px] text-slate-400">Instruksi foto / pamflet</span>
-                    </div>
-                    <textarea id="modalEditCatatan" rows="3" placeholder="Contoh: Foto santri sudah di Google Drive panitia, format pamflet portrait 4:5, cantumkan nomor rekening infaq..." class="w-full px-3 py-1.5 sm:py-2 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium leading-relaxed"></textarea>
-                  </div>
-                </div>
-
-                <!-- Footer Actions -->
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 dark:border-slate-800 flex-shrink-0">
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="loadProgramFromModalToCaption()" class="px-3 py-1.5 rounded-none bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer">
-                      <i data-lucide="sparkles" class="w-4 h-4"></i>
-                      <span>Buka di Studio Caption</span>
-                    </button>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="closeModalEditProgram()" class="px-3.5 py-1.5 rounded-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer">
-                      Batal
-                    </button>
-                    <button type="button" onclick="saveProgramFromEditModal()" class="px-4 py-1.5 rounded-none bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs shadow-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer">
-                      <i data-lucide="check" class="w-4 h-4"></i>
-                      <span>Simpan Perubahan</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Modal Tambah / Edit Agenda Kustom (Kotak Tegas) -->
-            <div id="modalHumasAddProgram" class="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 hidden" style="z-index: 99999 !important;">
-              <div class="bg-white dark:bg-slate-900 rounded-none border border-slate-200 dark:border-slate-800 p-4 sm:p-5 w-full max-w-lg shadow-2xl space-y-3.5">
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <div class="flex items-center gap-2">
-                    <i data-lucide="calendar-plus" class="w-5 h-5 text-indigo-600"></i>
-                    <h4 class="text-base font-bold text-slate-900 dark:text-white">Tambah Agenda Program Tahunan</h4>
-                  </div>
-                  <button type="button" onclick="closeModalAddProgram()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <div class="space-y-2.5 text-xs">
-                  <div>
-                    <label class="block font-bold text-slate-600 dark:text-slate-400 mb-1">Uraian Acara / Kegiatan *</label>
-                    <input type="text" id="modalProgUraian" placeholder="Nama kegiatan..." class="w-full px-3 py-1.5 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-2">
-                    <div>
-                      <label class="block font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal *</label>
-                      <input type="text" id="modalProgTgl" placeholder="Contoh: 15 atau 14-16" class="w-full px-3 py-1.5 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none" />
-                    </div>
-                    <div>
-                      <label class="block font-bold text-slate-600 dark:text-slate-400 mb-1">Bulan & Tahun *</label>
-                      <select id="modalProgBulan" class="w-full px-3 py-1.5 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none">
-                        <option value="Juni">Juni 2026</option>
-                        <option value="Juli">Juli 2026</option>
-                        <option value="Agustus">Agustus 2026</option>
-                        <option value="September" selected>September 2026</option>
-                        <option value="Oktober">Oktober 2026</option>
-                        <option value="November">November 2026</option>
-                        <option value="Desember">Desember 2026</option>
-                        <option value="Januari">Januari 2027</option>
-                        <option value="Februari">Februari 2027</option>
-                        <option value="Maret">Maret 2027</option>
-                        <option value="April">April 2027</option>
-                        <option value="Mei">Mei 2027</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="block font-bold text-slate-600 dark:text-slate-400 mb-1">Penanggung Jawab (PJ)</label>
-                    <input type="text" id="modalProgPj" placeholder="Contoh: BPMP / Waka. Kesiswaan / Yayasan" class="w-full px-3 py-1.5 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none" />
-                  </div>
-
-                  <div>
-                    <label class="block font-bold text-slate-600 dark:text-slate-400 mb-1">Sasaran Peserta</label>
-                    <input type="text" id="modalProgSasaran" placeholder="Contoh: Seluruh Siswa / Guru / Santri" class="w-full px-3 py-1.5 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none" />
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onclick="closeModalAddProgram()" class="px-3.5 py-1.5 rounded-none bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
-                    Batal
-                  </button>
-                  <button type="button" onclick="saveNewProgramFromModal()" class="px-4 py-1.5 rounded-none bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs">
-                    Simpan Agenda
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Modal Bulk Import Program Tahunan (Kotak Tegas) -->
-            <div id="modalHumasBulkImport" class="hidden fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" style="z-index: 99999 !important;">
-              <div class="bg-white dark:bg-slate-900 rounded-none border border-slate-200 dark:border-slate-800 p-4 sm:p-5 w-full max-w-2xl shadow-2xl space-y-3.5 my-auto">
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-none bg-gradient-to-br from-rose-500 to-indigo-600 text-white flex items-center justify-center shadow-xs">
-                      <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                      <h4 class="text-base font-black text-slate-900 dark:text-white">Impor Massal Program Kerja Humas & Sosmed</h4>
-                      <p class="text-xs text-slate-500 dark:text-slate-400">Entri cepat puluhan hingga ratusan agenda s.d. 2027 via Copy-Paste Excel atau File .xlsx</p>
-                    </div>
-                  </div>
-                  <button type="button" onclick="closeModalHumasBulkImport()" class="p-1.5 rounded-none hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <!-- Input Method Switcher Tabs (Kotak Tegas) -->
-                <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-none border border-slate-200/60 dark:border-slate-700/60">
-                  <button type="button" id="btnTabHumasImportPaste" onclick="switchHumasImportTab('paste')" class="flex-1 py-1.5 px-2.5 rounded-none text-xs font-bold bg-indigo-600 text-white shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-                    <span>Tempel Teks dari Excel / Sheets</span>
-                  </button>
-                  <button type="button" id="btnTabHumasImportFile" onclick="switchHumasImportTab('file')" class="flex-1 py-1.5 px-2.5 rounded-none text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i>
-                    <span>Unggah Berkas Excel (.xlsx / .csv)</span>
-                  </button>
-                </div>
-
-                <!-- Pane 1: Paste Area -->
-                <div id="paneHumasImportPaste" class="space-y-2">
-                  <div class="flex items-center justify-between text-xs">
-                    <label class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                      <span>Tempel Data Baris Spreadsheet:</span>
-                      <span class="text-[10px] font-normal text-slate-400">(Tab / Koma otomatis)</span>
-                    </label>
-                    <button type="button" onclick="fillHumasBulkPasteSample()" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1 cursor-pointer">
-                      <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
-                      <span>Muat Contoh Format</span>
-                    </button>
-                  </div>
-                  <textarea 
-                    id="humasBulkPasteInput" 
-                    rows="5" 
-                    oninput="onHumasPasteInputChange()" 
-                    placeholder="Salin kolom dari Excel lalu tempel di sini...&#10;Contoh: No [Tab] Tanggal [Tab] Bulan [Tab] Tahun [Tab] Uraian Acara [Tab] PJ [Tab] Sasaran [Tab] Status [Tab] Kanal"
-                    class="w-full p-2.5 rounded-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"
-                  ></textarea>
-                </div>
-
-                <!-- Pane 2: File Upload Area -->
-                <div id="paneHumasImportFile" class="hidden space-y-2">
-                  <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-none p-5 text-center hover:border-indigo-500 transition-colors bg-slate-50/50 dark:bg-slate-800/30">
-                    <i data-lucide="upload-cloud" class="w-9 h-9 mx-auto text-indigo-500 mb-1.5"></i>
-                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Pilih berkas Excel (.xlsx, .xls) atau .csv</p>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Sistem membaca sheet pertama dan otomatis memetakan kolom agenda.</p>
-                    <input type="file" id="humasBulkFileInput" accept=".xlsx,.xls,.csv" onchange="handleHumasExcelFile(event)" class="mt-2.5 text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-none file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" />
-                  </div>
-                  <div class="text-right">
-                    <button type="button" onclick="downloadHumasExcelTemplate()" class="text-xs font-bold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 ml-auto cursor-pointer">
-                      <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                      <span>Unduh Template Format .CSV</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Import Mode Selection (Kotak Tegas) -->
-                <div class="flex flex-wrap items-center justify-between gap-2.5 p-2.5 rounded-none bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-xs">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-slate-700 dark:text-slate-300">Mode Impor:</span>
-                    <button type="button" onclick="cleanDuplicateHumasPrograms(true)" class="px-2 py-0.5 rounded-none text-[11px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-900 transition-colors flex items-center gap-1 cursor-pointer" title="Bersihkan agenda duplikat yang ada saat ini">
-                      <i data-lucide="sparkles" class="w-3 h-3 text-amber-600"></i>
-                      <span>Bersihkan Dobel</span>
-                    </button>
-                  </div>
-                  <div class="flex flex-wrap items-center gap-2.5">
-                    <label class="flex items-center gap-1.5 cursor-pointer" title="Perbarui data dan otomatis lewati agenda yang sudah ada agar tidak terjadi duplikasi">
-                      <input type="radio" name="humasImportMode" id="radioHumasModeSmart" value="smart" checked class="rounded-none text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
-                      <span class="text-emerald-700 dark:text-emerald-400 font-bold">Gabungkan & Anti-Dobel</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 cursor-pointer" title="Hapus semua agenda lama dan ganti dengan berkas Excel ini">
-                      <input type="radio" name="humasImportMode" id="radioHumasModeOverwrite" value="overwrite" class="rounded-none text-rose-600 focus:ring-rose-500 cursor-pointer" />
-                      <span class="text-rose-600 dark:text-rose-400 font-semibold">Gantikan Seluruhnya</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 cursor-pointer" title="Paksa masukkan semua baris tanpa filter duplikat">
-                      <input type="radio" name="humasImportMode" id="radioHumasModeAppend" value="append" class="text-slate-500 focus:ring-slate-500 cursor-pointer" />
-                      <span class="text-slate-600 dark:text-slate-400 font-normal">Paksa Tambah (Append)</span>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Live Preview of Parsed Rows -->
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                    <span>Pratinjau Data:</span>
-                    <span id="humasBulkCountBadge" class="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px]">0 Baris Siap Diimpor</span>
-                  </div>
-                  <div id="humasBulkPreviewEmpty" class="py-6 text-center text-slate-400 text-xs border border-slate-200 dark:border-slate-800 rounded-2xl">
-                    Belum ada data yang terdeteksi. Silakan tempel teks spreadsheet atau pilih file Excel di atas.
-                  </div>
-                  <div id="humasBulkPreviewTableWrapper" class="hidden max-h-48 overflow-y-auto overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <table class="w-full text-left border-collapse text-xs">
-                      <thead class="bg-slate-100 dark:bg-slate-800 text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 sticky top-0">
-                        <tr>
-                          <th class="py-1.5 px-2 w-8 text-center">No</th>
-                          <th class="py-1.5 px-2 w-28">Waktu</th>
-                          <th class="py-1.5 px-3">Uraian Kegiatan</th>
-                          <th class="py-1.5 px-2 w-28">PJ</th>
-                          <th class="py-1.5 px-2 w-20 text-center">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody id="humasBulkPreviewTbody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onclick="closeModalHumasBulkImport()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer">
-                    Batal
-                  </button>
-                  <button type="button" id="btnSubmitHumasBulk" onclick="executeHumasBulkImport()" disabled class="px-5 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-indigo-600 to-purple-600 hover:from-rose-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-xs shadow-lg shadow-indigo-600/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
-                    <i data-lucide="check" class="w-4 h-4"></i>
-                    <span>Simpan Agenda ke Kalender</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Modal Supabase Database & Vercel Config -->
-            <div id="modalSupabaseConfig" class="hidden fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" style="z-index: 99999 !important;">
-              <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 w-full max-w-xl shadow-2xl space-y-4 my-auto">
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center shadow-md">
-                      <i data-lucide="database" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                      <h4 class="text-base font-black text-slate-900 dark:text-white">Konfigurasi Database Supabase (Vercel Ready)</h4>
-                      <p class="text-xs text-slate-500 dark:text-slate-400">Sinkronisasi cloud PostgreSQL untuk multi-user dan deploy instan di Vercel</p>
-                    </div>
-                  </div>
-                  <button type="button" onclick="closeModalSupabaseConfig()" class="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <!-- Status Badge -->
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
-                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Status Koneksi:</span>
-                  <div id="supabaseStatusPill" class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                    <span>Penyimpanan Lokal / GAS</span>
-                  </div>
-                </div>
-
-                <!-- Credentials Inputs -->
-                <div class="space-y-3">
-                  <div>
-                    <label class="block font-bold text-xs text-slate-700 dark:text-slate-300 mb-1">Supabase Project URL *</label>
-                    <input 
-                      type="url" 
-                      id="supabaseInputUrl" 
-                      placeholder="https://xyzprojectid.supabase.co" 
-                      class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                    />
-                    <p class="text-[10px] text-slate-400 mt-1">Dapat ditemukan di Supabase Dashboard: Project Settings &rarr; API &rarr; Project URL</p>
-                  </div>
-                  <div>
-                    <label class="block font-bold text-xs text-slate-700 dark:text-slate-300 mb-1">Supabase Anon Public Key *</label>
-                    <input 
-                      type="password" 
-                      id="supabaseInputKey" 
-                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." 
-                      class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                    />
-                    <p class="text-[10px] text-slate-400 mt-1">Dapat ditemukan di Supabase Dashboard: Project Settings &rarr; API &rarr; Project API keys (anon public)</p>
-                  </div>
-                </div>
-
-                <!-- SQL Schema Box -->
-                <div class="space-y-1.5">
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="font-bold text-slate-700 dark:text-slate-300">Skema SQL Supabase (Jalankan 1x di SQL Editor):</span>
-                    <button type="button" onclick="copySupabaseSqlSchema()" class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1 cursor-pointer">
-                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                      <span>Salin SQL</span>
-                    </button>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-slate-900 text-slate-300 text-[10px] font-mono border border-slate-800 max-h-28 overflow-y-auto leading-relaxed">
-                    CREATE TABLE IF NOT EXISTS humas_programs (<br/>
-                    &nbsp;&nbsp;id TEXT PRIMARY KEY, no INTEGER, tgl TEXT,<br/>
-                    &nbsp;&nbsp;start_date DATE, end_date DATE, bulan TEXT, tahun TEXT,<br/>
-                    &nbsp;&nbsp;uraian TEXT NOT NULL, pj TEXT, sasaran TEXT,<br/>
-                    &nbsp;&nbsp;status_pamflet TEXT DEFAULT 'belum',<br/>
-                    &nbsp;&nbsp;status_post TEXT DEFAULT 'draft',<br/>
-                    &nbsp;&nbsp;kanal TEXT DEFAULT 'IG,FB,WA',<br/>
-                    &nbsp;&nbsp;updated_at TIMESTAMPTZ DEFAULT NOW()<br/>
-                    );
-                  </div>
-                </div>
-
-                <!-- Footer Buttons -->
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onclick="closeModalSupabaseConfig()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer">
-                    Tutup
-                  </button>
-                  <button type="button" onclick="saveSupabaseConfig()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                    <span>Simpan & Tes Koneksi</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-
-<!-- END COMPONENT: Tab10_HumasSosmed.html -->
-
-
-            </div>
-          </div>
-
-      </section>
-
-    </main>
-
-      <!-- Floating 'Kembali ke Atas' Capsule Pill -->
-      <button 
-        id="btnBackToTop" 
-        onclick="scrollToMainTop()" 
-        title="Kembali ke Bagian Atas" 
-        class="hidden sm:flex items-center gap-2 fixed bottom-20 sm:bottom-5 right-4 sm:right-6 z-40 px-3.5 sm:px-4 py-2 rounded-full bg-slate-900/90 dark:bg-white/95 hover:bg-black dark:hover:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-2xl backdrop-blur-xl border border-white/20 dark:border-slate-800 opacity-0 pointer-events-none transform translate-y-6 transition-all cursor-pointer group hover:scale-105 active:scale-95"
-      >
-        <svg width="14" height="14" class="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m18 15-6-6-6 6"/>
-        </svg>
-        <span>Kembali ke Atas</span>
-      </button>
-
-    </div>
-
-    <!-- 2.5 MOBILE STICKY FLOATING ACTION BAR: Fast 1-Tap Actions for Phone Users -->
-    <div id="mobileStickyActionBar" class="lg:hidden fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px)+10px)] left-2.5 right-2.5 z-30 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
-      <div class="bg-slate-900/95 dark:bg-[#131b2c]/95 backdrop-blur-xl border border-white/20 dark:border-white/15 rounded-2xl px-3 py-2 shadow-2xl flex items-center justify-between gap-2 text-white">
-        <div class="flex items-center gap-2 pl-0.5 min-w-0">
-          <span id="mobileActionBadge" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
-          <div class="truncate">
-            <p id="mobileActionTitle" class="text-xs font-extrabold leading-tight truncate text-white">Data Siap Disalin</p>
-            <p id="mobileActionSubtitle" class="text-[10px] text-slate-300 dark:text-slate-400 truncate">0 baris hasil terformat</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button id="mobileActionBtnPrimary" type="button" onclick="copyBriva5Columns()" class="bg-emerald-500 hover:bg-emerald-600 active:scale-90 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1 transition-transform cursor-pointer">
-            <i data-lucide="copy-check" class="w-3.5 h-3.5"></i>
-            <span id="mobileActionBtnText">Salin 5 Kolom</span>
-          </button>
-          <button id="mobileActionBtnSecondary" type="button" onclick="exportBrivaToExcel()" class="bg-white/15 hover:bg-white/25 active:scale-90 text-white p-2 rounded-xl text-xs transition-transform cursor-pointer" title="Unduh File Excel">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. MOBILE BOTTOM NAVIGATION BAR WITH CURVED SCOOP NOTCH & FLOATING ACTIVE CIRCLE (MATCHING USER REFERENCE) -->
-    <nav class="lg:hidden magic-bottom-nav fixed bottom-0 left-0 right-0 z-40 select-none w-full max-w-full box-border" id="mobileBottomNav">
-      <ul class="magic-nav-list" id="magicNavList">
-        <!-- 1. Humas -->
-        <li class="magic-nav-item active" data-tab="humas" data-index="0" id="bnav-humas">
-          <button type="button" onclick="switchTab('humas'); triggerHaptic();" class="magic-nav-link" aria-label="Humas">
-            <div class="magic-icon-wrapper">
-              <span class="magic-icon relative">
-                <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>
-                </svg>
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 absolute -top-0.5 -right-0.5 ring-1.5 ring-white dark:ring-[#0c101d] animate-pulse"></span>
-              </span>
-              <span class="magic-label">Humas</span>
-            </div>
-          </button>
-        </li>
-
-        <!-- 2. Tahfidz -->
-        <li class="magic-nav-item" data-tab="tahfidz" data-index="1" id="bnav-tahfidz">
-          <button type="button" onclick="switchTab('tahfidz'); triggerHaptic();" class="magic-nav-link" aria-label="Tahfidz">
-            <div class="magic-icon-wrapper">
-              <span class="magic-icon">
-                <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                </svg>
-              </span>
-              <span class="magic-label">Tahfidz</span>
-            </div>
-          </button>
-        </li>
-
-        <!-- 3. BRIVA -->
-        <li class="magic-nav-item" data-tab="briva" data-index="2" id="bnav-briva">
-          <button type="button" onclick="switchTab('briva'); triggerHaptic();" class="magic-nav-link" aria-label="BRIVA">
-            <div class="magic-icon-wrapper">
-              <span class="magic-icon">
-                <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
-                </svg>
-              </span>
-              <span class="magic-label">BRIVA</span>
-            </div>
-          </button>
-        </li>
-
-        <!-- 4. Akun PPDB -->
-        <li class="magic-nav-item" data-tab="akun" data-index="3" id="bnav-akun">
-          <button type="button" onclick="switchTab('akun'); triggerHaptic();" class="magic-nav-link" aria-label="Akun">
-            <div class="magic-icon-wrapper">
-              <span class="magic-icon">
-                <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-              </span>
-              <span class="magic-label">Akun</span>
-            </div>
-          </button>
-        </li>
-
-        <!-- 5. Menu Lainnya -->
-        <li class="magic-nav-item" data-tab="menu" data-index="4" id="bnav-lainnya">
-          <button type="button" onclick="toggleMobileDrawer(true); triggerHaptic();" class="magic-nav-link" aria-label="Menu">
-            <div class="magic-icon-wrapper">
-              <span class="magic-icon">
-                <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
-                </svg>
-              </span>
-              <span class="magic-label">Menu</span>
-            </div>
-          </button>
-        </li>
-
-        <!-- Floating White Circle Indicator with Scoop Cutout Wings -->
-        <div class="magic-indicator" id="magicNavIndicator"></div>
-      </ul>
-    </nav>
-
-  <!-- FLOATING TOAST NOTIFICATION -->
-  <div id="toastNotification" class="fixed bottom-20 sm:bottom-6 left-3 right-3 sm:left-auto sm:right-8 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 sm:gap-3 bg-slate-900/95 backdrop-blur-sm text-white px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl border border-slate-700 max-w-sm mx-auto sm:mx-0">
-    <div id="toastIconWrapper" class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-      <i data-lucide="check" class="w-4 h-4"></i>
-    </div>
-    <div class="truncate">
-      <p id="toastTitle" class="text-xs font-bold text-white">Berhasil Disalin!</p>
-      <p id="toastMessage" class="text-[11px] text-slate-300 truncate">Data siap ditempel ke Microsoft Excel.</p>
-    </div>
-  </div>
-
-  <!-- MODAL: DAFTAR 31 KODE ID TAGIHAN RESMI BANK BRI -->
-  <div id="modalBriCodes" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeBriCodeModal()">
-    <div class="bg-white dark:bg-[#0f172a] rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-      <!-- Modal Header -->
-      <div class="px-4 py-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white flex items-center justify-between flex-shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-blue-200 border border-white/20 shadow-xs">
-            <i data-lucide="book-open" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-sm sm:text-base text-white tracking-wide flex items-center gap-2">
-              <span>Daftar 31 Kode ID Tagihan Resmi Bank BRI</span>
-              <span class="text-[10px] font-black bg-blue-500/40 text-blue-100 px-2 py-0.5 rounded-full border border-blue-400/40">KOLOM B</span>
-            </h3>
-            <p class="text-xs text-blue-200/90 mt-0.5">Sesuai format resmi CMS BRI & Dokumen YTPAI Babat Lamongan</p>
-          </div>
-        </div>
-        <button type="button" onclick="closeBriCodeModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <!-- Search & Filters -->
-      <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 flex-shrink-0">
-        <div class="relative flex-1">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-          <input 
-            type="text" 
-            id="briCodeModalSearch" 
-            oninput="renderBriCodeModalTable(this.value)" 
-            placeholder="Cari kode atau nama tagihan (cth: Bimbel, 80, Syahriyah, 48, Seragam)..." 
-            class="w-full pl-9 pr-8 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40 transition-all"
-          />
-          <button 
-            type="button" 
-            id="clearBriCodeModalSearchBtn" 
-            onclick="document.getElementById('briCodeModalSearch').value = ''; renderBriCodeModalTable('');" 
-            class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs cursor-pointer"
-          >
-            &times;
-          </button>
-        </div>
-        <span id="briCodeModalBadge" class="text-xs font-bold text-blue-800 dark:text-sky-300 bg-blue-100 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 px-2.5 py-2 rounded-xl whitespace-nowrap">
-          31 Kode
-        </span>
-      </div>
-
-      <!-- Table Container (Scrollable) -->
-      <div class="overflow-y-auto overflow-x-auto flex-1 p-0 divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-950">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead class="bg-slate-100/95 dark:bg-slate-900/95 sticky top-0 z-10 text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 backdrop-blur-xs">
-            <tr>
-              <th class="py-2.5 px-3 w-16 text-center">ID</th>
-              <th class="py-2.5 px-3">Nama Tagihan</th>
-              <th class="py-2.5 px-3 hidden sm:table-cell">Keterangan</th>
-              <th class="py-2.5 px-3 text-right w-24">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="briCodeModalTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60">
-            <!-- Rendered dynamically by JS -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="p-3 sm:px-6 sm:py-3 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 flex-shrink-0 text-xs">
-        <div class="text-slate-500 dark:text-slate-400 text-[11px] flex items-center gap-1.5">
-          <i data-lucide="info" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>
-          <span>Klik <b class="text-slate-700 dark:text-slate-200 font-extrabold">"Pilih"</b> untuk memasukkan kode ke ID Tagihan Utama (KOLOM B).</span>
-        </div>
-        <button type="button" onclick="closeBriCodeModal()" class="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold transition-colors border border-slate-300 dark:border-slate-700 cursor-pointer">
-          Tutup
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <textarea id="hiddenClipboardHelper" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
-
-  <!-- ============================================================== -->
-  <!-- JAVASCRIPT LOGIC & BUSINESS RULES ENGINE                        -->
-  <!-- ============================================================== -->
-  <!-- JAVASCRIPT LOGIC DIPISAH AGAR TIDAK TERPOTONG OLEH EDITOR GOOGLE APPS SCRIPT -->
-    <script>
-    // --- 0. ROBUST SAFETY STUB FOR LUCIDE ICONS (CRITICAL FOR APPS SCRIPT IFRAME) ---
-    window.lucide = window.lucide || {
-      createIcons: function() {}
-    };
+      return {
+        SPOKEN_NUMBERS,
+        normalizeText,
+        stripFillers,
+        similarity,
+        parseBillingIntent,
+        parseTahfidzIntent,
+        dispatchSmartVoiceCommand
+      };
+    })();
 
     // --- 1. PRICING DATABASE DEFINITION ---
     const PRICING_DB = {
@@ -10868,6 +740,7 @@
 
     // --- 4.5. CURVED SCOOP BOTTOM NAVIGATION INDICATOR LOGIC ---
     function updateMagicNavIndicator(tabId) {
+      if (window.innerWidth >= 1024) return;
       const navList = document.getElementById('magicNavList');
       const indicator = document.getElementById('magicNavIndicator');
       if (!navList || !indicator) return;
@@ -10879,7 +752,7 @@
         akun: 3
       };
 
-      const targetIndex = (tabId && tabId in tabIndexMap) ? tabIndexMap[tabId] : 4;
+      const targetIndex = (tabId && tabId in tabIndexMap) ? tabIndexMap[tabId] : 0;
       const items = navList.querySelectorAll('.magic-nav-item');
 
       items.forEach((item, idx) => {
@@ -10896,11 +769,13 @@
         const listRect = navList.getBoundingClientRect();
         if (listRect.width > 0) {
           const itemCenter = (itemRect.left - listRect.left) + (itemRect.width / 2);
-          const indicatorWidth = indicator.offsetWidth || 56;
+          const indicatorWidth = indicator.offsetWidth || 52;
           const targetX = itemCenter - (indicatorWidth / 2);
           indicator.style.transform = `translateX(${targetX}px)`;
+          indicator.style.opacity = '1';
         } else {
-          indicator.style.transform = `translateX(calc(${targetIndex * 20 + 10}vw - 28px))`;
+          indicator.style.transform = `translateX(calc(${targetIndex * 20 + 10}vw - 26px))`;
+          indicator.style.opacity = '1';
         }
       }
     }
@@ -13956,12 +3831,12 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
 
       const statusEl = document.getElementById('ppdbFileStatusText');
       if (statusEl) {
-        statusEl.textContent = `AI Chat WA • ${parsedCount} Santri Terkonversi (Dual-Account)`;
+        statusEl.textContent = `AI Chat WA Ã¢â‚¬¢ ${parsedCount} Santri Terkonversi (Dual-Account)`;
       }
 
       soundSuccess();
       showToast(
-        '✨ Konversi AI Berhasil!', 
+        'âœï¸¨ Konversi AI Berhasil!', 
         `${parsedCount} Santri berhasil diekstrak menjadi 2 Akun (Akun Ortu 11 Kolom + Akun Siswa).`
       );
 
@@ -14652,7 +4527,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       // Perbarui UI
       const statusEl = document.getElementById('ppdbFileStatusText');
       if (statusEl && sourceName) {
-        statusEl.textContent = `${sourceName} • ${currentPpdbSiswaList.length} Siswa Teranalisis`;
+        statusEl.textContent = `${sourceName} Ã¢â‚¬¢ ${currentPpdbSiswaList.length} Siswa Teranalisis`;
       }
 
       renderPpdbAll();
@@ -16033,7 +5908,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
     }
 
     // --- FITUR GULIR TABEL (BUTTON & DRAG-TO-SCROLL MOUSE) ---
-    // Geser kolom dengan tombol [◀] dan [▶]
+    // Geser kolom dengan tombol [◀] dan [Ã¢â€“¶]
     function scrollPpdbTable(type, amount) {
       const id = type === 'ortu' ? 'scrollWrapperPpdbOrtu' : 'scrollWrapperPpdbSiswa';
       const el = document.getElementById(id);
@@ -17157,6 +7032,164 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       showToast('Data Contoh Dimuat', '15 data santri lengkap dengan wali & guru pendamping berhasil dianalisis.');
     }
 
+    // ============================================================================
+    // VOICE ASSISTANT & SMART BILLING GENERATOR UNTUK TAB AKUN PPDB
+    // ============================================================================
+    let akunSpeechRecognitionInstance = null;
+    let isAkunVoiceListening = false;
+
+    function handleAkunVoiceKeydown(e, val) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        processAkunVoiceSmartCommand(val);
+      }
+    }
+
+    function toggleAkunVoiceAssistant() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        if (typeof showToast === 'function') {
+          showToast('Fitur Suara Tidak Didukung', 'Browser Anda belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome di HP/Laptop.', 'warning');
+        } else {
+          alert('Browser ini belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome.');
+        }
+        return;
+      }
+
+      if (isAkunVoiceListening) {
+        stopAkunVoiceAssistant();
+      } else {
+        startAkunVoiceAssistant(SpeechRecognition);
+      }
+    }
+
+    function startAkunVoiceAssistant(SpeechRecognition) {
+      try {
+        akunSpeechRecognitionInstance = new SpeechRecognition();
+        akunSpeechRecognitionInstance.lang = 'id-ID';
+        akunSpeechRecognitionInstance.continuous = false;
+        akunSpeechRecognitionInstance.interimResults = true;
+
+        const banner = document.getElementById('akunVoiceListeningBanner');
+        const liveTranscript = document.getElementById('akunVoiceLiveTranscript');
+        const btn = document.getElementById('btnAkunVoiceAssistant');
+
+        akunSpeechRecognitionInstance.onstart = function() {
+          isAkunVoiceListening = true;
+          if (btn) {
+            btn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-md font-bold text-xs flex items-center gap-1.5 shadow-lg cursor-pointer transition-all border border-rose-400 animate-pulse ring-2 ring-rose-400';
+          }
+          if (banner) banner.classList.remove('hidden');
+          if (liveTranscript) liveTranscript.textContent = 'Mendengarkan... Ucapkan cth: "Buat tagihan santri baru MA Putri kelas 11" atau "Cari akun Salsa"...';
+        };
+
+        akunSpeechRecognitionInstance.onresult = function(event) {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          const activeText = finalTranscript || interimTranscript;
+          if (liveTranscript && activeText) {
+            liveTranscript.textContent = `🗣️ "${activeText}"`;
+          }
+
+          if (finalTranscript && finalTranscript.trim().length > 1) {
+            processAkunVoiceSmartCommand(finalTranscript.trim());
+            stopAkunVoiceAssistant();
+          }
+        };
+
+        akunSpeechRecognitionInstance.onerror = function(event) {
+          console.warn('Akun Speech recognition error:', event.error);
+          stopAkunVoiceAssistant();
+        };
+
+        akunSpeechRecognitionInstance.onend = function() {
+          stopAkunVoiceAssistant();
+        };
+
+        akunSpeechRecognitionInstance.start();
+      } catch (err) {
+        console.error('Failed to start akun speech recognition:', err);
+        stopAkunVoiceAssistant();
+      }
+    }
+
+    function stopAkunVoiceAssistant() {
+      isAkunVoiceListening = false;
+      if (akunSpeechRecognitionInstance) {
+        try { akunSpeechRecognitionInstance.stop(); } catch (e) {}
+        akunSpeechRecognitionInstance = null;
+      }
+      const banner = document.getElementById('akunVoiceListeningBanner');
+      const btn = document.getElementById('btnAkunVoiceAssistant');
+      if (btn) {
+        btn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 text-white rounded-md font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all border border-emerald-300/30';
+      }
+      if (banner) banner.classList.add('hidden');
+    }
+
+    function processAkunVoiceSmartCommand(rawText) {
+      if (!rawText || !rawText.trim()) return false;
+      const originalText = rawText.trim();
+      const normText = typeof SmartVoiceNLP !== 'undefined' ? SmartVoiceNLP.normalizeText(originalText) : originalText.toLowerCase();
+      const cleanText = typeof SmartVoiceNLP !== 'undefined' ? SmartVoiceNLP.stripFillers(normText) : normText;
+
+      const input = document.getElementById('akunVoiceCommandInput');
+      if (input) input.value = originalText;
+
+      // 0. Global tab navigation intent
+      if (typeof SmartVoiceNLP !== 'undefined' && SmartVoiceNLP.dispatchSmartVoiceCommand) {
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\b/i.test(cleanText) && !/\b(tagihan|biaya|akun|santri)\b/i.test(cleanText)) {
+          if (SmartVoiceNLP.dispatchSmartVoiceCommand(originalText)) return true;
+        }
+      }
+
+      // 1. CEK APAKAH PERINTAH PEMBUATAN TAGIHAN (Voice Smart Billing Generator)
+      const parsed = typeof SmartVoiceNLP !== 'undefined' ? SmartVoiceNLP.parseBillingIntent(originalText) : null;
+      if (parsed && parsed.isBilling) {
+        if (typeof generateVoiceSmartBilling === 'function') {
+          return generateVoiceSmartBilling(cleanText, originalText);
+        }
+      }
+
+      // 2. CEK APAKAH SUBTAB SWITCHING
+      if (/\b(ortu|orang\s*tua|wali)\b/i.test(cleanText)) {
+        if (typeof switchPpdbSubtab === 'function') switchPpdbSubtab('ortu');
+        if (typeof showToast === 'function') showToast('Subtab PPDB', 'Beralih ke Akun Orang Tua / Wali', 'info');
+        return true;
+      } else if (/\b(siswa|santri)\b/i.test(cleanText) && !/\b(cari|filter)\b/i.test(cleanText)) {
+        if (typeof switchPpdbSubtab === 'function') switchPpdbSubtab('siswa');
+        if (typeof showToast === 'function') showToast('Subtab PPDB', 'Beralih ke Akun Siswa', 'info');
+        return true;
+      } else if (/\b(guru|pendamping)\b/i.test(cleanText)) {
+        if (typeof switchPpdbSubtab === 'function') switchPpdbSubtab('guru');
+        if (typeof showToast === 'function') showToast('Subtab PPDB', 'Beralih ke Akumulasi Guru Pendamping', 'info');
+        return true;
+      }
+
+      // 3. PENCARIAN AKUN / FILTER
+      const searchInput = document.getElementById('searchPpdbSiswaInput') || document.getElementById('searchPpdbOrtuInput');
+      if (searchInput) {
+        const queryTerm = cleanText.replace(/\b(cari akun|cari santri|cari|tampilkan|data)\b/gi, '').trim() || cleanText;
+        searchInput.value = queryTerm;
+        if (typeof filterPpdbSiswaTable === 'function') filterPpdbSiswaTable();
+        if (typeof filterPpdbOrtuTable === 'function') filterPpdbOrtuTable();
+        if (typeof showToast === 'function') {
+          showToast('🔍 Filter PPDB Diterapkan', `Menyaring "${queryTerm}"`);
+        }
+        return true;
+      }
+      return true;
+    }
+
     // --- 10. CATALOG PRICING HELPERS (DUAL-MODE: KELAS & KATEGORI) ---
     let currentCatalogViewMode = 'class';
     let currentCatalogClassFilter = 'all';
@@ -17451,6 +7484,1393 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       copyToClipboard(messageText, 'Format WA Disalin!', `Rincian ${data.title} berhasil disalin dan siap dikirim.`);
     }
 
+    // =========================================================================
+    // OFFICIAL 4-BOX MATRIX DATA & CANVAS GENERATOR (EXACT MATCH TO OFFICIAL DOC)
+    // =========================================================================
+    const OFFICIAL_CLASS_MATRIX = {
+      '7mts': {
+        title: 'KELAS 7 MTs',
+        classSubtitle: 'RINCIAN PEMBAYARAN KELAS 7 (TUJUH)',
+        tingkat: 'MTs / SMP (Tingkat 1 - Santri Baru)',
+        awalTahun: {
+          vip: [
+            { no: 1, jenis: 'PPDB Sekolah', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 2, jenis: 'Rapor Sekolah', nom: '60.000', vol: 1, jml: '60.000' },
+            { no: 3, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 4, jenis: 'MOS', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 5, jenis: 'KTA/Brizzi', nom: '30.000', vol: 1, jml: '30.000' },
+            { no: 6, jenis: 'PPDB Pondok & Almari', nom: '110.000', vol: 1, jml: '110.000' },
+            { no: 7, jenis: 'Rapor Madin', nom: '30.000', vol: 1, jml: '30.000' },
+            { no: 8, jenis: 'Kasur dan Dipan', nom: '150.000', vol: 1, jml: '150.000' }
+          ],
+          vipTotal: '560.000',
+          reguler: [
+            { no: 1, jenis: 'PPDB Sekolah', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 2, jenis: 'Rapor Sekolah', nom: '60.000', vol: 1, jml: '60.000' },
+            { no: 3, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 4, jenis: 'MOS', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 5, jenis: 'KTA/Brizzi', nom: '30.000', vol: 1, jml: '30.000' },
+            { no: 6, jenis: 'PPDB Pondok & Almari', nom: '110.000', vol: 1, jml: '110.000' },
+            { no: 7, jenis: 'Rapor Madin', nom: '30.000', vol: 1, jml: '30.000' }
+          ],
+          regTotal: '410.000',
+          nonMukim: [
+            { no: 1, jenis: 'PPDB Sekolah', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 2, jenis: 'Rapor Sekolah', nom: '60.000', vol: 1, jml: '60.000' },
+            { no: 3, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 4, jenis: 'MOS', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 5, jenis: 'KTA/Brizzi', nom: '30.000', vol: 1, jml: '30.000' }
+          ],
+          nonMukimTotal: '270.000'
+        },
+        bulanan: {
+          vip: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '223.000', vol: 12, jml: '2.676.000', tiapBln: '223.000' },
+            { no: 2, rincian: 'INFAQ', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          vipTotal1Th: '3.612.000',
+          vipTotalBln: '301.000',
+          vipBulat: '301.000',
+          reguler: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '203.000', vol: 12, jml: '2.436.000', tiapBln: '203.000' },
+            { no: 2, rincian: 'INFAQ', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          regTotal1Th: '3.372.000',
+          regTotalBln: '281.000',
+          regBulat: '281.000',
+          nonMukim: [
+            { no: 1, rincian: 'INFAQ Sekolah', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 2, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 3, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 4, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 5, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 6, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          nonMukimTotal1Th: '876.000',
+          nonMukimTotalBln: '73.000',
+          nonMukimBulat: '73.000'
+        },
+        akhirTahun: {
+          items: [
+            { no: 1, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Kalender', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 3, jenis: 'Pondok Romadlon', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 4, jenis: 'Haflah & Haul', nom: '125.000', vol: 1, jml: '125.000' },
+            { no: 5, jenis: 'Perpustakaan', nom: '50.000', vol: 1, jml: '50.000' }
+          ],
+          total: '325.000'
+        },
+        seragam: {
+          putra: [{ no: 1, jenis: 'Baju Taqwa', nom: '90.000', vol: 1, jml: '90.000' }],
+          putraTotal: '90.000',
+          putri: [
+            { no: 1, jenis: 'Jubah', nom: '120.000', vol: 1, jml: '120.000' },
+            { no: 2, jenis: 'Kerudung', nom: '40.000', vol: 1, jml: '40.000' }
+          ],
+          putriTotal: '160.000',
+          note: 'NB: Pembayaran Seragam Khusus Pondok dilaksanakan pada bulan Oktober'
+        }
+      },
+      '8mts': {
+        title: 'KELAS 8 MTs',
+        classSubtitle: 'RINCIAN PEMBAYARAN KELAS 8 (DELAPAN)',
+        tingkat: 'MTs / SMP (Tingkat 2 - Santri Lanjutan)',
+        awalTahun: {
+          vip: [
+            { no: 1, jenis: 'PPDB Pondok / Daftar Ulang', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Fasilitas & Asrama Lanjutan', nom: '150.000', vol: 1, jml: '150.000' }
+          ],
+          vipTotal: '250.000',
+          reguler: [
+            { no: 1, jenis: 'Daftar Ulang Santri Lanjutan', nom: '100.000', vol: 1, jml: '100.000' }
+          ],
+          regTotal: '100.000',
+          nonMukim: [
+            { no: 1, jenis: 'Daftar Ulang Siswa Lanjutan', nom: '100.000', vol: 1, jml: '100.000' }
+          ],
+          nonMukimTotal: '100.000'
+        },
+        bulanan: {
+          vip: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '223.000', vol: 12, jml: '2.676.000', tiapBln: '223.000' },
+            { no: 2, rincian: 'INFAQ', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          vipTotal1Th: '3.612.000',
+          vipTotalBln: '301.000',
+          vipBulat: '301.000',
+          reguler: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '203.000', vol: 12, jml: '2.436.000', tiapBln: '203.000' },
+            { no: 2, rincian: 'INFAQ', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          regTotal1Th: '3.372.000',
+          regTotalBln: '281.000',
+          regBulat: '281.000',
+          nonMukim: [
+            { no: 1, rincian: 'INFAQ Sekolah', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 2, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 3, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 4, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 5, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 6, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          nonMukimTotal1Th: '876.000',
+          nonMukimTotalBln: '73.000',
+          nonMukimBulat: '73.000'
+        },
+        akhirTahun: {
+          items: [
+            { no: 1, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Kalender', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 3, jenis: 'Pondok Romadlon', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 4, jenis: 'Haflah & Haul', nom: '125.000', vol: 1, jml: '125.000' },
+            { no: 5, jenis: 'Perpustakaan', nom: '50.000', vol: 1, jml: '50.000' }
+          ],
+          total: '325.000'
+        },
+        seragam: {
+          putra: [{ no: 1, jenis: 'Seragam Melanjutkan Kelas 7', nom: '0', vol: 1, jml: '0' }],
+          putraTotal: '0',
+          putri: [{ no: 1, jenis: 'Seragam Melanjutkan Kelas 7', nom: '0', vol: 1, jml: '0' }],
+          putriTotal: '0',
+          note: 'NB: Bebas seragam baru (melanjutkan seragam kelas 7). Santri pindahan wajib paket seragam MTs.'
+        }
+      },
+      '9mts': {
+        title: 'KELAS 9 MTs',
+        classSubtitle: 'RINCIAN PEMBAYARAN KELAS 9 (SEMBILAN)',
+        tingkat: 'MTs / SMP (Tingkat Akhir & Kelulusan)',
+        awalTahun: {
+          vip: [
+            { no: 1, jenis: 'Daftar Ulang Pondok Lanjutan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Fasilitas & Kasur Asrama', nom: '150.000', vol: 1, jml: '150.000' },
+            { no: 3, jenis: 'Daftar Ulang Ujian Akhir', nom: '110.000', vol: 1, jml: '110.000' }
+          ],
+          vipTotal: '360.000',
+          reguler: [
+            { no: 1, jenis: 'Daftar Ulang Lanjutan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Biaya Administrasi Akhir', nom: '110.000', vol: 1, jml: '110.000' }
+          ],
+          regTotal: '210.000',
+          nonMukim: [
+            { no: 1, jenis: 'Daftar Ulang Sekolah', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Administrasi Akhir', nom: '110.000', vol: 1, jml: '110.000' }
+          ],
+          nonMukimTotal: '210.000'
+        },
+        bulanan: {
+          vip: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '223.000', vol: 12, jml: '2.676.000', tiapBln: '223.000' },
+            { no: 2, rincian: 'INFAQ', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 3, rincian: 'PTS & PAS (Disesuaikan)', nom: '105.000', vol: 2, jml: '210.000', tiapBln: '17.500' },
+            { no: 4, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 5, rincian: 'KKM & PERAWATAN', nom: '40.000', vol: 2, jml: '80.000', tiapBln: '6.667' },
+            { no: 6, rincian: 'KEGIATAN & SOSIAL', nom: '40.000', vol: 1, jml: '40.000', tiapBln: '2.667' }
+          ],
+          vipTotal1Th: '3.572.000',
+          vipTotalBln: '297.000',
+          vipBulat: '297.000',
+          reguler: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '203.000', vol: 12, jml: '2.436.000', tiapBln: '203.000' },
+            { no: 2, rincian: 'INFAQ', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 3, rincian: 'PTS & PAS (Disesuaikan)', nom: '105.000', vol: 2, jml: '210.000', tiapBln: '17.500' },
+            { no: 4, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 5, rincian: 'KKM & PERAWATAN', nom: '40.000', vol: 2, jml: '80.000', tiapBln: '6.667' },
+            { no: 6, rincian: 'KEGIATAN & SOSIAL', nom: '40.000', vol: 1, jml: '40.000', tiapBln: '2.667' }
+          ],
+          regTotal1Th: '3.332.000',
+          regTotalBln: '277.000',
+          regBulat: '277.000',
+          nonMukim: [
+            { no: 1, rincian: 'INFAQ Sekolah', nom: '43.000', vol: 12, jml: '516.000', tiapBln: '43.000' },
+            { no: 2, rincian: 'PTS & PAS Disesuaikan', nom: '105.000', vol: 2, jml: '210.000', tiapBln: '17.500' },
+            { no: 3, rincian: 'KKM & PERAWATAN', nom: '40.000', vol: 2, jml: '80.000', tiapBln: '6.667' },
+            { no: 4, rincian: 'KEGIATAN & SOSIAL', nom: '40.000', vol: 1, jml: '40.000', tiapBln: '1.833' }
+          ],
+          nonMukimTotal1Th: '846.000',
+          nonMukimTotalBln: '69.000',
+          nonMukimBulat: '69.000'
+        },
+        akhirTahun: {
+          items: [
+            { no: 1, jenis: 'Ujian Madrasah & Kelulusan', nom: '200.000', vol: 1, jml: '200.000' },
+            { no: 2, jenis: 'Ijazah & Dokumen Kelulusan', nom: '75.000', vol: 1, jml: '75.000' },
+            { no: 3, jenis: 'Kesiswaan & Haflah Haul', nom: '150.000', vol: 1, jml: '150.000' },
+            { no: 4, jenis: 'Kalender & Perpustakaan', nom: '50.000', vol: 1, jml: '50.000' }
+          ],
+          total: '475.000'
+        },
+        seragam: {
+          putra: [{ no: 1, jenis: 'Melanjutkan Seragam MTs', nom: '0', vol: 1, jml: '0' }],
+          putraTotal: '0',
+          putri: [{ no: 1, jenis: 'Melanjutkan Seragam MTs', nom: '0', vol: 1, jml: '0' }],
+          putriTotal: '0',
+          note: 'NB: Bebas seragam baru (melanjutkan seragam kelas sebelumnya).'
+        }
+      },
+      '10ma': {
+        title: 'KELAS 10 MA',
+        classSubtitle: 'RINCIAN PEMBAYARAN KELAS 10 (SEPULUH)',
+        tingkat: 'MA / SMA (Tingkat 1 - Santri Baru)',
+        awalTahun: {
+          vip: [
+            { no: 1, jenis: 'PPDB Sekolah', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 2, jenis: 'Rapor Sekolah', nom: '70.000', vol: 1, jml: '70.000' },
+            { no: 3, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 4, jenis: 'MOS', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 5, jenis: 'KTA/Brizzi', nom: '30.000', vol: 1, jml: '30.000' },
+            { no: 6, jenis: 'PPDB Pondok & Almari', nom: '110.000', vol: 1, jml: '110.000' },
+            { no: 7, jenis: 'Rapor Madin', nom: '30.000', vol: 1, jml: '30.000' },
+            { no: 8, jenis: 'Kasur dan Dipan', nom: '150.000', vol: 1, jml: '150.000' }
+          ],
+          vipTotal: '570.000',
+          reguler: [
+            { no: 1, jenis: 'PPDB Sekolah', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 2, jenis: 'Rapor Sekolah', nom: '70.000', vol: 1, jml: '70.000' },
+            { no: 3, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 4, jenis: 'MOS', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 5, jenis: 'KTA/Brizzi', nom: '30.000', vol: 1, jml: '30.000' },
+            { no: 6, jenis: 'PPDB Pondok & Almari', nom: '110.000', vol: 1, jml: '110.000' },
+            { no: 7, jenis: 'Rapor Madin', nom: '30.000', vol: 1, jml: '30.000' }
+          ],
+          regTotal: '420.000',
+          nonMukim: [
+            { no: 1, jenis: 'PPDB Sekolah', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 2, jenis: 'Rapor Sekolah', nom: '70.000', vol: 1, jml: '70.000' },
+            { no: 3, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 4, jenis: 'MOS', nom: '40.000', vol: 1, jml: '40.000' },
+            { no: 5, jenis: 'KTA/Brizzi', nom: '30.000', vol: 1, jml: '30.000' }
+          ],
+          nonMukimTotal: '280.000'
+        },
+        bulanan: {
+          vip: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '223.000', vol: 12, jml: '2.676.000', tiapBln: '223.000' },
+            { no: 2, rincian: 'INFAQ', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          vipTotal1Th: '4.200.000',
+          vipTotalBln: '350.000',
+          vipBulat: '350.000',
+          reguler: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '203.000', vol: 12, jml: '2.436.000', tiapBln: '203.000' },
+            { no: 2, rincian: 'INFAQ', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          regTotal1Th: '3.960.000',
+          regTotalBln: '330.000',
+          regBulat: '330.000',
+          nonMukim: [
+            { no: 1, rincian: 'INFAQ Sekolah', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 2, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 3, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 4, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 5, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 6, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          nonMukimTotal1Th: '1.464.000',
+          nonMukimTotalBln: '122.000',
+          nonMukimBulat: '122.000'
+        },
+        akhirTahun: {
+          items: [
+            { no: 1, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Kalender', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 3, jenis: 'Pondok Romadlon', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 4, jenis: 'Haflah & Haul', nom: '125.000', vol: 1, jml: '125.000' },
+            { no: 5, jenis: 'Perpustakaan', nom: '60.000', vol: 1, jml: '60.000' }
+          ],
+          total: '335.000'
+        },
+        seragam: {
+          putra: [{ no: 1, jenis: 'Baju Taqwa', nom: '90.000', vol: 1, jml: '90.000' }],
+          putraTotal: '90.000',
+          putri: [
+            { no: 1, jenis: 'Jubah', nom: '120.000', vol: 1, jml: '120.000' },
+            { no: 2, jenis: 'Kerudung', nom: '40.000', vol: 1, jml: '40.000' }
+          ],
+          putriTotal: '160.000',
+          note: 'NB: Pembayaran Seragam Khusus Pondok dilaksanakan pada bulan Oktober'
+        }
+      },
+      '11ma': {
+        title: 'KELAS 11 MA',
+        classSubtitle: 'RINCIAN PEMBAYARAN KELAS 11 (SEBELAS)',
+        tingkat: 'MA / SMA (Tingkat 2 - Santri Lanjutan)',
+        awalTahun: {
+          vip: [
+            { no: 1, jenis: 'PPDB Pondok / Daftar Ulang', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Fasilitas & Asrama Lanjutan', nom: '150.000', vol: 1, jml: '150.000' }
+          ],
+          vipTotal: '250.000',
+          reguler: [
+            { no: 1, jenis: 'Daftar Ulang Santri Lanjutan', nom: '100.000', vol: 1, jml: '100.000' }
+          ],
+          regTotal: '100.000',
+          nonMukim: [
+            { no: 1, jenis: 'Daftar Ulang Siswa Lanjutan', nom: '100.000', vol: 1, jml: '100.000' }
+          ],
+          nonMukimTotal: '100.000'
+        },
+        bulanan: {
+          vip: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '223.000', vol: 12, jml: '2.676.000', tiapBln: '223.000' },
+            { no: 2, rincian: 'INFAQ', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          vipTotal1Th: '4.200.000',
+          vipTotalBln: '350.000',
+          vipBulat: '350.000',
+          reguler: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '203.000', vol: 12, jml: '2.436.000', tiapBln: '203.000' },
+            { no: 2, rincian: 'INFAQ', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 3, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 4, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 5, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 6, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 8, rincian: 'MUHARRAM', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' },
+            { no: 9, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 10, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          regTotal1Th: '3.960.000',
+          regTotalBln: '330.000',
+          regBulat: '330.000',
+          nonMukim: [
+            { no: 1, rincian: 'INFAQ Sekolah', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 2, rincian: 'PTS', nom: '55.000', vol: 2, jml: '110.000', tiapBln: '9.167' },
+            { no: 3, rincian: 'PAS', nom: '70.000', vol: 2, jml: '140.000', tiapBln: '11.667' },
+            { no: 4, rincian: 'KKM', nom: '10.000', vol: 2, jml: '20.000', tiapBln: '1.667' },
+            { no: 5, rincian: 'PERAWATAN', nom: '30.000', vol: 2, jml: '60.000', tiapBln: '5.000' },
+            { no: 6, rincian: 'POSKESTREN', nom: '20.000', vol: 1, jml: '20.000', tiapBln: '1.667' },
+            { no: 7, rincian: 'HUT RI', nom: '10.000', vol: 1, jml: '10.000', tiapBln: '833' }
+          ],
+          nonMukimTotal1Th: '1.464.000',
+          nonMukimTotalBln: '122.000',
+          nonMukimBulat: '122.000'
+        },
+        akhirTahun: {
+          items: [
+            { no: 1, jenis: 'Kesiswaan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Kalender', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 3, jenis: 'Pondok Romadlon', nom: '25.000', vol: 1, jml: '25.000' },
+            { no: 4, jenis: 'Haflah & Haul', nom: '125.000', vol: 1, jml: '125.000' },
+            { no: 5, jenis: 'Perpustakaan', nom: '60.000', vol: 1, jml: '60.000' }
+          ],
+          total: '335.000'
+        },
+        seragam: {
+          putra: [{ no: 1, jenis: 'Seragam Melanjutkan Kelas 10', nom: '0', vol: 1, jml: '0' }],
+          putraTotal: '0',
+          putri: [{ no: 1, jenis: 'Seragam Melanjutkan Kelas 10', nom: '0', vol: 1, jml: '0' }],
+          putriTotal: '0',
+          note: 'NB: Bebas seragam baru (melanjutkan seragam kelas 10). Santri pindahan wajib paket seragam MA.'
+        }
+      },
+      '12ma': {
+        title: 'KELAS 12 MA',
+        classSubtitle: 'RINCIAN PEMBAYARAN KELAS 12 (DUA BELAS)',
+        tingkat: 'MA / SMA (Tingkat Akhir & Wisuda Pelepasan)',
+        awalTahun: {
+          vip: [
+            { no: 1, jenis: 'Daftar Ulang Pondok Lanjutan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Fasilitas & Kasur Asrama', nom: '150.000', vol: 1, jml: '150.000' },
+            { no: 3, jenis: 'Daftar Ulang Ujian Akhir MA', nom: '210.000', vol: 1, jml: '210.000' }
+          ],
+          vipTotal: '460.000',
+          reguler: [
+            { no: 1, jenis: 'Daftar Ulang Lanjutan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Biaya Administrasi Akhir', nom: '210.000', vol: 1, jml: '210.000' }
+          ],
+          regTotal: '310.000',
+          nonMukim: [
+            { no: 1, jenis: 'Daftar Ulang Sekolah', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 2, jenis: 'Administrasi Akhir', nom: '210.000', vol: 1, jml: '210.000' }
+          ],
+          nonMukimTotal: '310.000'
+        },
+        bulanan: {
+          vip: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '223.000', vol: 12, jml: '2.676.000', tiapBln: '223.000' },
+            { no: 2, rincian: 'INFAQ', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 3, rincian: 'PTS & PAS (Disesuaikan)', nom: '105.000', vol: 2, jml: '210.000', tiapBln: '17.500' },
+            { no: 4, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 5, rincian: 'KKM & PERAWATAN', nom: '40.000', vol: 2, jml: '80.000', tiapBln: '6.667' },
+            { no: 6, rincian: 'KEGIATAN & SOSIAL', nom: '40.000', vol: 1, jml: '40.000', tiapBln: '1.667' }
+          ],
+          vipTotal1Th: '4.140.000',
+          vipTotalBln: '345.000',
+          vipBulat: '345.000',
+          reguler: [
+            { no: 1, rincian: 'SYAHRIYAH', nom: '203.000', vol: 12, jml: '2.436.000', tiapBln: '203.000' },
+            { no: 2, rincian: 'INFAQ', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 3, rincian: 'PTS & PAS (Disesuaikan)', nom: '105.000', vol: 2, jml: '210.000', tiapBln: '17.500' },
+            { no: 4, rincian: 'PAS MADIN', nom: '25.000', vol: 2, jml: '50.000', tiapBln: '4.167' },
+            { no: 5, rincian: 'KKM & PERAWATAN', nom: '40.000', vol: 2, jml: '80.000', tiapBln: '6.667' },
+            { no: 6, rincian: 'KEGIATAN & SOSIAL', nom: '40.000', vol: 1, jml: '40.000', tiapBln: '1.667' }
+          ],
+          regTotal1Th: '3.900.000',
+          regTotalBln: '325.000',
+          regBulat: '325.000',
+          nonMukim: [
+            { no: 1, rincian: 'INFAQ Sekolah', nom: '92.000', vol: 12, jml: '1.104.000', tiapBln: '92.000' },
+            { no: 2, rincian: 'PTS & PAS Disesuaikan', nom: '105.000', vol: 2, jml: '210.000', tiapBln: '17.500' },
+            { no: 3, rincian: 'KKM & PERAWATAN', nom: '40.000', vol: 2, jml: '80.000', tiapBln: '6.667' },
+            { no: 4, rincian: 'KEGIATAN & SOSIAL', nom: '40.000', vol: 1, jml: '40.000', tiapBln: '833' }
+          ],
+          nonMukimTotal1Th: '1.404.000',
+          nonMukimTotalBln: '117.000',
+          nonMukimBulat: '117.000'
+        },
+        akhirTahun: {
+          items: [
+            { no: 1, jenis: 'Ujian Madrasah & Asesmen Akhir', nom: '200.000', vol: 1, jml: '200.000' },
+            { no: 2, jenis: 'Ijazah & Dokumen Kelulusan', nom: '100.000', vol: 1, jml: '100.000' },
+            { no: 3, jenis: 'Wisuda & Pelepasan Siswa', nom: '150.000', vol: 1, jml: '150.000' },
+            { no: 4, jenis: 'Haflah, Romadlon & Kalender', nom: '110.000', vol: 1, jml: '110.000' }
+          ],
+          total: '560.000'
+        },
+        seragam: {
+          putra: [{ no: 1, jenis: 'Melanjutkan Seragam MA', nom: '0', vol: 1, jml: '0' }],
+          putraTotal: '0',
+          putri: [{ no: 1, jenis: 'Melanjutkan Seragam MA', nom: '0', vol: 1, jml: '0' }],
+          putriTotal: '0',
+          note: 'NB: Bebas seragam baru (melanjutkan seragam kelas sebelumnya).'
+        }
+      }
+    };
+
+    function drawOfficialCell(ctx, text, x, y, w, h, options = {}) {
+      const {
+        align = 'left',
+        isBold = false,
+        fontSize = 12,
+        bg = '#ffffff',
+        textColor = '#000000',
+        border = true,
+        borderColor = '#000000',
+        padding = 5
+      } = options;
+
+      // Fill background
+      if (bg) {
+        ctx.fillStyle = bg;
+        ctx.fillRect(x, y, w, h);
+      }
+
+      // Draw border
+      if (border) {
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, w, h);
+      }
+
+      // Text
+      if (text !== undefined && text !== null && text !== '') {
+        ctx.fillStyle = textColor;
+        ctx.font = `${isBold ? 'bold ' : ''}${fontSize}px Arial, "Plus Jakarta Sans", sans-serif`;
+        ctx.textBaseline = 'middle';
+
+        let textX = x + padding;
+        if (align === 'center') {
+          ctx.textAlign = 'center';
+          textX = x + (w / 2);
+        } else if (align === 'right') {
+          ctx.textAlign = 'right';
+          textX = x + w - padding;
+        } else {
+          ctx.textAlign = 'left';
+        }
+
+        ctx.fillText(String(text), textX, y + (h / 2));
+      }
+    }
+
+    function generateClassCatalogCanvas(clsKey) {
+      if (clsKey === 'seragam') {
+        return generateSeragamCatalogCanvas();
+      }
+
+      const matrix = OFFICIAL_CLASS_MATRIX[clsKey] || OFFICIAL_CLASS_MATRIX['10ma'];
+      const canvas = document.createElement('canvas');
+      const width = 1240;
+      const height = 1880;
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // Pure White Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      const margin = 20;
+      const gap = 16;
+      const colLeftW = 510;
+      const colRightW = width - (margin * 2) - colLeftW - gap; // 674px
+
+      const colLeftX = margin;
+      const colRightX = margin + colLeftW + gap;
+      let startY = margin;
+
+      // COLOR PALETTE CONSTANTS
+      const C_CYAN = '#b2ebf2';
+      const C_BLACK = '#000000';
+      const C_GREEN_BORDER = '#15803d';
+      const C_PURPLE_BORDER = '#581c87';
+      const C_RED_BORDER = '#991b1b';
+
+      // =======================================================================
+      // 1. BOX 1 (TOP LEFT): BIAYA AWAL TAHUN (BLACK BORDER & HEADER)
+      // =======================================================================
+      let curY1 = startY;
+      const box1X = colLeftX;
+      const box1W = colLeftW;
+
+      // Header Top Text
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText("YTPAI RAUDLATUL MUTA'ALLIMIN LAMONGAN", box1X + (box1W / 2), curY1 + 18);
+      ctx.font = 'bold 13px Arial, sans-serif';
+      ctx.fillText(matrix.classSubtitle, box1X + (box1W / 2), curY1 + 36);
+
+      // Title Bar: BIAYA AWAL TAHUN
+      drawOfficialCell(ctx, 'BIAYA AWAL TAHUN', box1X, curY1 + 45, box1W, 36, {
+        align: 'center', isBold: true, fontSize: 19, bg: C_BLACK, textColor: '#ffffff', border: true
+      });
+      curY1 += 81;
+
+      // Section A: PUTRI-MUKIM (VIP)
+      drawOfficialCell(ctx, 'A. PUTRI-MUKIM (VIP)', box1X, curY1, box1W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_BLACK, textColor: '#ffffff', padding: 8
+      });
+      curY1 += 22;
+
+      // Subheaders Awal Tahun: NO (35) | JENIS (245) | NOMINAL (80) | VOL (45) | JUMLAH (105)
+      const wAwal = [35, 245, 80, 45, 105];
+      const hRow = 20;
+
+      function renderAwalTahunSubheader(y) {
+        let x = box1X;
+        const headers = ['NO', 'JENIS', 'NOMINAL', 'VOL', 'JUMLAH'];
+        const aligns = ['center', 'center', 'center', 'center', 'center'];
+        for (let i = 0; i < headers.length; i++) {
+          drawOfficialCell(ctx, headers[i], x, y, wAwal[i], hRow, {
+            align: aligns[i], isBold: true, fontSize: 11, bg: C_CYAN
+          });
+          x += wAwal[i];
+        }
+      }
+
+      renderAwalTahunSubheader(curY1);
+      curY1 += hRow;
+
+      const itemsVip = matrix.awalTahun.vip || [];
+      itemsVip.forEach(item => {
+        let x = box1X;
+        drawOfficialCell(ctx, item.no, x, curY1, wAwal[0], hRow, { align: 'center', fontSize: 11 }); x += wAwal[0];
+        drawOfficialCell(ctx, item.jenis, x, curY1, wAwal[1], hRow, { align: 'left', fontSize: 11 }); x += wAwal[1];
+        drawOfficialCell(ctx, item.nom, x, curY1, wAwal[2], hRow, { align: 'right', fontSize: 11 }); x += wAwal[2];
+        drawOfficialCell(ctx, item.vol, x, curY1, wAwal[3], hRow, { align: 'center', fontSize: 11 }); x += wAwal[3];
+        drawOfficialCell(ctx, item.jml, x, curY1, wAwal[4], hRow, { align: 'right', fontSize: 11 });
+        curY1 += hRow;
+      });
+
+      // Total VIP
+      let xTot1 = box1X;
+      const spanW1 = wAwal[0] + wAwal[1] + wAwal[2] + wAwal[3];
+      drawOfficialCell(ctx, 'TOTAL', xTot1, curY1, spanW1, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.awalTahun.vipTotal, xTot1 + spanW1, curY1, wAwal[4], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY1 += hRow;
+
+      // Section B: PUTRA/ PUTRI-MUKIM (REGULER)
+      drawOfficialCell(ctx, 'B. PUTRA/ PUTRI-MUKIM (REGULER)', box1X, curY1, box1W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_BLACK, textColor: '#ffffff', padding: 8
+      });
+      curY1 += 22;
+
+      renderAwalTahunSubheader(curY1);
+      curY1 += hRow;
+
+      const itemsReg = matrix.awalTahun.reguler || [];
+      itemsReg.forEach(item => {
+        let x = box1X;
+        drawOfficialCell(ctx, item.no, x, curY1, wAwal[0], hRow, { align: 'center', fontSize: 11 }); x += wAwal[0];
+        drawOfficialCell(ctx, item.jenis, x, curY1, wAwal[1], hRow, { align: 'left', fontSize: 11 }); x += wAwal[1];
+        drawOfficialCell(ctx, item.nom, x, curY1, wAwal[2], hRow, { align: 'right', fontSize: 11 }); x += wAwal[2];
+        drawOfficialCell(ctx, item.vol, x, curY1, wAwal[3], hRow, { align: 'center', fontSize: 11 }); x += wAwal[3];
+        drawOfficialCell(ctx, item.jml, x, curY1, wAwal[4], hRow, { align: 'right', fontSize: 11 });
+        curY1 += hRow;
+      });
+
+      // Total Reguler
+      drawOfficialCell(ctx, 'TOTAL', xTot1, curY1, spanW1, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.awalTahun.regTotal, xTot1 + spanW1, curY1, wAwal[4], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY1 += hRow;
+
+      // Section C: NON MUKIM (MBAJAK)
+      drawOfficialCell(ctx, 'C. NON MUKIM (MBAJAK)', box1X, curY1, box1W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_BLACK, textColor: '#ffffff', padding: 8
+      });
+      curY1 += 22;
+
+      renderAwalTahunSubheader(curY1);
+      curY1 += hRow;
+
+      const itemsNm = matrix.awalTahun.nonMukim || [];
+      itemsNm.forEach(item => {
+        let x = box1X;
+        drawOfficialCell(ctx, item.no, x, curY1, wAwal[0], hRow, { align: 'center', fontSize: 11 }); x += wAwal[0];
+        drawOfficialCell(ctx, item.jenis, x, curY1, wAwal[1], hRow, { align: 'left', fontSize: 11 }); x += wAwal[1];
+        drawOfficialCell(ctx, item.nom, x, curY1, wAwal[2], hRow, { align: 'right', fontSize: 11 }); x += wAwal[2];
+        drawOfficialCell(ctx, item.vol, x, curY1, wAwal[3], hRow, { align: 'center', fontSize: 11 }); x += wAwal[3];
+        drawOfficialCell(ctx, item.jml, x, curY1, wAwal[4], hRow, { align: 'right', fontSize: 11 });
+        curY1 += hRow;
+      });
+
+      // Total Non-Mukim
+      drawOfficialCell(ctx, 'TOTAL', xTot1, curY1, spanW1, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.awalTahun.nonMukimTotal, xTot1 + spanW1, curY1, wAwal[4], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY1 += hRow;
+
+      // Stroke outer border for Box 1
+      ctx.strokeStyle = C_BLACK;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(box1X, startY, box1W, curY1 - startY);
+
+      // =======================================================================
+      // 2. BOX 3 (BOTTOM LEFT): BIAYA AKHIR TAHUN (PURPLE BORDER & HEADER)
+      // =======================================================================
+      const box3Y = curY1 + 18;
+      let curY3 = box3Y;
+
+      // Header Top Text
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText("YTPAI RAUDLATUL MUTA'ALLIMIN LAMONGAN", box1X + (box1W / 2), curY3 + 18);
+      ctx.font = 'bold 13px Arial, sans-serif';
+      ctx.fillText(matrix.classSubtitle, box1X + (box1W / 2), curY3 + 36);
+
+      // Title Bar: BIAYA AKHIR TAHUN
+      drawOfficialCell(ctx, 'BIAYA AKHIR TAHUN', box1X, curY3 + 45, box1W, 36, {
+        align: 'center', isBold: true, fontSize: 19, bg: C_PURPLE_BORDER, textColor: '#ffffff', border: true, borderColor: C_PURPLE_BORDER
+      });
+      curY3 += 81;
+
+      // Section A: VIP/ REGULER/ NON MUKIM
+      drawOfficialCell(ctx, 'A. VIP/ REGULER/ NON MUKIM', box1X, curY3, box1W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_PURPLE_BORDER, textColor: '#ffffff', padding: 8, borderColor: C_PURPLE_BORDER
+      });
+      curY3 += 22;
+
+      renderAwalTahunSubheader(curY3);
+      curY3 += hRow;
+
+      const itemsAkhir = matrix.akhirTahun.items || [];
+      itemsAkhir.forEach(item => {
+        let x = box1X;
+        drawOfficialCell(ctx, item.no, x, curY3, wAwal[0], hRow, { align: 'center', fontSize: 11 }); x += wAwal[0];
+        drawOfficialCell(ctx, item.jenis, x, curY3, wAwal[1], hRow, { align: 'left', fontSize: 11 }); x += wAwal[1];
+        drawOfficialCell(ctx, item.nom, x, curY3, wAwal[2], hRow, { align: 'right', fontSize: 11 }); x += wAwal[2];
+        drawOfficialCell(ctx, item.vol, x, curY3, wAwal[3], hRow, { align: 'center', fontSize: 11 }); x += wAwal[3];
+        drawOfficialCell(ctx, item.jml, x, curY3, wAwal[4], hRow, { align: 'right', fontSize: 11 });
+        curY3 += hRow;
+      });
+
+      // Total Akhir Tahun
+      drawOfficialCell(ctx, 'TOTAL', xTot1, curY3, spanW1, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.akhirTahun.total, xTot1 + spanW1, curY3, wAwal[4], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY3 += hRow;
+
+      // Stroke outer border for Box 3
+      ctx.strokeStyle = C_PURPLE_BORDER;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(box1X, box3Y, box1W, curY3 - box3Y);
+
+      // =======================================================================
+      // 3. BOX 2 (RIGHT COLUMN): BIAYA BULANAN (GREEN BORDER & HEADER)
+      // =======================================================================
+      let curY2 = startY;
+      const box2X = colRightX;
+      const box2W = colRightW;
+
+      // Header Top Text
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 12px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText("YTPAI RAUDLATUL MUTA'ALLIMIN LAMONGAN", box2X + (box2W / 2), curY2 + 18);
+      ctx.font = 'bold 13px Arial, sans-serif';
+      ctx.fillText(matrix.classSubtitle, box2X + (box2W / 2), curY2 + 36);
+
+      // Title Bar: BIAYA BULANAN
+      drawOfficialCell(ctx, 'BIAYA BULANAN', box2X, curY2 + 45, box2W, 36, {
+        align: 'center', isBold: true, fontSize: 19, bg: C_GREEN_BORDER, textColor: '#ffffff', border: true, borderColor: C_GREEN_BORDER
+      });
+      curY2 += 81;
+
+      // Subheaders Bulanan: NO (35) | RINCIAN BIAYA (190) | NOMINAL (Satuan) (110) | DALAM 1 TAHUN (VOL 45, JML 140) | TIAP BULAN (154)
+      const wBln = [35, 190, 110, 45, 140, 154];
+
+      function renderBulananHeader(y) {
+        let x = box2X;
+        // Two-row header
+        // Row 1:
+        drawOfficialCell(ctx, 'NO', x, y, wBln[0], hRow * 2, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN }); x += wBln[0];
+        drawOfficialCell(ctx, 'RINCIAN BIAYA', x, y, wBln[1], hRow * 2, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN }); x += wBln[1];
+        drawOfficialCell(ctx, 'NOMINAL\n(Satuan)', x, y, wBln[2], hRow, { align: 'center', isBold: true, fontSize: 10, bg: C_CYAN });
+        drawOfficialCell(ctx, '(Satuan)', x, y + hRow, wBln[2], hRow, { align: 'center', isBold: true, fontSize: 10, bg: C_CYAN }); x += wBln[2];
+
+        // DALAM 1 TAHUN (Spans VOL & JUMLAH)
+        const spanThnW = wBln[3] + wBln[4];
+        drawOfficialCell(ctx, 'DALAM 1 TAHUN', x, y, spanThnW, hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+        drawOfficialCell(ctx, 'VOL.', x, y + hRow, wBln[3], hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+        drawOfficialCell(ctx, 'JUMLAH', x + wBln[3], y + hRow, wBln[4], hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+        x += spanThnW;
+
+        drawOfficialCell(ctx, 'TIAP', x, y, wBln[5], hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+        drawOfficialCell(ctx, 'BULAN', x, y + hRow, wBln[5], hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+      }
+
+      // SECTION A: PUTRI-MUKIM (VIP)
+      drawOfficialCell(ctx, 'A. PUTRI-MUKIM (VIP)', box2X, curY2, box2W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_GREEN_BORDER, textColor: '#ffffff', padding: 8, borderColor: C_GREEN_BORDER
+      });
+      curY2 += 22;
+
+      renderBulananHeader(curY2);
+      curY2 += (hRow * 2);
+
+      const itemsBlnVip = matrix.bulanan.vip || [];
+      itemsBlnVip.forEach(item => {
+        let x = box2X;
+        drawOfficialCell(ctx, item.no, x, curY2, wBln[0], hRow, { align: 'center', fontSize: 11 }); x += wBln[0];
+        drawOfficialCell(ctx, item.rincian, x, curY2, wBln[1], hRow, { align: 'left', fontSize: 11 }); x += wBln[1];
+        drawOfficialCell(ctx, item.nom, x, curY2, wBln[2], hRow, { align: 'right', fontSize: 11 }); x += wBln[2];
+        drawOfficialCell(ctx, item.vol, x, curY2, wBln[3], hRow, { align: 'center', fontSize: 11 }); x += wBln[3];
+        drawOfficialCell(ctx, item.jml, x, curY2, wBln[4], hRow, { align: 'right', fontSize: 11 }); x += wBln[4];
+        drawOfficialCell(ctx, item.tiapBln, x, curY2, wBln[5], hRow, { align: 'right', fontSize: 11 });
+        curY2 += hRow;
+      });
+
+      // Total VIP Bulanan
+      const spanBlnTot = wBln[0] + wBln[1] + wBln[2] + wBln[3];
+      drawOfficialCell(ctx, 'TOTAL', box2X, curY2, spanBlnTot, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.bulanan.vipTotal1Th, box2X + spanBlnTot, curY2, wBln[4], hRow, { align: 'right', isBold: true, fontSize: 12 });
+      drawOfficialCell(ctx, matrix.bulanan.vipTotalBln, box2X + spanBlnTot + wBln[4], curY2, wBln[5], hRow, { align: 'right', isBold: true, fontSize: 12 });
+      curY2 += hRow;
+
+      // Pembulatan VIP
+      const spanBulat = wBln[0] + wBln[1] + wBln[2] + wBln[3] + wBln[4];
+      drawOfficialCell(ctx, 'Pembulatan Biaya Pendidikan Setiap Bulan', box2X, curY2, spanBulat, hRow, { align: 'center', isBold: true, fontSize: 12, bg: C_CYAN });
+      drawOfficialCell(ctx, matrix.bulanan.vipBulat, box2X + spanBulat, curY2, wBln[5], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY2 += hRow;
+
+      // SECTION B: PUTRA/ PUTRI-MUKIM (REGULER)
+      drawOfficialCell(ctx, 'B. PUTRA/ PUTRI-MUKIM (REGULER)', box2X, curY2, box2W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_GREEN_BORDER, textColor: '#ffffff', padding: 8, borderColor: C_GREEN_BORDER
+      });
+      curY2 += 22;
+
+      renderBulananHeader(curY2);
+      curY2 += (hRow * 2);
+
+      const itemsBlnReg = matrix.bulanan.reguler || [];
+      itemsBlnReg.forEach(item => {
+        let x = box2X;
+        drawOfficialCell(ctx, item.no, x, curY2, wBln[0], hRow, { align: 'center', fontSize: 11 }); x += wBln[0];
+        drawOfficialCell(ctx, item.rincian, x, curY2, wBln[1], hRow, { align: 'left', fontSize: 11 }); x += wBln[1];
+        drawOfficialCell(ctx, item.nom, x, curY2, wBln[2], hRow, { align: 'right', fontSize: 11 }); x += wBln[2];
+        drawOfficialCell(ctx, item.vol, x, curY2, wBln[3], hRow, { align: 'center', fontSize: 11 }); x += wBln[3];
+        drawOfficialCell(ctx, item.jml, x, curY2, wBln[4], hRow, { align: 'right', fontSize: 11 }); x += wBln[4];
+        drawOfficialCell(ctx, item.tiapBln, x, curY2, wBln[5], hRow, { align: 'right', fontSize: 11 });
+        curY2 += hRow;
+      });
+
+      // Total Reguler Bulanan
+      drawOfficialCell(ctx, 'TOTAL', box2X, curY2, spanBlnTot, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.bulanan.regTotal1Th, box2X + spanBlnTot, curY2, wBln[4], hRow, { align: 'right', isBold: true, fontSize: 12 });
+      drawOfficialCell(ctx, matrix.bulanan.regTotalBln, box2X + spanBlnTot + wBln[4], curY2, wBln[5], hRow, { align: 'right', isBold: true, fontSize: 12 });
+      curY2 += hRow;
+
+      // Pembulatan Reguler
+      drawOfficialCell(ctx, 'Pembulatan Biaya Pendidikan Setiap Bulan', box2X, curY2, spanBulat, hRow, { align: 'center', isBold: true, fontSize: 12, bg: C_CYAN });
+      drawOfficialCell(ctx, matrix.bulanan.regBulat, box2X + spanBulat, curY2, wBln[5], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY2 += hRow;
+
+      // SECTION C: NON MUKIM (MBAJAK)
+      drawOfficialCell(ctx, 'C. NON MUKIM (MBAJAK)', box2X, curY2, box2W, 22, {
+        align: 'left', isBold: true, fontSize: 12, bg: C_GREEN_BORDER, textColor: '#ffffff', padding: 8, borderColor: C_GREEN_BORDER
+      });
+      curY2 += 22;
+
+      renderBulananHeader(curY2);
+      curY2 += (hRow * 2);
+
+      const itemsBlnNm = matrix.bulanan.nonMukim || [];
+      itemsBlnNm.forEach(item => {
+        let x = box2X;
+        drawOfficialCell(ctx, item.no, x, curY2, wBln[0], hRow, { align: 'center', fontSize: 11 }); x += wBln[0];
+        drawOfficialCell(ctx, item.rincian, x, curY2, wBln[1], hRow, { align: 'left', fontSize: 11 }); x += wBln[1];
+        drawOfficialCell(ctx, item.nom, x, curY2, wBln[2], hRow, { align: 'right', fontSize: 11 }); x += wBln[2];
+        drawOfficialCell(ctx, item.vol, x, curY2, wBln[3], hRow, { align: 'center', fontSize: 11 }); x += wBln[3];
+        drawOfficialCell(ctx, item.jml, x, curY2, wBln[4], hRow, { align: 'right', fontSize: 11 }); x += wBln[4];
+        drawOfficialCell(ctx, item.tiapBln, x, curY2, wBln[5], hRow, { align: 'right', fontSize: 11 });
+        curY2 += hRow;
+      });
+
+      // Total Non-Mukim Bulanan
+      drawOfficialCell(ctx, 'TOTAL', box2X, curY2, spanBlnTot, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.bulanan.nonMukimTotal1Th, box2X + spanBlnTot, curY2, wBln[4], hRow, { align: 'right', isBold: true, fontSize: 12 });
+      drawOfficialCell(ctx, matrix.bulanan.nonMukimTotalBln, box2X + spanBlnTot + wBln[4], curY2, wBln[5], hRow, { align: 'right', isBold: true, fontSize: 12 });
+      curY2 += hRow;
+
+      // Pembulatan Non-Mukim
+      drawOfficialCell(ctx, 'Pembulatan Biaya Pendidikan Setiap Bulan', box2X, curY2, spanBulat, hRow, { align: 'center', isBold: true, fontSize: 12, bg: C_CYAN });
+      drawOfficialCell(ctx, matrix.bulanan.nonMukimBulat, box2X + spanBulat, curY2, wBln[5], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY2 += hRow;
+
+      // Stroke outer border for Box 2
+      ctx.strokeStyle = C_GREEN_BORDER;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(box2X, startY, box2W, curY2 - startY);
+
+      // =======================================================================
+      // 4. BOX 4 (BOTTOM FULL WIDTH): SERAGAM KHUSUS PONDOK (RED BORDER & HEADER)
+      // =======================================================================
+      const box4Y = Math.max(curY3, curY2) + 20;
+      let curY4 = box4Y;
+      const box4X = margin;
+      const box4W = width - (margin * 2);
+
+      // Title Bar: SERAGAM KHUSUS PONDOK (SANTRI)
+      drawOfficialCell(ctx, 'SERAGAM KHUSUS PONDOK (SANTRI)', box4X, curY4, box4W, 30, {
+        align: 'center', isBold: true, fontSize: 16, bg: C_RED_BORDER, textColor: '#ffffff', border: true, borderColor: C_RED_BORDER
+      });
+      curY4 += 30;
+
+      const subW = (box4W / 2);
+      const wSrgPa = [35, 230, 80, 45, 160];
+      const wSrgPi = [35, 230, 80, 45, 160];
+
+      // Left: A. SANTRI PUTRA
+      drawOfficialCell(ctx, 'A. SANTRI PUTRA', box4X, curY4, subW, 20, {
+        align: 'left', isBold: true, fontSize: 11, bg: C_RED_BORDER, textColor: '#ffffff', padding: 8, borderColor: C_RED_BORDER
+      });
+      // Right: B. SANTRI PUTRI
+      drawOfficialCell(ctx, 'B. SANTRI PUTRI', box4X + subW, curY4, subW, 20, {
+        align: 'left', isBold: true, fontSize: 11, bg: C_RED_BORDER, textColor: '#ffffff', padding: 8, borderColor: C_RED_BORDER
+      });
+      curY4 += 20;
+
+      // Headers for Putra & Putri
+      let xH = box4X;
+      ['NO', 'JENIS', 'NOMINAL', 'VOL', 'JUMLAH'].forEach((h, idx) => {
+        drawOfficialCell(ctx, h, xH, curY4, wSrgPa[idx], hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+        xH += wSrgPa[idx];
+      });
+
+      let xH2 = box4X + subW;
+      ['NO', 'JENIS', 'NOMINAL', 'VOL', 'JUMLAH'].forEach((h, idx) => {
+        drawOfficialCell(ctx, h, xH2, curY4, wSrgPi[idx], hRow, { align: 'center', isBold: true, fontSize: 11, bg: C_CYAN });
+        xH2 += wSrgPi[idx];
+      });
+      curY4 += hRow;
+
+      // Row 1
+      const itemPa1 = (matrix.seragam.putra && matrix.seragam.putra[0]) || { no: 1, jenis: 'Baju Taqwa', nom: '90.000', vol: 1, jml: '90.000' };
+      let xPa = box4X;
+      drawOfficialCell(ctx, itemPa1.no, xPa, curY4, wSrgPa[0], hRow, { align: 'center', fontSize: 11 }); xPa += wSrgPa[0];
+      drawOfficialCell(ctx, itemPa1.jenis, xPa, curY4, wSrgPa[1], hRow, { align: 'left', fontSize: 11 }); xPa += wSrgPa[1];
+      drawOfficialCell(ctx, itemPa1.nom, xPa, curY4, wSrgPa[2], hRow, { align: 'right', fontSize: 11 }); xPa += wSrgPa[2];
+      drawOfficialCell(ctx, itemPa1.vol, xPa, curY4, wSrgPa[3], hRow, { align: 'center', fontSize: 11 }); xPa += wSrgPa[3];
+      drawOfficialCell(ctx, itemPa1.jml, xPa, curY4, wSrgPa[4], hRow, { align: 'right', fontSize: 11 });
+
+      const itemPi1 = (matrix.seragam.putri && matrix.seragam.putri[0]) || { no: 1, jenis: 'Jubah', nom: '120.000', vol: 1, jml: '120.000' };
+      let xPi = box4X + subW;
+      drawOfficialCell(ctx, itemPi1.no, xPi, curY4, wSrgPi[0], hRow, { align: 'center', fontSize: 11 }); xPi += wSrgPi[0];
+      drawOfficialCell(ctx, itemPi1.jenis, xPi, curY4, wSrgPi[1], hRow, { align: 'left', fontSize: 11 }); xPi += wSrgPi[1];
+      drawOfficialCell(ctx, itemPi1.nom, xPi, curY4, wSrgPi[2], hRow, { align: 'right', fontSize: 11 }); xPi += wSrgPi[2];
+      drawOfficialCell(ctx, itemPi1.vol, xPi, curY4, wSrgPi[3], hRow, { align: 'center', fontSize: 11 }); xPi += wSrgPi[3];
+      drawOfficialCell(ctx, itemPi1.jml, xPi, curY4, wSrgPi[4], hRow, { align: 'right', fontSize: 11 });
+      curY4 += hRow;
+
+      // Row 2 (Putra Total vs Putri Row 2)
+      const spanPaTot = wSrgPa[0] + wSrgPa[1] + wSrgPa[2] + wSrgPa[3];
+      drawOfficialCell(ctx, 'TOTAL', box4X, curY4, spanPaTot, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.seragam.putraTotal, box4X + spanPaTot, curY4, wSrgPa[4], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+
+      const itemPi2 = (matrix.seragam.putri && matrix.seragam.putri[1]) || { no: 2, jenis: 'Kerudung', nom: '40.000', vol: 1, jml: '40.000' };
+      xPi = box4X + subW;
+      drawOfficialCell(ctx, itemPi2.no, xPi, curY4, wSrgPi[0], hRow, { align: 'center', fontSize: 11 }); xPi += wSrgPi[0];
+      drawOfficialCell(ctx, itemPi2.jenis, xPi, curY4, wSrgPi[1], hRow, { align: 'left', fontSize: 11 }); xPi += wSrgPi[1];
+      drawOfficialCell(ctx, itemPi2.nom, xPi, curY4, wSrgPi[2], hRow, { align: 'right', fontSize: 11 }); xPi += wSrgPi[2];
+      drawOfficialCell(ctx, itemPi2.vol, xPi, curY4, wSrgPi[3], hRow, { align: 'center', fontSize: 11 }); xPi += wSrgPi[3];
+      drawOfficialCell(ctx, itemPi2.jml, xPi, curY4, wSrgPi[4], hRow, { align: 'right', fontSize: 11 });
+      curY4 += hRow;
+
+      // Row 3 (Putra Empty / Putri Total)
+      drawOfficialCell(ctx, '', box4X, curY4, subW, hRow, { border: true });
+      
+      const spanPiTot = wSrgPi[0] + wSrgPi[1] + wSrgPi[2] + wSrgPi[3];
+      drawOfficialCell(ctx, 'TOTAL', box4X + subW, curY4, spanPiTot, hRow, { align: 'right', isBold: true, fontSize: 12, padding: 10 });
+      drawOfficialCell(ctx, matrix.seragam.putriTotal, box4X + subW + spanPiTot, curY4, wSrgPi[4], hRow, { align: 'right', isBold: true, fontSize: 12, bg: C_CYAN });
+      curY4 += hRow;
+
+      // Footnote NB
+      drawOfficialCell(ctx, matrix.seragam.note || 'NB: Pembayaran Seragam Khusus Pondok dilaksanakan pada bulan Oktober', box4X, curY4, box4W, 26, {
+        align: 'left', isBold: true, fontSize: 12, padding: 10
+      });
+      curY4 += 26;
+
+      // Stroke outer border for Box 4
+      ctx.strokeStyle = C_RED_BORDER;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(box4X, box4Y, box4W, curY4 - box4Y);
+
+      return canvas;
+    }
+
+    // Special Canvas for Full Seragam Catalog Card
+    function generateSeragamCatalogCanvas() {
+      const canvas = document.createElement('canvas');
+      const width = 1200;
+      const height = 1100;
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      const margin = 25;
+      const boxW = width - (margin * 2);
+      let curY = margin;
+
+      // Top Title
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 14px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText("YTPAI RAUDLATUL MUTA'ALLIMIN LAMONGAN", width / 2, curY + 20);
+      ctx.font = 'bold 16px Arial, sans-serif';
+      ctx.fillText("KATALOG LENGKAP SERAGAM SEKOLAH & ATRIBUT PONDOK", width / 2, curY + 42);
+
+      drawOfficialCell(ctx, 'RINCIAN HARGA PAKET SERAGAM & BUSANA MUSLIM PESANTREN', margin, curY + 55, boxW, 40, {
+        align: 'center', isBold: true, fontSize: 18, bg: '#7e22ce', textColor: '#ffffff', border: true
+      });
+      curY += 105;
+
+      const wCols = [50, 320, 520, 260];
+      const hRow = 32;
+
+      // Subheaders
+      const headers = ['NO', 'JENIS PAKET SERAGAM', 'KELENGKAPAN & ATRIBUT', 'NOMINAL (HARGA)'];
+      let x = margin;
+      headers.forEach((h, i) => {
+        drawOfficialCell(ctx, h, x, curY, wCols[i], 36, { align: 'center', isBold: true, fontSize: 12, bg: '#b2ebf2' });
+        x += wCols[i];
+      });
+      curY += 36;
+
+      const items = [
+        { no: 1, name: 'Paket Seragam MTs/SMP Putra', desc: 'Atasan putih/batik/pramuka, celana, kopyah, kaos olahraga & atribut', val: 'Rp 736.000' },
+        { no: 2, name: 'Paket Seragam MTs/SMP Putri', desc: 'Atasan putih/batik/pramuka, rok panjang, kerudung, kaos OR & atribut', val: 'Rp 897.000' },
+        { no: 3, name: 'Paket Seragam MA/SMA Putra', desc: 'Atasan putih/batik/pramuka, celana abu/panjang, kopyah, kaos OR & atribut', val: 'Rp 759.000' },
+        { no: 4, name: 'Paket Seragam MA/SMA Putri', desc: 'Atasan putih/batik/pramuka, rok panjang, kerudung syari, kaos OR & atribut', val: 'Rp 938.000' },
+        { no: 5, name: 'Busana Taqwa Santri (Putra)', desc: 'Seragam muslim resmi ibadah & pengajian santriwan', val: 'Rp 90.000' },
+        { no: 6, name: 'Jubah + Kerudung Santri (Putri)', desc: 'Seragam gamis/jubah syari muslimah & kerudung santriwati', val: 'Rp 160.000' }
+      ];
+
+      items.forEach(it => {
+        let xCell = margin;
+        drawOfficialCell(ctx, it.no, xCell, curY, wCols[0], hRow, { align: 'center', fontSize: 12 }); xCell += wCols[0];
+        drawOfficialCell(ctx, it.name, xCell, curY, wCols[1], hRow, { align: 'left', isBold: true, fontSize: 12, padding: 8 }); xCell += wCols[1];
+        drawOfficialCell(ctx, it.desc, xCell, curY, wCols[2], hRow, { align: 'left', fontSize: 11, padding: 8 }); xCell += wCols[2];
+        drawOfficialCell(ctx, it.val, xCell, curY, wCols[3], hRow, { align: 'right', isBold: true, fontSize: 13, bg: '#f3e8ff', padding: 10 });
+        curY += hRow;
+      });
+
+      // Notes
+      curY += 20;
+      drawOfficialCell(ctx, 'INFORMASI PEMBELIAN & PEMBAYARAN SERAGAM', margin, curY, boxW, 26, {
+        align: 'left', isBold: true, fontSize: 12, bg: '#f1f5f9', padding: 8
+      });
+      curY += 26;
+      drawOfficialCell(ctx, '1. Santri Baru (Kelas 7 MTs & Kelas 10 MA) wajib mengambil paket seragam lengkap pada awal tahun ajaran.', margin, curY, boxW, 24, { fontSize: 11, padding: 8 });
+      curY += 24;
+      drawOfficialCell(ctx, '2. Santri Lanjutan (Kelas 8, 9, 11, 12) melanjutkan seragam yang ada, kecuali santri baru pindahan.', margin, curY, boxW, 24, { fontSize: 11, padding: 8 });
+      curY += 24;
+      drawOfficialCell(ctx, '3. Seragam Khusus Pondok Pesantren (Baju Taqwa / Jubah) dibayarkan dan didistribusikan pada bulan Oktober.', margin, curY, boxW, 24, { isBold: true, fontSize: 11, padding: 8 });
+      curY += 24;
+
+      // Outer border
+      ctx.strokeStyle = '#7e22ce';
+      ctx.lineWidth = 3;
+      return canvas;
+    }
+
+    function openCatalogImageModal(clsKey) {
+      const modal = document.getElementById('modalKatalogImagePreview');
+      const img = document.getElementById('katalogPreviewImg');
+      const titleEl = document.getElementById('katalogPreviewModalTitle');
+
+      if (!modal || !img) return;
+
+      if (modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      const canvas = generateClassCatalogCanvas(clsKey);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const cfg = (typeof OFFICIAL_CLASS_MATRIX !== 'undefined' && OFFICIAL_CLASS_MATRIX[clsKey]) || (typeof CLASS_CATALOG_CONFIG !== 'undefined' && CLASS_CATALOG_CONFIG[clsKey]) || { title: clsKey.toUpperCase() };
+
+      currentKatalogImageData = {
+        clsKey,
+        dataUrl,
+        canvas,
+        title: `Rincian Biaya ${cfg.title}`,
+        fileName: `Rincian_Biaya_${clsKey.toUpperCase()}_YTPAI.jpeg`
+      };
+
+      img.src = dataUrl;
+      if (titleEl) {
+        titleEl.textContent = `Gambar HD: ${cfg.title} (Matriks Resmi)`;
+      }
+
+      modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      modal.style.display = 'flex';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+
+      if (typeof showToast === 'function') {
+        showToast('🖼️ Gambar HD Siap', `Pratinjau rincian biaya ${cfg.title} berkualitas tinggi (JPEG HD).`, 'success');
+      }
+    }
+
+    function closeCatalogImageModal() {
+      const modal = document.getElementById('modalKatalogImagePreview');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+
+    function downloadCurrentKatalogImage() {
+      if (!currentKatalogImageData) return;
+      const { dataUrl, fileName } = currentKatalogImageData;
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = fileName || 'Rincian_Biaya_YTPAI.jpeg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      if (typeof soundSuccess === 'function') soundSuccess();
+      if (typeof showToast === 'function') {
+        showToast('📥 Gambar HD Berhasil Diunduh', `File ${fileName} tersimpan dengan kualitas jernih (JPEG HD).`, 'success');
+      }
+    }
+
+    async function shareCurrentKatalogImage() {
+      if (!currentKatalogImageData) return;
+      const { canvas, fileName, clsKey, title } = currentKatalogImageData;
+
+      try {
+        if (canvas.toBlob && navigator.canShare) {
+          canvas.toBlob(async (blob) => {
+            if (!blob) {
+              downloadCurrentKatalogImage();
+              return;
+            }
+            const file = new File([blob], fileName, { type: 'image/jpeg' });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: title || 'Rincian Biaya Pendidikan YTPAI',
+                text: `Berikut rincian resmi ${title} Pondok Pesantren & Madrasah YTPAI Raudlatul Muta'allimin Babat Lamongan:`,
+                files: [file]
+              });
+              if (typeof showToast === 'function') {
+                showToast('📤 Berhasil Dibagikan', 'Gambar HD siap dikirim via WhatsApp.', 'success');
+              }
+              return;
+            } else {
+              downloadCurrentKatalogImage();
+            }
+          }, 'image/jpeg', 0.95);
+        } else {
+          downloadCurrentKatalogImage();
+        }
+      } catch (err) {
+        console.warn('Share image error / cancelled:', err);
+        downloadCurrentKatalogImage();
+      }
+    }
+
+    function copyCurrentKatalogWaText() {
+      if (!currentKatalogImageData) return;
+      copyClassSummary(currentKatalogImageData.clsKey);
+    }
+
+    // =========================================================================
+    // HD JPEG RECEIPT GENERATOR FOR VOICE SMART BILLING
+    // =========================================================================
+    function generateVoiceBillingCanvas(d) {
+      if (!d) return null;
+      const canvas = document.createElement('canvas');
+      const width = 1200;
+      const height = 1420;
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Background
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, width, height);
+
+      // Radial Glow
+      const gradBg = ctx.createRadialGradient(width / 2, 200, 50, width / 2, 200, 700);
+      gradBg.addColorStop(0, 'rgba(30, 41, 59, 0.85)');
+      gradBg.addColorStop(1, 'rgba(9, 13, 22, 1)');
+      ctx.fillStyle = gradBg;
+      ctx.fillRect(0, 0, width, height);
+
+      // 2. Header
+      const headGrad = ctx.createLinearGradient(40, 40, width - 40, 220);
+      headGrad.addColorStop(0, '#c2410c');
+      headGrad.addColorStop(0.5, '#ea580c');
+      headGrad.addColorStop(1, '#059669');
+      drawRoundedBox(ctx, 40, 40, width - 80, 180, 26, headGrad, 'rgba(255, 255, 255, 0.25)', 2);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('YAYASAN TARBIYATUL MUBTADI\'IN (YTPAI) • BABAT LAMONGAN', 80, 85);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 30px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('RINCIAN RESMI TAGIHAN AWAL SANTRI', 80, 126);
+
+      ctx.fillStyle = '#fef08a';
+      ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`Santri: ${d.jenjang} ${d.genderLabel} • Kelas ${d.kelas} (${d.tipeLabel})`, 80, 168);
+
+      // Status Pill
+      const statusPill = d.statusSantri.toUpperCase();
+      ctx.font = '800 18px "Plus Jakarta Sans", sans-serif';
+      const pillW = ctx.measureText(statusPill).width + 36;
+      drawRoundedBox(ctx, width - 80 - pillW, 70, pillW, 44, 22, '#ffffff', 'transparent');
+      ctx.fillStyle = '#ea580c';
+      ctx.textAlign = 'center';
+      ctx.fillText(statusPill, width - 80 - (pillW / 2), 99);
+
+      let currentY = 250;
+
+      // Profile Row
+      const colW = (width - 80 - 36) / 4;
+      const profileData = [
+        { label: 'Jenjang Pendidikan', val: d.jenjang, color: '#fb923c' },
+        { label: 'Jenis Kelamin', val: d.genderLabel, color: '#818cf8' },
+        { label: 'Tingkat Kelas', val: `Kelas ${d.kelas}`, color: '#fbbf24' },
+        { label: 'Kategori Santri', val: d.tipeLabel, color: '#34d399' }
+      ];
+
+      for (let i = 0; i < profileData.length; i++) {
+        const p = profileData[i];
+        const pX = 40 + (i * (colW + 12));
+        drawRoundedBox(ctx, pX, currentY, colW, 95, 18, '#111827', '#334155', 1.5);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(p.label, pX + (colW / 2), currentY + 34);
+
+        ctx.fillStyle = p.color;
+        ctx.font = '800 22px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(p.val, pX + (colW / 2), currentY + 70);
+      }
+
+      currentY += 125;
+
+      // Itemized Table
+      drawRoundedBox(ctx, 40, currentY, width - 80, 480, 24, '#111827', '#334155', 1.5);
+
+      // Table Header
+      drawRoundedBox(ctx, 40, currentY, width - 80, 56, [24, 24, 0, 0], '#1e293b', 'transparent');
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('KOMPONEN POS BIAYA', 75, currentY + 36);
+
+      ctx.textAlign = 'right';
+      ctx.fillText('NOMINAL TAGIHAN', width - 75, currentY + 36);
+
+      const items = [
+        { name: '1. Biaya Awal Tahun / Pendaftaran Masuk', desc: 'Pedoman administrasi pendaftaran santri baru / pindahan', val: d.rateAwal },
+        { name: `2. Paket Seragam Sekolah (${d.jenjang} ${d.genderLabel})`, desc: 'Atasan, bawahan/rok, kerudung/kopyah, kaos OR & atribut', val: d.rateSergSek },
+        { name: `3. Paket Seragam Pesantren (${d.genderLabel})`, desc: d.tipe === 'mbajak' ? 'Bebas seragam pondok (Santri Non-Mukim / Mbajak)' : 'Seragam khas pesantren santri mukim & perlengkapan', val: d.rateSergPond },
+        { name: `4. SPP / Syahriyah Bulanan (${d.bulanMasuk})`, desc: `Iuran pendidikan bulan pendaftaran aktif (${d.bulanMasuk})`, val: d.rateSpp }
+      ];
+
+      let rowY = currentY + 56;
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        if (i % 2 === 1) {
+          ctx.fillStyle = 'rgba(30, 41, 59, 0.4)';
+          ctx.fillRect(41, rowY, width - 82, 80);
+        }
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(it.name, 75, rowY + 34);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '500 15px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(it.desc, 75, rowY + 62);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '800 24px "Plus Jakarta Sans", monospace';
+        ctx.fillText('Rp ' + it.val.toLocaleString('id-ID'), width - 75, rowY + 48);
+
+        rowY += 80;
+      }
+
+      // Grand Total Highlight Banner
+      drawRoundedBox(ctx, 41, rowY, width - 82, 104, [0, 0, 24, 24], '#1e1b4b', '#4338ca', 2);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#a5b4fc';
+      ctx.font = '800 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('TOTAL TAGIHAN AWAL SANTRI', 75, rowY + 42);
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Siap dibayarkan melalui Virtual Account BRIVA resmi', 75, rowY + 74);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '900 42px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Rp ' + d.total.toLocaleString('id-ID'), width - 75, rowY + 65);
+
+      currentY += 510;
+
+      // BRIVA Instruction Box
+      drawRoundedBox(ctx, 40, currentY, width - 80, 110, 20, '#111827', '#059669', 1.5);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#34d399';
+      ctx.font = '800 19px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('💳 SISTEM PEMBAYARAN ONLINE BRIVA (BANK BRI)', 70, currentY + 40);
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '500 16px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Nomor registrasi santri digunakan sebagai kode pembayaran BRIVA resmi.', 70, currentY + 72);
+      ctx.fillText('Pembayaran dapat dilakukan melalui BRImo, ATM BRI, Agen BRILink, atau Transfer Bank Lain.', 70, currentY + 95);
+
+      currentY += 135;
+
+      // Footer
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(40, currentY);
+      ctx.lineTo(width - 40, currentY);
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Bagian Administrasi & Keuangan YTPAI Raudlatul Muta\'allimin Babat Lamongan', 40, currentY + 30);
+
+      ctx.textAlign = 'right';
+      const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      ctx.fillText(`Partner Fatih Voice Engine • Dokumen Resmi HD • ${todayStr}`, width - 40, currentY + 30);
+
+      return canvas;
+    }
+
+    function downloadVoiceBillingCardImage() {
+      if (!currentVoiceBillingData) {
+        if (typeof showToast === 'function') {
+          showToast('Data Tidak Tersedia', 'Silakan hitung tagihan terlebih dahulu.', 'warning');
+        }
+        return;
+      }
+      const d = currentVoiceBillingData;
+      const canvas = generateVoiceBillingCanvas(d);
+      if (!canvas) return;
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const fileName = `Tagihan_${d.statusSantri.replace(/\s+/g, '_')}_${d.jenjang}_${d.genderLabel}_Kelas_${d.kelas}.jpeg`;
+
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      if (typeof soundSuccess === 'function') soundSuccess();
+      if (typeof showToast === 'function') {
+        showToast('📥 Gambar HD Disimpan', `File JPEG HD tagihan ${d.jenjang} ${d.genderLabel} berhasil diunduh.`, 'success');
+      }
+    }
+
     function searchCatalogTables() {
       const q = (document.getElementById('catalogSearchInput')?.value || '').toLowerCase().trim();
       const clearBtn = document.getElementById('clearCatalogSearchBtn');
@@ -17641,6 +9061,189 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
     let brivaRowMode = 'split_full'; // 'split_full' | 'split_category' | 'accumulate'
     let brivaInputMode = 'mass'; // 'mass' | 'manual'
     let brivaManualSantriList = [];
+
+    // --- UNDO & REDO STATE HISTORY SYSTEM ---
+    let brivaUndoStack = [];
+    let brivaRedoStack = [];
+    let isBrivaHistoryLocked = false;
+    const BRIVA_MAX_HISTORY = 35;
+
+    function captureBrivaStateSnapshot(actionLabel = 'Perubahan Tagihan') {
+      return {
+        label: actionLabel,
+        timestamp: Date.now(),
+        inputMode: brivaInputMode || 'mass',
+        rowMode: brivaRowMode || 'split_full',
+        selectedMonths: [...(brivaSelectedMonths || ['09'])],
+        manualSantriList: JSON.parse(JSON.stringify(brivaManualSantriList || [])),
+        massNumbers: document.getElementById('brivaInputNumbers')?.value || '',
+        idTagihan: document.getElementById('brivaIdTagihan')?.value || '62',
+        jumlahTagihan: document.getElementById('brivaJumlahTagihan')?.value || '',
+        tglEfektif: document.getElementById('brivaTglEfektif')?.value || '',
+        tglJatuhTempo: document.getElementById('brivaTglJatuhTempo')?.value || '',
+        jenjang: document.getElementById('brivaDefaultJenjang')?.value || 'sltp',
+        kelas: document.getElementById('brivaDefaultKelas')?.value || '7',
+        status: document.getElementById('brivaDefaultStatus')?.value || 'reguler',
+        gender: document.getElementById('brivaDefaultGender')?.value || 'PA',
+        incAwal: document.getElementById('brivaIncAwal')?.checked ?? false,
+        incSergSek: document.getElementById('brivaIncSergSek')?.checked ?? false,
+        incSergPond: document.getElementById('brivaIncSergPond')?.checked ?? false,
+        incAkhir: document.getElementById('brivaIncAkhir')?.checked ?? false,
+        incBulanan: document.getElementById('brivaIncBulanan')?.checked ?? true
+      };
+    }
+
+    function recordBrivaHistory(actionLabel = 'Ubah Data') {
+      if (isBrivaHistoryLocked) return;
+      const snapshot = captureBrivaStateSnapshot(actionLabel);
+      
+      if (brivaUndoStack.length > 0) {
+        const last = brivaUndoStack[brivaUndoStack.length - 1];
+        if (JSON.stringify(last.manualSantriList) === JSON.stringify(snapshot.manualSantriList) &&
+            last.massNumbers === snapshot.massNumbers &&
+            last.idTagihan === snapshot.idTagihan &&
+            last.jumlahTagihan === snapshot.jumlahTagihan &&
+            last.rowMode === snapshot.rowMode &&
+            last.inputMode === snapshot.inputMode &&
+            last.kelas === snapshot.kelas &&
+            last.jenjang === snapshot.jenjang) {
+          return;
+        }
+      }
+
+      brivaUndoStack.push(snapshot);
+      if (brivaUndoStack.length > BRIVA_MAX_HISTORY) {
+        brivaUndoStack.shift();
+      }
+      brivaRedoStack = [];
+      updateBrivaUndoRedoUI();
+    }
+
+    function restoreBrivaStateSnapshot(snapshot) {
+      if (!snapshot) return;
+      isBrivaHistoryLocked = true;
+
+      try {
+        brivaInputMode = snapshot.inputMode || 'mass';
+        brivaRowMode = snapshot.rowMode || 'split_full';
+        brivaSelectedMonths = [...(snapshot.selectedMonths || ['09'])];
+        brivaManualSantriList = JSON.parse(JSON.stringify(snapshot.manualSantriList || []));
+
+        const elNumbers = document.getElementById('brivaInputNumbers');
+        if (elNumbers) elNumbers.value = snapshot.massNumbers || '';
+
+        const elId = document.getElementById('brivaIdTagihan');
+        if (elId) elId.value = snapshot.idTagihan || '62';
+
+        const elJumlah = document.getElementById('brivaJumlahTagihan');
+        if (elJumlah) elJumlah.value = snapshot.jumlahTagihan || '';
+
+        const elTglEf = document.getElementById('brivaTglEfektif');
+        if (elTglEf) elTglEf.value = snapshot.tglEfektif || '';
+
+        const elTglTp = document.getElementById('brivaTglJatuhTempo');
+        if (elTglTp) elTglTp.value = snapshot.tglJatuhTempo || '';
+
+        const elJenjang = document.getElementById('brivaDefaultJenjang');
+        if (elJenjang) elJenjang.value = snapshot.jenjang || 'sltp';
+
+        const elKelas = document.getElementById('brivaDefaultKelas');
+        if (elKelas) elKelas.value = snapshot.kelas || '7';
+
+        const elStatus = document.getElementById('brivaDefaultStatus');
+        if (elStatus) elStatus.value = snapshot.status || 'reguler';
+
+        const elGender = document.getElementById('brivaDefaultGender');
+        if (elGender) elGender.value = snapshot.gender || 'PA';
+
+        const elIncAwal = document.getElementById('brivaIncAwal');
+        if (elIncAwal) elIncAwal.checked = snapshot.incAwal ?? false;
+
+        const elIncSergSek = document.getElementById('brivaIncSergSek');
+        if (elIncSergSek) elIncSergSek.checked = snapshot.incSergSek ?? false;
+
+        const elIncSergPond = document.getElementById('brivaIncSergPond');
+        if (elIncSergPond) elIncSergPond.checked = snapshot.incSergPond ?? false;
+
+        const elIncAkhir = document.getElementById('brivaIncAkhir');
+        if (elIncAkhir) elIncAkhir.checked = snapshot.incAkhir ?? false;
+
+        const elIncBulanan = document.getElementById('brivaIncBulanan');
+        if (elIncBulanan) elIncBulanan.checked = snapshot.incBulanan ?? true;
+
+        if (typeof setBrivaRowMode === 'function') {
+          setBrivaRowMode(brivaRowMode);
+        }
+        if (typeof setBrivaInputMode === 'function') {
+          setBrivaInputMode(brivaInputMode);
+        }
+        if (typeof renderManualSantriCards === 'function') {
+          renderManualSantriCards();
+        }
+        if (typeof renderBrivaMonthPills === 'function') {
+          renderBrivaMonthPills();
+        }
+        if (typeof runBrivaGenerator === 'function') {
+          runBrivaGenerator();
+        }
+      } finally {
+        isBrivaHistoryLocked = false;
+      }
+    }
+
+    function brivaUndo() {
+      if (brivaUndoStack.length <= 1) {
+        if (typeof showToast === 'function') {
+          showToast('Tidak Ada Riwayat Undo', 'Belum ada perubahan sebelumnya untuk dibatalkan.', 'info');
+        }
+        return;
+      }
+
+      const current = brivaUndoStack.pop();
+      brivaRedoStack.push(current);
+
+      const prev = brivaUndoStack[brivaUndoStack.length - 1];
+      restoreBrivaStateSnapshot(prev);
+      updateBrivaUndoRedoUI();
+
+      if (typeof playTone === 'function') playTone(440, 0.08);
+      if (typeof showToast === 'function') {
+        showToast('↩️ Undo Berhasil', `Mengembalikan: "${prev.label || 'Sebelumnya'}"`, 'info');
+      }
+    }
+
+    function brivaRedo() {
+      if (brivaRedoStack.length === 0) {
+        if (typeof showToast === 'function') {
+          showToast('Tidak Ada Riwayat Redo', 'Semua perubahan terkini sudah diterapkan.', 'info');
+        }
+        return;
+      }
+
+      const next = brivaRedoStack.pop();
+      brivaUndoStack.push(next);
+      restoreBrivaStateSnapshot(next);
+      updateBrivaUndoRedoUI();
+
+      if (typeof playTone === 'function') playTone(580, 0.08);
+      if (typeof showToast === 'function') {
+        showToast('↪️ Redo Berhasil', `Menerapkan kembali: "${next.label || 'Perubahan'}"`, 'info');
+      }
+    }
+
+    function updateBrivaUndoRedoUI() {
+      const btnUndo = document.getElementById('btnBrivaUndo');
+      const btnRedo = document.getElementById('btnBrivaRedo');
+
+      if (btnUndo) {
+        btnUndo.disabled = brivaUndoStack.length <= 1;
+        btnUndo.title = brivaUndoStack.length > 1 ? `Undo (${brivaUndoStack.length - 1} langkah tersimpan - Ctrl+Z)` : 'Tidak ada riwayat undo';
+      }
+      if (btnRedo) {
+        btnRedo.disabled = brivaRedoStack.length === 0;
+        btnRedo.title = brivaRedoStack.length > 0 ? `Redo (${brivaRedoStack.length} langkah tersimpan - Ctrl+Y)` : 'Tidak ada riwayat redo';
+      }
+    }
 
     // --- MODE SWITCHER: MASSAL (TEKS) VS SANTRI MANUAL (PER-BRIVA) ---
     function setBrivaInputMode(mode) {
@@ -18036,6 +9639,600 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       if (nomInput && defaultAmt) nomInput.value = defaultAmt;
       runBrivaGenerator();
     }
+
+    // ============================================================================
+    // VOICE ASSISTANT & SMART BILLING GENERATOR UNTUK TAB BRIVA
+    // ============================================================================
+    let brivaSpeechRecognitionInstance = null;
+    let isBrivaVoiceListening = false;
+
+    function handleBrivaVoiceKeydown(e, val) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        processBrivaVoiceSmartCommand(val);
+      }
+    }
+
+    function toggleBrivaVoiceAssistant() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        if (typeof showToast === 'function') {
+          showToast('Fitur Suara Tidak Didukung', 'Browser Anda belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome di HP/Laptop.', 'warning');
+        } else {
+          alert('Browser ini belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome.');
+        }
+        return;
+      }
+
+      if (isBrivaVoiceListening) {
+        stopBrivaVoiceAssistant();
+      } else {
+        startBrivaVoiceAssistant(SpeechRecognition);
+      }
+    }
+
+    function startBrivaVoiceAssistant(SpeechRecognition) {
+      try {
+        brivaSpeechRecognitionInstance = new SpeechRecognition();
+        brivaSpeechRecognitionInstance.lang = 'id-ID';
+        brivaSpeechRecognitionInstance.continuous = false;
+        brivaSpeechRecognitionInstance.interimResults = true;
+
+        const banner = document.getElementById('brivaVoiceListeningBanner');
+        const liveTranscript = document.getElementById('brivaVoiceLiveTranscript');
+        const btn = document.getElementById('btnBrivaVoiceAssistant');
+
+        brivaSpeechRecognitionInstance.onstart = function() {
+          isBrivaVoiceListening = true;
+          if (btn) {
+            btn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-none font-bold text-xs flex items-center gap-1.5 shadow-lg cursor-pointer transition-all border border-rose-400 animate-pulse ring-2 ring-rose-400';
+          }
+          if (banner) banner.classList.remove('hidden');
+          if (liveTranscript) liveTranscript.textContent = 'Mendengarkan... Ucapkan cth: "Buat tagihan santri baru MA Putri kelas 11" atau "Set ID tagihan 62"...';
+        };
+
+        brivaSpeechRecognitionInstance.onresult = function(event) {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          const activeText = finalTranscript || interimTranscript;
+          if (liveTranscript && activeText) {
+            liveTranscript.textContent = `🗣️ "${activeText}"`;
+          }
+
+          if (finalTranscript && finalTranscript.trim().length > 1) {
+            processBrivaVoiceSmartCommand(finalTranscript.trim());
+          }
+        };
+
+        brivaSpeechRecognitionInstance.onerror = function(event) {
+          console.warn('BRIVA Speech recognition error:', event.error);
+          stopBrivaVoiceAssistant();
+        };
+
+        brivaSpeechRecognitionInstance.onend = function() {
+          stopBrivaVoiceAssistant();
+        };
+
+        brivaSpeechRecognitionInstance.start();
+      } catch (err) {
+        console.error('Failed to start briva speech recognition:', err);
+        stopBrivaVoiceAssistant();
+      }
+    }
+
+    function stopBrivaVoiceAssistant() {
+      isBrivaVoiceListening = false;
+      if (brivaSpeechRecognitionInstance) {
+        try { brivaSpeechRecognitionInstance.stop(); } catch (e) {}
+        brivaSpeechRecognitionInstance = null;
+      }
+      const banner = document.getElementById('brivaVoiceListeningBanner');
+      const btn = document.getElementById('btnBrivaVoiceAssistant');
+      if (btn) {
+        btn.className = 'absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 active:scale-95 text-white rounded-none font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all border border-orange-300/30';
+      }
+      if (banner) banner.classList.add('hidden');
+    }
+
+    function processBrivaVoiceSmartCommand(rawText) {
+      if (!rawText || !rawText.trim()) return false;
+      const originalText = rawText.trim();
+      const normText = typeof SmartVoiceNLP !== 'undefined' ? SmartVoiceNLP.normalizeText(originalText) : originalText.toLowerCase();
+      const cleanText = typeof SmartVoiceNLP !== 'undefined' ? SmartVoiceNLP.stripFillers(normText) : normText;
+      const text = normText;
+
+      const input = document.getElementById('brivaVoiceCommandInput');
+      if (input) input.value = originalText;
+
+      // 0. CEK PERINTAH NAVIGASI GLOBAL ATAU TEMA
+      if (typeof SmartVoiceNLP !== 'undefined' && SmartVoiceNLP.dispatchSmartVoiceCommand) {
+        // Only run navigation checks if not a direct billing creation
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab|tema|mode)\b/i.test(cleanText) && !/\b(tagihan|biaya|spp|buat|bikin)\b/i.test(cleanText)) {
+          if (SmartVoiceNLP.dispatchSmartVoiceCommand(originalText)) return true;
+        }
+      }
+
+      // 1. CEK PERINTAH UNDO & REDO
+      if (/\b(undo|kembalikan|batal|batalkan)\b/i.test(cleanText)) {
+        brivaUndo();
+        return true;
+      } else if (/\b(redo|ulangi|kembali lagi)\b/i.test(cleanText)) {
+        brivaRedo();
+        return true;
+      }
+
+      // 2. CEK PERINTAH MODE BARIS
+      if (/\b(pecah rinci|split full|rinci)\b/i.test(cleanText)) {
+        setBrivaRowMode('split_full');
+        if (typeof speakHumasAnswer === 'function') speakHumasAnswer('Mode baris diatur ke Pecah Rinci ke Bawah.');
+        if (typeof showToast === 'function') showToast('Mode Baris BRIVA', 'Mode Pecah Rinci Aktif.', 'info');
+        return true;
+      } else if (/\b(pecah kategori|kategori)\b/i.test(cleanText)) {
+        setBrivaRowMode('split_category');
+        if (typeof speakHumasAnswer === 'function') speakHumasAnswer('Mode baris diatur ke Pecah Kategori.');
+        if (typeof showToast === 'function') showToast('Mode Baris BRIVA', 'Mode Pecah Kategori Aktif.', 'info');
+        return true;
+      } else if (/\b(1 baris|satu baris|akumulasi)\b/i.test(cleanText)) {
+        setBrivaRowMode('accumulate');
+        if (typeof speakHumasAnswer === 'function') speakHumasAnswer('Mode baris diatur ke Akumulasi 1 Baris.');
+        if (typeof showToast === 'function') showToast('Mode Baris BRIVA', 'Mode Akumulasi 1 Baris Aktif.', 'info');
+        return true;
+      }
+
+      // 3. CEK PERINTAH SET ID TAGIHAN (Mendukung angka lisan seperti "enam puluh dua" -> 62)
+      const matchId = cleanText.match(/\b(?:set\s*id|id\s*tagihan|id)\s*(\d+)\b/i);
+      if (matchId && matchId[1]) {
+        const idInput = document.getElementById('brivaIdTagihan');
+        if (idInput) {
+          idInput.value = matchId[1];
+          if (typeof speakHumasAnswer === 'function') speakHumasAnswer(`ID tagihan diatur ke ${matchId[1]}.`);
+          if (typeof showToast === 'function') showToast('ID Tagihan Diubah', `ID Tagihan: ${matchId[1]}`, 'success');
+          return true;
+        }
+      }
+
+      // 4. CEK PERINTAH PEMBUATAN TAGIHAN SANTRI BARU / PINDAHAN / REGULER VIA SMART NLP
+      const parsed = typeof SmartVoiceNLP !== 'undefined' ? SmartVoiceNLP.parseBillingIntent(originalText) : null;
+      if (parsed && parsed.isBilling) {
+        const brivaSearch = document.getElementById('brivaTableSearch');
+        if (brivaSearch) brivaSearch.value = '';
+        return generateVoiceSmartBilling(cleanText, originalText);
+      }
+
+      // 5. CEK PERINTAH GENERATE / RESET
+      if (/\b(proses|generate|buat sekarang|terbitkan)\b/i.test(cleanText)) {
+        const btnGen = document.getElementById('btnGenerateBriva');
+        if (btnGen) btnGen.click();
+        return true;
+      } else if (/\b(reset)\b/i.test(cleanText)) {
+        resetBrivaGenerator();
+        return true;
+      }
+
+      // 6. Fallback ke billing jika mengandung kata kelas atau jenjang
+      if (/\b(ma|mts|smp|sma|mi|kelas\s*\d+|\b\d+\s*ma|\b\d+\s*mts)\b/i.test(cleanText)) {
+        return generateVoiceSmartBilling(cleanText, originalText);
+      }
+
+      // Default: Cari di tabel tagihan BRIVA hanya jika berupa nomor/keyword pendek
+      const brivaSearch = document.getElementById('brivaTableSearch');
+      if (brivaSearch) {
+        brivaSearch.value = originalText;
+        renderBrivaTable();
+        if (typeof showToast === 'function') {
+          showToast('🔍 Filter BRIVA', `Menyaring data "${originalText}"`, 'info');
+        }
+      }
+      return true;
+    }
+
+    function handleBrivaTableSearchInput(val) {
+      const trimmed = (val || '').trim();
+      const isVoiceOrCmd = /\b(buat tagihan|tagihan|biaya|hitung tagihan|tarif|buatkan tagihan|rincian tagihan|biaya masuk|pembayaran|pindah|pindahan|pindahak)\b/i.test(trimmed);
+      if (isVoiceOrCmd) {
+        processBrivaVoiceSmartCommand(trimmed);
+        const brivaSearch = document.getElementById('brivaTableSearch');
+        if (brivaSearch) brivaSearch.value = '';
+        renderBrivaTable();
+        return;
+      }
+      renderBrivaTable();
+    }
+
+    // =========================================================================
+    // VOICE SMART BILLING ENGINE & MUKIM / NON-MUKIM CONFIRMATION SYSTEM
+    // =========================================================================
+    let currentVoiceBillingData = null;
+    let pendingVoiceBillingState = null;
+
+    function openConfirmMukimModal(originalText, text) {
+      pendingVoiceBillingState = { originalText, text };
+
+      const modal = document.getElementById('modalConfirmMukimStatus');
+      if (!modal) return;
+
+      if (modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      const elParsed = document.getElementById('confirmMukimParsedCmd');
+      if (elParsed) elParsed.textContent = `"${originalText}"`;
+
+      modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      modal.style.display = 'flex';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+
+      if (typeof speakHumasAnswer === 'function') {
+        speakHumasAnswer('Mohon konfirmasi, apakah santri Mukim mondok atau Non-Mukim mbajak?');
+      }
+    }
+
+    function closeConfirmMukimModal() {
+      const modal = document.getElementById('modalConfirmMukimStatus');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+      pendingVoiceBillingState = null;
+    }
+
+    function selectMukimStatusChoice(chosenTipe) {
+      const state = pendingVoiceBillingState;
+      closeConfirmMukimModal();
+
+      if (state) {
+        generateVoiceSmartBilling(state.text, state.originalText, chosenTipe);
+      }
+    }
+
+    function generateVoiceSmartBilling(text, originalText, explicitTipe = null) {
+      if (typeof PRICING_DB === 'undefined') {
+        console.warn('PRICING_DB is not loaded yet');
+        return false;
+      }
+
+      // Pastikan search box bersih agar data tidak terfilter
+      const brivaSearch = document.getElementById('brivaTableSearch');
+      if (brivaSearch) brivaSearch.value = '';
+
+      // Leverage SmartVoiceNLP engine
+      const parsed = typeof SmartVoiceNLP !== 'undefined' 
+        ? SmartVoiceNLP.parseBillingIntent(originalText || text, explicitTipe) 
+        : null;
+
+      let jenjang = parsed ? parsed.jenjang : 'MA';
+      let level = parsed ? parsed.level : 'slta';
+      let gender = parsed ? parsed.gender : 'PI';
+      let genderLabel = parsed ? parsed.genderLabel : 'Putri';
+      let genderKey = parsed ? parsed.genderKey : 'pi';
+      let kelas = parsed ? parsed.kelas : '10';
+      let tipe = parsed ? parsed.tipe : explicitTipe;
+      let tipeLabel = parsed ? parsed.tipeLabel : 'Reguler';
+      let statusSantri = parsed ? parsed.statusSantri : 'Santri Baru (Pindahan)';
+      let bulanMasuk = parsed ? parsed.bulanMasuk : 'September';
+
+      // Jika tipe tidak ditentukan dan tidak explicit -> Tampilkan dialog konfirmasi!
+      if (!tipe && (!parsed || !parsed.tipeExplicitlyFound)) {
+        openConfirmMukimModal(originalText, text);
+        return true;
+      }
+
+      if (!tipe) tipe = 'reguler';
+      if (tipe === 'vip') tipeLabel = 'VIP';
+      else if (tipe === 'mbajak') tipeLabel = 'Non-Mukim (Mbajak)';
+      else tipeLabel = 'Mukim (Reguler)';
+
+      // Ambil data harga dari PRICING_DB
+      const rateAwal = (PRICING_DB.awal_tahun && PRICING_DB.awal_tahun[kelas] && PRICING_DB.awal_tahun[kelas][tipe]) || 0;
+      const rateSergSek = (PRICING_DB.seragam_sekolah && PRICING_DB.seragam_sekolah[level] && PRICING_DB.seragam_sekolah[level][genderKey]) || 0;
+      const rateSergPond = tipe === 'mbajak' ? 0 : ((PRICING_DB.seragam_pondok && PRICING_DB.seragam_pondok[genderKey]) || 0);
+      const rateSpp = (PRICING_DB.bulanan && PRICING_DB.bulanan[kelas] && PRICING_DB.bulanan[kelas][tipe]) || 0;
+      const total = rateAwal + rateSergSek + rateSergPond + rateSpp;
+
+      currentVoiceBillingData = {
+        jenjang,
+        level,
+        gender,
+        genderLabel,
+        kelas,
+        tipe,
+        tipeLabel,
+        statusSantri,
+        bulanMasuk,
+        rateAwal,
+        rateSergSek,
+        rateSergPond,
+        rateSpp,
+        total
+      };
+
+      // 1. GUNAKAN NOMOR REGISTRASI SEMENTARA '00000' YANG DAPAT DIUBAH PENGGUNA
+      const brivaInputArea = document.getElementById('brivaInput');
+      if (brivaInputArea) {
+        brivaInputArea.value = '00000';
+      }
+
+      // 2. ATUR DROPDOWNS PARAMETER
+      const elKelas = document.getElementById('brivaKelasDefault') || document.getElementById('brivaDefaultKelas');
+      const elStatus = document.getElementById('brivaStatusDefault') || document.getElementById('brivaDefaultStatus');
+      const elGender = document.getElementById('brivaGenderDefault') || document.getElementById('brivaDefaultGender');
+
+      if (elKelas) elKelas.value = kelas;
+      if (elStatus) elStatus.value = tipe;
+      if (elGender) elGender.value = gender;
+
+      // 3. CENTANG POS BIAYA SESUAI TIPE SANTRI (Non-Mukim tidak mencentang seragam pondok)
+      const elIncAwal = document.getElementById('brivaCheckAwalTahun') || document.getElementById('brivaIncAwal');
+      const elIncSergSek = document.getElementById('brivaCheckSeragamSekolah') || document.getElementById('brivaIncSergSek');
+      const elIncSergPond = document.getElementById('brivaCheckSeragamPondok') || document.getElementById('brivaIncSergPond');
+      const elIncBulanan = document.getElementById('brivaCheckBulanan') || document.getElementById('brivaIncBulanan');
+      const elIncAkhir = document.getElementById('brivaCheckAkhirTahun') || document.getElementById('brivaIncAkhir');
+      const elIncBimbel = document.getElementById('brivaCheckBimbel');
+      const elIncExtra = document.getElementById('brivaCheckExtra');
+
+      if (elIncAwal) elIncAwal.checked = true;
+      if (elIncSergSek) elIncSergSek.checked = true;
+      if (elIncSergPond) elIncSergPond.checked = (tipe !== 'mbajak');
+      if (elIncBulanan) elIncBulanan.checked = true;
+      if (elIncAkhir) elIncAkhir.checked = false;
+      if (elIncBimbel) elIncBimbel.checked = false;
+      if (elIncExtra) elIncExtra.checked = false;
+
+      // 4. JALANKAN GENERATOR SEHINGGA TABEL 5-KOLOM BRIVA DI BAWAH LANGSUNG MUNCUL DENGAN NO 00000
+      if (typeof recordBrivaHistory === 'function') {
+        recordBrivaHistory(`Tagihan ${jenjang} ${genderLabel} Kelas ${kelas} (${tipeLabel})`);
+      }
+      if (typeof runBrivaGenerator === 'function') {
+        runBrivaGenerator();
+      }
+
+      // 5. TAMPILKAN MODAL RINCIAN BIAYA & DRAF WHATSAPP
+      showVoiceBillingResultModal(currentVoiceBillingData);
+
+      const spokenAns = `Tagihan ${statusSantri} ${jenjang} ${genderLabel} Kelas ${kelas} ${tipeLabel} siap. Total tagihan Rp ${total.toLocaleString('id-ID')}. Data sementara nomor 00000 telah dimuat di tabel.`;
+      if (typeof speakHumasAnswer === 'function') {
+        speakHumasAnswer(spokenAns);
+      }
+
+      if (typeof showToast === 'function') {
+        showToast(`💳 Tagihan ${jenjang} ${genderLabel} (${tipeLabel})`, `Total: Rp ${total.toLocaleString('id-ID')} • Data sementara 00000 siap di tabel (dapat Anda ubah).`, 'success');
+      }
+      return true;
+    }
+
+    function showVoiceBillingResultModal(d) {
+      if (!d) return;
+
+      const modal = document.getElementById('modalVoiceBillingResult');
+      if (!modal) return;
+
+      if (modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      const elTitle = document.getElementById('voiceBillingModalTitle');
+      if (elTitle) elTitle.textContent = `Tagihan ${d.statusSantri} ${d.jenjang} ${d.genderLabel}`;
+
+      const elSubtitle = document.getElementById('voiceBillingModalSubtitle');
+      if (elSubtitle) elSubtitle.textContent = `Kelas ${d.kelas} (${d.tipeLabel}) • Bulan Masuk ${d.bulanMasuk}`;
+
+      const elBadgeJenjang = document.getElementById('vbBadgeJenjang');
+      if (elBadgeJenjang) elBadgeJenjang.textContent = d.jenjang;
+
+      const elBadgeGender = document.getElementById('vbBadgeGender');
+      if (elBadgeGender) elBadgeGender.textContent = d.genderLabel;
+
+      const elBadgeKelas = document.getElementById('vbBadgeKelas');
+      if (elBadgeKelas) elBadgeKelas.textContent = d.kelas;
+
+      const elBadgeTipe = document.getElementById('vbBadgeTipe');
+      if (elBadgeTipe) elBadgeTipe.textContent = d.tipeLabel;
+
+      const elRateAwal = document.getElementById('vbRateAwal');
+      if (elRateAwal) elRateAwal.textContent = 'Rp ' + d.rateAwal.toLocaleString('id-ID');
+
+      const elLabelSergSek = document.getElementById('vbLabelSergSek');
+      if (elLabelSergSek) elLabelSergSek.textContent = `2. Paket Seragam Sekolah (${d.jenjang} ${d.genderLabel})`;
+
+      const elRateSergSek = document.getElementById('vbRateSergSek');
+      if (elRateSergSek) elRateSergSek.textContent = 'Rp ' + d.rateSergSek.toLocaleString('id-ID');
+
+      const elLabelSergPond = document.getElementById('vbLabelSergPond');
+      if (elLabelSergPond) elLabelSergPond.textContent = `3. Paket Seragam Pondok (${d.genderLabel})`;
+
+      const elRateSergPond = document.getElementById('vbRateSergPond');
+      if (elRateSergPond) elRateSergPond.textContent = 'Rp ' + d.rateSergPond.toLocaleString('id-ID');
+
+      const elLabelSpp = document.getElementById('vbLabelSpp');
+      if (elLabelSpp) elLabelSpp.textContent = `4. SPP / Syahriah (Bulan ${d.bulanMasuk})`;
+
+      const elSubSpp = document.getElementById('vbSubSpp');
+      if (elSubSpp) elSubSpp.textContent = `SPP Kelas ${d.kelas} (${d.tipeLabel})`;
+
+      const elRateSpp = document.getElementById('vbRateSpp');
+      if (elRateSpp) elRateSpp.textContent = 'Rp ' + d.rateSpp.toLocaleString('id-ID');
+
+      const elTotalGrand = document.getElementById('vbTotalGrand');
+      if (elTotalGrand) elTotalGrand.textContent = 'Rp ' + d.total.toLocaleString('id-ID');
+
+      const waText = generateVoiceBillingWaText(d);
+      const waTextarea = document.getElementById('vbWaPreviewText');
+      if (waTextarea) waTextarea.value = waText;
+
+      modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      modal.style.display = 'flex';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeVoiceBillingModal() {
+      const modal = document.getElementById('modalVoiceBillingResult');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+
+    function generateVoiceBillingWaText(d) {
+      if (!d) return '';
+      return `Assalamu'alaikum Wr. Wb.
+
+Yth. Wali Santri Baru / Pindahan
+Pondok Pesantren Raudlatul Muta'allimin
+
+Berikut adalah rincian tagihan pembayaran awal:
+────────────────────
+• Jenjang: ${d.jenjang} ${d.genderLabel}
+• Kelas: ${d.kelas} (${d.tipeLabel})
+• Status: ${d.statusSantri}
+────────────────────
+RINCIAN TAGIHAN:
+1. Biaya Awal Tahun: Rp ${d.rateAwal.toLocaleString('id-ID')}
+2. Seragam Sekolah (${d.jenjang} ${d.genderLabel}): Rp ${d.rateSergSek.toLocaleString('id-ID')}
+3. Seragam Pondok (${d.genderLabel}): Rp ${d.rateSergPond.toLocaleString('id-ID')}
+4. SPP Bulan ${d.bulanMasuk}: Rp ${d.rateSpp.toLocaleString('id-ID')}
+────────────────────
+TOTAL TAGIHAN: Rp ${d.total.toLocaleString('id-ID')}
+────────────────────
+
+Pembayaran dapat ditransfer melalui nomor Virtual Account (BRIVA) santri.
+Terima kasih.
+Wassalamu'alaikum Wr. Wb.`;
+    }
+
+    function copyVoiceBillingWaText() {
+      if (!currentVoiceBillingData) return;
+      const text = generateVoiceBillingWaText(currentVoiceBillingData);
+      
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          if (typeof showToast === 'function') {
+            showToast('📋 Rincian WA Disalin!', 'Rincian tagihan santri baru berhasil disalin ke clipboard.');
+          }
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+
+      function fallbackCopy(str) {
+        const helper = document.getElementById('hiddenClipboardHelper') || document.createElement('textarea');
+        helper.value = str;
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand('copy');
+        if (typeof showToast === 'function') {
+          showToast('📋 Rincian WA Disalin!', 'Rincian tagihan santri baru berhasil disalin ke clipboard.');
+        }
+      }
+    }
+
+    function insertVoiceBillingToBrivaTable() {
+      if (!currentVoiceBillingData) return;
+      const d = currentVoiceBillingData;
+      
+      closeVoiceBillingModal();
+      if (typeof switchTab === 'function') {
+        switchTab('briva');
+      }
+
+      // Pastikan search box tabel bersih agar data langsung muncul
+      const brivaSearch = document.getElementById('brivaTableSearch');
+      if (brivaSearch) brivaSearch.value = '';
+
+      // 1. Set dropdowns di tab BRIVA
+      const elKelas = document.getElementById('brivaKelasDefault') || document.getElementById('brivaDefaultKelas');
+      const elStatus = document.getElementById('brivaStatusDefault') || document.getElementById('brivaDefaultStatus');
+      const elGender = document.getElementById('brivaGenderDefault') || document.getElementById('brivaDefaultGender');
+
+      if (elKelas) elKelas.value = d.kelas;
+      if (elStatus) elStatus.value = d.tipe;
+      if (elGender) elGender.value = d.gender;
+
+      // 2. Centang komponen pos biaya default (Awal Tahun, Seragam Sekolah, Seragam Pondok, Bulanan)
+      const elIncAwal = document.getElementById('brivaCheckAwalTahun') || document.getElementById('brivaIncAwal');
+      const elIncSergSek = document.getElementById('brivaCheckSeragamSekolah') || document.getElementById('brivaIncSergSek');
+      const elIncSergPond = document.getElementById('brivaCheckSeragamPondok') || document.getElementById('brivaIncSergPond');
+      const elIncBulanan = document.getElementById('brivaCheckBulanan') || document.getElementById('brivaIncBulanan');
+      const elIncAkhir = document.getElementById('brivaCheckAkhirTahun') || document.getElementById('brivaIncAkhir');
+      const elIncBimbel = document.getElementById('brivaCheckBimbel');
+      const elIncExtra = document.getElementById('brivaCheckExtra');
+
+      if (elIncAwal) elIncAwal.checked = true;
+      if (elIncSergSek) elIncSergSek.checked = true;
+      if (elIncSergPond) elIncSergPond.checked = (d.tipe !== 'mbajak');
+      if (elIncBulanan) elIncBulanan.checked = true;
+      if (elIncAkhir) elIncAkhir.checked = false;
+      if (elIncBimbel) elIncBimbel.checked = false;
+      if (elIncExtra) elIncExtra.checked = false;
+
+      // 3. Catat history & render
+      if (typeof recordBrivaHistory === 'function') {
+        recordBrivaHistory(`Tagihan ${d.jenjang} ${d.genderLabel} Kelas ${d.kelas}`);
+      }
+      if (typeof runBrivaGenerator === 'function') {
+        runBrivaGenerator();
+      }
+
+      if (typeof soundSuccess === 'function') soundSuccess();
+      if (typeof showToast === 'function') {
+        showToast('💳 Parameter BRIVA Diterapkan!', `Tagihan ${d.jenjang} ${d.genderLabel} Kelas ${d.kelas} (Total: Rp ${d.total.toLocaleString('id-ID')}) siap diekspor ke BRI.`, 'success');
+      }
+    }
+
+    // Attach to global window
+    window.handleBrivaVoiceKeydown = handleBrivaVoiceKeydown;
+    window.toggleBrivaVoiceAssistant = toggleBrivaVoiceAssistant;
+    window.startBrivaVoiceAssistant = startBrivaVoiceAssistant;
+    window.stopBrivaVoiceAssistant = stopBrivaVoiceAssistant;
+    window.processBrivaVoiceSmartCommand = processBrivaVoiceSmartCommand;
+    window.handleBrivaTableSearchInput = handleBrivaTableSearchInput;
+    window.generateVoiceSmartBilling = generateVoiceSmartBilling;
+    window.openConfirmMukimModal = openConfirmMukimModal;
+    window.closeConfirmMukimModal = closeConfirmMukimModal;
+    window.selectMukimStatusChoice = selectMukimStatusChoice;
+    window.showVoiceBillingResultModal = showVoiceBillingResultModal;
+    window.closeVoiceBillingModal = closeVoiceBillingModal;
+    window.copyVoiceBillingWaText = copyVoiceBillingWaText;
+    window.insertVoiceBillingToBrivaTable = insertVoiceBillingToBrivaTable;
+    window.downloadVoiceBillingCardImage = downloadVoiceBillingCardImage;
+    window.openCatalogImageModal = openCatalogImageModal;
+    window.closeCatalogImageModal = closeCatalogImageModal;
+    window.downloadCurrentKatalogImage = downloadCurrentKatalogImage;
+    window.shareCurrentKatalogImage = shareCurrentKatalogImage;
+    window.copyCurrentKatalogWaText = copyCurrentKatalogWaText;
+    window.brivaUndo = brivaUndo;
+    window.brivaRedo = brivaRedo;
+
+    // KEYBOARD SHORTCUTS: Ctrl+Z (Undo) and Ctrl+Y / Ctrl+Shift+Z (Redo)
+    window.addEventListener('keydown', function(e) {
+      if (typeof activeTab !== 'undefined' && activeTab === 'briva') {
+        const isInputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+        if (!isInputFocused) {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            brivaUndo();
+          } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
+            e.preventDefault();
+            brivaRedo();
+          }
+        }
+      }
+    });
+
+    // Inisialisasi snapshot awal riwayat saat aplikasi siap
+    setTimeout(() => {
+      if (brivaUndoStack.length === 0) {
+        recordBrivaHistory('Kondisi Awal');
+      }
+    }, 600);
 
 
     // =========================================================================
@@ -22092,6 +14289,193 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       if (typeof showToast === 'function') {
         showToast('Formulir berhasil dikosongkan.');
       }
+    }
+
+    // =========================================================================
+    // VOICE RECOGNITION & SMART NLP COMMAND PARSER UNTUK TAHFIDZ & TASMI'
+    // =========================================================================
+    let tahfidzSpeechRecognitionInstance = null;
+    let isTahfidzVoiceListening = false;
+
+    function toggleTahfidzVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        if (typeof showToast === 'function') {
+          showToast('Fitur Suara Tidak Didukung', 'Browser Anda belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome di HP/Laptop.', 'warning');
+        } else {
+          alert('Browser ini belum mendukung Web Speech Recognition. Silakan gunakan Google Chrome.');
+        }
+        return;
+      }
+
+      if (isTahfidzVoiceListening) {
+        stopTahfidzVoiceRecognition();
+      } else {
+        startTahfidzVoiceRecognition(SpeechRecognition);
+      }
+    }
+
+    function startTahfidzVoiceRecognition(SpeechRecognition) {
+      try {
+        tahfidzSpeechRecognitionInstance = new SpeechRecognition();
+        tahfidzSpeechRecognitionInstance.lang = 'id-ID';
+        tahfidzSpeechRecognitionInstance.continuous = false;
+        tahfidzSpeechRecognitionInstance.interimResults = true;
+
+        const voiceBtn = document.getElementById('tahfidzVoiceBtn');
+        const voiceLabel = document.getElementById('tahfidzVoiceBtnLabel');
+        const listeningBanner = document.getElementById('tahfidzVoiceListeningBanner');
+        const liveTranscript = document.getElementById('tahfidzVoiceLiveTranscript');
+
+        tahfidzSpeechRecognitionInstance.onstart = function() {
+          isTahfidzVoiceListening = true;
+          if (voiceBtn) {
+            voiceBtn.className = 'px-2 py-1 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-md text-[11px] font-bold flex items-center gap-1 shadow-md cursor-pointer transition-all border border-red-500 animate-pulse ring-2 ring-red-400';
+          }
+          if (voiceLabel) voiceLabel.textContent = 'Mendengarkan...';
+          if (listeningBanner) listeningBanner.classList.remove('hidden');
+          if (liveTranscript) liveTranscript.textContent = 'Silakan sebutkan nama santri, juz, & predikat (cth: "Fahri juz 30 mumtaz")...';
+        };
+
+        tahfidzSpeechRecognitionInstance.onresult = function(event) {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          const currentText = finalTranscript || interimTranscript;
+          if (liveTranscript && currentText) {
+            liveTranscript.textContent = `🗣️ "${currentText}"`;
+          }
+
+          if (finalTranscript && finalTranscript.trim().length > 1) {
+            processTahfidzSmartCommand(finalTranscript.trim());
+            stopTahfidzVoiceRecognition();
+          }
+        };
+
+        tahfidzSpeechRecognitionInstance.onerror = function(event) {
+          console.warn('Voice Recognition Error:', event.error);
+          stopTahfidzVoiceRecognition();
+          if (event.error !== 'no-speech' && typeof showToast === 'function') {
+            showToast('Suara Tidak Terdeteksi', 'Coba ulangi berbicara lebih dekat ke mikrofon.', 'warning');
+          }
+        };
+
+        tahfidzSpeechRecognitionInstance.onend = function() {
+          stopTahfidzVoiceRecognition();
+        };
+
+        tahfidzSpeechRecognitionInstance.start();
+      } catch (e) {
+        console.error('Start Voice Recognition Failed:', e);
+        stopTahfidzVoiceRecognition();
+      }
+    }
+
+    function stopTahfidzVoiceRecognition() {
+      isTahfidzVoiceListening = false;
+      if (tahfidzSpeechRecognitionInstance) {
+        try { tahfidzSpeechRecognitionInstance.stop(); } catch (e) {}
+        tahfidzSpeechRecognitionInstance = null;
+      }
+
+      const voiceBtn = document.getElementById('tahfidzVoiceBtn');
+      const voiceLabel = document.getElementById('tahfidzVoiceBtnLabel');
+      const listeningBanner = document.getElementById('tahfidzVoiceListeningBanner');
+
+      if (voiceBtn) {
+        voiceBtn.className = 'px-2 py-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-md text-[11px] font-bold flex items-center gap-1 shadow-2xs cursor-pointer transition-all border border-emerald-500';
+      }
+      if (voiceLabel) voiceLabel.textContent = 'Suara';
+      if (listeningBanner) listeningBanner.classList.add('hidden');
+    }
+
+    function handleTahfidzSearchKeydown(e, val) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const dropdown = document.getElementById('tahfidzSearchDropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+        processTahfidzSmartCommand(val);
+      }
+    }
+
+    function processTahfidzSmartCommand(rawText) {
+      if (!rawText || !rawText.trim()) return false;
+      const originalText = rawText.trim();
+
+      // Check for global tab navigation command first
+      if (typeof SmartVoiceNLP !== 'undefined' && SmartVoiceNLP.dispatchSmartVoiceCommand) {
+        const norm = SmartVoiceNLP.normalizeText(originalText);
+        const clean = SmartVoiceNLP.stripFillers(norm);
+        if (/\b(buka|pindah|tampilkan|ke|menu|tab)\b/i.test(clean) && !/\b(juz|predikat|mumtaz|jayyid|tasmi)\b/i.test(clean)) {
+          if (SmartVoiceNLP.dispatchSmartVoiceCommand(originalText)) return true;
+        }
+      }
+
+      const masterStudents = getTahfidzMasterStudents();
+      const parsed = typeof SmartVoiceNLP !== 'undefined' 
+        ? SmartVoiceNLP.parseTahfidzIntent(originalText, masterStudents)
+        : null;
+
+      let matchedStudent = parsed ? parsed.matchedStudent : null;
+      let detectedJuz = parsed ? parsed.detectedJuz : null;
+      let detectedKategori = parsed ? parsed.detectedKategori : null;
+      let detectedPredikat = parsed ? parsed.detectedPredikat : null;
+
+      // Fallback student if none matched
+      if (!matchedStudent) {
+        matchedStudent = masterStudents.find(s => s.id === currentTahfidzStudentId) || masterStudents[0];
+      }
+
+      if (matchedStudent) {
+        // 1. Pilih santri dan isi form
+        selectTahfidzStudent(matchedStudent.id);
+
+        // 2. Set Juz & Kategori jika terdeteksi
+        if (detectedJuz) {
+          const juzEl = document.getElementById('tahfidzJuz');
+          if (juzEl) juzEl.value = detectedJuz;
+        }
+        if (detectedKategori) {
+          const katEl = document.getElementById('tahfidzKategori');
+          if (katEl) katEl.value = detectedKategori;
+        }
+
+        // 3. Set Predikat jika terdeteksi
+        if (detectedPredikat) {
+          setTahfidzPredikat(detectedPredikat);
+        }
+
+        // 4. Update preview caption
+        updateTahfidzCaptionPreview();
+
+        // 5. Feedback visual & audio ke user
+        const finalJuz = detectedJuz || matchedStudent.defaultJuz || '30';
+        const finalPredikat = detectedPredikat || currentTahfidzPredikat || 'Mumtaz';
+
+        const searchInput = document.getElementById('tahfidzSearchInput');
+        if (searchInput) {
+          searchInput.value = `${matchedStudent.nama} (${matchedStudent.unit}) - Juz ${finalJuz} - ${finalPredikat}`;
+        }
+
+        const spokenAns = `Data ananda ${matchedStudent.nama} unit ${matchedStudent.unit} terpilih. Juz ${finalJuz}, predikat ${finalPredikat}. Siap dibagikan.`;
+        if (typeof speakHumasAnswer === 'function') {
+          speakHumasAnswer(spokenAns);
+        }
+
+        if (typeof showToast === 'function') {
+          showToast(`🎯 Santri: ${matchedStudent.nama}`, `Juz ${finalJuz} • ${finalPredikat} (${matchedStudent.unit})`, 'success');
+        }
+        return true;
+      }
+      return false;
     }
 
     // ==============================================================
@@ -26880,10 +19264,11 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       neutralizeTasmiStudentsCache();
       try {
         localStorage.removeItem('humas_programs_master_v1');
-        const saved = localStorage.getItem('humas_programs_master_v2');
+        localStorage.removeItem('humas_programs_master_v2');
+        const saved = localStorage.getItem('humas_programs_master_v3');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed) && parsed.length >= 200) {
             // Bersihkan duplikasi yang mungkin tersimpan di cache lokal
             humasState.programs = deduplicateHumasPrograms(parsed);
             // Normalisasi: agenda rutin prota bulanan bukan kategori tasmi santri
@@ -26900,7 +19285,11 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         console.warn('Gagal membaca cache lokal humas:', e);
       }
       // Fallback ke master data resmi YTPAI 2026-2027
-      humasState.programs = deduplicateHumasPrograms(JSON.parse(JSON.stringify(YTPAI_ANNUAL_PROGRAMS)));
+      if (typeof YTPAI_ANNUAL_PROGRAMS !== 'undefined' && Array.isArray(YTPAI_ANNUAL_PROGRAMS)) {
+        humasState.programs = deduplicateHumasPrograms(JSON.parse(JSON.stringify(YTPAI_ANNUAL_PROGRAMS)));
+      } else {
+        humasState.programs = [];
+      }
       humasState.programs.forEach(p => {
         if (p.kategori === 'tasmi' && (!p.id || !p.id.startsWith('prog-tasmi-'))) {
           p.kategori = 'umum';
@@ -26953,7 +19342,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
 
     function saveHumasProgramsLocal() {
       try {
-        localStorage.setItem('humas_programs_master_v2', JSON.stringify(humasState.programs));
+        localStorage.setItem('humas_programs_master_v3', JSON.stringify(humasState.programs));
       } catch (e) {
         console.warn('Gagal menyimpan cache lokal humas:', e);
       }
@@ -28507,7 +20896,7 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
 
     function closeModalEditProgram() {
       const modal = document.getElementById('modalHumasEditProgram');
-      if (modal) modal.classList.add('hidden');
+      if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
     }
 
     // --- MODAL RINCIAN METRIC HUMAS (RADAR H-7, BUTUH PAMFLET, PROSES DESAIN, SUDAH PUBLISH) ---
@@ -28524,11 +20913,13 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
 
       const modal = document.getElementById('modalHumasMetricDetail');
       if (!modal) return;
+      if (modal.parentElement !== document.body) { document.body.appendChild(modal); }
 
       updateMetricDetailScopeButtons();
       renderMetricDetailContent();
 
-      modal.classList.remove('hidden');
+      modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      modal.style.display = 'flex';
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       triggerHaptic(8);
@@ -29403,13 +21794,15 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
     // Modal Add Custom Program
     function openModalAddProgram() {
       const modal = document.getElementById('modalHumasAddProgram');
-      if (modal) modal.classList.remove('hidden');
+      if (modal && modal.parentElement !== document.body) { document.body.appendChild(modal); }
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
       triggerHaptic(5);
     }
 
     function closeModalAddProgram() {
       const modal = document.getElementById('modalHumasAddProgram');
-      if (modal) modal.classList.add('hidden');
+      if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
     }
 
     function saveNewProgramFromModal() {
@@ -30742,6 +23135,23 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 
 
     // --- 15. INITIALIZATION ON LOAD (DENGAN ISOLASI TRY-CATCH PER MODUL) ---
+
+    // --- MODAL PORTAL HELPER ---
+    function portalAllModalsToBody() {
+      try {
+        var modals = document.querySelectorAll('[id^="modal"], .modal-portal');
+        for (var m = 0; m < modals.length; m++) {
+          var el = modals[m];
+          if (el && el.parentElement && el.parentElement !== document.body && el.classList.contains('fixed')) {
+            document.body.appendChild(el);
+          }
+        }
+      } catch (e) {
+        console.warn('Portal modals error:', e);
+      }
+    }
+    window.portalAllModalsToBody = portalAllModalsToBody;
+
     function initializeApp() {
       // Pastikan iframe window tidak tergeser ke bawah (mencegah bagian atas terpotong di Apps Script)
       try {
@@ -30753,6 +23163,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
         if (mc) mc.scrollTop = 0;
       } catch (e) {}
 
+      try { portalAllModalsToBody(); } catch(e) {}
       try { applySavedTheme(); } catch (e) { console.warn('Theme init error:', e); }
       try { safeCreateIcons(); } catch (e) { console.warn('Icon init error:', e); }
       try { initScrollInteraction(); } catch (e) { console.warn('Scroll interaction init error:', e); }
@@ -30786,6 +23197,19 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 
 
 
+      // PWA Service Worker Registration (100% Offline Engine)
+      try {
+        if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+          navigator.serviceWorker.register('./sw.js')
+            .then(function(reg) {
+              console.log('[PWA] Service Worker aktif & siap 100% offline:', reg.scope);
+            })
+            .catch(function(err) {
+              console.warn('[PWA] Service Worker error (safe to continue):', err);
+            });
+        }
+      } catch (e) {}
+
       // Retry ikon bertahap khusus lingkungan Google Apps Script iframe
       setTimeout(safeCreateIcons, 250);
       setTimeout(safeCreateIcons, 800);
@@ -30798,6 +23222,3 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       initializeApp();
     }
     window.addEventListener('load', safeCreateIcons);
-  </script>
-</body>
-</html>

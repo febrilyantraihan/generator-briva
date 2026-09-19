@@ -1,14 +1,21 @@
-{
+﻿{
   "version": 2,
+  "name": "generator-briva-ytpai",
   "cleanUrls": true,
-  "trailingSlash": false,
-  "routes": [
+  "headers": [
     {
-      "handle": "filesystem"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(css|js)/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     }
   ]
 }
