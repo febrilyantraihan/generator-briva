@@ -1,124 +1,139 @@
           <div id="tab-humas" class="space-y-3.5 sm:space-y-5 pb-8 w-full max-w-full min-w-0 box-border px-[2px] sm:px-4 lg:px-5">
             
             <!-- A. Humas Header Banner & Tools (Bernafas Lega, Profesional, Kotak Modern) -->
-            <div class="bg-white/95 dark:bg-slate-900/95 rounded-md border border-slate-200/90 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-3 sm:gap-4 min-w-0 max-w-full overflow-hidden box-border">
-              <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-md bg-gradient-to-br from-indigo-600 to-violet-700 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                  <i data-lucide="megaphone" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
-                    <h3 class="text-sm sm:text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
-                      Studio Humas &amp; Sosmed
-                    </h3>
-                    <span class="text-[9.5px] sm:text-[11px] px-2 py-0.5 rounded-md font-bold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 flex-shrink-0">
-                      2026-2027
-                    </span>
+            <!-- A. Humas Header Banner & Tools (Bernafas Lega, Profesional, Rapi & Elegan) -->
+            <div class="bg-white/95 dark:bg-slate-900/95 rounded-md border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-4 min-w-0 max-w-full overflow-hidden box-border">
+              
+              <!-- Top Row: Judul, Status & Date Simulator (Simetris & Bernapas Lega) -->
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-3.5 border-b border-slate-100 dark:border-slate-800/80">
+                <!-- Sisi Kiri: Brand & Info Lengkap (Bebas Truncate, Lebar & Jelas) -->
+                <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                  <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                    <i data-lucide="megaphone" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                   </div>
-                  <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                    Pusat Perencanaan Konten, Pembuatan Pamflet &amp; Radar H-7 Otomatis
-                  </p>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                        Studio Humas &amp; Sosmed
+                      </h3>
+                      <span class="text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 flex-shrink-0">
+                        2026-2027
+                      </span>
+                      <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 hidden sm:inline-flex items-center gap-1 flex-shrink-0">
+                        <i data-lucide="sparkles" class="w-3 h-3 text-emerald-600 dark:text-emerald-400"></i>
+                        <span>252 Agenda + 64 Peringatan</span>
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Pusat Perencanaan Konten, Pembuatan Pamflet &amp; Radar H-7 Otomatis
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Sisi Kanan: Date Simulator Selector (Rapi & Jelas) -->
+                <div class="flex items-center gap-2 self-start md:self-center flex-shrink-0">
+                  <div class="flex items-center justify-between gap-2 bg-slate-100/90 dark:bg-slate-800/90 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs">
+                    <div class="flex items-center gap-1.5">
+                      <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0"></i>
+                      <span class="text-[10px] font-bold text-slate-400">Ref:</span>
+                      <input 
+                        type="date" 
+                        id="humasSimDate" 
+                        onchange="onHumasSimDateChange()" 
+                        class="bg-transparent border-none text-xs font-bold text-slate-800 dark:text-white focus:outline-none cursor-pointer" 
+                        title="Ubah tanggal acuan untuk simulasi radar H-7"
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      onclick="resetHumasSimDate()" 
+                      class="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white/80 dark:bg-slate-700/80 rounded text-[10px] font-bold text-slate-600 dark:text-slate-300 flex-shrink-0 shadow-2xs cursor-pointer active:scale-95 transition-all" 
+                      title="Gunakan tanggal hari ini"
+                    >
+                      Hari Ini
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <!-- Top Action Controls -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto min-w-0">
-                <!-- Date Simulator Selector -->
-                <div class="flex items-center justify-between gap-1.5 bg-slate-100/90 dark:bg-slate-800/90 px-2.5 sm:px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-0">
-                  <div class="flex items-center gap-1.5 min-w-0">
-                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0"></i>
-                    <span class="text-[10px] text-slate-400 hidden sm:inline">Ref:</span>
-                    <input 
-                      type="date" 
-                      id="humasSimDate" 
-                      onchange="onHumasSimDateChange()" 
-                      class="bg-transparent border-none text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white focus:outline-none cursor-pointer min-w-0 max-w-[125px] sm:max-w-none" 
-                      title="Ubah tanggal acuan untuk simulasi radar H-7"
-                    />
-                  </div>
+              <!-- Bottom Row: Toolbar Aksi Rapi (Terorganisir, Fleksibel, Nyaman Dilihat) -->
+              <div class="flex flex-wrap items-center justify-between gap-2.5">
+                <!-- Grup Kiri: Aksi Utama Pembuatan Agenda & Publikasi -->
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <!-- Tambah Agenda Manual -->
                   <button 
                     type="button" 
-                    onclick="resetHumasSimDate()" 
-                    class="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white/70 dark:bg-slate-700/60 rounded-[4px] text-[10px] font-bold text-slate-600 dark:text-slate-300 flex-shrink-0 shadow-2xs cursor-pointer" 
-                    title="Gunakan tanggal hari ini"
+                    onclick="openModalAddProgram()" 
+                    class="w-full sm:w-auto justify-center px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Tambah Agenda Program Kerja Baru Manual"
                   >
-                    Hari Ini
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Tambah Agenda</span>
                   </button>
-                </div>
 
-                <!-- Action Button Group (Responsive & Anti-Overflow) -->
-                <div class="grid grid-cols-2 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+                  <!-- Impor Massal Excel -->
+                  <button 
+                    type="button" 
+                    onclick="openModalHumasBulkImport()" 
+                    id="btnHumasBulkImport" 
+                    class="w-full sm:w-auto justify-center px-3.5 py-2 rounded-lg bg-gradient-to-r from-rose-600 via-indigo-600 to-purple-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Impor massal puluhan atau ratusan agenda dari Excel / Tempel Spreadsheet hingga 2027"
+                  >
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                    <span>Impor Massal</span>
+                  </button>
+
                   <!-- Tombol Notifikasi HP H-7 -->
                   <button 
                     type="button" 
                     onclick="toggleHumasMobileNotification()" 
                     id="btnHumasMobileNotif" 
-                    class="justify-center px-2.5 sm:px-3 py-1.5 rounded-[4px] bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 font-bold text-[11px] sm:text-xs border border-rose-200 dark:border-rose-800/60 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 min-h-[34px]"
+                    class="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-800/60 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
                     title="Aktifkan notifikasi pengingat acara H-7 di HP / Layar Kunci"
                   >
                     <i data-lucide="bell" id="iconHumasNotif" class="w-3.5 h-3.5 text-rose-500"></i>
-                    <span id="labelHumasNotif" class="truncate">Notif HP (H-7)</span>
-                  </button>
-
-                  <!-- Tombol Tambah Acara Cepat (Khusus Mobile) -->
-                  <button 
-                    type="button" 
-                    onclick="openModalAddProgram()" 
-                    class="sm:hidden justify-center px-2.5 sm:px-3 py-1.5 rounded-[4px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] shadow-xs transition-all flex items-center gap-1 cursor-pointer active:scale-95 min-h-[34px]"
-                    title="Tambah Agenda Baru"
-                  >
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                    <span class="truncate">Tambah Agenda</span>
+                    <span id="labelHumasNotif">Notif HP (H-7)</span>
                   </button>
                 </div>
 
-                <!-- Bulk Import Button (Excel / Paste TSV) - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="openModalHumasBulkImport()" 
-                  id="btnHumasBulkImport" 
-                  class="hidden sm:inline-flex px-3.5 py-2 rounded-md bg-gradient-to-r from-rose-600 via-indigo-600 to-purple-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black text-xs shadow-xs transition-all items-center gap-1.5 cursor-pointer active:scale-95"
-                  title="Impor massal puluhan atau ratusan agenda dari Excel / Tempel Spreadsheet hingga 2027"
-                >
-                  <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                  <span>Impor Massal</span>
-                </button>
+                <!-- Grup Kanan: Master Data & Integrasi Cloud -->
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <!-- Sinkronkan 64 Hari Peringatan Pendidikan, PHBN & PHBI -->
+                  <button 
+                    type="button" 
+                    onclick="openModalRangkumanPeringatan()" 
+                    id="btnHumasSyncPeringatan" 
+                    class="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-200 font-bold text-xs border border-amber-300 dark:border-amber-700/60 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+                    title="Buka Rangkuman 64 Agenda Hari Peringatan Pendidikan, PHBN &amp; PHBI"
+                  >
+                    <i data-lucide="calendar-check-2" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
+                    <span>Peringatan PHBN &amp; PHBI</span>
+                  </button>
 
-                <!-- Supabase Cloud Config - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="openModalSupabaseConfig()" 
-                  id="btnHumasSupabase" 
-                  class="hidden sm:inline-flex px-3 py-2 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-slate-700 transition-all items-center gap-1.5 cursor-pointer"
-                  title="Pengaturan Database Supabase PostgreSQL & Deploy Vercel"
-                >
-                  <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-400"></i>
-                  <span class="hidden xl:inline">Database</span>
-                  <span>Supabase</span>
-                </button>
+                  <!-- Supabase Cloud Config -->
+                  <button 
+                    type="button" 
+                    onclick="openModalSupabaseConfig()" 
+                    id="btnHumasSupabase" 
+                    class="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Pengaturan Database Supabase PostgreSQL &amp; Deploy Vercel"
+                  >
+                    <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-500"></i>
+                    <span>Database Supabase</span>
+                  </button>
 
-                <!-- Sync to Cloud - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="syncHumasFromCloud()" 
-                  id="btnHumasSyncCloud" 
-                  class="hidden sm:inline-flex px-3 py-2 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-slate-700 transition-all items-center gap-1.5 cursor-pointer"
-                  title="Tarik data terbaru dari Google Spreadsheet atau Supabase"
-                >
-                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-500"></i>
-                  <span>Sinkronkan</span>
-                </button>
-
-                <!-- Add Custom Program Button - Desktop -->
-                <button 
-                  type="button" 
-                  onclick="openModalAddProgram()" 
-                  class="hidden sm:inline-flex px-3.5 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all items-center gap-1.5 cursor-pointer active:scale-95"
-                  title="Tambah Agenda Program Kerja Baru Manual"
-                >
-                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                  <span>Tambah Agenda</span>
-                </button>
+                  <!-- Sync to Cloud -->
+                  <button 
+                    type="button" 
+                    onclick="syncHumasFromCloud()" 
+                    id="btnHumasSyncCloud" 
+                    class="w-full sm:w-auto justify-center px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Tarik data terbaru dari Google Spreadsheet atau Supabase"
+                  >
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-500"></i>
+                    <span>Sinkronkan</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -172,7 +187,7 @@
                   <div class="w-3 h-3 rounded-full bg-red-400 animate-ping flex-shrink-0"></div>
                   <div class="min-w-0">
                     <span class="font-extrabold uppercase tracking-wide text-[10.5px]">🎙️ Mendengarkan Suara Humas...</span>
-                    <p id="humasTopVoiceLiveTranscript" class="text-xs opacity-95 truncate font-medium">Bicara cth: "Acara Oktober butuh pamflet" atau "Cari Maulid Nabi"</p>
+                    <p id="humasTopVoiceLiveTranscript" class="text-xs opacity-95 truncate font-medium">Bicara cth: "Siapa penanggung jawab karnaval?" atau "Acara Oktober"</p>
                   </div>
                 </div>
                 <button type="button" onclick="stopHumasVoiceSearch()" class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded text-xs font-bold cursor-pointer whitespace-nowrap flex-shrink-0">
@@ -180,13 +195,95 @@
                 </button>
               </div>
 
+              <!-- AI Voice Answer Interactive Display Card -->
+              <div id="humasVoiceAnswerCard" class="hidden p-3 sm:p-4 bg-slate-950/95 rounded-lg border-2 border-indigo-400/70 shadow-2xl space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
+                <div class="flex items-center justify-between gap-2 border-b border-indigo-500/30 pb-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-6 h-6 rounded-md bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-xs text-white shadow-xs">
+                      🤖
+                    </div>
+                    <span class="text-xs font-black text-indigo-200 uppercase tracking-wider">Asisten AI Humas YTPAI</span>
+                    <span id="humasVoiceSpeakingBadge" class="hidden text-[9px] px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-300 font-bold border border-rose-500/40 animate-pulse">
+                      🔊 Berbicara...
+                    </span>
+                  </div>
+                  <button type="button" onclick="closeHumasVoiceAnswerCard()" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer transition-all">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+
+                <!-- Query User -->
+                <div class="text-[11px] text-indigo-300/90 font-mono">
+                  🗣️ Pertanyaan: <span id="humasVoiceAnswerQuery" class="text-white font-bold italic">"Siapa penanggung jawab karnaval?"</span>
+                </div>
+
+                <!-- Spoken Answer Banner -->
+                <div class="p-3 rounded-lg bg-indigo-950/70 border border-indigo-400/50 text-xs sm:text-sm font-bold text-white leading-relaxed flex items-start gap-2.5 shadow-inner">
+                  <i data-lucide="volume-2" class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5 animate-bounce"></i>
+                  <p id="humasVoiceAnswerSpeechText" class="flex-1 text-slate-100">
+                    Penanggung jawab kegiatan Karnaval Desa Datinawong adalah Mokamat Syafi'i, Bagian Humas.
+                  </p>
+                </div>
+
+                <!-- Highlighted Event Metadata Grid -->
+                <div id="humasVoiceAnswerDetailsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div class="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    <span class="text-[10px] uppercase font-bold text-amber-300 flex items-center gap-1">
+                      <i data-lucide="user-check" class="w-3 h-3 text-amber-400"></i>
+                      <span>Penanggung Jawab (PJ)</span>
+                    </span>
+                    <span id="humasVoiceAnswerPJ" class="text-xs font-black text-amber-200 mt-0.5 block">Humas (Mokamat Syafi'i, S.H.)</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    <span class="text-[10px] uppercase font-bold text-indigo-300 flex items-center gap-1">
+                      <i data-lucide="calendar" class="w-3 h-3 text-indigo-400"></i>
+                      <span>Waktu &amp; Tanggal</span>
+                    </span>
+                    <span id="humasVoiceAnswerDate" class="text-xs font-bold text-slate-200 mt-0.5 block">Agustus 2026 (Kondisional)</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    <span class="text-[10px] uppercase font-bold text-emerald-300 flex items-center gap-1">
+                      <i data-lucide="users" class="w-3 h-3 text-emerald-400"></i>
+                      <span>Sasaran Kegiatan</span>
+                    </span>
+                    <span id="humasVoiceAnswerTarget" class="text-xs font-medium text-slate-300 mt-0.5 block">Seluruh Warga YTPAI RML</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    <span class="text-[10px] uppercase font-bold text-purple-300 flex items-center gap-1">
+                      <i data-lucide="share-2" class="w-3 h-3 text-purple-400"></i>
+                      <span>Kebutuhan Publikasi &amp; Pamflet</span>
+                    </span>
+                    <span id="humasVoiceAnswerPamflet" class="text-xs font-bold text-slate-300 mt-0.5 block">Belum Siap • Kanal: IG, FB, WA</span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-between gap-2 pt-1 border-t border-indigo-500/20 text-xs">
+                  <button type="button" onclick="repeatHumasVoiceAnswer()" class="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-all">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    <span>Ulangi Suara</span>
+                  </button>
+                  <button type="button" onclick="scrollHumasToTable()" class="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:scale-95 text-indigo-200 font-semibold flex items-center gap-1.5 cursor-pointer transition-all">
+                    <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                    <span>Tampilkan di Tabel &rarr;</span>
+                  </button>
+                </div>
+              </div>
+
               <!-- Quick Voice Command Chips -->
               <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] touch-pan-x">
-                <span class="text-[10px] text-indigo-300 font-bold shrink-0">Cepat:</span>
+                <span class="text-[10px] text-indigo-300 font-bold shrink-0">Tanya Suara:</span>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Siapa penanggung jawab karnaval')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ PJ Karnaval</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Hari Guru')" class="px-2 py-0.5 rounded bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ Hari Guru</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Hardiknas')" class="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ Hardiknas</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Awal Ramadhan')" class="px-2 py-0.5 rounded bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 border border-teal-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ Awal Ramadhan</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Hari Pancasila')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ Pancasila</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Siapa penanggung jawab apel hari santri')" class="px-2 py-0.5 rounded bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ PJ Hari Santri</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Siapa penanggung jawab tasmi')" class="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ PJ Tasmi'</button>
+                <button type="button" onclick="processHumasVoiceSmartCommand('Agenda Mokamat Syafii')" class="px-2 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">👤 Agenda Syafi'i</button>
                 <button type="button" onclick="processHumasVoiceSmartCommand('Acara bulan ini')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white border border-white/10 shrink-0 cursor-pointer text-[10.5px]">📅 Bulan Ini</button>
                 <button type="button" onclick="processHumasVoiceSmartCommand('Butuh pamflet')" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/30 shrink-0 cursor-pointer text-[10.5px]">🎨 Butuh Pamflet</button>
                 <button type="button" onclick="processHumasVoiceSmartCommand('Radar H-7')" class="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/30 shrink-0 cursor-pointer text-[10.5px]">🚨 Radar H-7</button>
-                <button type="button" onclick="processHumasVoiceSmartCommand('Agenda Tasmi')" class="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 shrink-0 cursor-pointer text-[10.5px]">📖 Agenda Tasmi'</button>
                 <button type="button" onclick="processHumasVoiceSmartCommand('Reset semua agenda')" class="px-2 py-0.5 rounded bg-slate-500/20 hover:bg-slate-500/30 text-slate-200 border border-slate-400/30 shrink-0 cursor-pointer text-[10.5px]">🔄 Tampilkan Semua</button>
               </div>
             </div>
@@ -1378,21 +1475,50 @@
                       <span class="inline sm:hidden">Filter:</span>
                       <span class="hidden sm:inline">Filter Kategori:</span>
                     </span>
-                    <div class="grid grid-cols-2 gap-1 flex-1 sm:flex-initial">
+                    <div class="flex items-center gap-1 flex-1 sm:flex-initial overflow-x-auto no-scrollbar py-0.5">
                       <button 
                         type="button" 
                         onclick="filterHumasTable('kategori', 'all')" 
                         id="btnFilterAllHumas" 
-                        class="humas-kat-btn active h-7 px-2 text-xs font-bold rounded-none bg-indigo-600 text-white border border-indigo-500 shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center"
+                        class="humas-kat-btn active h-7 px-2.5 text-xs font-bold rounded-none bg-indigo-600 text-white border border-indigo-500 shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center shrink-0"
                       >
                         <i data-lucide="layers" class="w-3 h-3 shrink-0"></i>
                         <span class="truncate">Semua Agenda</span>
                       </button>
                       <button 
                         type="button" 
+                        onclick="filterHumasTable('kategori', 'yayasan')" 
+                        id="btnFilterYayasanHumas" 
+                        class="humas-kat-btn h-7 px-2.5 text-xs font-semibold rounded-none bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300/60 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center shrink-0"
+                      >
+                        <i data-lucide="school" class="w-3 h-3 shrink-0 text-indigo-500"></i>
+                        <span class="truncate">Prota Yayasan</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="filterHumasTable('kategori', 'nasional')" 
+                        id="btnFilterNasionalHumas" 
+                        class="humas-kat-btn h-7 px-2.5 text-xs font-semibold rounded-none bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300/60 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center shrink-0"
+                        title="Hari Pendidikan Nasional, Hari Guru, Pancasila, Sumpah Pemuda, Hari Anak, dll"
+                      >
+                        <i data-lucide="award" class="w-3 h-3 shrink-0 text-rose-500"></i>
+                        <span class="truncate">Peringatan Nasional &amp; Edu</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="filterHumasTable('kategori', 'phbi')" 
+                        id="btnFilterPhbiHumas" 
+                        class="humas-kat-btn h-7 px-2.5 text-xs font-semibold rounded-none bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300/60 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center shrink-0"
+                        title="Hari Santri Nasional, Ramadhan, Nuzulul Quran, Idul Fitri, Maulid, dll"
+                      >
+                        <i data-lucide="moon" class="w-3 h-3 shrink-0 text-teal-500"></i>
+                        <span class="truncate">PHBI Islam</span>
+                      </button>
+                      <button 
+                        type="button" 
                         onclick="filterHumasTable('kategori', 'tasmi')" 
                         id="btnFilterTasmiHumas" 
-                        class="humas-kat-btn h-7 px-2 text-xs font-bold rounded-none bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-700/60 transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs truncate text-center"
+                        class="humas-kat-btn h-7 px-2.5 text-xs font-semibold rounded-none bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300/60 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-1 truncate text-center shrink-0"
                       >
                         <i data-lucide="book-open" class="w-3 h-3 shrink-0 text-emerald-500"></i>
                         <span class="truncate">Agenda Tasmi'</span>
@@ -2145,6 +2271,150 @@
                     <span>Simpan & Tes Koneksi</span>
                   </button>
                 </div>
+              </div>
+            </div>
+
+            <!-- MODAL RANGKUMAN DATA: PERINGATAN PENDIDIKAN, PHBN & PHBI (64 AGENDA) -->
+            <div id="modalHumasRangkumanPeringatan" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+              <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+                
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-amber-500/10 via-indigo-500/5 to-transparent">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md flex-shrink-0">
+                      <i data-lucide="calendar-check-2" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                          Rangkuman Data: Peringatan PHBN &amp; PHBI
+                        </h4>
+                        <span class="text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-extrabold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60">
+                          64 Agenda Terdata
+                        </span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 hidden sm:inline-flex">
+                          Tahun 2026–2027
+                        </span>
+                      </div>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Ringkasan agenda resmi hari peringatan pendidikan, hari besar nasional &amp; syi'ar Islam terintegrasi
+                      </p>
+                    </div>
+                  </div>
+                  <button type="button" onclick="closeModalRangkumanPeringatan()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex-shrink-0" title="Tutup Modal">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                <!-- Modal Body (Scrollable) -->
+                <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4 custom-scrollbar text-xs">
+                  
+                  <!-- 1. Grid 4 Kartu Metrik Rangkuman -->
+                  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+                    <!-- Total -->
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Agenda</span>
+                        <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                      </div>
+                      <div class="mt-1 text-xl sm:text-2xl font-black text-slate-900 dark:text-white" id="modalRangkumanTotalCount">64</div>
+                      <div class="text-[10px] text-slate-500 mt-0.5">Agenda Peringatan</div>
+                    </div>
+
+                    <!-- Edukasi -->
+                    <div class="p-3 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10.5px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Pendidikan</span>
+                        <i data-lucide="graduation-cap" class="w-4 h-4 text-indigo-500"></i>
+                      </div>
+                      <div class="mt-1 text-xl sm:text-2xl font-black text-indigo-900 dark:text-indigo-200" id="modalRangkumanEduCount">18</div>
+                      <div class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">Hardiknas, Guru, dll</div>
+                    </div>
+
+                    <!-- PHBN -->
+                    <div class="p-3 rounded-xl bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10.5px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider">PHBN Nasional</span>
+                        <i data-lucide="flag" class="w-4 h-4 text-rose-500"></i>
+                      </div>
+                      <div class="mt-1 text-xl sm:text-2xl font-black text-rose-900 dark:text-rose-200" id="modalRangkumanPhbnCount">19</div>
+                      <div class="text-[10px] text-rose-600 dark:text-rose-400 mt-0.5">HUT RI, Pahlawan, dll</div>
+                    </div>
+
+                    <!-- PHBI -->
+                    <div class="p-3 rounded-xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/50">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10.5px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider">PHBI Islam</span>
+                        <i data-lucide="moon" class="w-4 h-4 text-teal-500"></i>
+                      </div>
+                      <div class="mt-1 text-xl sm:text-2xl font-black text-teal-900 dark:text-teal-200" id="modalRangkumanPhbiCount">27</div>
+                      <div class="text-[10px] text-teal-600 dark:text-teal-400 mt-0.5">Maulid, Ramadhan, dll</div>
+                    </div>
+                  </div>
+
+                  <!-- 2. Kotak Sorotan Radar Terdekat / Peringatan Segera Tiba -->
+                  <div id="modalRangkumanUpcomingHighlight" class="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-300/80 dark:border-amber-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <!-- Dynamic upcoming event highlight -->
+                  </div>
+
+                  <!-- 3. Toolbar Pencarian & Filter Sub-Kategori di dalam Modal -->
+                  <div class="space-y-2.5">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                      <!-- Search Input -->
+                      <div class="relative flex-1">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                        <input 
+                          type="text" 
+                          id="modalRangkumanSearchInput" 
+                          oninput="filterModalRangkumanList(this.value)" 
+                          placeholder="Cari nama agenda peringatan (cth: Guru, Santri, Ramadhan, Pahlawan)..." 
+                          class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+
+                      <!-- Sub-Category Filter Buttons -->
+                      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+                        <button type="button" onclick="setModalRangkumanSubFilter('all')" id="btnSubFilterAll" class="modal-subfilter-btn active px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-600 text-white shadow-xs cursor-pointer">Semua (64)</button>
+                        <button type="button" onclick="setModalRangkumanSubFilter('edu')" id="btnSubFilterEdu" class="modal-subfilter-btn px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">🎓 Pendidikan</button>
+                        <button type="button" onclick="setModalRangkumanSubFilter('phbn')" id="btnSubFilterPhbn" class="modal-subfilter-btn px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">🇮🇩 PHBN</button>
+                        <button type="button" onclick="setModalRangkumanSubFilter('phbi')" id="btnSubFilterPhbi" class="modal-subfilter-btn px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">🕌 PHBI</button>
+                        <button type="button" onclick="setModalRangkumanSubFilter('radar')" id="btnSubFilterRadar" class="modal-subfilter-btn px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 cursor-pointer">🚨 Radar H-7</button>
+                      </div>
+                    </div>
+
+                    <!-- 4. Daftar Agenda Peringatan Terpilih (Interactive Scrollable List) -->
+                    <div id="modalRangkumanItemsContainer" class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-[340px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/80 bg-white dark:bg-slate-900/60 custom-scrollbar">
+                      <!-- Rendered by JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Modal Footer Actions -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-3.5 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80">
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                    <span id="modalRangkumanFooterNote">Menampilkan 64 agenda peringatan resmi terverifikasi</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button 
+                      type="button" 
+                      onclick="closeModalRangkumanPeringatan()" 
+                      class="px-3.5 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-all"
+                    >
+                      Tutup
+                    </button>
+                    <button 
+                      type="button" 
+                      onclick="applyRangkumanToMainTable()" 
+                      class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-all"
+                      title="Filter tabel utama Tab 10 agar menampilkan 64 agenda ini"
+                    >
+                      <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                      <span>Tampilkan di Tabel Utama</span>
+                    </button>
+                  </div>
+                </div>
+
               </div>
             </div>
 
