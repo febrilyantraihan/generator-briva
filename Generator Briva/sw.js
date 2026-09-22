@@ -4,13 +4,14 @@
  * Menjamin 100% fungsionalitas aplikasi tanpa koneksi internet (Offline Mode)
  */
 
-const CACHE_NAME = 'partner-fatih-offline-v7';
+const CACHE_NAME = 'partner-fatih-offline-v8';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './favicon.ico',
   './favicon.png',
   './icon.svg',
   './icon-192.png',
