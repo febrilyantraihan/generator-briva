@@ -1,3 +1,73 @@
+﻿    /* ==========================================================================
+       MODERN MOBILE DRAWER STYLES (APP SIDEBAR)
+       ========================================================================== */
+    #appSidebar {
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+    html.dark #appSidebar {
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+    
+    .drawer-nav-item {
+      position: relative;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    html.dark .drawer-nav-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.07);
+      box-shadow: none;
+    }
+    .drawer-nav-item:hover {
+      background: #ffffff;
+      border-color: rgba(203, 213, 225, 0.95);
+      transform: translateX(2px);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    }
+    html.dark .drawer-nav-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.35);
+    }
+    .drawer-nav-item:active {
+      transform: scale(0.98);
+    }
+    .drawer-nav-item.sidebar-active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(20, 184, 166, 0.07) 100%) !important;
+      border: 1px solid rgba(16, 185, 129, 0.45) !important;
+      box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.15) !important;
+      transform: translateX(2px) !important;
+    }
+    html.dark .drawer-nav-item.sidebar-active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(20, 184, 166, 0.1) 100%) !important;
+      border-color: rgba(52, 211, 153, 0.45) !important;
+      box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(52, 211, 153, 0.2) !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-title {
+      color: #065f46 !important;
+      font-weight: 800 !important;
+    }
+    html.dark .drawer-nav-item.sidebar-active .drawer-title {
+      color: #6ee7b7 !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-sub {
+      color: #047857 !important;
+      font-weight: 600 !important;
+    }
+    html.dark .drawer-nav-item.sidebar-active .drawer-sub {
+      color: #a7f3d0 !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-icon-box {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.35) !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-chevron {
+      color: #10b981 !important;
+      transform: translateX(2px) !important;
+    }
+
     /* Custom Scrollbars */
     ::-webkit-scrollbar {
       width: 5px;
@@ -1950,10 +2020,11 @@
       --bnav-bar-border: rgba(226, 232, 240, 0.85);
       --bnav-bar-shadow: 0 -4px 20px rgba(15, 23, 42, 0.05);
       --bnav-cutout-bg: #f8fafc;
-      --bnav-active-circle: #059669;
-      --bnav-active-circle-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+      --bnav-active-circle: #dc2626;
+      --bnav-active-circle-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
       --bnav-active-content: #ffffff;
-      --bnav-inactive: #64748b;
+      --bnav-active-label: #dc2626;
+      --bnav-inactive: #94a3b8;
     }
 
     html.dark {
@@ -1961,10 +2032,11 @@
       --bnav-bar-border: rgba(255, 255, 255, 0.07);
       --bnav-bar-shadow: 0 -6px 25px rgba(0, 0, 0, 0.5);
       --bnav-cutout-bg: #0f172a;
-      --bnav-active-circle: #10b981;
-      --bnav-active-circle-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+      --bnav-active-circle: #e11d48;
+      --bnav-active-circle-shadow: 0 6px 20px rgba(225, 29, 72, 0.45);
       --bnav-active-content: #ffffff;
-      --bnav-inactive: #94a3b8;
+      --bnav-active-label: #f87171;
+      --bnav-inactive: #64748b;
     }
 
     @media (max-width: 1023px) {
@@ -2081,7 +2153,7 @@
     }
 
     .magic-nav-item.active .magic-label {
-      color: var(--bnav-active-content) !important;
+      color: var(--bnav-active-label, #dc2626) !important;
       font-weight: 800 !important;
       font-size: 9px !important;
       line-height: 1 !important;
@@ -2134,6 +2206,99 @@
       border-top-left-radius: 14px !important;
       box-shadow: 0 -4px 0 0 var(--bnav-cutout-bg) !important;
       transition: box-shadow 0.25s ease !important;
+    }
+
+    /* ==========================================================================
+       MOBILE NATIVE REFERENCE DESIGN SYSTEM (INSPIRED BY MIJURNAL / JURNAL MENGAJAR)
+       ========================================================================== */
+    .mobile-curved-hero {
+      background: linear-gradient(135deg, #e11d48 0%, #dc2626 50%, #b91c1c 100%) !important;
+      border-bottom-left-radius: 28px !important;
+      border-bottom-right-radius: 28px !important;
+      box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.35) !important;
+      color: #ffffff !important;
+      position: relative;
+      overflow: hidden;
+    }
+    .mobile-curved-hero::after {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .mobile-ref-card {
+      background-color: #ffffff !important;
+      border-radius: 20px !important;
+      border: 1px solid rgba(241, 245, 249, 0.9) !important;
+      box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06), 0 4px 10px -2px rgba(15, 23, 42, 0.03) !important;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+    }
+    .mobile-ref-card:hover {
+      box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.1), 0 6px 14px -2px rgba(15, 23, 42, 0.05) !important;
+    }
+    html.dark .mobile-ref-card {
+      background-color: #0f172a !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* 4-Bento Colorful Stat Cards */
+    .bento-card-red {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+      box-shadow: 0 8px 20px -3px rgba(220, 38, 38, 0.35) !important;
+      color: #ffffff !important;
+      border-radius: 18px !important;
+    }
+    .bento-card-amber {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+      box-shadow: 0 8px 20px -3px rgba(245, 158, 11, 0.35) !important;
+      color: #ffffff !important;
+      border-radius: 18px !important;
+    }
+    .bento-card-teal {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      box-shadow: 0 8px 20px -3px rgba(16, 185, 129, 0.35) !important;
+      color: #ffffff !important;
+      border-radius: 18px !important;
+    }
+    .bento-card-blue {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      box-shadow: 0 8px 20px -3px rgba(59, 130, 246, 0.35) !important;
+      color: #ffffff !important;
+      border-radius: 18px !important;
+    }
+
+    /* Floating Action Button (FAB) */
+    .mobile-ref-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 76px;
+      z-index: 35;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px -3px rgba(220, 38, 38, 0.5), 0 4px 10px -2px rgba(220, 38, 38, 0.3);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+    .mobile-ref-fab:active {
+      transform: scale(0.92);
+    }
+    @media (min-width: 1024px) {
+      .mobile-ref-fab {
+        display: none !important;
+      }
     }
 
     /* 15. CATALOG CLASS GROUPING BENTO CARDS */
@@ -2414,4 +2579,25 @@
       border-radius: 0px !important;
     }
 
-
+    /* ==========================================================================
+       AI VISION PHOTO ATTENDANCE SCANNER ANIMATIONS
+       ========================================================================== */
+    @keyframes aiScanLaserAnim {
+      0% { top: 0%; opacity: 0.85; }
+      50% { top: 96%; opacity: 1; }
+      100% { top: 0%; opacity: 0.85; }
+    }
+    .ai-scanner-laser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, #f43f5e 20%, #ec4899 50%, #8b5cf6 80%, transparent 100%);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.85), 0 0 30px rgba(139, 92, 246, 0.65);
+      animation: aiScanLaserAnim 2.4s ease-in-out infinite;
+      z-index: 25;
+      pointer-events: none;
+    }
+    .ai-radar-glow {
+      box-shadow: 0 0 30px -5px rgba(225, 29, 72, 0.35), 0 0 15px -2px rgba(99, 102, 241, 0.3);
+    }
