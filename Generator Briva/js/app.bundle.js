@@ -515,7 +515,7 @@
       if (sidebar) {
         if (isDrawerOpen) {
           sidebar.classList.remove('-translate-x-full');
-          sidebar.classList.add('translate-x-0');
+          sidebar.classList.add('translate-x-0'); if (typeof lucide !== 'undefined' && lucide.createIcons) { lucide.createIcons(); }
         } else {
           sidebar.classList.add('-translate-x-full');
           sidebar.classList.remove('translate-x-0');
@@ -796,9 +796,20 @@
       }, 60);
     });
 
-    // --- 5. TAB SWITCHING LOGIC (REFERENCE BENTO WORKSPACE) ---
+    // --- 5. TAB SWITCHING & SMART MOBILE BACK NAVIGATION ---
     let activeTab = 'humas';
-    function switchTab(tabId) {
+    let tabNavHistory = [];
+    let isBackNavigating = false;
+    let lastBackPressTime = 0;
+
+    function switchTab(tabId, isBackNav = false) {
+      // Catat riwayat perpindahan tab jika bukan navigasi balik
+      if (!isBackNav && activeTab && activeTab !== tabId) {
+        if (tabNavHistory.length === 0 || tabNavHistory[tabNavHistory.length - 1] !== activeTab) {
+          tabNavHistory.push(activeTab);
+          if (tabNavHistory.length > 20) tabNavHistory.shift();
+        }
+      }
       // Auto close mobile drawer on phone when a tab is selected
       if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
         toggleMobileDrawer(false);
@@ -837,7 +848,7 @@
 
         if (t === tabId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white bg-white dark:bg-[#1e293b] shadow-xs border border-slate-200/80 dark:border-indigo-500/40 transition-all sidebar-active group';
+          if (nav) { nav.classList.add('sidebar-active'); nav.setAttribute('aria-selected', 'true'); }
           if (dock) {
             dock.className = 'dock-item dock-item-active w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-white bg-white/20 shadow-inner border border-white/25 transition-all group relative cursor-pointer';
           }
@@ -868,7 +879,7 @@
           }
         } else {
           if (el) el.classList.add('hidden');
-          if (nav) nav.className = 'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/70 transition-all group';
+          if (nav) { nav.classList.remove('sidebar-active'); nav.setAttribute('aria-selected', 'false'); }
           if (dock) {
             dock.className = 'dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer';
           }
@@ -1118,6 +1129,321 @@
       if (document.documentElement) document.documentElement.scrollTop = 0;
       safeCreateIcons();
     }
+
+    // =========================================================================
+    // SMART MOBILE BACK NAVIGATION ENGINE (HIERARCHICAL BACK STACK)
+    // Mencegah aplikasi langsung keluar saat tombol Back fisik / gesture swipe HP ditekan
+    // Menjalankan navigasi mundur lapis demi lapis: Modal -> Subtab -> Tab Sebelumnya -> Konfirmasi Keluar
+    // =========================================================================
+
+    function initSmartBackNavigation() {
+      if (!window.history || !window.history.pushState) return;
+
+      // Trap awal browser history agar event popstate dapat dicegat
+      pushBackTrapState();
+
+      window.addEventListener('popstate', function(event) {
+        handleAppBackNavigation();
+      });
+    }
+
+    function pushBackTrapState() {
+      try {
+        if (window.history && window.history.pushState) {
+          window.history.pushState({ appNavLevel: 1, timestamp: Date.now() }, document.title, window.location.href);
+        }
+      } catch (e) {}
+    }
+
+    function handleAppBackNavigation() {
+      // 1. LAPIS 1: Tutup Mobile Drawer Samping jika sedang terbuka
+      if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
+        toggleMobileDrawer(false);
+        pushBackTrapState();
+        return;
+      }
+
+      // 2. LAPIS 2: Tutup Modal / Dialog / Popup yang sedang aktif di SEMUA tab
+      if (tryCloseActiveModal()) {
+        pushBackTrapState();
+        return;
+      }
+
+      // 3. LAPIS 3: Cek Sub-Tab / Sub-View / Panel Internal di Seluruh Tab
+      
+      // (a) Tab Jurnal Guru: jika sedang membuka sub-tab selain 'beranda'
+      if (activeTab === 'jurnal' && typeof currentJurnalSubTab !== 'undefined' && currentJurnalSubTab !== 'beranda') {
+        if (typeof switchJurnalSubTab === 'function') {
+          switchJurnalSubTab('beranda');
+          if (typeof showToast === 'function') showToast('Jurnal Guru', 'Kembali ke Beranda Jurnal');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (b) Tab Akun PPDB: jika sedang di sub-tab selain 'ortu'
+      if (activeTab === 'akun' && typeof currentPpdbActiveSubtab !== 'undefined' && currentPpdbActiveSubtab !== 'ortu') {
+        if (typeof switchPpdbSubtab === 'function') {
+          switchPpdbSubtab('ortu');
+          if (typeof showToast === 'function') showToast('Akun PPDB', 'Kembali ke Data Orang Tua');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (c) Tab Tahfidz: jika panel database terbuka, tutup panel
+      const tahfidzPanel = document.getElementById('tahfidzMasterPreviewPanel');
+      if (activeTab === 'tahfidz' && tahfidzPanel && !tahfidzPanel.classList.contains('hidden')) {
+        if (typeof toggleTahfidzMasterTable === 'function') {
+          toggleTahfidzMasterTable(false);
+          if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Menutup Database Santri');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (d) Tab Tahfidz: jika sedang di sub-view 'rekap'
+      if (activeTab === 'tahfidz' && typeof currentTahfidzSubView !== 'undefined' && currentTahfidzSubView !== 'generator') {
+        if (typeof switchTahfidzSubView === 'function') {
+          switchTahfidzSubView('generator');
+          if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Kembali ke Generator Sertifikat');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (e) Tab Tahfidz: jika sedang mencari santri di input pencarian
+      const tahfidzSearch = document.getElementById('tahfidzSearchInput');
+      if (activeTab === 'tahfidz' && tahfidzSearch && tahfidzSearch.value.trim() !== '') {
+        if (typeof clearTahfidzSearch === 'function') {
+          clearTahfidzSearch();
+          if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Pencarian santri direset');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (f) Tab Humas & Sosmed: jika form tambah tugas cepat terbuka
+      const humasTaskForm = document.getElementById('humasTaskAddForm');
+      if (activeTab === 'humas' && humasTaskForm && !humasTaskForm.classList.contains('hidden')) {
+        if (typeof toggleHumasTaskAddForm === 'function') {
+          toggleHumasTaskAddForm();
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (g) Tab Humas & Sosmed: jika filter kategori aktif selain 'all'
+      if (activeTab === 'humas' && typeof humasState !== 'undefined' && humasState.currentKategoriFilter && humasState.currentKategoriFilter !== 'all') {
+        humasState.currentKategoriFilter = 'all';
+        const filterSelect = document.getElementById('humasKategoriFilter');
+        if (filterSelect) filterSelect.value = 'all';
+        if (typeof renderHumasTable === 'function') renderHumasTable();
+        if (typeof showToast === 'function') showToast('Humas & Sosmed', 'Filter kategori dikembalikan ke Semua Agenda');
+        pushBackTrapState();
+        return;
+      }
+
+      // (h) Tab Humas & Sosmed: jika ada teks pencarian agenda
+      const humasSearch = document.getElementById('humasSearchInput');
+      if (activeTab === 'humas' && humasSearch && humasSearch.value.trim() !== '') {
+        humasSearch.value = '';
+        if (typeof renderHumasTable === 'function') renderHumasTable();
+        if (typeof showToast === 'function') showToast('Humas & Sosmed', 'Pencarian agenda dibersihkan');
+        pushBackTrapState();
+        return;
+      }
+
+      // (i) Tab Template WhatsApp: jika memilih template selain 'syahriyah'
+      if (activeTab === 'wa' && typeof currentWaTemplateId !== 'undefined' && currentWaTemplateId !== 'syahriyah') {
+        if (typeof selectWaTemplate === 'function') {
+          selectWaTemplate('syahriyah');
+          if (typeof showToast === 'function') showToast('Template WhatsApp', 'Kembali ke Template Tagihan Syahriyah');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // (j) Tab Panggil Tagihan: jika memilih kategori selain 'bulanan'
+      if (activeTab === 'panggil' && typeof singleSelectedCategory !== 'undefined' && singleSelectedCategory !== 'bulanan') {
+        if (typeof switchSingleCategory === 'function') {
+          switchSingleCategory('bulanan');
+          if (typeof showToast === 'function') showToast('Panggil Tagihan', 'Kembali ke Kategori Bulanan');
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // 4. LAPIS 4: Riwayat Antar-Tab (Tab Navigation Stack Seluruh 11 Tab)
+      if (tabNavHistory.length > 0) {
+        const prevTab = tabNavHistory.pop();
+        if (prevTab && prevTab !== activeTab) {
+          isBackNavigating = true;
+          switchTab(prevTab, true);
+          isBackNavigating = false;
+          if (typeof showToast === 'function') {
+            const tabNames = {
+              humas: 'Humas & Sosmed', tahfidz: 'Tahfidz Tasmi\'', briva: 'Generator BRIVA',
+              akun: 'Generator Akun', konverter: 'Konverter Excel', panggil: 'Panggil Tagihan',
+              katalog: 'Katalog Biaya', pembersih: 'Pembersih & SUM', panduan: 'Panduan Excel',
+              wa: 'Template WA', jurnal: 'Jurnal Guru'
+            };
+            showToast('Navigasi Tab', 'Kembali ke tab ' + (tabNames[prevTab] || prevTab));
+          }
+          pushBackTrapState();
+          return;
+        }
+      } else {
+        const rootTab = window.appRootTab || 'humas';
+        if (activeTab !== rootTab) {
+          isBackNavigating = true;
+          switchTab(rootTab, true);
+          isBackNavigating = false;
+          if (typeof showToast === 'function') {
+            showToast('Navigasi Beranda', 'Kembali ke Beranda Utama');
+          }
+          pushBackTrapState();
+          return;
+        }
+      }
+
+      // 5. LAPIS 5: Tampilan Paling Awal (Root Screen) -> Proteksi Keluar Double-Tap
+      const now = Date.now();
+      if (now - lastBackPressTime < 2000) {
+        // Pengguna menekan Back 2x berturut-turut dalam 2 detik -> Izinkan keluar
+        if (typeof showToast === 'function') {
+          showToast('Partner Fatih', 'Keluar dari aplikasi...');
+        }
+        setTimeout(() => {
+          try {
+            if (window.history.length > 1) {
+              window.history.go(-1);
+            } else {
+              window.close();
+            }
+          } catch (e) {}
+        }, 350);
+      } else {
+        lastBackPressTime = now;
+        if (typeof showToast === 'function') {
+          showToast('Keluar Aplikasi', 'Tekan sekali lagi untuk keluar dari aplikasi');
+        }
+        pushBackTrapState();
+      }
+    }
+
+    function tryCloseActiveModal() {
+      // 1. Modul Jurnal Guru
+      const jurnalScanner = document.getElementById('jurnalAiScannerModal');
+      if (jurnalScanner && !jurnalScanner.classList.contains('hidden') && jurnalScanner.style.display !== 'none') {
+        if (typeof closeJurnalAiScannerModal === 'function') closeJurnalAiScannerModal();
+        return true;
+      }
+      const jurnalQuiz = document.getElementById('jurnalAiQuizModal');
+      if (jurnalQuiz && !jurnalQuiz.classList.contains('hidden') && jurnalQuiz.style.display !== 'none') {
+        if (typeof closeJurnalAiQuizModal === 'function') closeJurnalAiQuizModal();
+        return true;
+      }
+      const jurnalWa = document.getElementById('jurnalWaModal');
+      if (jurnalWa && !jurnalWa.classList.contains('hidden') && jurnalWa.style.display !== 'none') {
+        if (typeof closeJurnalWaModal === 'function') closeJurnalWaModal();
+        return true;
+      }
+      const jurnalDetail = document.getElementById('jurnalDetailModal');
+      if (jurnalDetail && !jurnalDetail.classList.contains('hidden') && jurnalDetail.style.display !== 'none') {
+        if (typeof closeJurnalDetailModal === 'function') closeJurnalDetailModal();
+        return true;
+      }
+      const jurnalVoice = document.getElementById('jurnalVoiceAnswerCard');
+      if (jurnalVoice && !jurnalVoice.classList.contains('hidden') && jurnalVoice.style.display !== 'none') {
+        if (typeof closeJurnalVoiceAnswerCard === 'function') closeJurnalVoiceAnswerCard();
+        return true;
+      }
+
+      // 2. Modul Humas & Sosmed
+      const humasEdit = document.getElementById('modalEditProgram');
+      if (humasEdit && !humasEdit.classList.contains('hidden') && humasEdit.style.display !== 'none') {
+        if (typeof closeModalEditProgram === 'function') closeModalEditProgram();
+        return true;
+      }
+      const humasAdd = document.getElementById('modalAddProgram');
+      if (humasAdd && !humasAdd.classList.contains('hidden') && humasAdd.style.display !== 'none') {
+        if (typeof closeModalAddProgram === 'function') closeModalAddProgram();
+        return true;
+      }
+      const humasImport = document.getElementById('modalHumasBulkImport');
+      if (humasImport && !humasImport.classList.contains('hidden') && humasImport.style.display !== 'none') {
+        if (typeof closeModalHumasBulkImport === 'function') closeModalHumasBulkImport();
+        return true;
+      }
+      const humasRangkuman = document.getElementById('modalHumasRangkumanPeringatan') || document.getElementById('modalRangkumanPeringatan');
+      if (humasRangkuman && !humasRangkuman.classList.contains('hidden') && humasRangkuman.style.display !== 'none') {
+        if (typeof closeModalRangkumanPeringatan === 'function') closeModalRangkumanPeringatan();
+        return true;
+      }
+      const humasMetric = document.getElementById('humasMetricDetailModal');
+      if (humasMetric && !humasMetric.classList.contains('hidden') && humasMetric.style.display !== 'none') {
+        if (typeof closeHumasMetricDetailModal === 'function') closeHumasMetricDetailModal();
+        return true;
+      }
+      const humasSupa = document.getElementById('modalSupabaseConfig');
+      if (humasSupa && !humasSupa.classList.contains('hidden') && humasSupa.style.display !== 'none') {
+        if (typeof closeModalSupabaseConfig === 'function') closeModalSupabaseConfig();
+        return true;
+      }
+
+      // 3. Modul Tahfidz
+      const tahfidzModal = document.getElementById('tahfidzStudentModal');
+      if (tahfidzModal && !tahfidzModal.classList.contains('hidden') && tahfidzModal.style.display !== 'none') {
+        if (typeof closeTahfidzStudentModal === 'function') closeTahfidzStudentModal();
+        return true;
+      }
+
+      // 4. Modul Katalog
+      const catImg = document.getElementById('catalogImageModal');
+      if (catImg && !catImg.classList.contains('hidden') && catImg.style.display !== 'none') {
+        if (typeof closeCatalogImageModal === 'function') closeCatalogImageModal();
+        return true;
+      }
+      const briModal = document.getElementById('briCodeModal');
+      if (briModal && !briModal.classList.contains('hidden') && briModal.style.display !== 'none') {
+        if (typeof closeBriCodeModal === 'function') closeBriCodeModal();
+        return true;
+      }
+
+      // 5. Modul Akun PPDB & BRIVA
+      const ppdbBriva = document.getElementById('ppdbBulkSetBrivaModal');
+      if (ppdbBriva && !ppdbBriva.classList.contains('hidden') && ppdbBriva.style.display !== 'none') {
+        if (typeof closePpdbBulkSetBrivaModal === 'function') closePpdbBulkSetBrivaModal();
+        return true;
+      }
+      const confMukim = document.getElementById('confirmMukimModal');
+      if (confMukim && !confMukim.classList.contains('hidden') && confMukim.style.display !== 'none') {
+        if (typeof closeConfirmMukimModal === 'function') closeConfirmMukimModal();
+        return true;
+      }
+
+      // 6. Generic Fallback untuk semua elemen modal dengan class fixed / backdrop
+      const anyModals = document.querySelectorAll('[id^="modal"], [id$="Modal"], .modal-portal');
+      for (let i = 0; i < anyModals.length; i++) {
+        const m = anyModals[i];
+        if (m && !m.classList.contains('hidden') && m.style.display !== 'none') {
+          const closeBtn = m.querySelector('button[onclick*="close"], button[aria-label*="close" i], .modal-close');
+          if (closeBtn) {
+            closeBtn.click();
+            return true;
+          }
+          m.classList.add('hidden');
+          m.style.display = 'none';
+          return true;
+        }
+      }
+
+      return false;
+    }
+    window.initSmartBackNavigation = initSmartBackNavigation;
+    window.handleAppBackNavigation = handleAppBackNavigation;
+    window.pushBackTrapState = pushBackTrapState;
 
     /**
      * =========================================================================
@@ -18918,8 +19244,30 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       }
     ];
 
+    // =========================================================================
+    // MASTER DATA RESMI: 94 HARI PERINGATAN PENDIDIKAN, PHBN & PHBI (2026-2027)
+    // Kalender Lengkap Edukasi, Kebangsaan, Literasi, Karakter Santri & Islam
+    // Sesuai Batas Akhir Kalender Program Tahunan YTPAI 2026-2027
+    // =========================================================================
     const EDUCATIONAL_COMMEMORATIVE_DAYS = [
-      // --- TAHUN 2026 ---
+      // --- TAHUN 2026 (47 AGENDA PERINGATAN RESMI) ---
+      {
+        id: 'phbn-tahun-baru-2026',
+        tgl: '01',
+        startDate: '2026-01-01',
+        endDate: '2026-01-01',
+        bulan: 'Januari',
+        tahun: '2026',
+        uraian: 'Tahun Baru Masehi 2026 (Refleksi Awal Tahun, Doa Bersama & Resolusi Belajar Santri)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Seluruh Asatidz, Santri & Karyawan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Tahun Baru'
+      },
       {
         id: 'phbi-isra-miraj-2026',
         tgl: '16',
@@ -18927,7 +19275,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-01-16',
         bulan: 'Januari',
         tahun: '2026',
-        uraian: "Peringatan Isra Mi'raj Nabi Muhammad SAW 1447 H (Edukasi Disiplin Shalat & Akhlakul Karimah)",
+        uraian: 'Peringatan Isra Mi\'raj Nabi Muhammad SAW 1447 H (Edukasi Disiplin Shalat & Akhlakul Karimah)',
         pj: 'Humas & BPMP',
         sasaran: 'Seluruh Asatidz, Santri & Wali Santri',
         statusPamflet: 'belum',
@@ -18961,7 +19309,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-02-03',
         bulan: 'Februari',
         tahun: '2026',
-        uraian: "Malam Nisfu Sya'ban 1447 H (Doa Bersama, Muhasabah & Persiapan Ramadhan)",
+        uraian: 'Malam Nisfu Sya\'ban 1447 H (Doa Bersama, Muhasabah & Persiapan Ramadhan)',
         pj: 'Pengasuh Pondok & Humas',
         sasaran: 'Santri Pondok & Asatidz',
         statusPamflet: 'belum',
@@ -18970,6 +19318,23 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'phbi',
         isPeringatan: true,
         badge: 'PHBI'
+      },
+      {
+        id: 'edu-pers-2026',
+        tgl: '09',
+        startDate: '2026-02-09',
+        endDate: '2026-02-09',
+        bulan: 'Februari',
+        tahun: '2026',
+        uraian: 'Hari Pers Nasional (HPN 2026 - Edukasi Jurnalistik Santri, Literasi Media & Anti-Hoaks)',
+        pj: 'Redaksi Mading & Humas',
+        sasaran: 'Tim Jurnalistik Santri & Pengurus',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'phbi-awal-ramadhan-2026',
@@ -19029,7 +19394,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-03-06',
         bulan: 'Maret',
         tahun: '2026',
-        uraian: "Peringatan Nuzulul Qur'an 1447 H (Malam Syiar Al-Qur'an, Tasmi' & Khotmil Qur'an)",
+        uraian: 'Peringatan Nuzulul Qur\'an 1447 H (Malam Syiar Al-Qur\'an, Tasmi\' & Khotmil Qur\'an)',
         pj: 'Koord. Tahfidz & Humas',
         sasaran: 'Santri Tahfidz, Asatidz & Wali Santri',
         statusPamflet: 'belum',
@@ -19063,7 +19428,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-03-21',
         bulan: 'Maret',
         tahun: '2026',
-        uraian: "Hari Puisi Sedunia (Apresiasi Sastra, Cipta Puisi & Syi'ir Santri)",
+        uraian: 'Hari Puisi Sedunia (Apresiasi Sastra, Cipta Puisi & Syi\'ir Santri)',
         pj: 'Guru Bahasa & Seni',
         sasaran: 'Santri & Pengajar',
         statusPamflet: 'belum',
@@ -19126,6 +19491,23 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         badge: 'Edukasi'
       },
       {
+        id: 'phbn-buruh-2026',
+        tgl: '01',
+        startDate: '2026-05-01',
+        endDate: '2026-05-01',
+        bulan: 'Mei',
+        tahun: '2026',
+        uraian: 'Hari Buruh Internasional (May Day - Apresiasi Dedikasi Tenaga Kependidikan & Karyawan)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Karyawan & Tenaga Kependidikan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
+      },
+      {
         id: 'edu-hardiknas-2026',
         tgl: '02',
         startDate: '2026-05-02',
@@ -19141,7 +19523,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'edukasi',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hardiknas'
+        badge: 'PHBN/Edukasi'
       },
       {
         id: 'edu-buku-nasional-2026',
@@ -19176,7 +19558,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Harkitnas'
+        badge: 'PHBN'
       },
       {
         id: 'phbi-arafah-2026',
@@ -19210,7 +19592,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Idul Adha'
+        badge: 'PHBI'
       },
       {
         id: 'phbn-pancasila-2026',
@@ -19228,7 +19610,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Pancasila'
+        badge: 'PHBN'
       },
       {
         id: 'edu-lingkungan-2026',
@@ -19237,7 +19619,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-06-05',
         bulan: 'Juni',
         tahun: '2026',
-        uraian: "Hari Lingkungan Hidup Sedunia (Aksi Adiwiyata, Ro'an Akbar Kebersihan Madrasah & Asrama)",
+        uraian: 'Hari Lingkungan Hidup Sedunia (Aksi Adiwiyata, Ro\'an Akbar Kebersihan Madrasah & Asrama)',
         pj: 'Sarpras & Humas',
         sasaran: 'Seluruh Santri & Pengurus',
         statusPamflet: 'belum',
@@ -19254,7 +19636,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-06-16',
         bulan: 'Juni',
         tahun: '2026',
-        uraian: "Tahun Baru Islam 1 Muharram 1448 H (Pawai Ta'aruf Hijriah & Refleksi Awal Tahun Santri)",
+        uraian: 'Tahun Baru Islam 1 Muharram 1448 H (Pawai Ta\'aruf Hijriah & Refleksi Awal Tahun Santri)',
         pj: 'Yayasan & Humas',
         sasaran: 'Keluarga Besar YTPAI RML',
         statusPamflet: 'belum',
@@ -19262,7 +19644,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: '1 Muharram'
+        badge: 'PHBI'
       },
       {
         id: 'phbi-asyura-2026',
@@ -19279,7 +19661,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Asyura'
+        badge: 'PHBI'
       },
       {
         id: 'edu-han-2026',
@@ -19296,7 +19678,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Hari Anak'
+        badge: 'Edukasi'
       },
       {
         id: 'edu-teknologi-2026',
@@ -19313,7 +19695,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Teknologi'
+        badge: 'Edukasi'
       },
       {
         id: 'edu-pramuka-2026',
@@ -19330,7 +19712,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Pramuka'
+        badge: 'Edukasi'
       },
       {
         id: 'phbn-hut-ri-2026',
@@ -19348,7 +19730,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'HUT RI'
+        badge: 'PHBN'
       },
       {
         id: 'phbi-maulid-2026',
@@ -19365,7 +19747,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Maulid Nabi'
+        badge: 'PHBI'
       },
       {
         id: 'edu-aksara-2026',
@@ -19382,7 +19764,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Literasi'
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbn-haornas-2026',
+        tgl: '09',
+        startDate: '2026-09-09',
+        endDate: '2026-09-09',
+        bulan: 'September',
+        tahun: '2026',
+        uraian: 'Hari Olahraga Nasional (Haornas 2026 - Santri Sehat, Kuat, Bugar & Sportif)',
+        pj: 'Guru Penjasorkes & Humas',
+        sasaran: 'Seluruh Santri & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
       },
       {
         id: 'phbn-kesaktian-pancasila-2026',
@@ -19400,7 +19799,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Kesaktian Pancasila'
+        badge: 'PHBN'
       },
       {
         id: 'phbn-batik-2026',
@@ -19417,7 +19816,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'nasional',
         isPeringatan: true,
-        badge: 'Batik'
+        badge: 'Nasional'
+      },
+      {
+        id: 'phbn-tni-2026',
+        tgl: '05',
+        startDate: '2026-10-05',
+        endDate: '2026-10-05',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'HUT TNI Ke-81 (TNI Bersama Rakyat & Santri Kuat Menjaga Kedaulatan NKRI)',
+        pj: 'Humas & Kesiswaan',
+        sasaran: 'Warga YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
       },
       {
         id: 'edu-guru-sedunia-2026',
@@ -19426,7 +19842,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-10-05',
         bulan: 'Oktober',
         tahun: '2026',
-        uraian: 'Hari Guru Sedunia (World Teachers Day - Menghargai Dedikasi Pahlawan Tanpa Tanda Jasa)',
+        uraian: 'Hari Guru Sedunia (World Teachers\' Day - Menghargai Dedikasi Pahlawan Tanpa Tanda Jasa)',
         pj: 'OSIS & Humas',
         sasaran: 'Pendidik di Seluruh Dunia & YTPAI',
         statusPamflet: 'belum',
@@ -19434,7 +19850,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Guru Sedunia'
+        badge: 'Edukasi'
       },
       {
         id: 'edu-ctps-2026',
@@ -19451,7 +19867,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Kesehatan'
+        badge: 'Edukasi'
       },
       {
         id: 'phbi-hsn-2026',
@@ -19469,7 +19885,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'phbi',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hari Santri'
+        badge: 'PUNCAK PESANTREN'
       },
       {
         id: 'phbn-sumpah-pemuda-2026',
@@ -19487,7 +19903,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Sumpah Pemuda'
+        badge: 'PHBN'
       },
       {
         id: 'phbn-pahlawan-2026',
@@ -19505,7 +19921,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hari Pahlawan'
+        badge: 'PHBN'
       },
       {
         id: 'edu-ayah-hkn-2026',
@@ -19522,7 +19938,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Hari Ayah'
+        badge: 'Edukasi'
       },
       {
         id: 'edu-anak-sedunia-2026',
@@ -19531,7 +19947,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-11-20',
         bulan: 'November',
         tahun: '2026',
-        uraian: 'Hari Anak Sedunia (World Children Day - Hak Belajar Tanpa Kekerasan & Penuh Kasih)',
+        uraian: 'Hari Anak Sedunia (World Children\'s Day - Hak Belajar Tanpa Kekerasan & Penuh Kasih)',
         pj: 'BK & Humas',
         sasaran: 'Santri & Guru BK',
         statusPamflet: 'belum',
@@ -19539,7 +19955,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Anak Sedunia'
+        badge: 'Edukasi'
       },
       {
         id: 'edu-hgn-2026',
@@ -19557,7 +19973,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'edukasi',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hari Guru'
+        badge: 'PHBN/Edukasi'
+      },
+      {
+        id: 'phbn-korpri-2026',
+        tgl: '29',
+        startDate: '2026-11-29',
+        endDate: '2026-11-29',
+        bulan: 'November',
+        tahun: '2026',
+        uraian: 'HUT KORPRI Ke-55 (Pelayanan Prima & Pengabdian ASN/Pendidik Madrasah)',
+        pj: 'Tata Usaha & Humas',
+        sasaran: 'Dewan Guru & Tenaga Kependidikan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
       },
       {
         id: 'edu-disabilitas-2026',
@@ -19574,7 +20007,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Inklusi'
+        badge: 'Edukasi'
       },
       {
         id: 'edu-antikorupsi-2026',
@@ -19591,7 +20024,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Integritas'
+        badge: 'Edukasi'
       },
       {
         id: 'phbi-bahasa-arab-2026',
@@ -19600,7 +20033,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2026-12-18',
         bulan: 'Desember',
         tahun: '2026',
-        uraian: "Hari Bahasa Arab Sedunia (UNESCO - Bahasa Al-Qur'an, Khazanah Keilmuan Islam & Syiar Pesantren)",
+        uraian: 'Hari Bahasa Arab Sedunia (UNESCO - Bahasa Al-Qur\'an, Khazanah Keilmuan Islam & Syiar Pesantren)',
         pj: 'LPBA & Humas',
         sasaran: 'Santri Madin, Madrasah & Asatidz',
         statusPamflet: 'belum',
@@ -19608,7 +20041,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Bahasa Arab'
+        badge: 'PHBI/Bahasa'
       },
       {
         id: 'phbn-ibu-2026',
@@ -19626,10 +20059,26 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hari Ibu'
+        badge: 'PHBN'
       },
-
-      // --- TAHUN 2027 ---
+      // --- TAHUN 2027 (47 AGENDA PERINGATAN RESMI) ---
+      {
+        id: 'phbn-tahun-baru-2027',
+        tgl: '01',
+        startDate: '2027-01-01',
+        endDate: '2027-01-01',
+        bulan: 'Januari',
+        tahun: '2027',
+        uraian: 'Tahun Baru Masehi 2027 (Refleksi, Muhasabah & Semangat Baru Pendidikan YTPAI)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Seluruh Asatidz, Santri & Karyawan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Tahun Baru'
+      },
       {
         id: 'phbi-isra-miraj-2027',
         tgl: '05',
@@ -19637,9 +20086,9 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-01-05',
         bulan: 'Januari',
         tahun: '2027',
-        uraian: "Peringatan Isra Mi'raj Nabi Muhammad SAW 1448 H",
+        uraian: 'Peringatan Isra Mi\'raj Nabi Muhammad SAW 1448 H (Keteladanan Shalat Berjamaah & Akhlak)',
         pj: 'Humas & BPMP',
-        sasaran: 'Seluruh Warga YTPAI',
+        sasaran: 'Seluruh Warga YTPAI & Wali Santri',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA',
@@ -19654,7 +20103,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-01-23',
         bulan: 'Januari',
         tahun: '2027',
-        uraian: "Malam Nisfu Sya'ban 1448 H (Muhasabah & Doa Bersama)",
+        uraian: 'Malam Nisfu Sya\'ban 1448 H (Muhasabah, Doa Bersama & Persiapan Menyambut Ramadhan)',
         pj: 'Pengasuh Pondok & Humas',
         sasaran: 'Santri & Asatidz',
         statusPamflet: 'belum',
@@ -19671,7 +20120,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-01-24',
         bulan: 'Januari',
         tahun: '2027',
-        uraian: 'Hari Pendidikan Internasional 2027 (Transformasi Pendidikan & Literasi Global)',
+        uraian: 'Hari Pendidikan Internasional 2027 (Transformasi Pendidikan, Karakter & Literasi Global)',
         pj: 'BPMP & Humas',
         sasaran: 'Dewan Guru & Santri',
         statusPamflet: 'belum',
@@ -19688,7 +20137,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-02-08',
         bulan: 'Februari',
         tahun: '2027',
-        uraian: 'Awal Puasa Ramadhan 1448 H (Tarhib & Pembukaan Pesantren Kilat)',
+        uraian: 'Awal Puasa Ramadhan 1448 H (Tarhib Ramadhan, Tadarrus Al-Qur\'an & Pembukaan Kilatan)',
         pj: 'Pengurus Pondok & Humas',
         sasaran: 'Seluruh Santri & Warga YTPAI',
         statusPamflet: 'belum',
@@ -19699,15 +20148,49 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         badge: 'PHBI'
       },
       {
+        id: 'edu-pers-2027',
+        tgl: '09',
+        startDate: '2027-02-09',
+        endDate: '2027-02-09',
+        bulan: 'Februari',
+        tahun: '2027',
+        uraian: 'Hari Pers Nasional (HPN 2027 - Kreativitas Mading, Syiar Digital & Santri Melek Informasi)',
+        pj: 'Tim Jurnalistik & Humas',
+        sasaran: 'Santri & Pembina',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
         id: 'edu-bahasa-ibu-2027',
         tgl: '21',
         startDate: '2027-02-21',
         endDate: '2027-02-21',
         bulan: 'Februari',
         tahun: '2027',
-        uraian: 'Hari Bahasa Ibu Internasional 2027',
+        uraian: 'Hari Bahasa Ibu Internasional 2027 (Kearifan Budaya Lokal & Pelestarian Bahasa Daerah)',
         pj: 'Waka Kurikulum & Guru Bahasa',
         sasaran: 'Santri & Dewan Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-sampah-2027',
+        tgl: '21',
+        startDate: '2027-02-21',
+        endDate: '2027-02-21',
+        bulan: 'Februari',
+        tahun: '2027',
+        uraian: 'Hari Peduli Sampah Nasional 2027 (Gerakan Pesantren Asri, Zero Waste & Pilah Sampah)',
+        pj: 'Sarpras & UKS',
+        sasaran: 'Seluruh Santri & Warga Pondok',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA',
@@ -19722,9 +20205,9 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-02-24',
         bulan: 'Februari',
         tahun: '2027',
-        uraian: "Peringatan Nuzulul Qur'an 1448 H (Syiar Al-Qur'an & Khotmil Qur'an Santri)",
+        uraian: 'Peringatan Nuzulul Qur\'an 1448 H (Syiar Al-Qur\'an, Khotmil Qur\'an & Doa Santri)',
         pj: 'Koord. Tahfidz & Humas',
-        sasaran: 'Santri Tahfidz & Wali Santri',
+        sasaran: 'Santri Tahfidz, Asatidz & Wali Santri',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA,TT',
@@ -19739,15 +20222,32 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-03-10',
         bulan: 'Maret',
         tahun: '2027',
-        uraian: 'Hari Raya Idul Fitri 1448 H (Tahniah Selamat Idul Fitri & Maaf Lahir Batin)',
+        uraian: 'Hari Raya Idul Fitri 1448 H (Tahniah Selamat Idul Fitri & Mohon Maaf Lahir Batin)',
         pj: 'Yayasan & Humas',
-        sasaran: 'Keluarga Besar YTPAI RML & Masyarakat',
+        sasaran: 'Keluarga Besar YTPAI RML & Masyarakat Luas',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Idul Fitri'
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-puisi-2027',
+        tgl: '21',
+        startDate: '2027-03-21',
+        endDate: '2027-03-21',
+        bulan: 'Maret',
+        tahun: '2027',
+        uraian: 'Hari Puisi Sedunia 2027 (Kreasi Syi\'ir, Syair Dakwah & Sastra Santri)',
+        pj: 'Guru Bahasa & Seni',
+        sasaran: 'Santri & Pendidik',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'phbn-kartini-2027',
@@ -19756,15 +20256,33 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-04-21',
         bulan: 'April',
         tahun: '2027',
-        uraian: 'Peringatan Hari Kartini 2027 (Inspirasi Pendidikan Santriwati)',
+        uraian: 'Peringatan Hari Kartini 2027 (Inspirasi Pendidikan & Kepemimpinan Santriwati)',
         pj: 'Kepala Madrasah & Humas',
-        sasaran: 'Santriwati & Guru',
+        sasaran: 'Santriwati, Asatidzah & Guru',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA',
         kategori: 'nasional',
         isPeringatan: true,
+        isPeringatanNasional: true,
         badge: 'PHBN'
+      },
+      {
+        id: 'edu-bumi-2027',
+        tgl: '22',
+        startDate: '2027-04-22',
+        endDate: '2027-04-22',
+        bulan: 'April',
+        tahun: '2027',
+        uraian: 'Hari Bumi Sedunia 2027 (Aksi Nyata Pesantren Ramah Lingkungan & Penghijauan)',
+        pj: 'Sarpras & Humas',
+        sasaran: 'Santri & Pengurus Asrama',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'edu-buku-sedunia-2027',
@@ -19773,7 +20291,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-04-23',
         bulan: 'April',
         tahun: '2027',
-        uraian: 'Hari Buku Sedunia 2027 (Pekan Literasi Pesantren)',
+        uraian: 'Hari Buku Sedunia 2027 (Pekan Literasi Pesantren & Kajian Khazanah Turats)',
         pj: 'Perpustakaan & Humas',
         sasaran: 'Santri & Pengajar',
         statusPamflet: 'belum',
@@ -19784,13 +20302,30 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         badge: 'Edukasi'
       },
       {
+        id: 'phbn-buruh-2027',
+        tgl: '01',
+        startDate: '2027-05-01',
+        endDate: '2027-05-01',
+        bulan: 'Mei',
+        tahun: '2027',
+        uraian: 'Hari Buruh Internasional 2027 (Penghargaan Integritas & Kerja Ikhlas Karyawan YTPAI)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Karyawan & Tenaga Kependidikan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
+      },
+      {
         id: 'edu-hardiknas-2027',
         tgl: '02',
         startDate: '2027-05-02',
         endDate: '2027-05-02',
         bulan: 'Mei',
         tahun: '2027',
-        uraian: 'Hari Pendidikan Nasional (Hardiknas 2027 - Semarak Merdeka Belajar)',
+        uraian: 'Hari Pendidikan Nasional (Hardiknas 2027 - Semarak Merdeka Belajar & Prestasi Berkelanjutan)',
         pj: 'Yayasan & Humas',
         sasaran: 'Seluruh Asatidz, Guru & Santri',
         statusPamflet: 'belum',
@@ -19799,7 +20334,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'edukasi',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hardiknas'
+        badge: 'PHBN/Edukasi'
+      },
+      {
+        id: 'phbi-arafah-2027',
+        tgl: '15',
+        startDate: '2027-05-15',
+        endDate: '2027-05-15',
+        bulan: 'Mei',
+        tahun: '2027',
+        uraian: 'Hari Arafah 1448 H (Puasa Sunnah Arafah, Istighotsah Akbar & Doa Bersama)',
+        pj: 'Pengasuh Pondok & Humas',
+        sasaran: 'Seluruh Santri & Wali Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
       },
       {
         id: 'phbi-idul-adha-2027',
@@ -19808,7 +20360,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-05-16',
         bulan: 'Mei',
         tahun: '2027',
-        uraian: 'Hari Raya Idul Adha 1448 H (Edukasi Qurban & Kepedulian Sosial Santri)',
+        uraian: 'Hari Raya Idul Adha 1448 H (Edukasi Qurban, Ibadah Sosial & Pembagian Daging Qurban)',
         pj: 'Panitia Qurban & Humas',
         sasaran: 'Warga YTPAI & Lingkungan Babat',
         statusPamflet: 'belum',
@@ -19816,7 +20368,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Idul Adha'
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-buku-nasional-2027',
+        tgl: '17',
+        startDate: '2027-05-17',
+        endDate: '2027-05-17',
+        bulan: 'Mei',
+        tahun: '2027',
+        uraian: 'Hari Buku Nasional 2027 (Festival Literasi & Apresiasi Karya Tulis Santri)',
+        pj: 'Perpustakaan & Humas',
+        sasaran: 'Seluruh Santri & Warga YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'phbn-harkitnas-2027',
@@ -19825,7 +20394,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-05-20',
         bulan: 'Mei',
         tahun: '2027',
-        uraian: 'Hari Kebangkitan Nasional (Harkitnas 2027)',
+        uraian: 'Hari Kebangkitan Nasional (Harkitnas 2027 - Menatap Masa Depan Pendidikan Gemilang)',
         pj: 'Kesiswaan & Humas',
         sasaran: 'Santri & Guru',
         statusPamflet: 'belum',
@@ -19833,7 +20402,8 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'nasional',
         isPeringatan: true,
-        badge: 'Harkitnas'
+        isPeringatanNasional: true,
+        badge: 'PHBN'
       },
       {
         id: 'phbn-pancasila-2027',
@@ -19851,7 +20421,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kategori: 'nasional',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Pancasila'
+        badge: 'PHBN'
+      },
+      {
+        id: 'edu-lingkungan-2027',
+        tgl: '05',
+        startDate: '2027-06-05',
+        endDate: '2027-06-05',
+        bulan: 'Juni',
+        tahun: '2027',
+        uraian: 'Hari Lingkungan Hidup Sedunia 2027 (Ro\'an Kebersihan & Komitmen Pesantren Bebas Polusi)',
+        pj: 'Sarpras & Humas',
+        sasaran: 'Seluruh Santri & Pengurus Asrama',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'phbi-muharram-2027',
@@ -19868,7 +20455,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: '1 Muharram'
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbi-asyura-2027',
+        tgl: '15',
+        startDate: '2027-06-15',
+        endDate: '2027-06-15',
+        bulan: 'Juni',
+        tahun: '2027',
+        uraian: 'Hari Asyura 10 Muharram 1449 H (Puasa Sunnah Asyura & Santunan Anak Yatim)',
+        pj: 'Sie Sosial & Humas',
+        sasaran: 'Santri Yatim & Dhuafa Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
       },
       {
         id: 'edu-han-2027',
@@ -19877,33 +20481,49 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-07-23',
         bulan: 'Juli',
         tahun: '2027',
-        uraian: 'Hari Anak Nasional 2027 (Sekolah Ramah Santri & Pelindungan Hak Belajar Anak)',
-        pj: 'BK & Humas',
-        sasaran: 'Santri & Wali Murid',
+        uraian: 'Hari Anak Nasional (HAN 2027 - Perlindungan Santri, Hak Belajar & Prestasi Prima)',
+        pj: 'Kesiswaan & BK',
+        sasaran: 'Santri & Wali Santri',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA',
         kategori: 'edukasi',
         isPeringatan: true,
-        badge: 'Hari Anak'
+        badge: 'Edukasi'
       },
       {
-        id: 'phbn-hut-ri-2027',
-        tgl: '17',
-        startDate: '2027-08-17',
-        endDate: '2027-08-17',
+        id: 'edu-teknologi-2027',
+        tgl: '10',
+        startDate: '2027-08-10',
+        endDate: '2027-08-10',
         bulan: 'Agustus',
         tahun: '2027',
-        uraian: 'HUT Proklamasi Kemerdekaan RI Ke-82 (Upacara Bendera Akbar & Lomba Kreatif)',
-        pj: 'Yayasan & Humas',
-        sasaran: 'Seluruh Civitas Akademika YTPAI',
+        uraian: 'Hari Kebangkitan Teknologi Nasional 2027 (Digitalisasi Dakwah & Inovasi Teknologi Santri)',
+        pj: 'IT & Humas',
+        sasaran: 'Santri MTs, SMP, MA, SMA',
         statusPamflet: 'belum',
         statusPost: 'draft',
-        kanal: 'IG,FB,WA,TT',
-        kategori: 'nasional',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
         isPeringatan: true,
-        isPeringatanNasional: true,
-        badge: 'HUT RI'
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-pramuka-2027',
+        tgl: '14',
+        startDate: '2027-08-14',
+        endDate: '2027-08-14',
+        bulan: 'Agustus',
+        tahun: '2027',
+        uraian: 'Hari Pramuka Nasional 2027 (Pendidikan Karakter Kepanduan & Jiwa Satya Darma Santri)',
+        pj: 'Pembina Pramuka & Humas',
+        sasaran: 'Gugus Depan YTPAI Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'phbi-maulid-2027',
@@ -19912,15 +20532,153 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-08-15',
         bulan: 'Agustus',
         tahun: '2027',
-        uraian: 'Peringatan Maulid Nabi Muhammad SAW 1449 H',
+        uraian: 'Peringatan Maulid Nabi Muhammad SAW 1449 H (Mahabbah Rasul & Penguatan Akhlak Santri)',
         pj: 'Pengasuh Pondok & Humas',
-        sasaran: 'Santri, Alumni & Jamaah',
+        sasaran: 'Keluarga Besar YTPAI RML',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
-        badge: 'Maulid Nabi'
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbn-hut-ri-2027',
+        tgl: '17',
+        startDate: '2027-08-17',
+        endDate: '2027-08-17',
+        bulan: 'Agustus',
+        tahun: '2027',
+        uraian: 'HUT Proklamasi Kemerdekaan RI Ke-82 (Upacara Detik-Detik Proklamasi & Semarak Kemerdekaan)',
+        pj: 'Yayasan, Panitia HUT RI & Humas',
+        sasaran: 'Seluruh Santri, Asatidz & Warga Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'PHBN'
+      },
+      {
+        id: 'edu-aksara-2027',
+        tgl: '08',
+        startDate: '2027-09-08',
+        endDate: '2027-09-08',
+        bulan: 'September',
+        tahun: '2027',
+        uraian: 'Hari Aksara Internasional 2027 (Penguatan Kemampuan Literasi, Baca Kitab & Bahasa)',
+        pj: 'Perpustakaan & Humas',
+        sasaran: 'Santri & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbn-haornas-2027',
+        tgl: '09',
+        startDate: '2027-09-09',
+        endDate: '2027-09-09',
+        bulan: 'September',
+        tahun: '2027',
+        uraian: 'Hari Olahraga Nasional (Haornas 2027 - Olahraga Bersama & Jiwa Ksatria Santri)',
+        pj: 'Penjasorkes & Humas',
+        sasaran: 'Seluruh Santri & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
+      },
+      {
+        id: 'phbn-kesaktian-pancasila-2027',
+        tgl: '01',
+        startDate: '2027-10-01',
+        endDate: '2027-10-01',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'Hari Kesaktian Pancasila 2027 (Pancasila Jiwa Pemersatu Bangsa Menuju Indonesia Emas)',
+        pj: 'Kesiswaan & Humas',
+        sasaran: 'Dewan Guru & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'PHBN'
+      },
+      {
+        id: 'phbn-batik-2027',
+        tgl: '02',
+        startDate: '2027-10-02',
+        endDate: '2027-10-02',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'Hari Batik Nasional 2027 (Kearifan Budaya Lokal & Busana Santri Nusantara)',
+        pj: 'OSIS & Humas',
+        sasaran: 'Asatidz, Santri & Karyawan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
+      },
+      {
+        id: 'phbn-tni-2027',
+        tgl: '05',
+        startDate: '2027-10-05',
+        endDate: '2027-10-05',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'HUT TNI Ke-82 (Sinergi Ulama, Santri & TNI Pengawal Kedaulatan Negeri)',
+        pj: 'Humas & Kesiswaan',
+        sasaran: 'Warga YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
+      },
+      {
+        id: 'edu-guru-sedunia-2027',
+        tgl: '05',
+        startDate: '2027-10-05',
+        endDate: '2027-10-05',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'Hari Guru Sedunia 2027 (Apresiasi Jasa Para Pendidik & Asatidz Penuntun Umat)',
+        pj: 'OSIS & Humas',
+        sasaran: 'Dewan Guru & Asatidz YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-ctps-2027',
+        tgl: '15',
+        startDate: '2027-10-15',
+        endDate: '2027-10-15',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'Hari Cuci Tangan Pakai Sabun Sedunia 2027 (Kebiasaan Hidup Bersih & Sehat di Pondok)',
+        pj: 'UKS & Pengurus Asrama',
+        sasaran: 'Santri & Pengurus',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'phbi-hsn-2027',
@@ -19929,16 +20687,16 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-10-22',
         bulan: 'Oktober',
         tahun: '2027',
-        uraian: 'Hari Santri Nasional 2027 (HSN 2027 - Mengawal Peradaban & Nilai Luhur Bangsa)',
-        pj: 'Yayasan, Pengurus Pondok & Humas',
-        sasaran: 'Seluruh Santri & Warga Lamongan',
+        uraian: 'Hari Santri Nasional (HSN 2027 - Jihad Intelektual, Apel Santri & Keteguhan Nilai Pesantren)',
+        pj: 'Yayasan, Seluruh Unit, Pengurus Pondok & Humas',
+        sasaran: 'Seluruh Santri, Alumni, Asatidz & Masyarakat',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA,TT',
         kategori: 'phbi',
         isPeringatan: true,
         isPeringatanNasional: true,
-        badge: 'Hari Santri'
+        badge: 'PUNCAK PESANTREN'
       },
       {
         id: 'phbn-sumpah-pemuda-2027',
@@ -19947,15 +20705,16 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         endDate: '2027-10-28',
         bulan: 'Oktober',
         tahun: '2027',
-        uraian: 'Hari Sumpah Pemuda 2027 (Ikrar Pemuda Santri Tangguh Berprestasi)',
+        uraian: 'Hari Sumpah Pemuda 2027 (Pemuda Santri Berkarakter Kuat & Berdaya Saing)',
         pj: 'Kesiswaan & Humas',
-        sasaran: 'Santri & Dewan Guru',
+        sasaran: 'Santri Generasi Penerus',
         statusPamflet: 'belum',
         statusPost: 'draft',
         kanal: 'IG,FB,WA,TT',
         kategori: 'nasional',
         isPeringatan: true,
-        badge: 'Sumpah Pemuda'
+        isPeringatanNasional: true,
+        badge: 'PHBN'
       },
       {
         id: 'phbn-pahlawan-2027',
@@ -19972,7 +20731,42 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA',
         kategori: 'nasional',
         isPeringatan: true,
-        badge: 'Hari Pahlawan'
+        isPeringatanNasional: true,
+        badge: 'PHBN'
+      },
+      {
+        id: 'edu-ayah-hkn-2027',
+        tgl: '12',
+        startDate: '2027-11-12',
+        endDate: '2027-11-12',
+        bulan: 'November',
+        tahun: '2027',
+        uraian: 'Hari Kesehatan Nasional & Hari Ayah Nasional 2027 (Kebugaran Jasmani & Hormat Ayahanda)',
+        pj: 'BK & UKS',
+        sasaran: 'Santri & Wali Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-anak-sedunia-2027',
+        tgl: '20',
+        startDate: '2027-11-20',
+        endDate: '2027-11-20',
+        bulan: 'November',
+        tahun: '2027',
+        uraian: 'Hari Anak Sedunia 2027 (Pendidikan Aman, Ramah & Berkeadaban)',
+        pj: 'BK & Humas',
+        sasaran: 'Santri & Guru BK',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
       },
       {
         id: 'edu-hgn-2027',
@@ -19993,13 +20787,64 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         badge: 'Hari Guru'
       },
       {
+        id: 'phbn-korpri-2027',
+        tgl: '29',
+        startDate: '2027-11-29',
+        endDate: '2027-11-29',
+        bulan: 'November',
+        tahun: '2027',
+        uraian: 'HUT KORPRI Ke-56 (Semangat Pengabdian & Integritas Pelayanan Pendidikan)',
+        pj: 'Tata Usaha & Humas',
+        sasaran: 'Tenaga Pendidik & Kependidikan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Nasional'
+      },
+      {
+        id: 'edu-disabilitas-2027',
+        tgl: '03',
+        startDate: '2027-12-03',
+        endDate: '2027-12-03',
+        bulan: 'Desember',
+        tahun: '2027',
+        uraian: 'Hari Disabilitas Internasional 2027 (Menghargai Keberagaman & Nilai Kesetaraan)',
+        pj: 'BK & Humas',
+        sasaran: 'Warga Madrasah & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-antikorupsi-2027',
+        tgl: '09',
+        startDate: '2027-12-09',
+        endDate: '2027-12-09',
+        bulan: 'Desember',
+        tahun: '2027',
+        uraian: 'Hari Antikorupsi Sedunia 2027 (Integritas, Kejujuran Akademik & Karakter Mulia)',
+        pj: 'BPMP & Humas',
+        sasaran: 'Santri & Seluruh Pegawai',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
         id: 'phbi-bahasa-arab-2027',
         tgl: '18',
         startDate: '2027-12-18',
         endDate: '2027-12-18',
         bulan: 'Desember',
         tahun: '2027',
-        uraian: "Hari Bahasa Arab Sedunia 2027 (UNESCO - Bahasa Peradaban & Cinta Al-Qur'an)",
+        uraian: 'Hari Bahasa Arab Sedunia 2027 (UNESCO - Bahasa Peradaban & Cinta Al-Qur\'an)',
         pj: 'LPBA & Humas',
         sasaran: 'Santri & Pengajar Bahasa',
         statusPamflet: 'belum',
@@ -20024,6 +20869,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         kanal: 'IG,FB,WA,TT',
         kategori: 'nasional',
         isPeringatan: true,
+        isPeringatanNasional: true,
         badge: 'Hari Ibu'
       }
     ];
@@ -20481,8 +21327,9 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       try {
         localStorage.removeItem('humas_programs_master_v1');
         localStorage.removeItem('humas_programs_master_v2');
+        localStorage.removeItem('humas_programs_master_v4');
         const oldV3 = localStorage.getItem('humas_programs_master_v3');
-        const saved = localStorage.getItem('humas_programs_master_v4') || oldV3;
+        const saved = localStorage.getItem('humas_programs_master_v5') || oldV3;
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length >= 200) {
@@ -20570,7 +21417,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
 
     function saveHumasProgramsLocal() {
       try {
-        localStorage.setItem('humas_programs_master_v4', JSON.stringify(humasState.programs));
+        localStorage.setItem('humas_programs_master_v5', JSON.stringify(humasState.programs));
       } catch (e) {
         console.warn('Gagal menyimpan cache lokal humas:', e);
       }
@@ -25263,6 +26110,14 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -28945,6 +29800,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       try { runBrivaGenerator(); } catch (e) { console.warn('BRIVA init error:', e); }
       const urlParams = new URLSearchParams(window.location.search);
       const initialTab = urlParams.get('tab') || 'humas';
+      window.appRootTab = initialTab;
       try { switchTab(initialTab); } catch (e) { console.warn('Tab init error:', e); }
       if (urlParams.get('sample') === '1') {
         try { loadPpdbSampleData(); } catch(e) {}
@@ -28961,6 +29817,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       try { renderPpdbAll(); } catch (e) { console.warn('PPDB init error:', e); }
       try { togglePpdbViewMode(window.innerWidth < 640 ? 'cards' : 'table'); } catch (e) { console.warn('PPDB view mode error:', e); }
       try { updateLiveClock(); } catch (e) { console.warn('Clock init error:', e); }
+      try { initSmartBackNavigation(); } catch (e) { console.warn('Back nav init error:', e); }
       
       try { setInterval(updateLiveClock, 1000); } catch (e) {}
 
