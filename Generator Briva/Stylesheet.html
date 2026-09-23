@@ -1,3 +1,73 @@
+﻿    /* ==========================================================================
+       MODERN MOBILE DRAWER STYLES (APP SIDEBAR)
+       ========================================================================== */
+    #appSidebar {
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+    html.dark #appSidebar {
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+    
+    .drawer-nav-item {
+      position: relative;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    html.dark .drawer-nav-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.07);
+      box-shadow: none;
+    }
+    .drawer-nav-item:hover {
+      background: #ffffff;
+      border-color: rgba(203, 213, 225, 0.95);
+      transform: translateX(2px);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    }
+    html.dark .drawer-nav-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.35);
+    }
+    .drawer-nav-item:active {
+      transform: scale(0.98);
+    }
+    .drawer-nav-item.sidebar-active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(20, 184, 166, 0.07) 100%) !important;
+      border: 1px solid rgba(16, 185, 129, 0.45) !important;
+      box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.15) !important;
+      transform: translateX(2px) !important;
+    }
+    html.dark .drawer-nav-item.sidebar-active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(20, 184, 166, 0.1) 100%) !important;
+      border-color: rgba(52, 211, 153, 0.45) !important;
+      box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(52, 211, 153, 0.2) !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-title {
+      color: #065f46 !important;
+      font-weight: 800 !important;
+    }
+    html.dark .drawer-nav-item.sidebar-active .drawer-title {
+      color: #6ee7b7 !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-sub {
+      color: #047857 !important;
+      font-weight: 600 !important;
+    }
+    html.dark .drawer-nav-item.sidebar-active .drawer-sub {
+      color: #a7f3d0 !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-icon-box {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.35) !important;
+    }
+    .drawer-nav-item.sidebar-active .drawer-chevron {
+      color: #10b981 !important;
+      transform: translateX(2px) !important;
+    }
+
   <style>
     /* Custom Scrollbars */
     ::-webkit-scrollbar {
@@ -2031,19 +2101,21 @@
        CURVED SCOOP BOTTOM NAVIGATION BAR (FLOATING ACTIVE CIRCLE WITH NOTCH CUTOUT)
        ========================================================================== */
     :root {
-      --bnav-bar-bg: #090d16;
-      --bnav-cutout-bg: #e2e8f0;
-      --bnav-active-circle: #ffffff;
-      --bnav-active-content: #0f172a;
+      --bnav-bar-bg: #ffffff;
+      --bnav-cutout-bg: #f8fafc;
+      --bnav-active-circle: #dc2626;
+      --bnav-active-content: #ffffff;
+      --bnav-active-label: #dc2626;
       --bnav-inactive: #94a3b8;
     }
 
     html.dark {
-      --bnav-bar-bg: #0b1120;
-      --bnav-cutout-bg: #060911;
-      --bnav-active-circle: #ffffff;
-      --bnav-active-content: #0f172a;
-      --bnav-inactive: #94a3b8;
+      --bnav-bar-bg: #090d16;
+      --bnav-cutout-bg: #0f172a;
+      --bnav-active-circle: #e11d48;
+      --bnav-active-content: #ffffff;
+      --bnav-active-label: #f87171;
+      --bnav-inactive: #64748b;
     }
 
     @media (max-width: 1023px) {
@@ -2206,5 +2278,28 @@
       background: transparent !important;
       border-top-left-radius: 18px !important;
       box-shadow: -1px -9px 0 0 var(--bnav-cutout-bg) !important;
+    }
+
+    /* ==========================================================================
+       AI VISION PHOTO ATTENDANCE SCANNER ANIMATIONS
+       ========================================================================== */
+    @keyframes aiScanLaserAnim {
+      0% { top: 0%; opacity: 0.85; }
+      50% { top: 96%; opacity: 1; }
+      100% { top: 0%; opacity: 0.85; }
+    }
+    .ai-scanner-laser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, #f43f5e 20%, #ec4899 50%, #8b5cf6 80%, transparent 100%);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.85), 0 0 30px rgba(139, 92, 246, 0.65);
+      animation: aiScanLaserAnim 2.4s ease-in-out infinite;
+      z-index: 25;
+      pointer-events: none;
+    }
+    .ai-radar-glow {
+      box-shadow: 0 0 30px -5px rgba(225, 29, 72, 0.35), 0 0 15px -2px rgba(99, 102, 241, 0.3);
     }
   </style>
