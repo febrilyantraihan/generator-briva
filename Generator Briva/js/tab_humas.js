@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // MODULE: tab_humas.js
 // Tab 10: Humas & Sosmed Engine, Radar H-7, Pamflet, Task Tracker, Supabase & Modal Rincian
 // ============================================================================
@@ -11,6 +11,1116 @@ let humasActiveMetricDetailScope = 'all';
 let humasMetricDetailItems = [];
 let humasParsedImportData = [];
 let humasImportActiveTab = 'paste';
+
+    const EDUCATIONAL_COMMEMORATIVE_DAYS = [
+      // --- TAHUN 2026 ---
+      {
+        id: 'phbi-isra-miraj-2026',
+        tgl: '16',
+        startDate: '2026-01-16',
+        endDate: '2026-01-16',
+        bulan: 'Januari',
+        tahun: '2026',
+        uraian: "Peringatan Isra Mi'raj Nabi Muhammad SAW 1447 H (Edukasi Disiplin Shalat & Akhlakul Karimah)",
+        pj: 'Humas & BPMP',
+        sasaran: 'Seluruh Asatidz, Santri & Wali Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-pendidikan-int-2026',
+        tgl: '24',
+        startDate: '2026-01-24',
+        endDate: '2026-01-24',
+        bulan: 'Januari',
+        tahun: '2026',
+        uraian: 'Hari Pendidikan Internasional (International Day of Education - UNESCO)',
+        pj: 'BPMP & Humas',
+        sasaran: 'Dewan Guru, Asatidz & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbi-nisfu-syaban-2026',
+        tgl: '03',
+        startDate: '2026-02-03',
+        endDate: '2026-02-03',
+        bulan: 'Februari',
+        tahun: '2026',
+        uraian: "Malam Nisfu Sya'ban 1447 H (Doa Bersama, Muhasabah & Persiapan Ramadhan)",
+        pj: 'Pengasuh Pondok & Humas',
+        sasaran: 'Santri Pondok & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbi-awal-ramadhan-2026',
+        tgl: '18',
+        startDate: '2026-02-18',
+        endDate: '2026-02-18',
+        bulan: 'Februari',
+        tahun: '2026',
+        uraian: 'Awal Puasa Ramadhan 1447 H (Tarhib Ramadhan, Tadarrus & Pembukaan Pesantren Kilat)',
+        pj: 'Pengurus Pondok & Humas',
+        sasaran: 'Seluruh Santri, Asatidz & Kaum Muslimin',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-bahasa-ibu-2026',
+        tgl: '21',
+        startDate: '2026-02-21',
+        endDate: '2026-02-21',
+        bulan: 'Februari',
+        tahun: '2026',
+        uraian: 'Hari Bahasa Ibu Internasional (Pelestarian Bahasa Daerah & Kearifan Lokal Literasi)',
+        pj: 'Waka Kurikulum & Guru Bahasa',
+        sasaran: 'Santri & Dewan Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-sampah-2026',
+        tgl: '21',
+        startDate: '2026-02-21',
+        endDate: '2026-02-21',
+        bulan: 'Februari',
+        tahun: '2026',
+        uraian: 'Hari Peduli Sampah Nasional (Edukasi Pesantren Asri, Bersih & Cinta Lingkungan)',
+        pj: 'Sarpras, UKS & Humas',
+        sasaran: 'Seluruh Santri & Warga Pondok',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbi-nuzulul-quran-2026',
+        tgl: '06',
+        startDate: '2026-03-06',
+        endDate: '2026-03-06',
+        bulan: 'Maret',
+        tahun: '2026',
+        uraian: "Peringatan Nuzulul Qur'an 1447 H (Malam Syiar Al-Qur'an, Tasmi' & Khotmil Qur'an)",
+        pj: 'Koord. Tahfidz & Humas',
+        sasaran: 'Santri Tahfidz, Asatidz & Wali Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbi-idul-fitri-2026',
+        tgl: '20-21',
+        startDate: '2026-03-20',
+        endDate: '2026-03-21',
+        bulan: 'Maret',
+        tahun: '2026',
+        uraian: 'Hari Raya Idul Fitri 1447 H (Tahniah Selamat Idul Fitri & Silaturahmi Akbar Yayasan)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Keluarga Besar YTPAI RML & Masyarakat Luas',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-puisi-2026',
+        tgl: '21',
+        startDate: '2026-03-21',
+        endDate: '2026-03-21',
+        bulan: 'Maret',
+        tahun: '2026',
+        uraian: "Hari Puisi Sedunia (Apresiasi Sastra, Cipta Puisi & Syi'ir Santri)",
+        pj: 'Guru Bahasa & Seni',
+        sasaran: 'Santri & Pengajar',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbn-kartini-2026',
+        tgl: '21',
+        startDate: '2026-04-21',
+        endDate: '2026-04-21',
+        bulan: 'April',
+        tahun: '2026',
+        uraian: 'Peringatan Hari Kartini (Keteladanan Semangat Belajar Santriwati & Muslimah Masa Depan)',
+        pj: 'Kepala Madrasah & Humas',
+        sasaran: 'Santriwati, Asatidzah & Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'PHBN'
+      },
+      {
+        id: 'edu-bumi-2026',
+        tgl: '22',
+        startDate: '2026-04-22',
+        endDate: '2026-04-22',
+        bulan: 'April',
+        tahun: '2026',
+        uraian: 'Hari Bumi Sedunia (Edukasi Pesantren Hijau, Gerakan Hemat Air & Konservasi)',
+        pj: 'Sarpras & Humas',
+        sasaran: 'Santri & Pengurus Asrama',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-buku-sedunia-2026',
+        tgl: '23',
+        startDate: '2026-04-23',
+        endDate: '2026-04-23',
+        bulan: 'April',
+        tahun: '2026',
+        uraian: 'Hari Buku Sedunia & Hak Cipta (Pekan Gemar Membaca & Bedah Kitab Kuning)',
+        pj: 'Perpustakaan & Humas',
+        sasaran: 'Seluruh Santri & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-hardiknas-2026',
+        tgl: '02',
+        startDate: '2026-05-02',
+        endDate: '2026-05-02',
+        bulan: 'Mei',
+        tahun: '2026',
+        uraian: 'Hari Pendidikan Nasional (Hardiknas - Serentak Bergerak Wujudkan Merdeka Belajar)',
+        pj: 'Yayasan, Kepala Madrasah & Humas',
+        sasaran: 'Seluruh Guru, Karyawan, Asatidz & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hardiknas'
+      },
+      {
+        id: 'edu-buku-nasional-2026',
+        tgl: '17',
+        startDate: '2026-05-17',
+        endDate: '2026-05-17',
+        bulan: 'Mei',
+        tahun: '2026',
+        uraian: 'Hari Buku Nasional (Gebyar Literasi Santri & Apresiasi Duta Baca Perpustakaan)',
+        pj: 'Perpustakaan & Humas',
+        sasaran: 'Seluruh Santri & Warga YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbn-harkitnas-2026',
+        tgl: '20',
+        startDate: '2026-05-20',
+        endDate: '2026-05-20',
+        bulan: 'Mei',
+        tahun: '2026',
+        uraian: 'Hari Kebangkitan Nasional (Harkitnas - Bangkit Bersama Menuju Generasi Emas Pelajar)',
+        pj: 'Waka Kesiswaan & Humas',
+        sasaran: 'Santri & Pendidik',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Harkitnas'
+      },
+      {
+        id: 'phbi-arafah-2026',
+        tgl: '26',
+        startDate: '2026-05-26',
+        endDate: '2026-05-26',
+        bulan: 'Mei',
+        tahun: '2026',
+        uraian: 'Hari Arafah 1447 H (Himbauan Puasa Sunnah Arafah & Muhasabah Doa Akbar)',
+        pj: 'Pengasuh Pondok & Humas',
+        sasaran: 'Seluruh Santri & Wali Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbi-idul-adha-2026',
+        tgl: '27',
+        startDate: '2026-05-27',
+        endDate: '2026-05-27',
+        bulan: 'Mei',
+        tahun: '2026',
+        uraian: 'Hari Raya Idul Adha 1447 H (Edukasi Qurban, Keteladanan Nabi Ibrahim & Bakti Sosial)',
+        pj: 'Panitia Qurban & Humas',
+        sasaran: 'Santri, Asatidz, Wali Santri & Masyarakat Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Idul Adha'
+      },
+      {
+        id: 'phbn-pancasila-2026',
+        tgl: '01',
+        startDate: '2026-06-01',
+        endDate: '2026-06-01',
+        bulan: 'Juni',
+        tahun: '2026',
+        uraian: 'Hari Lahir Pancasila (Peneguhan Karakter Kebangsaan & Profil Pelajar Pancasila Rahmatan Lil Alamin)',
+        pj: 'Yayasan, Kepala Sekolah & Humas',
+        sasaran: 'Seluruh Asatidz, Santri & Tenaga Kependidikan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Pancasila'
+      },
+      {
+        id: 'edu-lingkungan-2026',
+        tgl: '05',
+        startDate: '2026-06-05',
+        endDate: '2026-06-05',
+        bulan: 'Juni',
+        tahun: '2026',
+        uraian: "Hari Lingkungan Hidup Sedunia (Aksi Adiwiyata, Ro'an Akbar Kebersihan Madrasah & Asrama)",
+        pj: 'Sarpras & Humas',
+        sasaran: 'Seluruh Santri & Pengurus',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbi-muharram-2026',
+        tgl: '16',
+        startDate: '2026-06-16',
+        endDate: '2026-06-16',
+        bulan: 'Juni',
+        tahun: '2026',
+        uraian: "Tahun Baru Islam 1 Muharram 1448 H (Pawai Ta'aruf Hijriah & Refleksi Awal Tahun Santri)",
+        pj: 'Yayasan & Humas',
+        sasaran: 'Keluarga Besar YTPAI RML',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: '1 Muharram'
+      },
+      {
+        id: 'phbi-asyura-2026',
+        tgl: '25',
+        startDate: '2026-06-25',
+        endDate: '2026-06-25',
+        bulan: 'Juni',
+        tahun: '2026',
+        uraian: 'Hari Asyura 10 Muharram 1448 H (Puasa Sunnah Asyura & Santunan Santri Yatim/Dhuafa)',
+        pj: 'Sie Sosial & Humas',
+        sasaran: 'Santri Yatim & Kaum Dhuafa',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Asyura'
+      },
+      {
+        id: 'edu-han-2026',
+        tgl: '23',
+        startDate: '2026-07-23',
+        endDate: '2026-07-23',
+        bulan: 'Juli',
+        tahun: '2026',
+        uraian: 'Hari Anak Nasional (HAN - Wujudkan Madrasah Ramah Anak, Terlindungi & Berprestasi)',
+        pj: 'BK, Kesiswaan & Humas',
+        sasaran: 'Santri & Orang Tua',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Hari Anak'
+      },
+      {
+        id: 'edu-teknologi-2026',
+        tgl: '10',
+        startDate: '2026-08-10',
+        endDate: '2026-08-10',
+        bulan: 'Agustus',
+        tahun: '2026',
+        uraian: 'Hari Kebangkitan Teknologi Nasional (Pengenalan Coding, AI Positif & Literasi Digital Santri)',
+        pj: 'Lab Komputer, IT & Humas',
+        sasaran: 'Santri MTs, SMP, MA, SMA',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Teknologi'
+      },
+      {
+        id: 'edu-pramuka-2026',
+        tgl: '14',
+        startDate: '2026-08-14',
+        endDate: '2026-08-14',
+        bulan: 'Agustus',
+        tahun: '2026',
+        uraian: 'Hari Pramuka Nasional (Pendidikan Kepanduan, Kemandirian, Disiplin & Jiwa Dasa Dharma)',
+        pj: 'Pembina Pramuka & Humas',
+        sasaran: 'Gudep Pramuka YTPAI Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Pramuka'
+      },
+      {
+        id: 'phbn-hut-ri-2026',
+        tgl: '17',
+        startDate: '2026-08-17',
+        endDate: '2026-08-17',
+        bulan: 'Agustus',
+        tahun: '2026',
+        uraian: 'HUT Proklamasi Kemerdekaan RI Ke-81 (Upacara Pengibaran Sang Merah Putih & Gebyar Kemerdekaan)',
+        pj: 'Yayasan, Panitia HUT RI & Humas',
+        sasaran: 'Seluruh Santri, Asatidz, Karyawan & Tokoh Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'HUT RI'
+      },
+      {
+        id: 'phbi-maulid-2026',
+        tgl: '25',
+        startDate: '2026-08-25',
+        endDate: '2026-08-25',
+        bulan: 'Agustus',
+        tahun: '2026',
+        uraian: 'Peringatan Maulid Nabi Muhammad SAW 1448 H (Meneladani Akhlak Rasulullah & Sholawat Akbar)',
+        pj: 'Pengasuh Pondok & Humas',
+        sasaran: 'Keluarga Besar YTPAI RML & Alumni',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Maulid Nabi'
+      },
+      {
+        id: 'edu-aksara-2026',
+        tgl: '08',
+        startDate: '2026-09-08',
+        endDate: '2026-09-08',
+        bulan: 'September',
+        tahun: '2026',
+        uraian: 'Hari Aksara Internasional / Literasi Sedunia (Membangun Daya Kritis Melalui Budaya Membaca)',
+        pj: 'Perpustakaan & Humas',
+        sasaran: 'Santri & Tenaga Pendidik',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Literasi'
+      },
+      {
+        id: 'phbn-kesaktian-pancasila-2026',
+        tgl: '01',
+        startDate: '2026-10-01',
+        endDate: '2026-10-01',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'Hari Kesaktian Pancasila (Upacara Khidmat & Penanaman Nilai-Nilai Luhur Bangsa)',
+        pj: 'Kesiswaan & Humas',
+        sasaran: 'Dewan Guru & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Kesaktian Pancasila'
+      },
+      {
+        id: 'phbn-batik-2026',
+        tgl: '02',
+        startDate: '2026-10-02',
+        endDate: '2026-10-02',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'Hari Batik Nasional (Bangga Mengenakan Busana Warisan Mahakarya Budaya Indonesia)',
+        pj: 'Humas & OSIS',
+        sasaran: 'Asatidz, Santri & Karyawan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Batik'
+      },
+      {
+        id: 'edu-guru-sedunia-2026',
+        tgl: '05',
+        startDate: '2026-10-05',
+        endDate: '2026-10-05',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'Hari Guru Sedunia (World Teachers Day - Menghargai Dedikasi Pahlawan Tanpa Tanda Jasa)',
+        pj: 'OSIS & Humas',
+        sasaran: 'Pendidik di Seluruh Dunia & YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Guru Sedunia'
+      },
+      {
+        id: 'edu-ctps-2026',
+        tgl: '15',
+        startDate: '2026-10-15',
+        endDate: '2026-10-15',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'Hari Cuci Tangan Pakai Sabun Sedunia (Gerakan Santri Bersih, Sehat & Bebas Kuman)',
+        pj: 'UKS & Humas',
+        sasaran: 'Santri Asrama & Pengurus',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Kesehatan'
+      },
+      {
+        id: 'phbi-hsn-2026',
+        tgl: '22',
+        startDate: '2026-10-22',
+        endDate: '2026-10-22',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'Hari Santri Nasional (HSN 2026 - Resolusi Jihad, Apel Akbar Santri & Santri Berdaya Menjaga Martabat Bangsa)',
+        pj: 'Yayasan, Seluruh Unit, Pengurus Pondok & Humas',
+        sasaran: 'Seluruh Santri, Alumni, Asatidz & Warga Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hari Santri'
+      },
+      {
+        id: 'phbn-sumpah-pemuda-2026',
+        tgl: '28',
+        startDate: '2026-10-28',
+        endDate: '2026-10-28',
+        bulan: 'Oktober',
+        tahun: '2026',
+        uraian: 'Hari Sumpah Pemuda (Upacara Peringatan, Ikrar Pemuda Santri & Gelora Bersatu Bangun Bangsa)',
+        pj: 'Kesiswaan, OSIS & Humas',
+        sasaran: 'Santri Generasi Muda Penerus',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Sumpah Pemuda'
+      },
+      {
+        id: 'phbn-pahlawan-2026',
+        tgl: '10',
+        startDate: '2026-11-10',
+        endDate: '2026-11-10',
+        bulan: 'November',
+        tahun: '2026',
+        uraian: 'Hari Pahlawan Nasional (Ziarah & Refleksi Jihad Ulama Mempertahankan Kemerdekaan)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Dewan Guru, Santri & Warga',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hari Pahlawan'
+      },
+      {
+        id: 'edu-ayah-hkn-2026',
+        tgl: '12',
+        startDate: '2026-11-12',
+        endDate: '2026-11-12',
+        bulan: 'November',
+        tahun: '2026',
+        uraian: 'Hari Kesehatan Nasional & Hari Ayah Nasional (Birrul Walidain kepada Ayah & Hidup Bugar)',
+        pj: 'BK, UKS & Humas',
+        sasaran: 'Santri & Para Ayah Hebat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Hari Ayah'
+      },
+      {
+        id: 'edu-anak-sedunia-2026',
+        tgl: '20',
+        startDate: '2026-11-20',
+        endDate: '2026-11-20',
+        bulan: 'November',
+        tahun: '2026',
+        uraian: 'Hari Anak Sedunia (World Children Day - Hak Belajar Tanpa Kekerasan & Penuh Kasih)',
+        pj: 'BK & Humas',
+        sasaran: 'Santri & Guru BK',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Anak Sedunia'
+      },
+      {
+        id: 'edu-hgn-2026',
+        tgl: '25',
+        startDate: '2026-11-25',
+        endDate: '2026-11-25',
+        bulan: 'November',
+        tahun: '2026',
+        uraian: 'Hari Guru Nasional (HGN) & HUT PGRI (Apresiasi Akbar Pengabdian Asatidz & Dewan Guru YTPAI)',
+        pj: 'Yayasan, OSIS & Seluruh Santri',
+        sasaran: 'Seluruh Asatidz & Dewan Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hari Guru'
+      },
+      {
+        id: 'edu-disabilitas-2026',
+        tgl: '03',
+        startDate: '2026-12-03',
+        endDate: '2026-12-03',
+        bulan: 'Desember',
+        tahun: '2026',
+        uraian: 'Hari Disabilitas Internasional (Pendidikan Inklusi, Toleransi & Nilai Empati Sosial)',
+        pj: 'BK & Humas',
+        sasaran: 'Warga Madrasah & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Inklusi'
+      },
+      {
+        id: 'edu-antikorupsi-2026',
+        tgl: '09',
+        startDate: '2026-12-09',
+        endDate: '2026-12-09',
+        bulan: 'Desember',
+        tahun: '2026',
+        uraian: 'Hari Antikorupsi Sedunia (Hakordia - Pendidikan Karakter Kejujuran, Integritas & Anti Kecurangan)',
+        pj: 'Kurikulum, BPMP & Humas',
+        sasaran: 'Seluruh Santri & Pendidik',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Integritas'
+      },
+      {
+        id: 'phbi-bahasa-arab-2026',
+        tgl: '18',
+        startDate: '2026-12-18',
+        endDate: '2026-12-18',
+        bulan: 'Desember',
+        tahun: '2026',
+        uraian: "Hari Bahasa Arab Sedunia (UNESCO - Bahasa Al-Qur'an, Khazanah Keilmuan Islam & Syiar Pesantren)",
+        pj: 'LPBA & Humas',
+        sasaran: 'Santri Madin, Madrasah & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Bahasa Arab'
+      },
+      {
+        id: 'phbn-ibu-2026',
+        tgl: '22',
+        startDate: '2026-12-22',
+        endDate: '2026-12-22',
+        bulan: 'Desember',
+        tahun: '2026',
+        uraian: 'Hari Ibu Nasional (Kasih Sayang Ibunda Sepanjang Hayat, Mahabbah & Birrul Walidain)',
+        pj: 'Humas & Seluruh Santri',
+        sasaran: 'Para Ibu Santri & Ummahat Pesantren',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hari Ibu'
+      },
+
+      // --- TAHUN 2027 ---
+      {
+        id: 'phbi-isra-miraj-2027',
+        tgl: '05',
+        startDate: '2027-01-05',
+        endDate: '2027-01-05',
+        bulan: 'Januari',
+        tahun: '2027',
+        uraian: "Peringatan Isra Mi'raj Nabi Muhammad SAW 1448 H",
+        pj: 'Humas & BPMP',
+        sasaran: 'Seluruh Warga YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbi-nisfu-syaban-2027',
+        tgl: '23',
+        startDate: '2027-01-23',
+        endDate: '2027-01-23',
+        bulan: 'Januari',
+        tahun: '2027',
+        uraian: "Malam Nisfu Sya'ban 1448 H (Muhasabah & Doa Bersama)",
+        pj: 'Pengasuh Pondok & Humas',
+        sasaran: 'Santri & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-pendidikan-int-2027',
+        tgl: '24',
+        startDate: '2027-01-24',
+        endDate: '2027-01-24',
+        bulan: 'Januari',
+        tahun: '2027',
+        uraian: 'Hari Pendidikan Internasional 2027 (Transformasi Pendidikan & Literasi Global)',
+        pj: 'BPMP & Humas',
+        sasaran: 'Dewan Guru & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbi-awal-ramadhan-2027',
+        tgl: '08',
+        startDate: '2027-02-08',
+        endDate: '2027-02-08',
+        bulan: 'Februari',
+        tahun: '2027',
+        uraian: 'Awal Puasa Ramadhan 1448 H (Tarhib & Pembukaan Pesantren Kilat)',
+        pj: 'Pengurus Pondok & Humas',
+        sasaran: 'Seluruh Santri & Warga YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'edu-bahasa-ibu-2027',
+        tgl: '21',
+        startDate: '2027-02-21',
+        endDate: '2027-02-21',
+        bulan: 'Februari',
+        tahun: '2027',
+        uraian: 'Hari Bahasa Ibu Internasional 2027',
+        pj: 'Waka Kurikulum & Guru Bahasa',
+        sasaran: 'Santri & Dewan Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'phbi-nuzulul-quran-2027',
+        tgl: '24',
+        startDate: '2027-02-24',
+        endDate: '2027-02-24',
+        bulan: 'Februari',
+        tahun: '2027',
+        uraian: "Peringatan Nuzulul Qur'an 1448 H (Syiar Al-Qur'an & Khotmil Qur'an Santri)",
+        pj: 'Koord. Tahfidz & Humas',
+        sasaran: 'Santri Tahfidz & Wali Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'PHBI'
+      },
+      {
+        id: 'phbi-idul-fitri-2027',
+        tgl: '09-10',
+        startDate: '2027-03-09',
+        endDate: '2027-03-10',
+        bulan: 'Maret',
+        tahun: '2027',
+        uraian: 'Hari Raya Idul Fitri 1448 H (Tahniah Selamat Idul Fitri & Maaf Lahir Batin)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Keluarga Besar YTPAI RML & Masyarakat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Idul Fitri'
+      },
+      {
+        id: 'phbn-kartini-2027',
+        tgl: '21',
+        startDate: '2027-04-21',
+        endDate: '2027-04-21',
+        bulan: 'April',
+        tahun: '2027',
+        uraian: 'Peringatan Hari Kartini 2027 (Inspirasi Pendidikan Santriwati)',
+        pj: 'Kepala Madrasah & Humas',
+        sasaran: 'Santriwati & Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'PHBN'
+      },
+      {
+        id: 'edu-buku-sedunia-2027',
+        tgl: '23',
+        startDate: '2027-04-23',
+        endDate: '2027-04-23',
+        bulan: 'April',
+        tahun: '2027',
+        uraian: 'Hari Buku Sedunia 2027 (Pekan Literasi Pesantren)',
+        pj: 'Perpustakaan & Humas',
+        sasaran: 'Santri & Pengajar',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Edukasi'
+      },
+      {
+        id: 'edu-hardiknas-2027',
+        tgl: '02',
+        startDate: '2027-05-02',
+        endDate: '2027-05-02',
+        bulan: 'Mei',
+        tahun: '2027',
+        uraian: 'Hari Pendidikan Nasional (Hardiknas 2027 - Semarak Merdeka Belajar)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Seluruh Asatidz, Guru & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hardiknas'
+      },
+      {
+        id: 'phbi-idul-adha-2027',
+        tgl: '16',
+        startDate: '2027-05-16',
+        endDate: '2027-05-16',
+        bulan: 'Mei',
+        tahun: '2027',
+        uraian: 'Hari Raya Idul Adha 1448 H (Edukasi Qurban & Kepedulian Sosial Santri)',
+        pj: 'Panitia Qurban & Humas',
+        sasaran: 'Warga YTPAI & Lingkungan Babat',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Idul Adha'
+      },
+      {
+        id: 'phbn-harkitnas-2027',
+        tgl: '20',
+        startDate: '2027-05-20',
+        endDate: '2027-05-20',
+        bulan: 'Mei',
+        tahun: '2027',
+        uraian: 'Hari Kebangkitan Nasional (Harkitnas 2027)',
+        pj: 'Kesiswaan & Humas',
+        sasaran: 'Santri & Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Harkitnas'
+      },
+      {
+        id: 'phbn-pancasila-2027',
+        tgl: '01',
+        startDate: '2027-06-01',
+        endDate: '2027-06-01',
+        bulan: 'Juni',
+        tahun: '2027',
+        uraian: 'Hari Lahir Pancasila 2027 (Karakter Kebangsaan Santri Pelajar Indonesia)',
+        pj: 'Kepala Madrasah & Humas',
+        sasaran: 'Seluruh Santri & Pendidik',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Pancasila'
+      },
+      {
+        id: 'phbi-muharram-2027',
+        tgl: '06',
+        startDate: '2027-06-06',
+        endDate: '2027-06-06',
+        bulan: 'Juni',
+        tahun: '2027',
+        uraian: 'Tahun Baru Islam 1 Muharram 1449 H (Semarak Hijrah Menuju Prestasi Baru)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Keluarga Besar YTPAI RML',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: '1 Muharram'
+      },
+      {
+        id: 'edu-han-2027',
+        tgl: '23',
+        startDate: '2027-07-23',
+        endDate: '2027-07-23',
+        bulan: 'Juli',
+        tahun: '2027',
+        uraian: 'Hari Anak Nasional 2027 (Sekolah Ramah Santri & Pelindungan Hak Belajar Anak)',
+        pj: 'BK & Humas',
+        sasaran: 'Santri & Wali Murid',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        badge: 'Hari Anak'
+      },
+      {
+        id: 'phbn-hut-ri-2027',
+        tgl: '17',
+        startDate: '2027-08-17',
+        endDate: '2027-08-17',
+        bulan: 'Agustus',
+        tahun: '2027',
+        uraian: 'HUT Proklamasi Kemerdekaan RI Ke-82 (Upacara Bendera Akbar & Lomba Kreatif)',
+        pj: 'Yayasan & Humas',
+        sasaran: 'Seluruh Civitas Akademika YTPAI',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'HUT RI'
+      },
+      {
+        id: 'phbi-maulid-2027',
+        tgl: '15',
+        startDate: '2027-08-15',
+        endDate: '2027-08-15',
+        bulan: 'Agustus',
+        tahun: '2027',
+        uraian: 'Peringatan Maulid Nabi Muhammad SAW 1449 H',
+        pj: 'Pengasuh Pondok & Humas',
+        sasaran: 'Santri, Alumni & Jamaah',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Maulid Nabi'
+      },
+      {
+        id: 'phbi-hsn-2027',
+        tgl: '22',
+        startDate: '2027-10-22',
+        endDate: '2027-10-22',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'Hari Santri Nasional 2027 (HSN 2027 - Mengawal Peradaban & Nilai Luhur Bangsa)',
+        pj: 'Yayasan, Pengurus Pondok & Humas',
+        sasaran: 'Seluruh Santri & Warga Lamongan',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'phbi',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hari Santri'
+      },
+      {
+        id: 'phbn-sumpah-pemuda-2027',
+        tgl: '28',
+        startDate: '2027-10-28',
+        endDate: '2027-10-28',
+        bulan: 'Oktober',
+        tahun: '2027',
+        uraian: 'Hari Sumpah Pemuda 2027 (Ikrar Pemuda Santri Tangguh Berprestasi)',
+        pj: 'Kesiswaan & Humas',
+        sasaran: 'Santri & Dewan Guru',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Sumpah Pemuda'
+      },
+      {
+        id: 'phbn-pahlawan-2027',
+        tgl: '10',
+        startDate: '2027-11-10',
+        endDate: '2027-11-10',
+        bulan: 'November',
+        tahun: '2027',
+        uraian: 'Hari Pahlawan Nasional 2027 (Teladan Kepahlawanan Pejuang & Ulama)',
+        pj: 'Humas & Kesiswaan',
+        sasaran: 'Santri & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Hari Pahlawan'
+      },
+      {
+        id: 'edu-hgn-2027',
+        tgl: '25',
+        startDate: '2027-11-25',
+        endDate: '2027-11-25',
+        bulan: 'November',
+        tahun: '2027',
+        uraian: 'Hari Guru Nasional (HGN) & HUT PGRI 2027 (Terima Kasih Guruku & Apresiasi Pendidik)',
+        pj: 'Yayasan, Santri & Humas',
+        sasaran: 'Seluruh Dewan Guru & Asatidz',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'edukasi',
+        isPeringatan: true,
+        isPeringatanNasional: true,
+        badge: 'Hari Guru'
+      },
+      {
+        id: 'phbi-bahasa-arab-2027',
+        tgl: '18',
+        startDate: '2027-12-18',
+        endDate: '2027-12-18',
+        bulan: 'Desember',
+        tahun: '2027',
+        uraian: "Hari Bahasa Arab Sedunia 2027 (UNESCO - Bahasa Peradaban & Cinta Al-Qur'an)",
+        pj: 'LPBA & Humas',
+        sasaran: 'Santri & Pengajar Bahasa',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA',
+        kategori: 'phbi',
+        isPeringatan: true,
+        badge: 'Bahasa Arab'
+      },
+      {
+        id: 'phbn-ibu-2027',
+        tgl: '22',
+        startDate: '2027-12-22',
+        endDate: '2027-12-22',
+        bulan: 'Desember',
+        tahun: '2027',
+        uraian: 'Hari Ibu Nasional 2027 (Mahabbah & Doa Tulus untuk Ibunda Tercinta)',
+        pj: 'Humas & Santri',
+        sasaran: 'Seluruh Ummahat & Santri',
+        statusPamflet: 'belum',
+        statusPost: 'draft',
+        kanal: 'IG,FB,WA,TT',
+        kategori: 'nasional',
+        isPeringatan: true,
+        badge: 'Hari Ibu'
+      }
+    ];
 
 // State management Humas
 let humasState = {
@@ -455,10 +1565,11 @@ function initHumasModule() {
       neutralizeTasmiStudentsCache();
       try {
         localStorage.removeItem('humas_programs_master_v1');
-        const saved = localStorage.getItem('humas_programs_master_v2');
+        localStorage.removeItem('humas_programs_master_v2');
+        const saved = localStorage.getItem('humas_programs_master_v3');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed) && parsed.length >= 200) {
             // Bersihkan duplikasi yang mungkin tersimpan di cache lokal
             humasState.programs = deduplicateHumasPrograms(parsed);
             // Normalisasi: agenda rutin prota bulanan bukan kategori tasmi santri
@@ -474,7 +1585,7 @@ function initHumasModule() {
       } catch (e) {
         console.warn('Gagal membaca cache lokal humas:', e);
       }
-      // Fallback ke master data resmi YTPAI 2026-2027
+      // Fallback ke master data resmi YTPAI 2026-2027 (252 Agenda Lengkap)
       humasState.programs = deduplicateHumasPrograms(JSON.parse(JSON.stringify(YTPAI_ANNUAL_PROGRAMS)));
       humasState.programs.forEach(p => {
         if (p.kategori === 'tasmi' && (!p.id || !p.id.startsWith('prog-tasmi-'))) {
@@ -528,7 +1639,7 @@ function initHumasModule() {
 
     function saveHumasProgramsLocal() {
       try {
-        localStorage.setItem('humas_programs_master_v2', JSON.stringify(humasState.programs));
+        localStorage.setItem('humas_programs_master_v3', JSON.stringify(humasState.programs));
       } catch (e) {
         console.warn('Gagal menyimpan cache lokal humas:', e);
       }
@@ -1918,20 +3029,107 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
       }
     }
 
+    let lastSpokenHumasAnswer = '';
     function speakHumasAnswer(textToSpeak) {
-      if ('speechSynthesis' in window && textToSpeak) {
-        try {
-          window.speechSynthesis.cancel();
-          const cleanSpeech = textToSpeak.replace(/[\*\#\_]/g, '');
-          const utterance = new SpeechSynthesisUtterance(cleanSpeech);
-          utterance.lang = 'id-ID';
-          utterance.rate = 1.05;
-          utterance.pitch = 1.0;
-          window.speechSynthesis.speak(utterance);
-        } catch (e) {
-          console.warn('Speech synthesis error:', e);
-        }
+      if (!('speechSynthesis' in window) || !textToSpeak) return;
+      try {
+        lastSpokenHumasAnswer = textToSpeak;
+        window.speechSynthesis.cancel();
+
+        // Normalisasi untuk lafal Bahasa Indonesia yang natural, lancar, dan fasih
+        let cleanSpeech = textToSpeak
+          .replace(/[\*\#\_]/g, '')
+          .replace(/\bS\.H\.\b/gi, 'Sarjana Hukum')
+          .replace(/\bS\.Pd\.\b|\bS\.Pd\b/gi, 'Sarjana Pendidikan')
+          .replace(/\bM\.Pd\.\b|\bM\.Pd\b/gi, 'Magister Pendidikan')
+          .replace(/\bS\.Ag\.\b|\bS\.Ag\b/gi, 'Sarjana Agama')
+          .replace(/\bS\.Kom\.\b|\bS\.Kom\b/gi, 'Sarjana Komputer')
+          .replace(/\bS\.T\.\b/gi, 'Sarjana Teknik')
+          .replace(/\bYTPAI\b/gi, 'Yayasan Tarbiyatul Islamiyah')
+          .replace(/\bRML\b/gi, 'R M L')
+          .replace(/\bPJ\b/gi, 'Penanggung Jawab')
+          .replace(/\bPIC\b/gi, 'Penanggung Jawab')
+          .replace(/\bBPMP\b/gi, 'B P M P')
+          .replace(/\bLBA\b/gi, 'L B A')
+          .replace(/\bLPBA\b/gi, 'L P B A')
+          .replace(/\bLBB\b/gi, 'L B B')
+          .replace(/\bSAS\b/gi, 'Sumatif Akhir Semester')
+          .replace(/\bSTS\b/gi, 'Sumatif Tengah Semester')
+          .replace(/\bMPLS\b/gi, 'M P L S')
+          .replace(/\bKB-TK\b/gi, 'K B dan T K')
+          .replace(/\bH-7\b/gi, 'H minus 7')
+          .replace(/\bH-14\b/gi, 'H minus 14')
+          .replace(/\bH-30\b/gi, 'H minus 30');
+
+        const utterance = new SpeechSynthesisUtterance(cleanSpeech);
+        utterance.lang = 'id-ID';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        // Pilih suara Bahasa Indonesia jika didukung peramban
+        const voices = window.speechSynthesis.getVoices();
+        const idVoice = voices.find(v => v.lang === 'id-ID' || (v.lang && v.lang.startsWith('id')));
+        if (idVoice) utterance.voice = idVoice;
+
+        const speakingBadge = document.getElementById('humasVoiceSpeakingBadge');
+        utterance.onstart = function() {
+          if (speakingBadge) speakingBadge.classList.remove('hidden');
+        };
+        utterance.onend = function() {
+          if (speakingBadge) speakingBadge.classList.add('hidden');
+        };
+        utterance.onerror = function() {
+          if (speakingBadge) speakingBadge.classList.add('hidden');
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.warn('Speech synthesis error:', e);
       }
+    }
+
+    window.repeatHumasVoiceAnswer = function() {
+      if (lastSpokenHumasAnswer) {
+        speakHumasAnswer(lastSpokenHumasAnswer);
+      }
+    };
+
+    window.closeHumasVoiceAnswerCard = function() {
+      const card = document.getElementById('humasVoiceAnswerCard');
+      if (card) card.classList.add('hidden');
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      const speakingBadge = document.getElementById('humasVoiceSpeakingBadge');
+      if (speakingBadge) speakingBadge.classList.add('hidden');
+    };
+
+    function renderHumasVoiceAnswerCard(query, bestMatch, spokenAns) {
+      const card = document.getElementById('humasVoiceAnswerCard');
+      if (!card || !bestMatch) return;
+
+      const qEl = document.getElementById('humasVoiceAnswerQuery');
+      const speechEl = document.getElementById('humasVoiceAnswerSpeechText');
+      const pjEl = document.getElementById('humasVoiceAnswerPJ');
+      const dateEl = document.getElementById('humasVoiceAnswerDate');
+      const targetEl = document.getElementById('humasVoiceAnswerTarget');
+      const pamfletEl = document.getElementById('humasVoiceAnswerPamflet');
+
+      if (qEl) qEl.textContent = `"${query}"`;
+      if (speechEl) speechEl.textContent = spokenAns;
+      if (pjEl) pjEl.textContent = bestMatch.pj || 'Humas YTPAI';
+      
+      const tglStr = bestMatch.tanggal || bestMatch.waktu || 'Kondisional';
+      const blnStr = bestMatch.bulan ? `Bulan ${bestMatch.bulan}` : '';
+      const thnStr = bestMatch.tahun || '2026';
+      if (dateEl) dateEl.textContent = `${tglStr} ${blnStr} ${thnStr}`;
+      
+      if (targetEl) targetEl.textContent = bestMatch.sasaran || 'Seluruh Warga YTPAI';
+      
+      const pamfletStatus = bestMatch.statusPamflet === 'siap' ? 'Sudah Siap ✅' : 'Belum Siap ⏳';
+      const kanalStr = bestMatch.kanal || 'IG, FB, WA';
+      if (pamfletEl) pamfletEl.textContent = `${pamfletStatus} • Kanal: ${kanalStr}`;
+
+      card.classList.remove('hidden');
+      if (typeof safeCreateIcons === 'function') safeCreateIcons();
     }
 
     function scrollHumasToTable() {
@@ -2037,8 +3235,131 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
       const originalText = rawText.trim();
       let text = originalText.toLowerCase();
 
+      const allProgs = humasState.programs || [];
+
       // ==============================================================
-      // A. PENANGANAN PERTANYAAN JADWAL (Q&A: "KAPAN HAFLAH AKHIRUSSANAH?", "DATA ZIARAH WALI 9", "KBM AWAL MADIN")
+      // A.1. PERTANYAAN PENANGGUNG JAWAB (PJ / PIC) EKSPLISIT
+      // Contoh: "Siapa penanggung jawab karnaval?", "Penanggung jawab karnaval siapa",
+      //         "Siapa PIC Hari Santri?", "Karnaval penanggung jawabnya siapa?"
+      // ==============================================================
+      const isPJQuestion = /\b(siapa\s*(penanggung\s*jawab|pj|pic|koordinator|ketua|panitia)|(penanggung\s*jawab|pj|pic|koordinator|ketua|panitia).*siapa|siapa\s*yang\s*(mengurus|pegang|menangani|bertanggung\s*jawab)|siapa\s*pj|siapa\s*pic)\b/i.test(text) ||
+        (/\b(penanggung\s*jawab|pj|pic)\b/i.test(text) && /\b(siapa|mana|kah)\b/i.test(text));
+
+      if (isPJQuestion) {
+        // Bersihkan seluruh stopwords untuk mengambil nama kegiatan/acara
+        let eventKeyword = text
+          .replace(/\b(siapa|penanggung\s*jawab|penanggung|jawabnya|jawab|pjnya|pj|picnya|pic|koordinator|ketua|panitia|yang|mengurus|pegang|menangani|bertanggung|acara|kegiatan|program|kerja|itu|sih|ya|tolong|tahu|kah|untuk|tentang|mengenai|pada|di|ke|dari|buat|adalah|adakah|ada|mohon|carikan|lihat|tampilkan|buka)\b/gi, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        const normEvent = normalizeHumasSemanticQuery(eventKeyword);
+        const queryTokens = (normEvent || eventKeyword).split(' ').filter(t => t.length > 1);
+
+        if (eventKeyword.length >= 2 || normEvent.length >= 2) {
+          const matchedItems = [];
+          for (const prog of allProgs) {
+            const rawProgText = `${prog.uraian || ''} ${prog.kategori || ''} ${prog.sasaran || ''}`.toLowerCase();
+            const normProgText = normalizeHumasSemanticQuery(rawProgText);
+
+            let score = 0;
+            // Kecocokan frasa langsung
+            if (rawProgText.includes(eventKeyword) || normProgText.includes(normEvent)) {
+              score += 60;
+            }
+            // Token match
+            for (const token of queryTokens) {
+              if (rawProgText.includes(token) || normProgText.includes(token)) score += 18;
+            }
+
+            if (score >= 15) {
+              matchedItems.push({ prog, score });
+            }
+          }
+
+          matchedItems.sort((a, b) => b.score - a.score);
+
+          if (matchedItems.length > 0) {
+            const bestMatch = matchedItems[0].prog;
+            const pjClean = bestMatch.pj || 'Humas YTPAI';
+
+            // Kunci ID agar tampil pasti di tabel
+            humasState.matchedProgramIds = [bestMatch.id];
+            humasState.searchQuery = '';
+
+            const topInput = document.getElementById('humasTopSearchInput');
+            const btmInput = document.getElementById('humasSearchInput');
+            if (topInput) topInput.value = bestMatch.uraian;
+            if (btmInput) btmInput.value = bestMatch.uraian;
+
+            if (bestMatch.bulan) {
+              filterHumasTable('bulan', bestMatch.bulan);
+            } else {
+              filterHumasTable('bulan', 'all');
+            }
+
+            renderHumasTable();
+            scrollHumasToTable();
+
+            const tglStr = bestMatch.tanggal || bestMatch.waktu || 'Kondisional';
+            const blnStr = bestMatch.bulan ? `Bulan ${bestMatch.bulan}` : '';
+
+            // Format jawaban suara ramah & lengkap sesuai permintaan pengguna
+            const spokenAns = `Penanggung jawab kegiatan ${bestMatch.uraian} adalah ${pjClean}. Pelaksanaan dijadwalkan pada ${blnStr} ${tglStr} dengan sasaran ${bestMatch.sasaran || 'seluruh warga yayasan'}.`;
+
+            renderHumasVoiceAnswerCard(originalText, bestMatch, spokenAns);
+            speakHumasAnswer(spokenAns);
+
+            if (typeof showToast === 'function') {
+              showToast(`👤 Penanggung Jawab Ditemukan`, `${bestMatch.uraian}: ${pjClean}`, 'info');
+            }
+            return true;
+          }
+        }
+      }
+
+      // ==============================================================
+      // A.2. PERTANYAAN AGENDA MILIK PENANGGUNG JAWAB (REVERSE QUERY)
+      // Contoh: "Agenda Mokamat Syafii apa saja?", "Kegiatan apa saja yang dipegang Humas?", "Tugas BPMP"
+      // ==============================================================
+      const isReversePJ = /\b(agenda|kegiatan|acara|tugas|program)\s+(milik|dari|oleh|bagian|bpmp|humas|lba|lbb|lpba|yayasan|syafi|syafii|mokamat)\b/i.test(text) ||
+        /\b(syafi|syafii|mokamat|bpmp|lpba|lba|lbb|yayasan)\s+(pegang|mengurus|bertanggung\s*jawab|agendanya|kegiatannya)\b/i.test(text);
+
+      if (isReversePJ) {
+        let pjKeyword = '';
+        if (/syafi|syafii|mokamat/i.test(text)) pjKeyword = 'syafi';
+        else if (/bpmp/i.test(text)) pjKeyword = 'bpmp';
+        else if (/humas/i.test(text)) pjKeyword = 'humas';
+        else if (/lba/i.test(text)) pjKeyword = 'lba';
+        else if (/lbb/i.test(text)) pjKeyword = 'lbb';
+        else if (/lpba/i.test(text)) pjKeyword = 'lpba';
+        else if (/yayasan/i.test(text)) pjKeyword = 'yayasan';
+
+        if (pjKeyword) {
+          const matchedItems = allProgs.filter(p => (p.pj || '').toLowerCase().includes(pjKeyword));
+          if (matchedItems.length > 0) {
+            humasState.matchedProgramIds = matchedItems.map(m => m.id);
+            humasState.searchQuery = '';
+            filterHumasTable('bulan', 'all');
+            renderHumasTable();
+            scrollHumasToTable();
+
+            const firstThree = matchedItems.slice(0, 3).map(p => `${p.uraian} (${p.bulan || ''})`).join(', ');
+            const pjNameDisplay = matchedItems[0].pj;
+            const spokenAns = `Ditemukan ${matchedItems.length} agenda kegiatan yang dikoordinatori oleh ${pjNameDisplay}, diantaranya: ${firstThree}. Seluruh daftar telah ditampilkan pada tabel.`;
+
+            renderHumasVoiceAnswerCard(originalText, matchedItems[0], spokenAns);
+            speakHumasAnswer(spokenAns);
+
+            if (typeof showToast === 'function') {
+              showToast(`📋 Agenda ${pjNameDisplay}`, `${matchedItems.length} kegiatan ditemukan`, 'info');
+            }
+            return true;
+          }
+        }
+      }
+
+      // ==============================================================
+      // A.3. PERTANYAAN JADWAL UMUM (Q&A: "KAPAN HAFLAH AKHIRUSSANAH?", "DATA ZIARAH WALI 9", "KAPAN KARNAVAL")
       // ==============================================================
       const isQuestion = /\b(kapan|hari apa|tanggal berapa|kapan pelaksanaan|kapan waktu|jadwal|kapan acara|kapan kegiatan|data|info|informasi|jadwalnya|pelaksanaan|tentang|agenda)\b/i.test(text);
       if (isQuestion) {
@@ -2051,7 +3372,6 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
         const normSubject = normalizeHumasSemanticQuery(questionSubject);
 
         if (questionSubject.length >= 2 || normSubject.length >= 2) {
-          const allProgs = humasState.programs || [];
           const queryTokens = (normSubject || questionSubject).split(' ').filter(t => t.length > 1);
 
           // Cari semua program yang cocok (Mendukung kumpulan agenda multi-tanggal / berseri)
@@ -2101,9 +3421,11 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
 
               const tglStr = bestMatch.tanggal || bestMatch.waktu || 'jadwal menyusul';
               const blnStr = bestMatch.bulan ? `Bulan ${bestMatch.bulan}` : '';
-              const spokenAns = `Acara ${bestMatch.uraian} dijadwalkan pada tanggal ${tglStr}, ${blnStr}.`;
+              const pjStr = bestMatch.pj ? `Penanggung jawab: ${bestMatch.pj}.` : '';
+              const spokenAns = `Acara ${bestMatch.uraian} dijadwalkan pada tanggal ${tglStr}, ${blnStr}. ${pjStr}`;
               const toastDetail = `📅 Tanggal: ${tglStr} (${blnStr}) • PJ: ${bestMatch.pj || '-'}`;
 
+              renderHumasVoiceAnswerCard(originalText, bestMatch, spokenAns);
               if (typeof showToast === 'function') {
                 showToast(`📅 ${bestMatch.uraian}`, toastDetail, 'info');
               }
@@ -2126,6 +3448,7 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
               const spokenAns = `Ditemukan ${matchedItems.length} agenda terkait ${questionSubject}: ${firstTwo}. Seluruh data lengkap tampil di tabel.`;
               const toastDetail = `📋 Ditemukan ${matchedItems.length} agenda pada tanggal berbeda di tabel.`;
 
+              renderHumasVoiceAnswerCard(originalText, matchedItems[0].prog, spokenAns);
               if (typeof showToast === 'function') {
                 showToast(`📅 ${matchedItems.length} Jadwal Terkait "${questionSubject}"`, toastDetail, 'info');
               }
@@ -4796,3 +6119,60 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
         }
       });
 
+      if (h7Items.length === 0) return false;
+
+      // Urutkan dari yang paling dekat (H-0, H-1, dst)
+      h7Items.sort((a, b) => a.diff - b.diff);
+
+      let sentCount = 0;
+      for (const { item, diff } of h7Items) {
+        const notifKey = `humas_notif_sent_${item.id}_${todayStr}`;
+        const alreadySentToday = localStorage.getItem(notifKey);
+
+        if (alreadySentToday && !forceShow) {
+          continue; // Lewati jika hari ini sudah dikirim
+        }
+
+        let prefix = '';
+        if (diff === 0) prefix = '🚨 [HARI INI]';
+        else if (diff === 1) prefix = '⚡ [BESOK H-1]';
+        else if (diff <= 3) prefix = `⏳ [H-${diff} SEGERA]`;
+        else prefix = `📅 [H-${diff} RADAR ACARA]`;
+
+        const title = `${prefix} ${item.uraian}`;
+        const statusPamfletText = (item.statusPamflet === 'selesai' || item.statusPamflet === 'siap')
+          ? 'Pamflet: Sudah Publish ✅'
+          : 'Pamflet: BUTUH DIBUAT ⚠️ Segera publikasikan!';
+
+        const body = `🗓️ ${item.tgl} ${item.bulan} ${item.tahun} • ${statusPamfletText}\n👤 PJ: ${item.pj || '-'}`;
+
+        await sendNativeNotification(title, body, `radar-event-${item.id}`, './index.html');
+        localStorage.setItem(notifKey, 'sent_' + new Date().toISOString());
+        sentCount++;
+
+        // Jika forceShow (manual test), kirim 1 acara terdekat
+        if (forceShow && sentCount >= 1) break;
+      }
+
+      return sentCount > 0;
+    }
+
+    window.toggleHumasMobileNotification = toggleHumasMobileNotification;
+    window.checkHumasH7MobileNotifications = checkHumasH7MobileNotifications;
+    window.processHumasVoiceSmartCommand = processHumasVoiceSmartCommand;
+    window.toggleHumasVoiceSearch = toggleHumasVoiceSearch;
+    window.stopHumasVoiceSearch = stopHumasVoiceSearch;
+
+    // Periksa saat user membuka kembali layar HP atau kembali ke tab
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        try { checkHumasH7MobileNotifications(); } catch (e) {}
+      }
+    });
+
+    // Pengecekan otomatis setiap 30 menit
+    try {
+      setInterval(() => {
+        checkHumasH7MobileNotifications();
+      }, 30 * 60 * 1000);
+    } catch (e) {}
