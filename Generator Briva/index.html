@@ -220,6 +220,19 @@
             Jurnal Guru
           </span>
         </button>
+
+        <!-- 10. Catatan Keuangan Pintar & Multi-Dompet (Wallet Icon) -->
+        <button 
+          onclick="switchTab('keuangan')" 
+          id="dock-keuangan" 
+          title="Keuangan Pintar, Multi-Dompet & Detektor Bocor Halus" 
+          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+        >
+          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-8 8H5a2 2 0 0 1-2-2V7"/><path d="M18 12h.01"/></svg>
+          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+            Keuangan & Dompet
+          </span>
+        </button>
       </nav>
     </div>
 
@@ -312,6 +325,22 @@
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0 ml-1.5">
               <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">Harian</span>
+              <i data-lucide="chevron-right" class="drawer-chevron w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 transition-all"></i>
+            </div>
+          </button>
+          <!-- Keuangan Pintar & Multi-Dompet -->
+          <button onclick="switchTab('keuangan'); toggleMobileDrawer(false);" id="nav-keuangan" class="drawer-nav-item w-full flex items-center justify-between p-2 rounded-2xl text-left transition-all duration-200 group cursor-pointer active:scale-[0.98]">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="drawer-icon-box w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20 shadow-2xs transition-all">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex flex-col">
+                <span class="drawer-title text-xs font-bold text-slate-800 dark:text-slate-100 truncate">Keuangan &amp; Dompet</span>
+                <span class="drawer-sub text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">AI Struk, Voice &amp; Bocor Halus</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0 ml-1.5">
+              <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">Pintar</span>
               <i data-lucide="chevron-right" class="drawer-chevron w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 transition-all"></i>
             </div>
           </button>
@@ -604,6 +633,11 @@
           <!-- Category Pill 10: Template WA -->
           <button onclick="switchTab('wa')" id="room-wa" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
             <span>Template WA</span>
+          </button>
+          <!-- Category Pill 11: Keuangan Pintar -->
+          <button onclick="switchTab('keuangan')" id="room-keuangan" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-emerald-500"></i>
+            <span>Keuangan Pintar</span>
           </button>
         </div>
       </div>
@@ -2440,6 +2474,14 @@
                               </button>
                             </div>
                           </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3 whitespace-nowrap text-sky-950 dark:text-sky-300 min-w-[100px] sm:min-w-[130px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Tgl Lahir</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'tanggalLahir', 'Tanggal Lahir')" class="p-1 rounded-none hover:bg-sky-100 dark:hover:bg-white/10 text-sky-600 dark:text-sky-400 transition-all cursor-pointer" title="Salin seluruh kolom Tanggal Lahir">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
                           <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 min-w-[100px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
                             <div class="flex items-center justify-between gap-1.5">
                               <span>No HP Siswa</span>
@@ -2484,7 +2526,7 @@
                       </thead>
                       <tbody id="tbodyPpdbSiswa" class="divide-y divide-slate-100 text-slate-800">
                         <tr>
-                          <td colspan="13" class="py-12 text-center text-slate-400">
+                          <td colspan="14" class="py-12 text-center text-slate-400">
                             <i data-lucide="folder-up" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
                             <p class="font-medium">Belum ada data</p>
                           </td>
@@ -10598,6 +10640,1136 @@
 
 
 <!-- END COMPONENT: Tab11_JurnalMengajar.html -->
+
+<!-- START COMPONENT: Tab12_KeuanganPribadi.html -->
+          <!-- ============================================================== -->
+          <!-- TAB 12: KEUANGAN PINTAR & RADAR KEBOCORAN KAS (MULTI-DOMPET)      -->
+          <!-- AI SCAN STRUK • VOICE NOTE • ANALISIS LEAK • INCOME GENERATOR     -->
+          <!-- ============================================================== -->
+          <div id="tab-keuangan" class="hidden space-y-3 sm:space-y-4 pb-32 sm:pb-12 px-[2px] sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
+            
+            <!-- 1. HEADER MODUL & PENGATURAN AI CLOUD -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 min-w-0 max-w-full box-border">
+              <!-- Left Brand & Info with Mascot -->
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <div class="relative flex-shrink-0">
+                  <img src="mascot.png" alt="Mascot Partner Fatih" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover shadow-md shadow-emerald-500/25 border-2 border-emerald-500/40" />
+                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] font-black shadow-xs ring-2 ring-white dark:ring-slate-900">
+                    <i data-lucide="sparkles" class="w-2.5 h-2.5"></i>
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 class="font-black text-xs sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Keuangan Pintar &amp; Radar Kebocoran Kas</span>
+                    </h3>
+                    <span id="aiStatusBadge" class="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 uppercase tracking-wider flex items-center gap-1">
+                      <i data-lucide="bot" class="w-3 h-3 text-emerald-600 dark:text-emerald-400"></i>
+                      <span id="aiStatusBadgeText">Gemini AI Siap</span>
+                    </span>
+                  </div>
+                  <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                    Multi-Dompet • Detektor Latte Factor (Kebocoran Halus) • AI Struk &amp; Suara • Peluang Penambah Income.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Quick AI & Transaction Actions (Responsive 2x2 Grid on Mobile, Flex on Desktop) -->
+              <div class="w-full lg:w-auto">
+                <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 w-full">
+                  <!-- 1. Scan Struk AI Button -->
+                  <button 
+                    type="button" 
+                    onclick="openModalScanStruk()" 
+                    class="h-9 px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap min-w-0"
+                    title="Scan Struk / Nota Belanja dengan Gemini Vision AI"
+                  >
+                    <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-200 shrink-0"></i>
+                    <span class="truncate">Scan Struk</span>
+                  </button>
+
+                  <!-- 2. Voice Note AI Button -->
+                  <button 
+                    type="button" 
+                    onclick="openModalVoiceKeuangan()" 
+                    class="h-9 px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-xs font-bold bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap min-w-0"
+                    title="Catat Transaksi Lewat Suara (Voice Note)"
+                  >
+                    <i data-lucide="mic" class="w-3.5 h-3.5 text-rose-200 shrink-0"></i>
+                    <span class="truncate">Input Suara</span>
+                  </button>
+
+                  <!-- 3. AI Income Ideas Button -->
+                  <button 
+                    type="button" 
+                    onclick="openModalIncomeIdeas()" 
+                    class="h-9 px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap min-w-0"
+                    title="Cari Peluang Tambahan Income dengan AI"
+                  >
+                    <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-slate-950 shrink-0"></i>
+                    <span class="truncate">Ide Income</span>
+                  </button>
+
+                  <!-- 4. Tambah Transaksi + Kunci AI (Compact Pair) -->
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <button 
+                      type="button" 
+                      onclick="openModalTambahTransaksi()" 
+                      class="flex-1 sm:flex-none h-9 px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap min-w-0"
+                      title="Tambah Catatan Pengeluaran / Pemasukan Manual"
+                    >
+                      <i data-lucide="plus-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                      <span class="truncate">Transaksi</span>
+                    </button>
+
+                    <button 
+                      type="button" 
+                      onclick="openModalGeminiKey()" 
+                      class="h-9 w-9 p-0 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs transition-all flex items-center justify-center cursor-pointer active:scale-95 shrink-0"
+                      title="Atur Google Gemini API Key"
+                    >
+                      <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. HERO CASHFLOW & 3 KANTONG (MULTI-DOMPET) -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-3">
+              <!-- Card 1: Total Saldo Gabungan (Net Worth) -->
+              <div class="lg:col-span-1 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white p-4 sm:p-5 shadow-lg border border-slate-700/80 flex flex-col justify-between relative overflow-hidden">
+                <!-- Background Glow -->
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none"></div>
+                
+                <div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold tracking-wider uppercase text-emerald-400 flex items-center gap-1.5">
+                      <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                      <span>Total Saldo Semua Kantong</span>
+                    </span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" onclick="openModalAturSaldo()" class="text-[10px] font-bold bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-500/30 transition-colors flex items-center gap-1 cursor-pointer" title="Atur Saldo Riil / Saldo Awal Semua Kantong">
+                        <i data-lucide="sliders" class="w-2.5 h-2.5"></i>
+                        <span>Atur Saldo</span>
+                      </button>
+                      <button type="button" onclick="openModalTransferKantong()" class="text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white px-2 py-0.5 rounded-lg border border-white/10 transition-colors flex items-center gap-1 cursor-pointer" title="Transfer Saldo Antar Kantong">
+                        <i data-lucide="arrow-left-right" class="w-2.5 h-2.5"></i>
+                        <span>Pindah Dana</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <h2 class="text-2xl sm:text-3xl font-black tracking-tight tabular-nums text-white" id="statTotalNetWorth">
+                      Rp 0
+                    </h2>
+                    <p class="text-[11px] text-slate-300 mt-1 flex items-center gap-1">
+                      <span>Arus kas bulan ini:</span>
+                      <span id="statMonthlyCashflow" class="font-bold text-emerald-400 tabular-nums">+Rp 0</span>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Savings Rate Indicator -->
+                <div class="mt-4 pt-3 border-t border-white/10">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-300">Rasio Tabungan:</span>
+                    <span class="font-extrabold text-emerald-400" id="statSavingsRate">0%</span>
+                  </div>
+                  <div class="w-full bg-white/10 rounded-full h-1.5 mt-1.5 overflow-hidden">
+                    <div id="statSavingsRateBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3 Kartu Kantong (Pribadi, Operasional, Tabungan) -->
+              <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                <!-- Kantong 1: Pribadi (Living & Lifestyle) -->
+                <div 
+                  id="walletCard-pribadi" 
+                  onclick="filterByWallet('pribadi')" 
+                  class="wallet-card group cursor-pointer bg-white/90 dark:bg-slate-900/90 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 rounded-xl border border-indigo-200/80 dark:border-indigo-900/60 p-3.5 sm:p-4 shadow-xs transition-all relative overflow-hidden"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="w-9 h-9 rounded-lg bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold flex-shrink-0 shadow-xs border border-indigo-200 dark:border-indigo-800">
+                      <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80">
+                        Living &amp; Life
+                      </span>
+                      <button type="button" onclick="event.stopPropagation(); openModalAturSaldo('pribadi');" class="text-indigo-500 hover:text-indigo-700 p-0.5" title="Ubah Saldo Pribadi">
+                        <i data-lucide="edit-3" class="w-3 h-3"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Kantong Pribadi</span>
+                    <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight mt-0.5" id="walletBalance-pribadi">
+                      Rp 0
+                    </h4>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400">Keluar bulan ini:</span>
+                    <span class="font-bold text-rose-500 tabular-nums" id="walletExpense-pribadi">Rp 0</span>
+                  </div>
+                </div>
+
+                <!-- Kantong 2: Operasional Harian (Work & Transport) -->
+                <div 
+                  id="walletCard-operasional" 
+                  onclick="filterByWallet('operasional')" 
+                  class="wallet-card group cursor-pointer bg-white/90 dark:bg-slate-900/90 hover:bg-sky-50/50 dark:hover:bg-sky-950/20 rounded-xl border border-sky-200/80 dark:border-sky-900/60 p-3.5 sm:p-4 shadow-xs transition-all relative overflow-hidden"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold flex-shrink-0 shadow-xs border border-sky-200 dark:border-sky-800">
+                      <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/80">
+                        Bensin &amp; Kerja
+                      </span>
+                      <button type="button" onclick="event.stopPropagation(); openModalAturSaldo('operasional');" class="text-sky-500 hover:text-sky-700 p-0.5" title="Ubah Saldo Operasional">
+                        <i data-lucide="edit-3" class="w-3 h-3"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Kantong Operasional</span>
+                    <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight mt-0.5" id="walletBalance-operasional">
+                      Rp 0
+                    </h4>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400">Keluar bulan ini:</span>
+                    <span class="font-bold text-rose-500 tabular-nums" id="walletExpense-operasional">Rp 0</span>
+                  </div>
+                </div>
+
+                <!-- Kantong 3: Tabungan & Investasi (Wealth & Emergency) -->
+                <div 
+                  id="walletCard-tabungan" 
+                  onclick="filterByWallet('tabungan')" 
+                  class="wallet-card group cursor-pointer bg-white/90 dark:bg-slate-900/90 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 p-3.5 sm:p-4 shadow-xs transition-all relative overflow-hidden"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold flex-shrink-0 shadow-xs border border-emerald-200 dark:border-emerald-800">
+                      <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
+                        Aset &amp; Darurat
+                      </span>
+                      <button type="button" onclick="event.stopPropagation(); openModalAturSaldo('tabungan');" class="text-emerald-500 hover:text-emerald-700 p-0.5" title="Ubah Saldo Tabungan">
+                        <i data-lucide="edit-3" class="w-3 h-3"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Kantong Tabungan</span>
+                    <h4 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight mt-0.5" id="walletBalance-tabungan">
+                      Rp 0
+                    </h4>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400">Masuk bulan ini:</span>
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums" id="walletIncome-tabungan">+Rp 0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. RADAR KEBOCORAN KAS (LATTE FACTOR DETECTOR) -->
+            <!-- Fitur khusus menjawab problem: 'saya sering tidak tahu uang saya tiba tiba habis' -->
+            <div class="rounded-xl bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 dark:from-amber-950/30 dark:via-rose-950/30 dark:to-purple-950/30 border border-amber-300/60 dark:border-amber-700/50 p-3.5 sm:p-4 shadow-xs">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <!-- Info Header with compact badge -->
+                <div class="flex items-start justify-between gap-2.5 w-full md:w-auto flex-1">
+                  <div class="flex items-start gap-2.5">
+                    <div class="w-9 h-9 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black flex-shrink-0 shadow-xs">
+                      <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white tracking-tight leading-snug">
+                        Radar Detektor Kebocoran Halus (Latte Factor)
+                      </h4>
+                      <p class="text-[10.5px] text-slate-600 dark:text-slate-400 mt-0.5 leading-tight" id="leakDescriptionText">
+                        Mendeteksi jajan mikro berulang, biaya admin, dan pengeluaran impulsif tanpa rencana.
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Sleek Compact Rectangular Badge (NOT rounded-full) -->
+                  <div class="flex-shrink-0 self-start">
+                    <span id="leakLevelBadge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[9.5px] font-bold tracking-tight bg-rose-600 text-white shadow-2xs whitespace-nowrap">
+                      Terdeteksi
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Leak Stats Summary -->
+                <div class="flex items-center justify-between sm:justify-start gap-3 sm:gap-4 flex-shrink-0 bg-white/90 dark:bg-slate-900/90 p-2.5 sm:p-3 rounded-lg border border-amber-200 dark:border-amber-900/60 shadow-2xs w-full md:w-auto">
+                  <div>
+                    <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block">Uang Bocor</span>
+                    <span class="text-sm sm:text-base font-black text-rose-600 dark:text-rose-400 tabular-nums" id="statTotalLeakAmount">
+                      Rp 0
+                    </span>
+                  </div>
+                  <div class="w-[1px] h-7 bg-slate-200 dark:bg-slate-700"></div>
+                  <div>
+                    <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider block">Persentase</span>
+                    <span class="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums" id="statLeakPercentage">
+                      0%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Leak Categories Pill List -->
+              <div class="mt-2.5 pt-2.5 border-t border-amber-200/60 dark:border-amber-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5" id="leakTopCategoriesList">
+                  <!-- Populated by JavaScript -->
+                </div>
+                <div class="text-[10.5px] font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i>
+                  <span id="leakSmartTip" class="truncate">Tips AI: Kurangi jajan kopi &amp; camilan harian sebesar 50%!</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. REKAPITULASI FLEKSIBEL (HARI, MINGGU, BULAN, TAHUN) -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs">
+                            <!-- Period Tab Switcher & Action Toolbar -->
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <!-- 4 Period Segmented Pills (Grid 4 Kolom di Mobile, Flex di Desktop) -->
+                <div class="grid grid-cols-4 sm:flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-200/80 dark:border-slate-700/80 w-full lg:w-auto">
+                  <button 
+                    type="button" 
+                    id="periodBtn-day" 
+                    onclick="switchFinancePeriod('day')" 
+                    class="px-2 sm:px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                  >
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                    <span class="truncate">Hari</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="periodBtn-week" 
+                    onclick="switchFinancePeriod('week')" 
+                    class="px-2 sm:px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                  >
+                    <i data-lucide="calendar-days" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                    <span class="truncate">Minggu</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="periodBtn-month" 
+                    onclick="switchFinancePeriod('month')" 
+                    class="px-2 sm:px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-xs cursor-pointer"
+                  >
+                    <i data-lucide="calendar-range" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                    <span class="truncate">Bulan</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="periodBtn-year" 
+                    onclick="switchFinancePeriod('year')" 
+                    class="px-2 sm:px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                  >
+                    <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                    <span class="truncate">Tahun</span>
+                  </button>
+                </div>
+
+                <!-- Date Range Label & Export Excel Button -->
+                <div class="flex items-center justify-between lg:justify-end gap-2 text-xs w-full lg:w-auto">
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 font-bold text-xs truncate">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0"></i>
+                    <span id="currentPeriodRangeLabel" class="truncate">Memuat Periode...</span>
+                  </div>
+
+                  <button 
+                    onclick="exportFinanceExcel()" 
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-bold bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 shadow-xs transition-all active:scale-95 cursor-pointer whitespace-nowrap flex-shrink-0"
+                    title="Unduh Rekap Laporan Excel"
+                  >
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600"></i>
+                    <span>Ekspor Excel</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Period Stat Grid (4 Metrics) -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mt-4">
+                <!-- Stat 1: Total Pemasukan -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800/60">
+                  <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                    <i data-lucide="arrow-down-left" class="w-3 h-3"></i>
+                    <span>Pemasukan</span>
+                  </span>
+                  <h4 class="text-base sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums mt-1" id="statPeriodIncome">
+                    Rp 0
+                  </h4>
+                  <span class="text-[10px] text-slate-400 mt-0.5 block" id="statPeriodIncomeCount">0 transaksi</span>
+                </div>
+
+                <!-- Stat 2: Total Pengeluaran -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800/60">
+                  <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                    <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                    <span>Pengeluaran</span>
+                  </span>
+                  <h4 class="text-base sm:text-xl font-extrabold text-rose-600 dark:text-rose-400 tabular-nums mt-1" id="statPeriodExpense">
+                    Rp 0
+                  </h4>
+                  <span class="text-[10px] text-slate-400 mt-0.5 block" id="statPeriodExpenseCount">0 transaksi</span>
+                </div>
+
+                <!-- Stat 3: Arus Kas Bersih -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800/60">
+                  <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1">
+                    <i data-lucide="activity" class="w-3 h-3"></i>
+                    <span>Arus Kas Bersih</span>
+                  </span>
+                  <h4 class="text-base sm:text-xl font-extrabold text-blue-600 dark:text-blue-400 tabular-nums mt-1" id="statPeriodNet">
+                    Rp 0
+                  </h4>
+                  <span class="text-[10px] text-slate-400 mt-0.5 block" id="statPeriodNetStatus">Surplus</span>
+                </div>
+
+                <!-- Stat 4: Kebocoran Halus Periode Ini -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800/60">
+                  <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                    <i data-lucide="coffee" class="w-3 h-3"></i>
+                    <span>Bocor Mikro</span>
+                  </span>
+                  <h4 class="text-base sm:text-xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums mt-1" id="statPeriodLeak">
+                    Rp 0
+                  </h4>
+                  <span class="text-[10px] text-slate-400 mt-0.5 block" id="statPeriodLeakPercent">0% dari keluar</span>
+                </div>
+              </div>
+
+              <!-- Interactive Chart Container -->
+              <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Bar Chart: Cashflow Trend -->
+                <div class="lg:col-span-2">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-blue-500"></i>
+                      <span id="chartTrendTitle">Tren Arus Kas (Pemasukan vs Pengeluaran)</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">Berdasarkan data tersimpan</span>
+                  </div>
+                  <!-- SVG Trend Chart Canvas -->
+                  <div id="financeTrendChartBox" class="w-full h-48 bg-slate-50 dark:bg-slate-800/30 rounded-lg p-2 border border-slate-100 dark:border-slate-800 flex items-end justify-center relative overflow-hidden">
+                    <!-- SVG Chart renders here -->
+                  </div>
+                </div>
+
+                <!-- Donut Chart: Pengeluaran per Kategori -->
+                <div class="lg:col-span-1">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-purple-500"></i>
+                      <span>Kategori Pengeluaran</span>
+                    </span>
+                  </div>
+                  <!-- Category Donut & Breakdown -->
+                  <div id="financeCategoryDonutBox" class="w-full h-48 bg-slate-50 dark:bg-slate-800/30 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800 flex flex-col justify-between overflow-y-auto no-scrollbar">
+                    <!-- Category legend & progress renders here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. TABEL & RIWAYAT TRANSAKSI DENGAN MULTI-FILTER -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs">
+              <!-- Filter Toolbar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2 flex-wrap flex-1">
+                  <!-- Search Input -->
+                  <div class="relative min-w-[180px] flex-1 sm:max-w-xs">
+                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input 
+                      type="text" 
+                      id="searchFinanceInput" 
+                      oninput="renderFinanceTable()" 
+                      placeholder="Cari transaksi, toko, barang..." 
+                      class="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <!-- Filter Dompet -->
+                  <select 
+                    id="filterWalletSelect" 
+                    onchange="renderFinanceTable()" 
+                    class="py-1.5 px-2.5 rounded-md bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="all">Semua Kantong</option>
+                    <option value="pribadi">Kantong Pribadi</option>
+                    <option value="operasional">Kantong Operasional</option>
+                    <option value="tabungan">Kantong Tabungan</option>
+                  </select>
+
+                  <!-- Filter Tipe -->
+                  <select 
+                    id="filterTypeSelect" 
+                    onchange="renderFinanceTable()" 
+                    class="py-1.5 px-2.5 rounded-md bg-slate-50 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="all">Semua Tipe</option>
+                    <option value="keluar">Pengeluaran</option>
+                    <option value="masuk">Pemasukan</option>
+                    <option value="transfer">Pindah Dana</option>
+                    <option value="leak">⚠️ Khusus Bocor Halus</option>
+                  </select>
+                </div>
+
+                <!-- Right Quick Count & Reset -->
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-slate-500 dark:text-slate-400" id="financeRowCount">0 transaksi</span>
+                  <button onclick="resetFinanceFilters()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">
+                    Reset Filter
+                  </button>
+                </div>
+              </div>
+
+              <!-- Transaction List Table Container -->
+              <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800">
+                <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                  <thead class="bg-slate-50 dark:bg-slate-800/80 text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th class="py-2.5 px-3">Tanggal &amp; Waktu</th>
+                      <th class="py-2.5 px-3">Kantong Dompet</th>
+                      <th class="py-2.5 px-3">Kategori</th>
+                      <th class="py-2.5 px-3">Keterangan / Toko</th>
+                      <th class="py-2.5 px-3 text-right">Nominal</th>
+                      <th class="py-2.5 px-3 text-center">Status</th>
+                      <th class="py-2.5 px-3 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="financeTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+                    <!-- Dynamic Rows Rendered by JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Empty State Placeholder -->
+              <div id="financeEmptyState" class="hidden py-10 text-center">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center mb-2">
+                  <i data-lucide="receipt" class="w-6 h-6"></i>
+                </div>
+                <h5 class="font-bold text-sm text-slate-700 dark:text-slate-300">Belum Ada Transaksi</h5>
+                <p class="text-xs text-slate-400 mt-0.5">Mulai masukkan saldo uang nyata Anda atau catat transaksi pertama.</p>
+                <div class="flex items-center justify-center gap-2 mt-3">
+                  <button type="button" onclick="openModalAturSaldo()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                    <span>Atur Saldo Awal</span>
+                  </button>
+                  <button type="button" onclick="openModalTambahTransaksi()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-900 text-white shadow-xs cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                    <span>Catat Transaksi</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL 1: SCAN STRUK DENGAN GEMINI VISION AI                    -->
+          <!-- ============================================================== -->
+          <div id="modalScanStruk" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalScanStruk()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <!-- Header -->
+              <div class="px-4 py-3 sm:px-5 sm:py-3.5 bg-gradient-to-r from-blue-700 to-indigo-700 text-white flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-sm sm:text-base text-white tracking-wide">
+                      Scan Foto Struk (Gemini Vision AI)
+                    </h3>
+                    <p class="text-[11px] text-blue-100">Ekstrak toko, barang, tanggal, nominal &amp; kategori otomatis</p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeModalScanStruk()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Body -->
+              <div class="p-4 sm:p-5 overflow-y-auto space-y-3.5 text-xs text-slate-700 dark:text-slate-300">
+                <!-- Dropzone / Image Upload -->
+                <div 
+                  id="strukDropzone" 
+                  class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-slate-50 dark:bg-slate-800/40"
+                  onclick="document.getElementById('strukFileInput').click()"
+                >
+                  <input type="file" id="strukFileInput" accept="image/*" class="hidden" onchange="handleStrukFileSelect(event)" />
+                  <div id="strukUploadPrompt">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center mb-2">
+                      <i data-lucide="image-plus" class="w-6 h-6"></i>
+                    </div>
+                    <p class="font-bold text-slate-800 dark:text-slate-200">Klik atau Geser Foto Struk / Nota di sini</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Mendukung format JPG, PNG, WEBP (Struk kasir, transfer BRI/BCA/Dana/Gopay)</p>
+                  </div>
+                  <!-- Image Preview -->
+                  <div id="strukImagePreviewBox" class="hidden">
+                    <img id="strukImagePreview" src="" alt="Pratinjau Struk" class="max-h-48 mx-auto rounded-xl shadow-md object-contain border border-slate-200 dark:border-slate-700" />
+                    <p class="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-2 hover:underline">Klik untuk ganti foto</p>
+                  </div>
+                </div>
+
+                <!-- Processing Loader State -->
+                <div id="strukAiLoading" class="hidden p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 text-center">
+                  <div class="inline-block animate-spin text-blue-600 dark:text-blue-400 mb-2">
+                    <i data-lucide="loader-2" class="w-6 h-6"></i>
+                  </div>
+                  <p class="font-bold text-xs text-blue-900 dark:text-blue-200">Gemini Vision AI sedang membaca struk...</p>
+                  <p class="text-[11px] text-blue-700 dark:text-blue-300 mt-0.5">Mendeteksi teks nota, menguraikan total dan rincian item.</p>
+                </div>
+
+                <!-- Extracted Form Confirmation -->
+                <div id="strukExtractedForm" class="hidden space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+                    <span>Struk berhasil dibaca AI! Silakan tinjau dan pilih dompet tujuan:</span>
+                  </div>
+
+                  <!-- Merchant & Date -->
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nama Toko / Merchant</label>
+                      <input type="text" id="scanResultMerchant" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal Struk</label>
+                      <input type="date" id="scanResultDate" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white" />
+                    </div>
+                  </div>
+
+                  <!-- Nominal Total & Dompet -->
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Total Pengeluaran (Rp)</label>
+                      <input type="number" id="scanResultAmount" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-black text-rose-600 dark:text-rose-400" />
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Kantong Dompet</label>
+                      <select id="scanResultWallet" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                        <option value="pribadi">Kantong Pribadi</option>
+                        <option value="operasional">Kantong Operasional</option>
+                        <option value="tabungan">Kantong Tabungan</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Kategori & Deteksi Bocor -->
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Kategori</label>
+                      <select id="scanResultCategory" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                        <option value="Makanan & Minuman">Makanan &amp; Minuman</option>
+                        <option value="Bensin & Transportasi">Bensin &amp; Transportasi</option>
+                        <option value="Jajan & Kopi">Jajan &amp; Kopi (Bocor Halus)</option>
+                        <option value="Belanja Minimarket">Belanja Minimarket</option>
+                        <option value="Tagihan & Utilitas">Tagihan &amp; Utilitas</option>
+                        <option value="Keluarga & Kebutuhan">Keluarga &amp; Kebutuhan</option>
+                        <option value="Lainnya">Lainnya</option>
+                      </select>
+                    </div>
+                    <div class="flex items-center pt-5">
+                      <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="scanResultIsLeak" class="w-4 h-4 rounded text-amber-500 focus:ring-amber-400" />
+                        <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Tandai Bocor Halus (Latte Factor)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Itemized List Summary -->
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Rincian Barang yang Dibeli</label>
+                    <textarea id="scanResultItems" rows="2" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer Buttons -->
+              <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 flex-shrink-0">
+                <button type="button" onclick="closeModalScanStruk()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                  Batal
+                </button>
+                <button type="button" id="btnProcessStrukAi" onclick="processStrukWithGemini()" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>Ekstrak dengan AI</span>
+                </button>
+                <button type="button" id="btnSaveScannedStruk" onclick="saveScannedStrukTransaction()" class="hidden px-4 py-2 rounded-xl text-[10.5px] sm:text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>Simpan Transaksi</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL 2: INPUT SUARA DENGAN GEMINI AI (VOICE NOTE PARSER)      -->
+          <!-- ============================================================== -->
+          <div id="modalVoiceKeuangan" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalVoiceKeuangan()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <!-- Header -->
+              <div class="px-4 py-3 bg-gradient-to-r from-rose-600 to-amber-600 text-white flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center text-white">
+                    <i data-lucide="mic" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-sm text-white">Catat Cepat Lewat Suara (Voice AI)</h3>
+                    <p class="text-[10px] text-rose-100">Bicara bebas dalam Bahasa Indonesia</p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeModalVoiceKeuangan()" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Body -->
+              <div class="p-5 text-center space-y-4">
+                <!-- Big Mic Button with Pulsing Wave -->
+                <div class="relative inline-block my-2">
+                  <div id="voicePulsingWave" class="hidden absolute inset-0 rounded-full bg-rose-500/30 animate-ping"></div>
+                  <button 
+                    type="button" 
+                    id="btnToggleVoiceRecord" 
+                    onclick="toggleFinanceVoiceRecording()" 
+                    class="relative w-20 h-20 rounded-full bg-gradient-to-tr from-rose-600 to-amber-500 hover:from-rose-700 hover:to-amber-600 text-white shadow-xl flex items-center justify-center mx-auto transition-transform active:scale-95 cursor-pointer"
+                  >
+                    <i id="voiceMicIcon" data-lucide="mic" class="w-8 h-8"></i>
+                  </button>
+                </div>
+                <p id="voiceStatusText" class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Ketuk mikrofon di atas lalu mulai bicara...
+                </p>
+
+                <!-- Voice Script Hints -->
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-left text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
+                  <span class="font-bold text-slate-800 dark:text-slate-200 block">💡 Contoh kalimat:</span>
+                  <p>• <em>"Beli bensin Pertamax tiga puluh ribu pakai operasional"</em></p>
+                  <p>• <em>"Jajan es kopi susu lima belas ribu di indomaret"</em></p>
+                  <p>• <em>"Dapat honor ngajar satu juta rupiah masuk tabungan"</em></p>
+                </div>
+
+                <!-- Live Voice Transcript / Output -->
+                <div id="voiceTranscriptBox" class="text-left hidden">
+                  <label class="block text-[11px] font-bold text-slate-500 mb-1">Teks Suara Anda:</label>
+                  <div id="voiceTranscriptText" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700"></div>
+                </div>
+
+                <!-- Extracted Multi-Item Confirmations -->
+                <div id="voiceParsedResultBox" class="hidden text-left space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Hasil Ekstraksi Gemini AI:</span>
+                  </span>
+                  <div id="voiceParsedItemsList" class="space-y-2">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeModalVoiceKeuangan()" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300">
+                  Tutup
+                </button>
+                <button type="button" id="btnSaveVoiceTransactions" onclick="saveVoiceExtractedTransactions()" class="hidden px-4 py-1.5 rounded-xl text-[10.5px] sm:text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer">
+                  Simpan Transaksi
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL 3: AI INCOME IDEAS & FINANCIAL ADVISOR                   -->
+          <!-- ============================================================== -->
+          <div id="modalIncomeIdeas" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalIncomeIdeas()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <!-- Header -->
+              <div class="px-4 py-3 sm:px-5 sm:py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-slate-950 text-amber-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-extrabold text-sm sm:text-base text-slate-950 tracking-wide">
+                      AI Income Hunter &amp; Peluang Tambahan Penghasilan
+                    </h3>
+                    <p class="text-[11px] text-amber-950/80 font-medium">Ide bisnis sampingan &amp; monetisasi keahlian berdasarkan profil Anda</p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeModalIncomeIdeas()" class="w-8 h-8 rounded-lg bg-black/10 hover:bg-black/20 text-slate-950 flex items-center justify-center cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Body -->
+              <div class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs text-slate-700 dark:text-slate-300">
+                <!-- User Profile & Trigger -->
+                <div class="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 block">Profil Aktivitas Terdeteksi:</span>
+                    <h5 class="font-bold text-slate-900 dark:text-white text-xs mt-0.5">
+                      Pengajar / Tenaga Kependidikan / Pesantren &amp; Operator Sekolah
+                    </h5>
+                    <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                      AI akan merancang ide bisnis sampingan realistis tanpa modal besar yang cocok dengan jadwal dan skill Anda.
+                    </p>
+                  </div>
+                  <button 
+                    type="button" 
+                    onclick="generateIncomeIdeasWithAI()" 
+                    id="btnGenerateIncomeAi"
+                    class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-950 text-amber-400 hover:bg-slate-900 shadow-md transition-all flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer active:scale-95"
+                  >
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Analisis Ulang dengan AI</span>
+                  </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="incomeAiLoading" class="hidden py-8 text-center">
+                  <div class="inline-block animate-spin text-amber-500 mb-2">
+                    <i data-lucide="loader-2" class="w-8 h-8"></i>
+                  </div>
+                  <p class="font-bold text-slate-800 dark:text-slate-200 text-xs">Gemini AI sedang merancang strategi peluang income...</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Menganalisis potensi pasar pesantren, sekolah &amp; keterampilan digital.</p>
+                </div>
+
+                <!-- Ideas Cards Container -->
+                <div id="incomeIdeasContainer" class="space-y-3">
+                  <!-- Populated by JavaScript with rich ideas -->
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end">
+                <button type="button" onclick="closeModalIncomeIdeas()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 dark:bg-white dark:text-slate-900 text-white cursor-pointer">
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL 4: TAMBAH / EDIT TRANSAKSI MANUAL                        -->
+          <!-- ============================================================== -->
+          <div id="modalTambahTransaksi" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalTambahTransaksi()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <!-- Header -->
+              <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 text-white flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white" id="modalTransaksiTitle">Catat Transaksi Manual</h3>
+                <button type="button" onclick="closeModalTambahTransaksi()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Form Body -->
+              <form id="formTransaksiManual" onsubmit="handleSaveManualTransaction(event)" class="p-4 space-y-3 text-xs text-slate-700 dark:text-slate-300">
+                <input type="hidden" id="manualEditIndex" value="-1" />
+                
+                <!-- Tipe: Keluar vs Masuk -->
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Jenis Transaksi</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btnTypeExpense" onclick="setManualType('keluar')" class="py-2 rounded-xl font-extrabold text-xs bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border-2 border-rose-500 flex items-center justify-center gap-1.5 cursor-pointer">
+                      <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                      <span>Pengeluaran</span>
+                    </button>
+                    <button type="button" id="btnTypeIncome" onclick="setManualType('masuk')" class="py-2 rounded-xl font-semibold text-xs bg-slate-50 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer">
+                      <i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i>
+                      <span>Pemasukan</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Kantong Dompet & Tanggal -->
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Pilih Kantong</label>
+                    <select id="manualWallet" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                      <option value="pribadi">Kantong Pribadi</option>
+                      <option value="operasional">Kantong Operasional</option>
+                      <option value="tabungan">Kantong Tabungan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Tanggal</label>
+                    <input type="date" id="manualDate" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white" />
+                  </div>
+                </div>
+
+                <!-- Nominal (Rp) -->
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nominal (Rp)</label>
+                  <input type="number" id="manualAmount" min="1" placeholder="cth: 35000" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white" />
+                </div>
+
+                <!-- Kategori -->
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Kategori</label>
+                  <select id="manualCategory" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                    <option value="Makanan & Minuman">Makanan &amp; Minuman</option>
+                    <option value="Bensin & Transportasi">Bensin &amp; Transportasi</option>
+                    <option value="Jajan & Kopi">Jajan &amp; Kopi (Latte Factor)</option>
+                    <option value="Belanja Minimarket">Belanja Minimarket</option>
+                    <option value="Tagihan & Utilitas">Tagihan Listrik / Pulsa</option>
+                    <option value="Keluarga & Kebutuhan">Keluarga &amp; Kebutuhan</option>
+                    <option value="Gaji & Honor">Gaji &amp; Honor</option>
+                    <option value="Usaha & Sampingan">Usaha &amp; Sampingan</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+
+                <!-- Keterangan / Toko -->
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Keterangan / Nama Toko</label>
+                  <input type="text" id="manualNote" placeholder="cth: Beli Pertamax, Kopi Kenangan, dll." required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white" />
+                </div>
+
+                <!-- Toggle Bocor Halus -->
+                <div class="p-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40">
+                  <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="manualIsLeak" class="w-4 h-4 rounded text-amber-500 focus:ring-amber-400" />
+                    <div>
+                      <span class="text-xs font-bold text-amber-700 dark:text-amber-400 block">Tandai sebagai Pengeluaran Bocor Halus</span>
+                      <span class="text-[10px] text-slate-500 dark:text-slate-400">Pengeluaran kecil impulsif/jajan di luar kebutuhan primer</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Buttons -->
+                <div class="pt-2 flex items-center justify-end gap-2">
+                  <button type="button" onclick="closeModalTambahTransaksi()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300">
+                    Batal
+                  </button>
+                  <button type="submit" class="px-4 py-2 rounded-xl text-[10.5px] sm:text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer">
+                    Simpan Transaksi
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL 5: PINDAH DANA ANTAR KANTONG (TRANSFER DOMPET)           -->
+          <!-- ============================================================== -->
+          <div id="modalTransferKantong" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalTransferKantong()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 text-white flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white">Pindah Dana Antar Kantong</h3>
+                <button type="button" onclick="closeModalTransferKantong()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <form onsubmit="handleTransferKantong(event)" class="p-4 space-y-3 text-xs text-slate-700 dark:text-slate-300">
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Dari Kantong (Sumber)</label>
+                    <select id="transferFromWallet" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                      <option value="pribadi">Kantong Pribadi</option>
+                      <option value="operasional">Kantong Operasional</option>
+                      <option value="tabungan">Kantong Tabungan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Ke Kantong (Tujuan)</label>
+                    <select id="transferToWallet" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white">
+                      <option value="tabungan">Kantong Tabungan</option>
+                      <option value="operasional">Kantong Operasional</option>
+                      <option value="pribadi">Kantong Pribadi</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Nominal yang Dipindahkan (Rp)</label>
+                  <input type="number" id="transferAmount" min="1" placeholder="cth: 150000" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white" />
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Catatan Pemindahan</label>
+                  <input type="text" id="transferNote" placeholder="cth: Sisihkan untuk tabungan darurat" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white" />
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2">
+                  <button type="button" onclick="closeModalTransferKantong()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300">
+                    Batal
+                  </button>
+                  <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-xs cursor-pointer">
+                    Pindahkan Saldo
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL 6: PENGATURAN GOOGLE GEMINI API KEY                      -->
+          <!-- ============================================================== -->
+          <div id="modalGeminiKey" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalGeminiKey()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="key" class="w-4 h-4 text-amber-400"></i>
+                  <h3 class="font-bold text-sm text-white">Pengaturan Google Gemini AI Key</h3>
+                </div>
+                <button type="button" onclick="closeModalGeminiKey()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="p-4 space-y-3.5 text-xs text-slate-700 dark:text-slate-300">
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Untuk menggunakan scan struk dan analisis suara tanpa batas, masukkan API Key Google Gemini (Gratis dari Google AI Studio). Kunci tersimpan 100% aman di browser Anda dan tidak pernah dikirim ke server luar selain Google API.
+                </p>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Gemini API Key</label>
+                  <div class="relative">
+                    <input 
+                      type="password" 
+                      id="inputGeminiApiKey" 
+                      placeholder="AIzaSy..." 
+                      class="w-full px-3 py-2 pr-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                    />
+                    <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                      <i id="apiKeyEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Test Connection Feedback -->
+                <div id="apiKeyTestFeedback" class="hidden p-2.5 rounded-xl text-xs font-semibold"></div>
+
+                <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-[11px] text-amber-900 dark:text-amber-300 space-y-1">
+                  <span class="font-bold block">Cara mendapatkan API Key Gratis:</span>
+                  <p>1. Kunjungi <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-bold text-blue-600 dark:text-blue-400">Google AI Studio</a>.</p>
+                  <p>2. Login dengan akun Google Anda.</p>
+                  <p>3. Klik <strong>"Create API Key"</strong> dan salin kunci ke kolom di atas.</p>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between gap-2">
+                  <button type="button" onclick="testGeminiApiKeyConnection()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer">
+                    Tes Koneksi
+                  </button>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeModalGeminiKey()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300">
+                      Batal
+                    </button>
+                    <button type="button" onclick="saveGeminiApiKeySettings()" class="px-4 py-2 rounded-xl text-[10.5px] sm:text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs cursor-pointer">
+                      Simpan Kunci
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!-- ============================================================== -->
+          <!-- MODAL 7: ATUR SALDO RIIL / AWAL SEMUA KANTONG                  -->
+          <!-- ============================================================== -->
+          <div id="modalAturSaldo" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/75 backdrop-blur-xs transition-opacity duration-200 hidden opacity-0 pointer-events-none" onclick="if(event.target === this) closeModalAturSaldo()">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <!-- Header -->
+              <div class="px-4 py-3 bg-gradient-to-r from-emerald-700 to-teal-700 text-white flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
+                    <i data-lucide="wallet" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-sm text-white">Atur Saldo Kas &amp; Kantong</h3>
+                    <p class="text-[10.5px] text-emerald-100">Sesuaikan nominal saldo riil Anda saat ini</p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeModalAturSaldo()" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Form Body -->
+              <form onsubmit="handleSaveAturSaldo(event)" class="p-4 space-y-3.5 text-xs text-slate-700 dark:text-slate-300">
+                <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 text-[11px] text-emerald-800 dark:text-emerald-300">
+                  Masukkan jumlah saldo uang Anda saat ini. Seluruh kartu dan ringkasan akan langsung terhitung otomatis.
+                </div>
+
+                <!-- 1. Kantong Pribadi -->
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-indigo-200/60 dark:border-indigo-900/40">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-bold text-[11px] text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
+                      <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                      <span>Kantong Pribadi (Living &amp; Life)</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">Uang jajan &amp; makan</span>
+                  </div>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                    <input type="number" id="inputSaldoPribadi" min="0" required class="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white tabular-nums" placeholder="0" />
+                  </div>
+                </div>
+
+                <!-- 2. Kantong Operasional -->
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-sky-200/60 dark:border-sky-900/40">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-bold text-[11px] text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                      <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                      <span>Kantong Operasional (Bensin &amp; Kerja)</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">Bensin, kuota &amp; transport</span>
+                  </div>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                    <input type="number" id="inputSaldoOperasional" min="0" required class="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white tabular-nums" placeholder="0" />
+                  </div>
+                </div>
+
+                <!-- 3. Kantong Tabungan -->
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-emerald-200/60 dark:border-emerald-900/40">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-bold text-[11px] text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                      <i data-lucide="piggy-bank" class="w-3.5 h-3.5"></i>
+                      <span>Kantong Tabungan (Aset &amp; Darurat)</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">Simpanan masa depan</span>
+                  </div>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                    <input type="number" id="inputSaldoTabungan" min="0" required class="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white tabular-nums" placeholder="0" />
+                  </div>
+                </div>
+
+                <!-- Footer Action -->
+                <div class="pt-2 flex items-center justify-between gap-2">
+                  <button type="button" onclick="resetSaldoInputsToZero()" class="px-2.5 py-1.5 rounded-xl text-[10.5px] font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer" title="Kembalikan semua input saldo ke angka 0">
+                    Set ke Rp 0
+                  </button>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeModalAturSaldo()" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300">
+                      Batal
+                    </button>
+                    <button type="submit" class="px-4 py-1.5 rounded-xl text-[10.5px] sm:text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer">
+                      Simpan Saldo
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+<!-- END COMPONENT: Tab12_KeuanganPribadi.html -->
 
 
 
