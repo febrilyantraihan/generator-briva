@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
   <meta charset="UTF-8">
@@ -2117,33 +2117,59 @@
 
     /* Active state: elevated into the white floating circle */
     .magic-nav-item.active .magic-icon-wrapper {
-      transform: translateY(-23px) !important;
+      transform: translateY(-11px) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .magic-nav-item.active .magic-icon {
-      color: var(--bnav-active-content) !important;
+      transform: none !important;
+      color: #ffffff !important;
+      width: 17px !important;
+      height: 17px !important;
+      margin-bottom: 1px !important;
+      transition: color 0.25s ease !important;
+    }
+
+    .magic-nav-item.active .magic-icon svg {
+      width: 17px !important;
+      height: 17px !important;
+      stroke: #ffffff !important;
     }
 
     .magic-nav-item.active .magic-label {
-      color: var(--bnav-active-content) !important;
-      font-weight: 800 !important;
-      font-size: 9.5px !important;
-      margin-top: 2px !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      font-size: 8px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.01em !important;
+      transform: none !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      max-width: 44px !important;
+      text-align: center !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+      margin-top: 0 !important;
+      transition: color 0.25s ease, font-size 0.25s ease !important;
     }
 
-    /* Floating White Circle Indicator with Scoop Cutout Wings */
     .magic-indicator {
       position: absolute !important;
-      top: -24px !important;
+      top: -9px !important;
       width: 56px !important;
       height: 56px !important;
       background-color: var(--bnav-active-circle) !important;
       border-radius: 50% !important;
-      border: 5px solid var(--bnav-cutout-bg) !important;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) !important;
+      border: 3.5px solid var(--bnav-cutout-bg) !important;
+      box-shadow: var(--bnav-active-circle-shadow) !important;
       z-index: 1 !important;
       pointer-events: none !important;
-      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1) !important;
+      transition: transform 0.35s cubic-bezier(0.34, 1.25, 0.64, 1), background-color 0.25s ease !important;
       left: 0 !important;
       will-change: transform !important;
       box-sizing: border-box !important;
@@ -2153,26 +2179,28 @@
     .magic-indicator::before {
       content: '' !important;
       position: absolute !important;
-      top: 23px !important;
-      left: -19px !important;
-      width: 18px !important;
-      height: 18px !important;
+      top: 9px !important;
+      left: -14px !important;
+      width: 14px !important;
+      height: 14px !important;
       background: transparent !important;
-      border-top-right-radius: 18px !important;
-      box-shadow: 1px -9px 0 0 var(--bnav-cutout-bg) !important;
+      border-top-right-radius: 14px !important;
+      box-shadow: 0 -4px 0 0 var(--bnav-cutout-bg) !important;
+      transition: box-shadow 0.25s ease !important;
     }
 
     /* Right Shoulder Cutout Curve */
     .magic-indicator::after {
       content: '' !important;
       position: absolute !important;
-      top: 23px !important;
-      right: -19px !important;
-      width: 18px !important;
-      height: 18px !important;
+      top: 9px !important;
+      right: -14px !important;
+      width: 14px !important;
+      height: 14px !important;
       background: transparent !important;
-      border-top-left-radius: 18px !important;
-      box-shadow: -1px -9px 0 0 var(--bnav-cutout-bg) !important;
+      border-top-left-radius: 14px !important;
+      box-shadow: 0 -4px 0 0 var(--bnav-cutout-bg) !important;
+      transition: box-shadow 0.25s ease !important;
     }
 
     /* 15. CATALOG CLASS GROUPING BENTO CARDS */
