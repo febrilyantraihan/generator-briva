@@ -987,6 +987,14 @@
                               </button>
                             </div>
                           </th>
+                          <th class="py-2 sm:py-3 px-2 sm:px-3 whitespace-nowrap text-sky-950 dark:text-sky-300 min-w-[100px] sm:min-w-[130px] text-[10.5px] sm:text-xs">
+                            <div class="flex items-center justify-between gap-1.5">
+                              <span>Tgl Lahir</span>
+                              <button type="button" onclick="copyPpdbColumn('siswa', 'tanggalLahir', 'Tanggal Lahir')" class="p-1 rounded-none hover:bg-sky-100 dark:hover:bg-white/10 text-sky-600 dark:text-sky-400 transition-all cursor-pointer" title="Salin seluruh kolom Tanggal Lahir">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </th>
                           <th class="py-2 sm:py-3 px-2 sm:px-3.5 whitespace-nowrap text-slate-800 min-w-[100px] sm:min-w-[120px] text-[10.5px] sm:text-xs">
                             <div class="flex items-center justify-between gap-1.5">
                               <span>No HP Siswa</span>
@@ -1031,7 +1039,7 @@
                       </thead>
                       <tbody id="tbodyPpdbSiswa" class="divide-y divide-slate-100 text-slate-800">
                         <tr>
-                          <td colspan="13" class="py-12 text-center text-slate-400">
+                          <td colspan="14" class="py-12 text-center text-slate-400">
                             <i data-lucide="folder-up" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
                             <p class="font-medium">Belum ada data</p>
                           </td>
