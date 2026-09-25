@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // MODULE: tab_ppdb.js
 // Tab 2: Generator Akun Ganda PPDB (Ortu & Siswa), Ekspor Excel & WA Sender
 // ============================================================================
@@ -578,6 +578,88 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
     }
 
     // Heuristic pattern extractor per student chunk
+        // Helper Format Tanggal Lahir Siswa ke format tanda hubung DD-MM-YYYY (cth: "Lamongan, 14 Maret 2009." -> "14-03-2009")
+    function formatPpdbTanggalLahir(rawInput) {
+      if (!rawInput) return '';
+      let str = String(rawInput).trim().replace(/[\.\,\;]+$/, '');
+      if (!str || str === '-' || str === '0') return '';
+
+      // 1. Cek jika format integer Excel Serial Date (cth: 39886)
+      if (/^\d{5}$/.test(str)) {
+        const serial = parseInt(str, 10);
+        if (serial >= 20000 && serial <= 60000) {
+          const utc_days = Math.floor(serial - 25569);
+          const date_info = new Date(utc_days * 86400 * 1000);
+          const d = String(date_info.getUTCDate()).padStart(2, '0');
+          const m = String(date_info.getUTCMonth() + 1).padStart(2, '0');
+          const y = date_info.getUTCFullYear();
+          return `${d}-${m}-${y}`;
+        }
+      }
+
+      const INDO_MONTHS = {
+        'januari': '01', 'jan': '01', 'january': '01',
+        'februari': '02', 'pebruari': '02', 'feb': '02', 'peb': '02', 'february': '02',
+        'maret': '03', 'mar': '03', 'march': '03',
+        'april': '04', 'apr': '04',
+        'mei': '05', 'may': '05',
+        'juni': '06', 'jun': '06', 'june': '06',
+        'juli': '07', 'jul': '07', 'july': '07',
+        'agustus': '08', 'ags': '08', 'agu': '08', 'august': '08', 'aug': '08',
+        'september': '09', 'sep': '09', 'sept': '09',
+        'oktober': '10', 'okt': '10', 'october': '10', 'oct': '10',
+        'november': '11', 'nopember': '11', 'nov': '11', 'nop': '11',
+        'desember': '12', 'des': '12', 'december': '12', 'dec': '12'
+      };
+
+      // 2. Format Nama Bulan Teks: "Lamongan, 14 Maret 2009." atau "14 Maret 2009"
+      const textMonthMatch = str.match(/\b(\d{1,2})[\s\-\/]+([a-zA-Z]+)[\s\-\/]+(\d{2,4})\b/);
+      if (textMonthMatch) {
+        const day = String(textMonthMatch[1]).padStart(2, '0');
+        const monthKey = textMonthMatch[2].toLowerCase();
+        let year = textMonthMatch[3];
+        if (year.length === 2) year = (parseInt(year, 10) > 40 ? '19' : '20') + year;
+        const monthNum = INDO_MONTHS[monthKey];
+        if (monthNum) {
+          return `${day}-${monthNum}-${year}`;
+        }
+      }
+
+      // Format Bulan Depan (English): "March 14, 2009"
+      const monthFirstMatch = str.match(/\b([a-zA-Z]+)[\s\-\/]+(\d{1,2})(?:st|nd|rd|th)?[\s\,\-]+(\d{2,4})\b/);
+      if (monthFirstMatch) {
+        const monthKey = monthFirstMatch[1].toLowerCase();
+        const day = String(monthFirstMatch[2]).padStart(2, '0');
+        let year = monthFirstMatch[3];
+        if (year.length === 2) year = (parseInt(year, 10) > 40 ? '19' : '20') + year;
+        const monthNum = INDO_MONTHS[monthKey];
+        if (monthNum) {
+          return `${day}-${monthNum}-${year}`;
+        }
+      }
+
+      // 3. Format ISO: "2009-03-14" atau "2009/03/14"
+      const isoMatch = str.match(/\b(19\d\d|20\d\d)[\-\/\.](\d{1,2})[\-\/\.](\d{1,2})\b/);
+      if (isoMatch) {
+        const y = isoMatch[1];
+        const m = String(isoMatch[2]).padStart(2, '0');
+        const d = String(isoMatch[3]).padStart(2, '0');
+        return `${d}-${m}-${y}`;
+      }
+
+      // 4. Format Angka: "14/03/2009", "14-3-2009", "14.03.2009" (bisa diawali tempat lahir cth "Lamongan, 14/08/2009")
+      const numMatch = str.match(/\b(\d{1,2})[\-\/\.](\d{1,2})[\-\/\.](19\d\d|20\d\d|\d{2})\b/);
+      if (numMatch) {
+        const d = String(numMatch[1]).padStart(2, '0');
+        const m = String(numMatch[2]).padStart(2, '0');
+        let y = numMatch[3];
+        if (y.length === 2) year = (parseInt(y, 10) > 40 ? '19' : '20') + y;
+        return `${d}-${m}-${y}`;
+      }
+
+      return str;
+    }
+
     function parseSingleStudentChunk(chunk) {
       const res = {
         namaSiswa: '',
@@ -662,7 +744,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       }
 
       // 4. Deteksi TTL
-      const ttlMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*,?\s*tanggal\s*lahir|tgl\s*lahir|tanggal\s*lahir)\s*[:=]\s*([^\r\n]+)/i);
+      const ttlMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:,|\/)?\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tgl\s*lahir|tanggal\s*lahir|lahir)\s*[:=;]?\s*([^\r\n]+)/i);
       if (ttlMatch && ttlMatch[1]) {
         res.ttl = ttlMatch[1].trim();
       }
@@ -813,6 +895,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         const finalStatus = formatPpdbStudentStatus(parsed.mondok, parsed.gender);
         const asalSekolahFinal = parsed.sekolahAsal || (parsed.kelas ? `Pindahan Kelas ${parsed.kelas}` : '');
         const guruFinal = parsed.guru || 'Tanpa Guru Pendamping';
+        const tanggalLahirFinal = formatPpdbTanggalLahir(parsed.ttl);
 
         currentPpdbSiswaList.push({
           namaSiswa: parsed.namaSiswa,
@@ -820,6 +903,8 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
           email: emailSiswa,
           password: defaultPassword,
           gender: parsed.gender,
+          tanggalLahir: tanggalLahirFinal,
+          rawTtl: parsed.ttl || '',
           hp: parsed.phone,
           alamat: parsed.alamat || '',
           rencanaStatus: finalStatus,
@@ -1507,6 +1592,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         const usernameSiswa = generateStudentUsername(namaSiswa, suffix);
         const emailSiswa = rawEmailSiswa ? rawEmailSiswa : `${usernameSiswa}@${fallbackDomain}`;
         const finalStatus = formatPpdbStudentStatus(rencanaStatus, gender);
+        const tanggalLahirFinal = formatPpdbTanggalLahir(ttl);
 
         currentPpdbSiswaList.push({
           namaSiswa: namaSiswa,
@@ -1514,6 +1600,8 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
           email: emailSiswa,
           password: defaultPassword,
           gender: gender,
+          tanggalLahir: tanggalLahirFinal,
+          rawTtl: ttl || '',
           hp: hpSiswa,
           alamat: alamatFinal,
           rencanaStatus: finalStatus,
@@ -1915,29 +2003,42 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
 
           <!-- 2. Structured Table-like Grid (Mini-Table Data Rinci Real) -->
           <div class="border border-slate-200 dark:border-slate-800 rounded-none overflow-hidden divide-y divide-slate-100 dark:divide-slate-800 text-[11px] bg-slate-50/50 dark:bg-slate-900/30">
-            <!-- Row 1: Nomor BRIVA & Jenis Kelamin -->
-            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800">
+            <!-- Row 1: Nomor BRIVA (Full Width with Clean Input) -->
+            <div class="p-2 bg-emerald-50/30 dark:bg-emerald-950/20">
+              <span class="text-[9px] uppercase tracking-wider font-bold text-emerald-700 dark:text-emerald-400 block">Nomor BRIVA</span>
+              <div class="flex items-center gap-1 mt-0.5">
+                <input 
+                  type="text" 
+                  value="${escapeHtml(item.briva || '')}" 
+                  placeholder="${escapeHtml(brivaVal)}" 
+                  oninput="updatePpdbRowBriva('siswa', ${effectiveIdx}, this.value)" 
+                  class="w-full h-6 px-1.5 bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-none font-mono font-bold text-xs text-emerald-950 dark:text-emerald-100 outline-none focus:ring-1 focus:ring-emerald-500" 
+                  title="Nomor BRIVA kustom santri ini"
+                />
+                <button type="button" onclick="copyPpdbFieldValue('siswa', ${effectiveIdx}, 'briva', 'Nomor BRIVA')" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 p-0.5 cursor-pointer shrink-0" title="Salin BRIVA">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 2: Jenis Kelamin & Tanggal Lahir (Format DD-MM-YYYY) -->
+            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800 bg-white dark:bg-[#131b2c]">
               <div class="p-2">
-                <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">Nomor BRIVA</span>
-                <div class="flex items-center gap-1 mt-0.5">
-                  <input 
-                    type="text" 
-                    value="${escapeHtml(item.briva || '')}" 
-                    placeholder="${escapeHtml(brivaVal)}" 
-                    oninput="updatePpdbRowBriva('siswa', ${effectiveIdx}, this.value)" 
-                    class="w-full h-6 px-1.5 bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-none font-mono font-bold text-xs text-emerald-950 dark:text-emerald-100 outline-none focus:ring-1 focus:ring-emerald-500" 
-                    title="Nomor BRIVA kustom santri ini"
-                  />
-                  <button type="button" onclick="copyPpdbFieldValue('siswa', ${effectiveIdx}, 'briva', 'Nomor BRIVA')" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 p-0.5 cursor-pointer shrink-0" title="Salin BRIVA">
+                <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">Jenis Kelamin</span>
+                <div class="flex items-center justify-between gap-1 mt-0.5">
+                  <span class="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">${escapeHtml(item.gender || '-')}</span>
+                  <button type="button" onclick="copyPpdbFieldValue('siswa', ${effectiveIdx}, 'gender', 'Jenis Kelamin')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer shrink-0" title="Salin JK">
                     <i data-lucide="copy" class="w-3 h-3"></i>
                   </button>
                 </div>
               </div>
               <div class="p-2">
-                <span class="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 block">Jenis Kelamin</span>
+                <span class="text-[9px] uppercase tracking-wider font-bold text-sky-600 dark:text-sky-400 flex items-center gap-1">
+                  <i data-lucide="calendar" class="w-2.5 h-2.5"></i> Tanggal Lahir
+                </span>
                 <div class="flex items-center justify-between gap-1 mt-0.5">
-                  <span class="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">${escapeHtml(item.gender || '-')}</span>
-                  <button type="button" onclick="copyPpdbFieldValue('siswa', ${effectiveIdx}, 'gender', 'Jenis Kelamin')" class="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer" title="Salin JK">
+                  <span class="font-mono font-bold text-slate-900 dark:text-white text-xs truncate" title="${escapeHtml(item.rawTtl || item.tanggalLahir || '-')}">${escapeHtml(item.tanggalLahir || '-')}</span>
+                  <button type="button" onclick="copyPpdbFieldValue('siswa', ${effectiveIdx}, 'tanggalLahir', 'Tanggal Lahir')" class="text-sky-600 dark:text-sky-400 hover:text-sky-700 p-0.5 cursor-pointer shrink-0" title="Salin Tanggal Lahir">
                     <i data-lucide="copy" class="w-3 h-3"></i>
                   </button>
                 </div>
@@ -2463,6 +2564,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
                  (item.username && item.username.toLowerCase().includes(searchQuery)) ||
                  (item.email && item.email.toLowerCase().includes(searchQuery)) ||
                  (item.gender && item.gender.toLowerCase().includes(searchQuery)) ||
+                 (item.tanggalLahir && item.tanggalLahir.toLowerCase().includes(searchQuery)) ||
                  (item.hp && item.hp.toLowerCase().includes(searchQuery)) ||
                  (item.alamat && item.alamat.toLowerCase().includes(searchQuery)) ||
                  (br && br.toLowerCase().includes(searchQuery)) ||
@@ -2646,6 +2748,19 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
               ${escapeHtml(item.gender || '-')}
             </button>
           </td>
+<!-- 8.B. Tanggal Lahir (Format DD-MM-YYYY) -->
+          <td class="py-1.5 sm:py-2.5 px-2 sm:px-3 whitespace-nowrap text-xs sm:text-[13px] text-slate-800 dark:text-slate-200 font-mono font-semibold">
+            <button 
+              type="button" 
+              onclick="copyPpdbFieldValue('siswa', ${effectiveIdx}, 'tanggalLahir', 'Tanggal Lahir')" 
+              class="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-none bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800/60 text-sky-900 dark:text-sky-200 font-bold tabular-nums shadow-2xs transition-all cursor-pointer text-left group" 
+              title="Klik untuk menyalin Tanggal Lahir"
+            >
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0"></i>
+              <span title="${escapeHtml(item.rawTtl || item.tanggalLahir || '-')}">${escapeHtml(item.tanggalLahir || '-')}</span>
+              <i data-lucide="copy" class="w-3 h-3 text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1"></i>
+            </button>
+          </td>
 
           <!-- 9. No HP Siswa (Klik untuk Salin) -->
           <td class="py-1.5 sm:py-2.5 px-2 sm:px-3 whitespace-nowrap text-xs sm:text-[13px]">
@@ -2752,6 +2867,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         `Kode Sekolah    : 1600`,
         `Email Akun      : ${item.email}`,
         `Jenis Kelamin   : ${item.gender || '-'}`,
+        `Tanggal Lahir   : ${item.tanggalLahir || '-'}`,
         `No HP Siswa     : ${item.hp || '-'}`,
         `Alamat Lengkap  : ${item.alamat || '-'}`,
         `Status Santri   : ${item.rencanaStatus || '-'}`,
@@ -2896,6 +3012,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         item.email || '',
         item.password || '',
         item.gender || '',
+        item.tanggalLahir || '',
         item.hp ? `'${item.hp}` : '',
         item.alamat || '',
         item.rencanaStatus || '',
@@ -3229,6 +3346,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
                    (item.username && item.username.toLowerCase().includes(searchQuery)) ||
                    (item.email && item.email.toLowerCase().includes(searchQuery)) ||
                    (item.gender && item.gender.toLowerCase().includes(searchQuery)) ||
+                 (item.tanggalLahir && item.tanggalLahir.toLowerCase().includes(searchQuery)) ||
                    (item.hp && item.hp.toLowerCase().includes(searchQuery)) ||
                    (item.alamat && item.alamat.toLowerCase().includes(searchQuery)) ||
                    (br && br.toLowerCase().includes(searchQuery)) ||
@@ -3510,6 +3628,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         'Email Siswa*', 
         'Kata Sandi*', 
         'Jenis Kelamin', 
+        'Tanggal Lahir', 
         'No HP Siswa', 
         'Alamat Lengkap Siswa', 
         'Status Santri', 
@@ -3526,6 +3645,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
           item.email || '',
           item.password || '',
           item.gender || '',
+          item.tanggalLahir || '',
           item.hp || '',
           item.alamat || '',
           item.rencanaStatus || '',
