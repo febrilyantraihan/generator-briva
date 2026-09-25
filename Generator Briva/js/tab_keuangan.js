@@ -1803,7 +1803,8 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
   global.openModalAturSaldo = openModalAturSaldo;
   global.closeModalAturSaldo = closeModalAturSaldo;
   global.handleSaveAturSaldo = handleSaveAturSaldo;
-  global.resetSaldoInputsToZero = resetSaldoInputsToZero;`r`n  global.resetSemuaDataKeuangan = resetSemuaDataKeuangan;
+  global.resetSaldoInputsToZero = resetSaldoInputsToZero;
+  global.resetSemuaDataKeuangan = resetSemuaDataKeuangan;
   global.closeModalTransferKantong = closeModalTransferKantong;
   global.handleTransferKantong = handleTransferKantong;
 
