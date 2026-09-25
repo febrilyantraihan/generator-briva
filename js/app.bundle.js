@@ -26302,6 +26302,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -31746,7 +31747,8 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
   global.openModalAturSaldo = openModalAturSaldo;
   global.closeModalAturSaldo = closeModalAturSaldo;
   global.handleSaveAturSaldo = handleSaveAturSaldo;
-  global.resetSaldoInputsToZero = resetSaldoInputsToZero;`r`n  global.resetSemuaDataKeuangan = resetSemuaDataKeuangan;
+  global.resetSaldoInputsToZero = resetSaldoInputsToZero;
+  global.resetSemuaDataKeuangan = resetSemuaDataKeuangan;
   global.closeModalTransferKantong = closeModalTransferKantong;
   global.handleTransferKantong = handleTransferKantong;
 
