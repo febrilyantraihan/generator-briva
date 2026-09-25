@@ -1,10 +1,10 @@
-/**
+﻿/**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
  * High-Performance Offline-First Service Worker (PWA)
  * Menjamin 100% fungsionalitas aplikasi tanpa koneksi internet (Offline Mode)
  */
 
-const CACHE_NAME = 'partner-fatih-offline-v10';
+const CACHE_NAME = 'partner-fatih-offline-v11';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
