@@ -6083,12 +6083,17 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
           }
         }
         // Fallback jika serviceWorker belum siap
+        // Fallback jika serviceWorker belum siap (hanya desktop)
         if (window.Notification && Notification.permission === 'granted') {
-          return new Notification(title, {
-            body: body,
-            icon: './icon-192.png',
-            tag: tag
-          });
+          try {
+            return new Notification(title, {
+              body: body,
+              icon: './icon-192.png',
+              tag: tag
+            });
+          } catch (notifErr) {
+            console.warn('[PWA] Direct Notification constructor blocked (Android standard):', notifErr);
+          }
         }
       } catch (err) {
         console.warn('Gagal kirim notifikasi native:', err);
