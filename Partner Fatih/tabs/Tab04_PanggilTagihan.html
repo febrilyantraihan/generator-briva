@@ -1,0 +1,185 @@
+          <div id="tab-panggil" class="hidden space-y-2.5 sm:space-y-4 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
+            <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2.5 lg:gap-4">
+              
+              <!-- Form Panel -->
+              <div class="lg:col-span-5 bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 p-2 sm:p-4 shadow-xs space-y-1.5 sm:space-y-3">
+                <div class="flex items-center gap-2 pb-1.5 sm:pb-2 border-b border-slate-100 dark:border-white/10">
+                  <div class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></div>
+                  <h3 class="font-bold text-slate-800 dark:text-white text-[11px] sm:text-xs tracking-wide uppercase">Formulir Data Santri</h3>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Nama Lengkap Siswa</label>
+                  <input 
+                    type="text" 
+                    id="singleNama" 
+                    placeholder="Contoh: Muhammad Wildan / Siti Fatimah" 
+                    value="Ahmad Fikri Pratama"
+                    oninput="calculateSingleReceipt()"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all"
+                  />
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+                  <div>
+                    <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Kelas</label>
+                    <select id="singleKelas" onchange="calculateSingleReceipt()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:bg-white dark:focus:bg-slate-900 outline-none">
+                      <option value="7">Kelas 7 (MTs)</option>
+                      <option value="8">Kelas 8 (MTs)</option>
+                      <option value="9">Kelas 9 (MTs)</option>
+                      <option value="10" selected>Kelas 10 (MA)</option>
+                      <option value="11">Kelas 11 (MA)</option>
+                      <option value="12">Kelas 12 (MA)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Jenis Kelamin</label>
+                    <div class="flex items-center gap-1 mt-0.5">
+                      <label class="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] sm:text-xs font-semibold cursor-pointer hover:bg-blue-50 has-[:checked]:bg-blue-600 has-[:checked]:text-white has-[:checked]:border-blue-600 transition-all text-slate-700 dark:text-slate-200">
+                        <input type="radio" name="singleGender" value="PA" checked onchange="calculateSingleReceipt()" class="hidden">
+                        <span>Putra (PA)</span>
+                      </label>
+                      <label class="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] sm:text-xs font-semibold cursor-pointer hover:bg-pink-50 has-[:checked]:bg-pink-600 has-[:checked]:text-white has-[:checked]:border-pink-600 transition-all text-slate-700 dark:text-slate-200">
+                        <input type="radio" name="singleGender" value="PI" onchange="calculateSingleReceipt()" class="hidden">
+                        <span>Putri (PI)</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-0.5">Status Tempat Tinggal</label>
+                  <select id="singleStatus" onchange="calculateSingleReceipt()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:bg-white dark:focus:bg-slate-900 outline-none">
+                    <option value="reguler" selected>Mukim Reguler (Pondok)</option>
+                    <option value="vip">Mukim VIP (Khusus Putri)</option>
+                    <option value="mbajak">Non-Mukim (Mbajak / Laju)</option>
+                  </select>
+                  <p class="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="vipWarningText"></p>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-2 sm:p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-700/60 space-y-1.5">
+                  <span class="block text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-300">Komponen Biaya dalam Kwitansi:</span>
+                  <div class="grid grid-cols-2 gap-1.5 text-[11px] sm:text-xs">
+                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
+                      <input type="checkbox" id="checkBulanan" checked onchange="calculateSingleReceipt()" class="rounded text-blue-600 focus:ring-0">
+                      <span class="truncate">Syahriyah Bulanan</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
+                      <input type="checkbox" id="checkAwalTahun" checked onchange="calculateSingleReceipt()" class="rounded text-amber-600 focus:ring-0">
+                      <span class="truncate">Biaya Awal Tahun</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
+                      <input type="checkbox" id="checkAkhirTahun" checked onchange="calculateSingleReceipt()" class="rounded text-emerald-600 focus:ring-0">
+                      <span class="truncate">Biaya Akhir Tahun</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer">
+                      <input type="checkbox" id="checkSeragamSekolah" onchange="calculateSingleReceipt()" class="rounded text-purple-600 focus:ring-0">
+                      <span class="truncate">Seragam Sekolah</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer col-span-2">
+                      <input type="checkbox" id="checkSeragamPondok" onchange="calculateSingleReceipt()" class="rounded text-purple-600 focus:ring-0">
+                      <span class="truncate">Seragam Khusus Pondok (Taqwa / Jubah)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="pt-0.5 flex items-center justify-between text-[11px] sm:text-xs">
+                  <span class="text-slate-400 dark:text-slate-500">Pilihan Cepat:</span>
+                  <div class="flex items-center gap-2">
+                    <button onclick="setSinglePreset('vip')" class="text-purple-600 dark:text-purple-400 font-semibold hover:underline cursor-pointer">VIP PI 10</button>
+                    <button onclick="setSinglePreset('reguler')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer">Reguler PA 7</button>
+                    <button onclick="setSinglePreset('mbajak')" class="text-amber-600 dark:text-amber-400 font-semibold hover:underline cursor-pointer">Mbajak 12</button>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Output Panel -->
+              <div class="lg:col-span-7 space-y-2.5 sm:space-y-4">
+                
+                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg border border-slate-700/50">
+                  <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] sm:text-[11px] font-sans font-bold tracking-wider text-blue-300 uppercase">NOMINAL INSTAN</span>
+                      <span id="singleCategoryLabel" class="text-[10.5px] sm:text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.2 rounded-full">Bulanan</span>
+                    </div>
+                    <div class="flex items-center bg-white/10 rounded-lg p-0.5 text-[10px] sm:text-xs font-sans font-bold tabular-nums">
+                      <button onclick="setSingleFormat('safe')" id="btnFormatSafe" class="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded bg-blue-600 text-white font-bold cursor-pointer">'1,000</button>
+                      <button onclick="setSingleFormat('comma')" id="btnFormatComma" class="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-slate-300 hover:text-white cursor-pointer">1,000</button>
+                      <button onclick="setSingleFormat('dot')" id="btnFormatDot" class="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-slate-300 hover:text-white cursor-pointer">1.000</button>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 sm:gap-3">
+                    <div>
+                      <p class="text-2xl sm:text-4xl font-black tracking-tight font-sans tabular-nums text-emerald-400" id="singleBigNominal">
+                        '330,000
+                      </p>
+                      <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5" id="singleNominalDesc">Tarif Syahriyah Per Bulan (Kelas 10 MA - Reguler)</p>
+                    </div>
+                    <button 
+                      onclick="copySingleNominal()" 
+                      class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all self-start sm:self-auto cursor-pointer"
+                    >
+                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                      <span>Salin Angka</span>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 mt-2.5 sm:mt-4 pt-2 sm:pt-3 border-t border-white/10">
+                    <button onclick="switchSingleCategory('bulanan')" id="btnCatBulanan" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/20 text-white text-center transition-all cursor-pointer">
+                      Per Bulan
+                    </button>
+                    <button onclick="switchSingleCategory('awal_tahun')" id="btnCatAwal" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-300 text-center transition-all cursor-pointer">
+                      Awal Tahun
+                    </button>
+                    <button onclick="switchSingleCategory('akhir_tahun')" id="btnCatAkhir" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-300 text-center transition-all cursor-pointer">
+                      Akhir Tahun
+                    </button>
+                    <button onclick="switchSingleCategory('bulanan_setahun')" id="btnCatSetahun" class="py-1 px-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-300 text-center transition-all cursor-pointer">
+                      1 Tahun Penuh
+                    </button>
+                  </div>
+                </div>
+
+                <div class="bg-white dark:bg-[#151e30] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs overflow-hidden flex flex-col">
+                  <div class="px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-600 dark:text-slate-400"></i>
+                      <span class="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 tracking-wide uppercase">Rincian Kwitansi</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button onclick="copyFullReceiptText()" class="text-[11px] sm:text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 px-2 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="copy" class="w-3 h-3"></i> <span class="hidden sm:inline">Salin Teks</span>
+                      </button>
+                      <button onclick="window.print()" class="text-[11px] sm:text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 px-2 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="printer" class="w-3 h-3"></i> Cetak
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="p-3 sm:p-4 font-sans tabular-nums text-xs text-slate-800 dark:text-slate-200 space-y-2 bg-[#fafbfc] dark:bg-slate-900/40">
+                    <div class="pb-1.5 border-b border-dashed border-slate-300 dark:border-slate-700 flex justify-between">
+                      <div>
+                        <p class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm" id="receiptNama">AHMAD FIKRI PRATAMA</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-[11px]" id="receiptSub">Kelas 10 MA | Putra (PA) | Mukim Reguler</p>
+                      </div>
+                      <div class="text-right text-[10px] sm:text-[11px] text-slate-400">
+                        <p>#BRV-2026</p>
+                        <p id="receiptDate">11-Sep-2026</p>
+                      </div>
+                    </div>
+
+                    <div class="space-y-1 py-1" id="receiptItems"></div>
+
+                    <div class="pt-2 border-t-2 border-slate-800 dark:border-slate-600 flex items-center justify-between">
+                      <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">TOTAL AKUMULASI:</span>
+                      <span class="text-xs sm:text-sm font-black text-blue-700 dark:text-blue-400 tabular-nums" id="receiptTotalText">Rp 330.000</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
