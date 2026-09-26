@@ -1,0 +1,108 @@
+{
+  "name": "Partner Fatih",
+  "short_name": "Partner Fatih",
+  "description": "Partner Fatih - Sistem Informasi & Manajemen Terpadu Yayasan Pondok Pesantren Raudlatul Muta'allimin",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jurnal Mengajar & Presensi",
+      "short_name": "Jurnal Guru",
+      "description": "Buka Jurnal Mengajar MTs & Diniyah",
+      "url": "./?tab=jurnal",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Radar Agenda Humas H-7",
+      "short_name": "Radar Humas",
+      "description": "Pusat Publikasi & Radar Agenda YTPAI",
+      "url": "./?tab=humas",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Generator Tagihan BRIVA",
+      "short_name": "BRIVA CMS",
+      "description": "Generator Tagihan Massal Bank BRI",
+      "url": "./?tab=briva",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Tahfidz Tasmi' Santri",
+      "short_name": "Tahfidz",
+      "description": "Studio Cetak & Database Santri",
+      "url": "./?tab=tahfidz",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
