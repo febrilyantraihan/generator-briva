@@ -1,0 +1,831 @@
+          <div id="tab-briva" class="hidden space-y-3.5 sm:space-y-5 px-[2px] sm:px-4 lg:px-5 pb-8 w-full max-w-full min-w-0 box-border">
+            
+            <!-- PROMINENT SMART VOICE & BILLING ASSISTANT CARD (Tab Tagihan BRIVA) -->
+            <div class="bg-gradient-to-r from-orange-950 via-amber-950 to-slate-900 border border-orange-500/40 p-3 sm:p-4 shadow-md text-white space-y-2.5 rounded-none">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-7 h-7 bg-orange-500/30 border border-orange-400/40 text-orange-300 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="mic" class="w-4 h-4 text-orange-300"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="text-xs sm:text-sm font-black tracking-tight flex items-center gap-1.5 truncate">
+                      <span>Asisten Suara: Generator Tagihan BRIVA</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded-none font-bold bg-orange-400/20 text-orange-200 border border-orange-400/30">Voice AI</span>
+                    </h4>
+                  </div>
+                </div>
+                <!-- Quick hint desktop -->
+                <span class="text-[10.5px] text-orange-200/80 hidden md:inline">
+                  💡 Ucapkan: "Buat tagihan santri baru MA Putri kelas 11" atau "Set ID tagihan 62"
+                </span>
+              </div>
+
+              <!-- Big Voice Input Bar -->
+              <div class="relative flex items-center">
+                <i data-lucide="sparkles" class="w-4 h-4 text-orange-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input 
+                  type="text" 
+                  id="brivaVoiceCommandInput" 
+                  placeholder="Bicara atau ketik (cth: 'Buat tagihan santri baru MA Putri kelas 11', 'Mode pecah rinci')..." 
+                  onkeydown="handleBrivaVoiceKeydown(event, this.value)"
+                  class="w-full pl-9 pr-24 py-2 sm:py-2.5 rounded-none bg-slate-950/80 border border-orange-400/50 text-xs sm:text-sm font-medium text-white placeholder-orange-200/50 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 transition-all shadow-inner"
+                />
+                
+                <button 
+                  type="button" 
+                  id="btnBrivaVoiceAssistant" 
+                  onclick="toggleBrivaVoiceAssistant()" 
+                  class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 active:scale-95 text-white rounded-none font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all border border-orange-300/30"
+                  title="Perintah Suara: Buat tagihan santri baru, set parameter, atau atur mode baris"
+                >
+                  <i data-lucide="mic" class="w-3.5 h-3.5" id="iconBrivaVoice"></i>
+                  <span id="labelBrivaVoice">Bicara</span>
+                </button>
+              </div>
+
+              <!-- Voice Listening Banner -->
+              <div id="brivaVoiceListeningBanner" class="hidden p-2.5 bg-gradient-to-r from-orange-600 via-amber-600 to-rose-600 text-white rounded-none shadow-lg flex items-center justify-between gap-2 text-xs animate-pulse border border-white/20">
+                <div class="flex items-center gap-2 truncate">
+                  <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping shrink-0"></span>
+                  <span id="brivaVoiceLiveTranscript" class="font-bold truncate">Mendengarkan perintah...</span>
+                </div>
+                <button type="button" onclick="stopBrivaVoiceAssistant()" class="px-2 py-0.5 bg-white/20 hover:bg-white/30 rounded-none text-[10px] font-bold shrink-0 cursor-pointer">
+                  Selesai
+                </button>
+              </div>
+            </div>
+
+            <!-- Controls & Parameters Bar -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-2.5 sm:p-4 shadow-xs space-y-3 rounded-none">
+              
+              <!-- Header Row -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-white/10">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-2.5 h-2.5 bg-gradient-to-tr from-orange-500 to-amber-400 shadow-2xs flex-shrink-0"></div>
+                  <div class="min-w-0">
+                    <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm tracking-wide uppercase flex items-center gap-1.5 flex-wrap">
+                      <span class="inline sm:hidden">Parameter BRIVA</span>
+                      <span class="hidden sm:inline">Parameter Tagihan Massal BRIVA</span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-none bg-orange-100 dark:bg-orange-950/70 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800/40 normal-case font-bold">5 Kolom BRI</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 hidden sm:block">Format resmi template Bank BRI: No. Registrasi (A) | ID Tagihan (B) | Jumlah (C) | Tgl Efektif (D) | Tgl Jatuh Tempo (E)</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                  <span class="text-xs font-bold text-slate-500 hidden md:inline">Mode Baris:</span>
+                  <div class="flex items-center p-0.5 rounded-none bg-slate-200/70 dark:bg-[#0c101a]/80 border border-slate-300/40 dark:border-white/5 text-[11px] sm:text-xs shadow-2xs select-none gap-0.5 sm:gap-1 flex-1 sm:flex-initial">
+                    <button 
+                      type="button" 
+                      id="brivaModeBtn_split_full"
+                      onclick="setBrivaRowMode('split_full')" 
+                      class="flex-1 sm:flex-initial justify-center min-w-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-none font-bold transition-all bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap text-[11px] sm:text-xs"
+                      title="Satu nomor dipecah ke bawah per bulan & per jenis tagihan"
+                    >
+                      <i data-lucide="layers-3" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
+                      <span class="inline sm:hidden">Rinci</span>
+                      <span class="hidden sm:inline">Pecah Rinci ke Bawah</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      id="brivaModeBtn_split_category"
+                      onclick="setBrivaRowMode('split_category')" 
+                      class="flex-1 sm:flex-initial justify-center min-w-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-none font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap text-[11px] sm:text-xs"
+                      title="Bulanan digabung 1 baris, komponen lain baris terpisah"
+                    >
+                      <i data-lucide="folder-tree" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
+                      <span class="inline sm:hidden">Kategori</span>
+                      <span class="hidden sm:inline">Pecah Kategori</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      id="brivaModeBtn_accumulate"
+                      onclick="setBrivaRowMode('accumulate')" 
+                      class="flex-1 sm:flex-initial justify-center min-w-0 px-2 sm:px-3 py-1 sm:py-1.5 rounded-none font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap text-[11px] sm:text-xs"
+                      title="Semua tagihan digabung jadi 1 baris total per siswa"
+                    >
+                      <i data-lucide="combine" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i>
+                      <span class="inline sm:hidden">1 Baris</span>
+                      <span class="hidden sm:inline">Akumulasi 1 Baris</span>
+                    </button>
+                  </div>
+
+                  <!-- UNDO & REDO BUTTON GROUP -->
+                  <div class="flex items-center gap-1 bg-slate-200/70 dark:bg-[#0c101a]/80 p-0.5 border border-slate-300/40 dark:border-white/5 shadow-2xs">
+                    <button 
+                      type="button"
+                      id="btnBrivaUndo"
+                      onclick="brivaUndo()" 
+                      disabled
+                      class="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs" 
+                      title="Undo: Batalkan perubahan tagihan terakhir (Ctrl+Z)"
+                    >
+                      <i data-lucide="undo-2" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>
+                      <span class="hidden sm:inline text-[11px]">Undo</span>
+                    </button>
+                    <button 
+                      type="button"
+                      id="btnBrivaRedo"
+                      onclick="brivaRedo()" 
+                      disabled
+                      class="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs" 
+                      title="Redo: Ulangi perubahan yang dibatalkan (Ctrl+Y)"
+                    >
+                      <i data-lucide="redo-2" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"></i>
+                      <span class="hidden sm:inline text-[11px]">Redo</span>
+                    </button>
+                  </div>
+
+                  <button 
+                    onclick="resetBrivaGenerator()" 
+                    class="bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 text-xs font-semibold p-1.5 sm:p-2 rounded-none transition-all active:scale-95 border border-slate-200/80 dark:border-white/10 flex-shrink-0 cursor-pointer" 
+                    title="Reset Parameter ke Default"
+                  >
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Parameter Input Grid: Kotak Tegas, Anti-Tabrakan & Rapi Maksimal -->
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                
+                <!-- 1. ID Tagihan (Kolom B) - BLUE THEME -->
+                <div class="bg-blue-50/50 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-blue-200/80 dark:border-blue-800/60">
+                      <div class="flex items-center gap-1 min-w-0">
+                        <span class="bg-blue-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM B</span>
+                        <label class="block text-xs font-bold text-blue-950 dark:text-blue-200 truncate">ID Tagihan</label>
+                      </div>
+                      <span class="text-[9.5px] font-bold text-blue-700 dark:text-sky-300 bg-blue-100/90 dark:bg-blue-900/60 px-1 py-0.5 rounded-none border border-blue-200 dark:border-blue-700/60 shrink-0">Std: 62</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      id="brivaIdTagihan" 
+                      value="62" 
+                      oninput="runBrivaGenerator()" 
+                      class="w-full h-8 bg-white dark:bg-slate-900 border border-blue-400 dark:border-blue-700 rounded-none px-2 text-xs sm:text-sm font-mono font-black text-blue-900 dark:text-sky-100 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-400/30 outline-none text-center shadow-2xs"
+                      placeholder="62"
+                    />
+                  </div>
+                  <!-- Preset Chips: Grid 2 Kolom Kotak, Terkunci & Tidak Akan Pernah Meluber -->
+                  <div class="grid grid-cols-2 gap-1 pt-1.5 border-t border-blue-200/80 dark:border-blue-800/60">
+                    <button type="button" onclick="setBrivaIdPreset('48')" title="48 - Biaya Awal Tahun" class="h-6 text-[10px] px-1 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/70 text-amber-900 dark:text-amber-200 font-bold rounded-none border border-amber-300 dark:border-amber-700 truncate cursor-pointer text-center">48 Awal</button>
+                    <button type="button" onclick="setBrivaIdPreset('49')" title="49 - Biaya Akhir Tahun" class="h-6 text-[10px] px-1 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800/70 text-emerald-900 dark:text-emerald-200 font-bold rounded-none border border-emerald-300 dark:border-emerald-700 truncate cursor-pointer text-center">49 Akhir</button>
+                    <button type="button" onclick="setBrivaIdPreset('80')" title="80 - Bimbel" class="h-6 text-[10px] px-1 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-800/70 text-rose-900 dark:text-rose-200 font-bold rounded-none border border-rose-300 dark:border-rose-700 truncate cursor-pointer text-center">80 Bimbel</button>
+                    <select onchange="if(this.value==='modal'){ openBriCodeModal(); } else if(this.value){ setBrivaIdPreset(this.value); } this.value='';" class="h-6 text-[9.5px] px-0.5 bg-blue-100/90 dark:bg-slate-800 text-blue-900 dark:text-sky-200 font-bold rounded-none border border-blue-300 dark:border-slate-700 outline-none cursor-pointer truncate" title="Pilih Kode Tagihan BRI Lainnya">
+                      <option value="" selected disabled>+ Lainnya &#x25BE;</option>
+                      <option value="53">53 - Bimbel / UN</option>
+                      <option value="51">51 - Seragam Sekolah</option>
+                      <option value="79">79 - Seragam Santri</option>
+                      <option value="50">50 - Tabungan Santri</option>
+                      <option value="52">52 - Tagihan LKS</option>
+                      <option value="71">71 - Ujian USP</option>
+                      <option value="60">60 - Syahriyah Juli</option>
+                      <option value="62">62 - Syahriyah Sep</option>
+                      <option value="modal">📖 31 Kode BRI...</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- 2. Tanggal Efektif (Kolom D) - EMERALD THEME -->
+                <div class="bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-emerald-200/80 dark:border-emerald-800/60">
+                      <div class="flex items-center gap-1 min-w-0">
+                        <span class="bg-emerald-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM D</span>
+                        <label class="block text-xs font-bold text-emerald-950 dark:text-emerald-200 truncate">Tgl Efektif</label>
+                      </div>
+                      <span class="text-[9px] font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/60 px-1 py-0.5 rounded-none border border-emerald-200 dark:border-emerald-700/60 shrink-0">DD-MM-YYYY</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      id="brivaTglEfektif" 
+                      value="01-09-2026" 
+                      oninput="runBrivaGenerator()" 
+                      class="w-full h-8 bg-white dark:bg-slate-900 border border-emerald-400 dark:border-emerald-700 rounded-none px-2 text-xs sm:text-sm font-mono font-bold text-emerald-900 dark:text-emerald-100 focus:border-emerald-600 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-400/30 outline-none text-center shadow-2xs"
+                      placeholder="01-09-2026"
+                    />
+                  </div>
+                  <!-- Preset Tanggal Efektif: Grid 2 Kolom Kotak, Presisi Rata Tinggi -->
+                  <div class="grid grid-cols-2 gap-1 pt-1.5 border-t border-emerald-200/80 dark:border-emerald-800/60">
+                    <button type="button" onclick="setBrivaQuickDate('01-09-2026', '10-09-2026')" class="h-6 text-[10px] px-1 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800/70 text-emerald-900 dark:text-emerald-200 font-bold rounded-none border border-emerald-300 dark:border-emerald-700 flex items-center justify-center gap-1 truncate cursor-pointer">
+                      <i data-lucide="calendar" class="w-3 h-3 shrink-0"></i>
+                      <span class="truncate">Sep 2026</span>
+                    </button>
+                    <button type="button" onclick="setBrivaCurrentMonthDate()" class="h-6 text-[10px] px-1 bg-teal-100 dark:bg-teal-900/50 hover:bg-teal-200 dark:hover:bg-teal-800/70 text-teal-900 dark:text-teal-200 font-bold rounded-none border border-teal-300 dark:border-teal-700 flex items-center justify-center gap-1 truncate cursor-pointer">
+                      <i data-lucide="clock" class="w-3 h-3 shrink-0"></i>
+                      <span class="truncate">Berjalan</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 3. Tanggal Jatuh Tempo (Kolom E) - ROSE THEME -->
+                <div class="bg-rose-50/50 dark:bg-rose-950/30 border border-rose-300 dark:border-rose-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-rose-200/80 dark:border-rose-800/60">
+                      <div class="flex items-center gap-1 min-w-0">
+                        <span class="bg-rose-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM E</span>
+                        <label class="block text-xs font-bold text-rose-950 dark:text-rose-200 truncate">Jatuh Tempo</label>
+                      </div>
+                      <span class="text-[9px] font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-900/60 px-1 py-0.5 rounded-none border border-rose-200 dark:border-rose-700/60 shrink-0">DD-MM-YYYY</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      id="brivaTglJatuhTempo" 
+                      value="10-09-2026" 
+                      oninput="runBrivaGenerator()" 
+                      class="w-full h-8 bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded-none px-2 text-xs sm:text-sm font-mono font-bold text-rose-900 dark:text-rose-100 focus:border-rose-600 dark:focus:border-rose-500 focus:ring-1 focus:ring-rose-400/30 outline-none text-center shadow-2xs"
+                      placeholder="10-09-2026"
+                    />
+                  </div>
+                  <!-- Preset Jatuh Tempo: Grid 3 Kolom Kotak, Presisi Rata Tinggi -->
+                  <div class="grid grid-cols-3 gap-1 pt-1.5 border-t border-rose-200/80 dark:border-rose-800/60">
+                    <button type="button" onclick="setBrivaDueDateDay(10)" class="h-6 text-[10px] px-0.5 rounded-none bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-800/70 text-rose-900 dark:text-rose-200 font-bold border border-rose-300 dark:border-rose-700 text-center truncate cursor-pointer">Tgl 10</button>
+                    <button type="button" onclick="setBrivaDueDateDay(20)" class="h-6 text-[10px] px-0.5 rounded-none bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/70 text-amber-900 dark:text-amber-200 font-bold border border-amber-300 dark:border-amber-700 text-center truncate cursor-pointer">Tgl 20</button>
+                    <button type="button" onclick="setBrivaDueDateDay(28)" class="h-6 text-[10px] px-0.5 rounded-none bg-orange-100 dark:bg-orange-900/50 hover:bg-orange-200 dark:hover:bg-orange-800/70 text-orange-900 dark:text-orange-200 font-bold border border-orange-300 dark:border-orange-700 text-center truncate cursor-pointer">Akhir</button>
+                  </div>
+                </div>
+
+                <!-- 4. Format Output Kolom C (Jumlah) - PURPLE THEME -->
+                <div class="bg-purple-50/50 dark:bg-purple-950/30 border border-purple-300 dark:border-purple-800/80 rounded-none p-2 sm:p-3 flex flex-col justify-between overflow-hidden min-w-0 shadow-2xs space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 pb-1 mb-1.5 border-b border-purple-200/80 dark:border-purple-800/60">
+                      <div class="flex items-center gap-1 min-w-0">
+                        <span class="bg-purple-600 text-white text-[9px] font-mono font-black px-1.5 py-0.5 rounded-none shrink-0">KOLOM C</span>
+                        <label class="block text-xs font-bold text-purple-950 dark:text-purple-200 truncate">Format Jumlah</label>
+                      </div>
+                      <span class="text-[9px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100/90 dark:bg-purple-900/60 px-1 py-0.5 rounded-none border border-purple-200 dark:border-purple-700/60 shrink-0">Nominal</span>
+                    </div>
+                    <select id="brivaFormatSelect" onchange="runBrivaGenerator()" class="w-full h-8 bg-white dark:bg-slate-900 border border-purple-400 dark:border-purple-700 rounded-none px-1.5 text-xs text-purple-950 dark:text-purple-100 font-bold focus:border-purple-600 dark:focus:border-purple-500 focus:ring-1 focus:ring-purple-400/30 outline-none transition-all shadow-2xs cursor-pointer">
+                      <option value="comma" selected>281,000 (Foto BRI)</option>
+                      <option value="safe">'281,000 (Teks Aman)</option>
+                      <option value="dot">281.000 (Titik IDR)</option>
+                      <option value="raw">281000 (Angka Polos)</option>
+                    </select>
+                  </div>
+                  <div class="pt-1.5 border-t border-purple-200/80 dark:border-purple-800/60">
+                    <label class="h-6 flex items-center gap-1 cursor-pointer text-[10px] text-amber-950 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/60 hover:bg-amber-200/80 dark:hover:bg-amber-900/60 border border-amber-300 dark:border-amber-700 px-1 rounded-none select-none transition-colors w-full">
+                      <input type="checkbox" id="brivaLockLeadingZero" checked class="w-3 h-3 rounded-none text-amber-600 focus:ring-0 border-amber-400 cursor-pointer shrink-0">
+                      <span class="truncate">Kunci Nol <b class="font-mono bg-white dark:bg-slate-900 px-1 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 font-bold">'015660</b></span>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Default Student Context: Sleek 3-column Single-row Grid on Mobile (Kotak) -->
+              <div class="pt-1.5 border-t border-slate-100 dark:border-white/10 space-y-1">
+                <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 font-bold px-0.5">
+                  <span class="flex items-center gap-1.5">
+                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-slate-500"></i>
+                    <span>Konteks Siswa Default:</span>
+                  </span>
+                  <span class="hidden sm:inline text-[11px] italic text-slate-400">*Bisa deteksi otomatis status di input (cth: "015660 VIP")</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-2 w-full">
+                  <div class="bg-cyan-50/80 dark:bg-cyan-950/40 border border-cyan-300 dark:border-cyan-700/60 rounded-none px-2 py-1">
+                    <label class="block text-[10.5px] text-cyan-800 dark:text-cyan-300 font-extrabold uppercase leading-tight">Kelas</label>
+                    <select id="brivaKelasDefault" onchange="runBrivaGenerator()" class="w-full bg-transparent text-xs text-cyan-950 dark:text-cyan-100 font-bold outline-none cursor-pointer">
+                      <option value="7" selected>7 MTs</option>
+                      <option value="8">8 MTs</option>
+                      <option value="9">9 MTs</option>
+                      <option value="10">10 MA</option>
+                      <option value="11">11 MA</option>
+                      <option value="12">12 MA</option>
+                    </select>
+                  </div>
+                  <div class="bg-amber-50/80 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 rounded-none px-2 py-1">
+                    <label class="block text-[10.5px] text-amber-800 dark:text-amber-300 font-extrabold uppercase leading-tight">Status</label>
+                    <select id="brivaStatusDefault" onchange="runBrivaGenerator()" class="w-full bg-transparent text-xs text-amber-950 dark:text-amber-100 font-bold outline-none cursor-pointer">
+                      <option value="reguler" selected>Reguler</option>
+                      <option value="vip">VIP (PI)</option>
+                      <option value="mbajak">Mbajak</option>
+                    </select>
+                  </div>
+                  <div class="bg-pink-50/80 dark:bg-pink-950/40 border border-pink-300 dark:border-pink-700/60 rounded-none px-2 py-1">
+                    <label class="block text-[10.5px] text-pink-800 dark:text-pink-300 font-extrabold uppercase leading-tight">Gender</label>
+                    <select id="brivaGenderDefault" onchange="runBrivaGenerator()" class="w-full bg-transparent text-xs text-pink-950 dark:text-pink-100 font-bold outline-none cursor-pointer">
+                      <option value="PA" selected>Putra (PA)</option>
+                      <option value="PI">Putri (PI)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Multi-Component Fee Checklist (Akumulasi Tagihan) -->
+            <div class="bg-white dark:bg-slate-900/90 rounded-none border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-sky-400 shadow-sm shadow-blue-500/50"></div>
+                  <h4 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm tracking-wide uppercase">Pilih Komponen Tagihan yang Diakumulasikan</h4>
+                </div>
+                <div id="brivaEstimatedBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/70 dark:text-sky-300 dark:border-blue-800/70 shadow-xs">
+                  Estimasi Default: Rp 281.000 / siswa
+                </div>
+              </div>
+
+              <!-- Component Checkboxes Grid (Responsive 1/2/3/4 cols) -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                
+                <!-- 1. Biaya Bulanan (Syahriyah) Card with Month Selector -->
+                <div class="briva-component-card briva-card-bulanan md:col-span-2 p-3.5 rounded-xl border-2 border-blue-300 dark:border-blue-500/60 bg-blue-50/50 dark:bg-blue-950/25 space-y-2.5 transition-all shadow-2xs">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-white">
+                      <input type="checkbox" id="brivaCheckBulanan" checked onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-blue-600 focus:ring-0 cursor-pointer">
+                      <span>1. Biaya Bulanan (Syahriyah)</span>
+                    </label>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-bold text-blue-900 dark:text-sky-200 bg-blue-100 dark:bg-blue-900/60 border border-blue-300 dark:border-blue-700/80 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdBulanan" value="auto" oninput="runBrivaGenerator()" class="w-10 text-center bg-white dark:bg-slate-900 rounded border border-blue-400 dark:border-blue-500 font-mono font-bold text-blue-900 dark:text-sky-100 focus:ring-1 focus:ring-blue-500 outline-none text-[10px]" title="Ketik 'auto' untuk ID resmi per bulan (Jan=54 s/d Des=65), atau ketik nomor manual">
+                      </span>
+                      <span id="brivaMonthCountBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-600 dark:bg-blue-500 text-white shadow-xs">
+                        1 Bulan Terpilih
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Academic Month Pills & Presets -->
+                  <div id="brivaMonthSection" class="space-y-2 pt-1">
+                    <!-- Presets -->
+                    <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[10px]">
+                      <span class="text-slate-600 dark:text-slate-300 font-bold text-[11px] mr-1 flex items-center gap-1">
+                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-500 dark:text-amber-400"></i>
+                        <span>Preset:</span>
+                      </span>
+                      <button type="button" onclick="setBrivaMonthPreset('1')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">1 Bln (Sep)</button>
+                      <button type="button" onclick="setBrivaMonthPreset('triwulan')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">3 Bln (Triwulan)</button>
+                      <button type="button" onclick="setBrivaMonthPreset('semester')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">6 Bln (Semester)</button>
+                      <button type="button" onclick="setBrivaMonthPreset('12')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-800 dark:text-sky-300 border border-blue-200 dark:border-slate-700 font-bold text-[11px] shadow-2xs transition-all cursor-pointer">12 Bln (1 Thn Penuh)</button>
+                      <button type="button" onclick="setBrivaMonthPreset('clear')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 font-semibold text-[11px] transition-all cursor-pointer">Kosongkan</button>
+                    </div>
+
+                    <!-- 12 Academic Month Pills Container with Official IDs -->
+                    <div id="brivaMonthPillsContainer" class="grid grid-cols-4 sm:grid-cols-6 gap-1.5 pt-1">
+                      <!-- Rendered dynamically by JavaScript -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Biaya Awal Tahun (Daftar Ulang) Card - OFFICIAL ID 48 -->
+                <div class="briva-component-card briva-card-awal p-3.5 rounded-xl border-2 border-amber-300/80 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/25 hover:bg-amber-50/80 dark:hover:bg-amber-950/35 transition-all flex flex-col justify-between shadow-2xs">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-amber-100">
+                        <input type="checkbox" id="brivaCheckAwalTahun" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-amber-600 focus:ring-0 cursor-pointer">
+                        <span>2. Awal Tahun</span>
+                      </label>
+                      <span class="text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50 border border-amber-300 dark:border-amber-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdAwalTahun" value="48" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-amber-400 dark:border-amber-600 font-mono font-bold text-amber-900 dark:text-amber-200 focus:ring-1 focus:ring-amber-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 48">
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-amber-200/80 mt-1 font-medium">Daftar ulang santri baru & lama</p>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-amber-200/80 dark:border-amber-800/40 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
+                    <b id="brivaPreviewAwalTahun" class="text-amber-900 dark:text-amber-300 font-extrabold text-xs tracking-tight">Rp 410.000</b>
+                  </div>
+                </div>
+
+                <!-- 3. Paket Seragam Sekolah Card - OFFICIAL ID 51 (Tahap 1) / 72 -->
+                <div class="briva-component-card briva-card-sergsek p-3.5 rounded-xl border-2 border-purple-300/80 dark:border-purple-700/60 bg-purple-50/50 dark:bg-purple-950/25 hover:bg-purple-50/80 dark:hover:bg-purple-950/35 transition-all flex flex-col justify-between shadow-2xs">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-purple-100">
+                        <input type="checkbox" id="brivaCheckSeragamSekolah" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-purple-600 focus:ring-0 cursor-pointer">
+                        <span>3. Seragam Sekolah</span>
+                      </label>
+                      <span class="text-[10px] font-bold text-purple-900 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 border border-purple-300 dark:border-purple-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdSeragamSekolah" value="51" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-purple-400 dark:border-purple-600 font-mono font-bold text-purple-900 dark:text-purple-200 focus:ring-1 focus:ring-purple-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 51 (Tahap 1) / 72 (Jadi Satu)">
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-purple-200/80 mt-1 font-medium">Paket seragam formal MTs/MA</p>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-purple-200/80 dark:border-purple-800/40 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
+                    <b id="brivaPreviewSeragamSekolah" class="text-purple-900 dark:text-purple-300 font-extrabold text-xs tracking-tight">Rp 736.000</b>
+                  </div>
+                </div>
+
+                <!-- 4. Paket Seragam Khusus Pondok / Santri - OFFICIAL ID 79 -->
+                <div class="briva-component-card briva-card-sergpond p-3.5 rounded-xl border-2 border-indigo-300/80 dark:border-indigo-700/60 bg-indigo-50/50 dark:bg-indigo-950/25 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/35 transition-all flex flex-col justify-between shadow-2xs">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-indigo-100">
+                        <input type="checkbox" id="brivaCheckSeragamPondok" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer">
+                        <span>4. Seragam Santri</span>
+                      </label>
+                      <span class="text-[10px] font-bold text-indigo-900 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/50 border border-indigo-300 dark:border-indigo-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdSeragamPondok" value="79" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-indigo-400 dark:border-indigo-600 font-mono font-bold text-indigo-900 dark:text-indigo-200 focus:ring-1 focus:ring-indigo-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 79 (Seragam Santri)">
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-indigo-200/80 mt-1 font-medium">Gamis/Koko atribut pesantren</p>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-indigo-200/80 dark:border-indigo-800/40 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
+                    <b id="brivaPreviewSeragamPondok" class="text-indigo-900 dark:text-indigo-300 font-extrabold text-xs tracking-tight">Rp 90.000</b>
+                  </div>
+                </div>
+
+                <!-- 5. Biaya Akhir Tahun Card - OFFICIAL ID 49 -->
+                <div class="briva-component-card briva-card-akhir p-3.5 rounded-xl border-2 border-emerald-300/80 dark:border-emerald-700/60 bg-emerald-50/50 dark:bg-emerald-950/25 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/35 transition-all flex flex-col justify-between shadow-2xs">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-slate-800 dark:text-emerald-100">
+                        <input type="checkbox" id="brivaCheckAkhirTahun" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-emerald-600 focus:ring-0 cursor-pointer">
+                        <span>5. Akhir Tahun</span>
+                      </label>
+                      <span class="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 border border-emerald-300 dark:border-emerald-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdAkhirTahun" value="49" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-emerald-400 dark:border-emerald-600 font-mono font-bold text-emerald-900 dark:text-emerald-200 focus:ring-1 focus:ring-emerald-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 49 (Biaya Akhir Tahun)">
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-emerald-200/80 mt-1 font-medium">Ujian, Haflah & Kelulusan</p>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-emerald-200/80 dark:border-emerald-800/40 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 dark:text-slate-300 font-semibold">Tarif Default:</span>
+                    <b id="brivaPreviewAkhirTahun" class="text-emerald-900 dark:text-emerald-300 font-extrabold text-xs tracking-tight">Rp 325.000</b>
+                  </div>
+                </div>
+
+                <!-- 6. BIMBEL (BIMBINGAN BELAJAR) - OFFICIAL ID 80 / 53 (BARU) -->
+                <div class="briva-component-card briva-card-bimbel p-3.5 rounded-xl border-2 border-rose-300/80 dark:border-rose-700/60 bg-rose-50/50 dark:bg-rose-950/25 hover:bg-rose-50/80 dark:hover:bg-rose-950/35 transition-all flex flex-col justify-between shadow-2xs">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-rose-950 dark:text-rose-100">
+                        <input type="checkbox" id="brivaCheckBimbel" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-rose-600 focus:ring-0 cursor-pointer">
+                        <span class="flex items-center gap-1.5">
+                          <span>6. Bimbel / UN</span>
+                          <span class="bg-rose-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">Baru</span>
+                        </span>
+                      </label>
+                      <span class="text-[10px] font-bold text-rose-900 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/50 border border-rose-300 dark:border-rose-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdBimbel" value="80" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-rose-400 dark:border-rose-600 font-mono font-bold text-rose-900 dark:text-rose-200 focus:ring-1 focus:ring-rose-500 outline-none" title="Kode ID Tagihan Resmi Bank BRI: 80 (Bimbel) atau 53 (Bimbel/UN)">
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-rose-900/80 dark:text-rose-200/90 mt-1 font-medium">Program bimbel & pemantapan UN</p>
+                    <div class="flex items-center gap-1 mt-1.5">
+                      <button type="button" onclick="document.getElementById('brivaIdBimbel').value='80'; runBrivaGenerator();" class="text-[10.5px] px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-900 dark:text-rose-300 rounded-md border border-rose-200 dark:border-rose-700 font-bold transition-all cursor-pointer">80 Bimbel</button>
+                      <button type="button" onclick="document.getElementById('brivaIdBimbel').value='53'; runBrivaGenerator();" class="text-[10.5px] px-2 py-0.5 bg-white dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-900 dark:text-rose-300 rounded-md border border-rose-200 dark:border-rose-700 font-bold transition-all cursor-pointer">53 Bimbel/UN</button>
+                    </div>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-rose-200/80 dark:border-rose-800/40 flex items-center justify-between text-[11px]">
+                    <span class="text-rose-900 dark:text-rose-300 font-bold">Nominal:</span>
+                    <div class="flex items-center gap-1 font-mono">
+                      <span class="text-rose-900 dark:text-rose-300 font-bold text-xs">Rp</span>
+                      <input type="number" id="brivaNominalBimbel" value="150000" step="10000" oninput="runBrivaGenerator()" class="w-24 text-right bg-white dark:bg-slate-900 rounded-lg border border-rose-300 dark:border-rose-600 px-2 py-0.5 font-extrabold text-rose-950 dark:text-rose-100 text-xs focus:ring-1 focus:ring-rose-500 outline-none">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 7. TAGIHAN LAINNYA / KHUSUS (USP, LKS, TABUNGAN, TAS, DLL) (BARU) -->
+                <div class="briva-component-card briva-card-extra p-3.5 rounded-xl border-2 border-teal-300/80 dark:border-teal-700/60 bg-teal-50/50 dark:bg-teal-950/25 hover:bg-teal-50/80 dark:hover:bg-teal-950/35 transition-all flex flex-col justify-between shadow-2xs">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="inline-flex items-center gap-2 cursor-pointer font-extrabold text-xs sm:text-sm text-teal-950 dark:text-teal-100">
+                        <input type="checkbox" id="brivaCheckExtra" onchange="runBrivaGenerator()" class="w-4 h-4 rounded text-teal-600 focus:ring-0 cursor-pointer">
+                        <span class="flex items-center gap-1.5">
+                          <span>7. Tagihan Lainnya</span>
+                          <span class="bg-teal-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">Pilihan</span>
+                        </span>
+                      </label>
+                      <span class="text-[10px] font-bold text-teal-900 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/50 border border-teal-300 dark:border-teal-700/70 rounded px-1.5 py-0.5 flex items-center gap-1">
+                        ID: <input type="text" id="brivaIdExtra" value="52" oninput="runBrivaGenerator()" class="w-7 text-center bg-white dark:bg-slate-900 rounded border border-teal-400 dark:border-teal-600 font-mono font-bold text-teal-900 dark:text-teal-200 focus:ring-1 focus:ring-teal-500 outline-none" title="Pilih tipe di bawah atau ketik nomor ID BRI">
+                      </span>
+                    </div>
+                    <select id="brivaExtraType" onchange="handleBrivaExtraChange()" class="w-full bg-white dark:bg-slate-900 border border-teal-300 dark:border-teal-600 rounded-lg px-2 py-1 text-[11px] text-teal-950 dark:text-teal-100 font-bold outline-none focus:ring-1 focus:ring-teal-500 mt-1 cursor-pointer">
+                      <option value="52|LKS|50000" selected class="dark:bg-slate-900 dark:text-white">52 - LKS (Rp 50.000)</option>
+                      <option value="50|Tabungan|100000" class="dark:bg-slate-900 dark:text-white">50 - Tabungan Santri (Rp 100.000)</option>
+                      <option value="66|Biaya USP Tahap 1|200000" class="dark:bg-slate-900 dark:text-white">66 - Biaya USP Tahap 1</option>
+                      <option value="69|Biaya USP Tahap 2|250000" class="dark:bg-slate-900 dark:text-white">69 - Biaya USP Tahap 2</option>
+                      <option value="71|Biaya USP (Kelas Akhir)|350000" class="dark:bg-slate-900 dark:text-white">71 - Biaya USP Kelas Akhir</option>
+                      <option value="73|Tas Almamater|120000" class="dark:bg-slate-900 dark:text-white">73 - Tas Almamater</option>
+                      <option value="74|Sepatu|150000" class="dark:bg-slate-900 dark:text-white">74 - Sepatu</option>
+                      <option value="75|Kekurangan Tagihan|50000" class="dark:bg-slate-900 dark:text-white">75 - Kekurangan Tagihan</option>
+                      <option value="76|Kekurangan Ziarah|100000" class="dark:bg-slate-900 dark:text-white">76 - Kekurangan Ziarah & Wisata</option>
+                      <option value="78|Dispen dan Denda|25000" class="dark:bg-slate-900 dark:text-white">78 - Dispen dan Denda Pondok</option>
+                      <option value="70|Seragam Tahap 2|300000" class="dark:bg-slate-900 dark:text-white">70 - Seragam Tahap 2</option>
+                      <option value="72|Seragam Dijadikan Satu|800000" class="dark:bg-slate-900 dark:text-white">72 - Seragam Dijadikan Satu</option>
+                    </select>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-teal-200/80 dark:border-teal-800/40 flex items-center justify-between text-[11px]">
+                    <span class="text-teal-900 dark:text-teal-300 font-bold">Nominal:</span>
+                    <div class="flex items-center gap-1 font-mono">
+                      <span class="text-teal-900 dark:text-teal-300 font-bold text-xs">Rp</span>
+                      <input type="number" id="brivaNominalExtra" value="50000" step="5000" oninput="runBrivaGenerator()" class="w-24 text-right bg-white dark:bg-slate-900 rounded-lg border border-teal-300 dark:border-teal-600 px-2 py-0.5 font-extrabold text-teal-950 dark:text-teal-100 text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Two-Column Work Area: Input Column & Live 5-Column Table -->
+            <div class="flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4">
+              
+              <!-- Left Input Box (Supports Massal & Manual Per-BRIVA) -->
+              <div class="lg:col-span-5 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-4 shadow-xs flex flex-col min-h-[460px] lg:h-[600px]">
+                <!-- Mode Switcher Header: Massal (Teks) vs Santri Manual (Per-BRIVA) -->
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 gap-2 flex-wrap flex-shrink-0">
+                  <div class="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs shadow-2xs select-none">
+                    <button 
+                      type="button" 
+                      id="brivaInputModeBtn_mass" 
+                      onclick="setBrivaInputMode('mass')" 
+                      class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-blue-900 dark:text-sky-300 font-bold shadow-2xs transition-all flex items-center gap-1 border border-slate-200/60 dark:border-slate-700"
+                      title="Tempel banyak nomor registrasi sekaligus dalam satu teks"
+                    >
+                      <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                      <span>Massal (Teks)</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      id="brivaInputModeBtn_manual" 
+                      onclick="setBrivaInputMode('manual')" 
+                      class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium transition-all flex items-center gap-1.5"
+                      title="Atur tagihan dan nominal manual untuk masing-masing nomor BRIVA"
+                    >
+                      <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                      <span>Santri Manual</span>
+                      <span class="bg-amber-500 text-white text-[10.5px] px-1.5 py-0.2 rounded-full font-black uppercase shadow-2xs">3+ Siswa</span>
+                    </button>
+                  </div>
+
+                  <!-- Actions for Massal Mode -->
+                  <div id="brivaMassalActions" class="flex items-center gap-1.5 text-xs">
+                    <span id="brivaLineCount" class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 tabular-nums font-semibold px-2 py-0.5 rounded-full border border-slate-200/60 dark:border-slate-700">0 baris</span>
+                    <button type="button" onclick="insertBrivaSample(true)" class="text-[11px] text-orange-600 dark:text-amber-400 hover:text-orange-800 dark:hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer">
+                      <i data-lucide="sparkles" class="w-3 h-3 text-amber-500 dark:text-amber-400"></i>
+                      <span>Screenshot BRI</span>
+                    </button>
+                  </div>
+
+                  <!-- Actions for Manual Mode -->
+                  <div id="brivaManualActions" class="hidden flex items-center gap-1.5 text-xs">
+                    <button 
+                      type="button" 
+                      onclick="loadSample3SantriManual()" 
+                      class="px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 font-bold text-[11px] transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                      title="Muat simulasi 3 santri dengan jenis tagihan berbeda masing-masing"
+                    >
+                      <i data-lucide="wand-2" class="w-3 h-3 text-amber-600 dark:text-amber-400"></i>
+                      <span>Contoh 3 Santri</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      onclick="addManualSantri()" 
+                      class="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                      title="Tambah slot santri baru"
+                    >
+                      <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                      <span>Tambah Santri</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- VIEW 1: Massal Textarea Container -->
+                <div id="brivaMassalContainer" class="flex-1 flex flex-col">
+                  <textarea 
+                    id="brivaInput" 
+                    oninput="runBrivaGenerator()"
+                    placeholder="Tempelkan (Ctrl+V) daftar No. Registrasi siswa di sini...&#10;&#10;Contoh dari Screenshot BRI:&#10;015660&#10;015661&#10;015662&#10;015663&#10;015665&#10;015666&#10;015667&#10;&#10;Atau dengan status (opsional):&#10;015660 VIP&#10;015661 Reguler&#10;015662 Mbajak" 
+                    class="w-full flex-1 p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-950/80 hover:bg-slate-50/80 dark:hover:bg-slate-950 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs tabular-nums text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-orange-500/30 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 font-medium"
+                  ></textarea>
+
+                  <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 flex-shrink-0">
+                    <div class="flex items-center gap-1">
+                      <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+                      <span>Awalan '0' tetap utuh (015660)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button type="button" onclick="pasteFromClipboardToInput('brivaInput', 'runBrivaGenerator')" class="text-emerald-600 dark:text-emerald-400 hover:underline font-bold flex items-center gap-1 cursor-pointer" title="Tempel dari Clipboard">
+                        <i data-lucide="clipboard-paste" class="w-3.5 h-3.5"></i>
+                        <span>Tempel</span>
+                      </button>
+                      <button type="button" onclick="insertBrivaMultiStatusSample()" class="text-blue-600 dark:text-sky-400 hover:underline font-medium cursor-pointer">Contoh Campuran</button>
+                      <button type="button" onclick="document.getElementById('brivaInput').value = ''; runBrivaGenerator();" class="text-red-500 dark:text-rose-400 hover:underline font-medium cursor-pointer">Hapus</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- VIEW 2: Manual Per-BRIVA Santri Cards Container -->
+                <div id="brivaManualContainer" class="hidden flex-1 flex flex-col overflow-hidden">
+                  <div class="flex items-center justify-between pb-1.5 text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
+                    <span class="font-medium text-[11px]">Rincian & tagihan khusus per nomor BRIVA:</span>
+                    <span id="brivaManualTotalSantriBadge" class="font-bold text-blue-700 dark:text-sky-300 bg-blue-50 dark:bg-blue-950/70 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 text-[10px]">
+                      0 Santri
+                    </span>
+                  </div>
+
+                  <!-- Scrollable Cards List -->
+                  <div id="brivaManualCardsList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 py-1">
+                    <!-- Dynamic Santri Cards rendered by JS -->
+                  </div>
+
+                  <!-- Bottom Toolbar for Manual Mode -->
+                  <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] flex-shrink-0">
+                    <button 
+                      type="button" 
+                      onclick="addManualSantri()" 
+                      class="px-2.5 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-sky-300 border border-blue-200 dark:border-blue-800 font-bold transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                      <span>+ Tambah Santri</span>
+                    </button>
+                    <div class="flex items-center gap-2">
+                      <button type="button" onclick="clearAllManualSantri()" class="text-red-500 dark:text-rose-400 hover:underline cursor-pointer">Hapus Semua</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Live 5-Column Table & Action Toolbar -->
+              <div class="lg:col-span-7 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col min-h-[460px] lg:h-[600px] overflow-hidden">
+                
+                <!-- Action Header Toolbar -->
+                <div class="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Tabel 5 Kolom BRIVA</span>
+                    <span id="brivaSummaryBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/70 text-orange-800 dark:text-amber-300 border border-orange-200 dark:border-orange-800/60 shadow-2xs">
+                      Total: Rp 0
+                    </span>
+                  </div>
+
+                  <!-- Quick Copy / Export Buttons -->
+                  <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                    <button 
+                      onclick="exportBrivaToExcel()" 
+                      id="btnExportBrivaExcel"
+                      class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold py-1.5 px-3 rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      title="Unduh File Excel (.xlsx) 5 Kolom dengan tanggal format hyphen (-)"
+                    >
+                      <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                      <span>Export Excel (.xlsx)</span>
+                    </button>
+
+                    <button 
+                      onclick="copyBriva5Columns()" 
+                      id="btnCopyBriva5"
+                      class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 active:scale-95 text-xs font-semibold py-1.5 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                      title="Salin 5 Kolom lengkap (A s.d E) siap paste langsung ke Microsoft Excel"
+                    >
+                      <i data-lucide="copy-check" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+                      <span>Salin 5 Kolom</span>
+                    </button>
+
+                    <button 
+                      onclick="copyBrivaAmountsOnly()" 
+                      class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium py-1.5 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
+                      title="Salin hanya kolom Jumlah (Kolom C)"
+                    >
+                      <i data-lucide="clipboard-copy" class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400"></i>
+                      <span class="hidden sm:inline">Salin</span> Jumlah
+                    </button>
+
+                    <button 
+                      onclick="downloadBrivaCsv()" 
+                      class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white text-xs font-medium py-1.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-all active:scale-95 flex items-center cursor-pointer"
+                      title="Unduh Cadangan File CSV BRI"
+                    >
+                      <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                      <span class="text-[10px] ml-0.5 hidden xl:inline">CSV</span>
+                    </button>
+
+                    <button 
+                      type="button"
+                      onclick="openWaFromBriva()" 
+                      class="bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold py-1.5 px-2.5 rounded-xl border border-emerald-300 dark:border-emerald-800/60 transition-all active:scale-95 flex items-center gap-1 shadow-2xs cursor-pointer"
+                      title="Buat Laporan Format WhatsApp dari hasil tagihan saat ini"
+                    >
+                      <i data-lucide="message-square-text" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+                      <span>Format WA</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick Registration Number Bar: Masukkan No. Registrasi Manual Langsung ke Tabel -->
+                <div class="px-3 sm:px-4 py-2 bg-gradient-to-r from-orange-50 via-amber-50 to-blue-50 dark:from-orange-950/40 dark:via-amber-950/30 dark:to-blue-950/30 border-b border-orange-200/80 dark:border-orange-800/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-orange-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                      <i data-lucide="hash" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div>
+                      <span class="text-[11.5px] font-bold text-slate-800 dark:text-orange-200 block leading-tight">Input No. Registrasi Manual:</span>
+                      <span class="text-[10px] text-slate-500 dark:text-orange-300/80">Kode ID Tagihan &amp; Tanggal otomatis tercatat rapi</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-1.5">
+                    <input 
+                      type="text" 
+                      id="quickBrivaRegInput" 
+                      placeholder="No. Reg (cth: 015660)" 
+                      class="w-full sm:w-44 px-2.5 py-1 bg-white dark:bg-slate-900 border border-orange-300 dark:border-orange-700 rounded-lg text-xs font-mono font-bold text-slate-900 dark:text-white focus:ring-1 focus:ring-orange-500 outline-none"
+                      onkeydown="if(event.key==='Enter'){ applyQuickBrivaReg(); }"
+                    />
+                    <button 
+                      type="button" 
+                      onclick="applyQuickBrivaReg()" 
+                      class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                      title="Terapkan nomor ini ke seluruh baris tabel di bawah"
+                    >
+                      <i data-lucide="zap" class="w-3 h-3"></i>
+                      <span>Terapkan</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      onclick="addSingleDraftBrivaRow()" 
+                      class="px-2 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg shadow-2xs flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                      title="Tambah 1 baris tagihan baru"
+                    >
+                      <i data-lucide="plus" class="w-3 h-3 text-blue-600 dark:text-sky-400"></i>
+                      <span class="hidden sm:inline text-[11px]">Tambah Baris</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Instant Search Bar & View Mode Toggle for BRIVA Table -->
+                <div class="px-3 sm:px-4 py-2 bg-slate-50/90 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+                  <!-- View Switcher (Kartu vs Tabel) -->
+                  <div class="flex items-center p-0.5 rounded-lg bg-slate-200/80 dark:bg-slate-800 border border-slate-300/60 dark:border-white/10 text-[10px] sm:text-xs font-semibold shrink-0">
+                    <button type="button" id="btnBrivaViewCards" onclick="setBrivaViewMode('cards')" class="px-2.5 py-1 rounded-md font-bold transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer" title="Tampilan Kartu Ponsel (Tanpa geser layar)">
+                      <i data-lucide="layout-grid" class="w-3 h-3"></i>
+                      <span>Kartu</span>
+                    </button>
+                    <button type="button" id="btnBrivaViewTable" onclick="setBrivaViewMode('table')" class="px-2.5 py-1 rounded-md font-semibold transition-all text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer" title="Tampilan Tabel Lengkap">
+                      <i data-lucide="table" class="w-3 h-3"></i>
+                      <span>Tabel</span>
+                    </button>
+                  </div>
+                  <div class="relative flex-1">
+                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input 
+                      type="text" 
+                      id="brivaTableSearch" 
+                      oninput="handleBrivaTableSearchInput(this.value)" 
+                      placeholder="Cari No. Registrasi (015660), ID Tagihan, Jumlah, atau Komponen..." 
+                      class="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500/30 outline-none transition-all"
+                    />
+                    <button 
+                      id="clearBrivaSearchBtn" 
+                      onclick="document.getElementById('brivaTableSearch').value = ''; renderBrivaTable();" 
+                      class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                  </div>
+
+                  <div id="brivaFilterCountBadge" class="text-[11px] text-slate-500 font-mono hidden sm:block whitespace-nowrap">
+                    0 baris cocok
+                  </div>
+                </div>
+
+                <!-- Table Content Container with Horizontal Scroll Support -->
+                <div class="flex-1 overflow-x-auto overflow-y-auto no-scrollbar relative">
+                  <table class="w-full text-left text-xs text-slate-600 border-collapse min-w-[620px]">
+                    <thead class="bg-slate-100/90 sticky top-0 z-10 text-[11px] font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200 backdrop-blur-xs">
+                      <tr>
+                        <th class="py-2.5 px-3 w-10 text-center">#</th>
+                        <th class="py-2.5 px-3">Kolom A: No. Registrasi</th>
+                        <th class="py-2.5 px-3">Kolom B: ID Tagihan</th>
+                        <th class="py-2.5 px-3 text-right">Kolom C: Jumlah</th>
+                        <th class="py-2.5 px-3 text-center">Kolom D: Tgl Efektif</th>
+                        <th class="py-2.5 px-3 text-center">Kolom E: Jatuh Tempo</th>
+                        <th class="py-2.5 px-3">Rincian Komponen</th>
+                      </tr>
+                    </thead>
+                    <tbody id="brivaTableBody" class="divide-y divide-slate-100 tabular-nums">
+                      <tr>
+                        <td colspan="7" class="py-16 text-center text-slate-400">
+                          <i data-lucide="layers" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                          <p class="font-medium">Belum ada data nomor registrasi</p>
+                          <p class="text-[11px] text-slate-400 mt-1">Tempelkan nomor registrasi di kotak sebelah kiri atau klik <b>"Screenshot BRI"</b> untuk menguji data.</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- CARDS VIEW CONTAINER: Ergonomic Mobile Cards (No Horizontal Scroll Needed) -->
+                <div id="brivaCardsContainer" class="hidden flex-1 overflow-y-auto mobile-touch-scroll p-2 sm:p-3 space-y-2 max-h-[520px]">
+                  <!-- Rendered dynamically by JS -->
+                </div>
+
+                <!-- Bottom Stats Bar -->
+                <div class="px-4 py-2 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono gap-2">
+                  <div class="flex items-center gap-3">
+                    <span>Total Siswa: <b id="brivaStatCount" class="text-orange-600 font-bold">0</b></span>
+                    <span>Total Nominal: <b id="brivaStatTotal" class="text-emerald-600 font-bold">Rp 0</b></span>
+                  </div>
+                  <div>
+                    <span>Rata-rata: <b id="brivaStatAverage" class="text-slate-700">Rp 0</b></span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
