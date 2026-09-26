@@ -1,10 +1,10 @@
-﻿/**
+/**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
  * High-Performance Offline-First Service Worker (PWA)
  * Menjamin 100% fungsionalitas aplikasi tanpa koneksi internet (Offline Mode)
  */
 
-const CACHE_NAME = 'partner-fatih-offline-v11';
+const CACHE_NAME = 'partner-fatih-offline-v12';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -19,7 +19,6 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './css/main.css',
   './js/app.bundle.js',
-  './js/voice_nlp.js',
   './js/vendor/tailwindcss.js',
   './js/vendor/lucide.min.js',
   './js/vendor/xlsx.full.min.js'
@@ -53,7 +52,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. FETCH EVENT: Cache-First dengan Dynamic Runtime Caching
+// 3. FETCH EVENT: Cache-First dengan Dynamic Runtime Caching & 404 Rescue Fallback
 self.addEventListener('fetch', event => {
   const request = event.request;
 
@@ -63,12 +62,12 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    caches.match(request).then(cachedResponse => {
+    caches.match(request, { ignoreSearch: true }).then(cachedResponse => {
       if (cachedResponse) {
         // Aset ditemukan di cache -> Sajikan instan 0ms (100% Offline Ready)
-        // Lakukan background fetch update jika online (Stale-While-Revalidate)
+        // Background update jika online (Stale-While-Revalidate)
         fetch(request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
           }
         }).catch(() => {/* Silent offline */});
@@ -78,7 +77,13 @@ self.addEventListener('fetch', event => {
 
       // Jika belum ada di cache -> Ambil dari network lalu simpan ke runtime cache
       return fetch(request).then(networkResponse => {
+        // PERLINDUNGAN ANTI-404: Jika server (Vercel) mengembalikan 404 untuk navigasi halaman HTML
         if (!networkResponse || networkResponse.status !== 200) {
+          if (request.mode === 'navigate') {
+            return caches.match('./index.html', { ignoreSearch: true }).then(fallback => {
+              return fallback || caches.match('./', { ignoreSearch: true }) || networkResponse;
+            });
+          }
           return networkResponse;
         }
 
@@ -91,8 +96,12 @@ self.addEventListener('fetch', event => {
       }).catch(() => {
         // Jika offline & request navigasi halaman HTML -> Sajikan index.html dari cache
         if (request.mode === 'navigate') {
-          return caches.match('./index.html') || caches.match('./');
+          return caches.match('./index.html', { ignoreSearch: true }).then(fallback => {
+            return fallback || caches.match('./', { ignoreSearch: true });
+          });
         }
+        // Fallback pencarian cache dengan mengabaikan query search
+        return caches.match(request, { ignoreSearch: true });
       });
     })
   );
@@ -101,11 +110,11 @@ self.addEventListener('fetch', event => {
 // 4. NOTIFICATION CLICK LISTENER (Mobile & Desktop App Notification)
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const urlToOpen = (event.notification.data && event.notification.data.url) || './index.html';
+  const urlToOpen = (event.notification.data && event.notification.data.url) || './';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
       for (let client of windowClients) {
-        if (client.url.includes('index.html') && 'focus' in client) {
+        if ((client.url.includes('index.html') || client.url.endsWith('/')) && 'focus' in client) {
           return client.focus();
         }
       }
@@ -127,7 +136,7 @@ self.addEventListener('push', event => {
           icon: './icon-192.png',
           badge: './favicon.png',
           vibrate: [200, 100, 200],
-          data: data.data || { url: './index.html' }
+          data: data.data || { url: './' }
         })
       );
     } catch (e) {
