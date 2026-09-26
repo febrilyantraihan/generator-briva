@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
  * High-Performance Offline-First Service Worker (PWA)
  * Menjamin 100% fungsionalitas aplikasi tanpa koneksi internet (Offline Mode)
@@ -19,9 +19,7 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './css/main.css',
   './js/app.bundle.js',
-  './js/vendor/tailwindcss.js',
-  './js/vendor/lucide.min.js',
-  './js/vendor/xlsx.full.min.js'
+  './mascot.png'
 ];
 
 // 1. INSTALL EVENT: Pre-cache seluruh aset offline
