@@ -11,7 +11,11 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=9">
   <link rel="icon" type="image/svg+xml" href="icon.svg?v=9">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=9">
-  <link rel="manifest" href="manifest.json?v=9">
+    <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Partner Fatih">
   <meta name="theme-color" content="#0b0f19">
   
   <!-- Google Fonts: Plus Jakarta Sans & Poppins (Modern Sans-Serif, Angka Bulat Halus Bersih Anti-Serif) -->
@@ -29,6 +33,10 @@
     window.lucide = window.lucide || {
       createIcons: function() {}
     };
+    // Registrasi cepat Service Worker agar kriteria instalasi PWA di Android langsung terpenuhi
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function() {});
+    }
   </script>
 
   <!-- SheetJS (xlsx) - Local Offline First with CDN Fallback -->
@@ -19512,7 +19520,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       }
     });
 
+    function checkStandalonePwa() {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        const installBtn = document.getElementById('pwaInstallBtn');
+        if (installBtn) installBtn.classList.add('hidden');
+      }
+    }
+    checkStandalonePwa();
+    window.addEventListener('DOMContentLoaded', checkStandalonePwa);
+
     function triggerPwaInstall() {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        if (typeof showToast === 'function') {
+          showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+        } else {
+          alert('Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+        }
+        return;
+      }
       if (deferredPwaPrompt) {
         deferredPwaPrompt.prompt();
         deferredPwaPrompt.userChoice.then((choiceResult) => {
@@ -19525,21 +19550,27 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         });
       } else {
         if (typeof showToast === 'function') {
-          showToast('Pasang Aplikasi', 'Tekan menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
+          showToast("Pasang Aplikasi", 'Tekan menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
         } else {
           alert('Untuk memasang di HP atau desktop, buka menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
         }
       }
     }
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then(reg => {
-          console.log('PWA ServiceWorker active:', reg.scope);
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      const regSw = () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
+          console.log('[PWA] ServiceWorker active:', reg.scope);
         }).catch(err => {
-          console.warn('PWA ServiceWorker note (safe):', err);
+          console.warn('[PWA] ServiceWorker note (safe):', err);
         });
-      });
+      };
+      if (document.readyState === 'complete') {
+        regSw();
+      } else {
+        window.addEventListener('load', regSw);
+      }
+    }
     }
 
 
@@ -30578,12 +30609,17 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
           }
         }
         // Fallback jika serviceWorker belum siap
+        // Fallback jika serviceWorker belum siap (hanya desktop)
         if (window.Notification && Notification.permission === 'granted') {
-          return new Notification(title, {
-            body: body,
-            icon: './icon-192.png',
-            tag: tag
-          });
+          try {
+            return new Notification(title, {
+              body: body,
+              icon: './icon-192.png',
+              tag: tag
+            });
+          } catch (notifErr) {
+            console.warn('[PWA] Direct Notification constructor blocked (Android standard):', notifErr);
+          }
         }
       } catch (err) {
         console.warn('Gagal kirim notifikasi native:', err);
@@ -30675,6 +30711,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
