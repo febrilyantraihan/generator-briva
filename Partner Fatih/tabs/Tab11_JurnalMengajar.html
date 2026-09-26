@@ -1,0 +1,1784 @@
+          <!-- ============================================================== -->
+          <!-- TAB 11: JURNAL GURU, JADWAL MENGAJAR, ABSENSI & NILAI STS/SAS    -->
+          <!-- DESAIN MOBILE NATIVE TERPADU (REFERENSI MIJURNAL / JURNAL MENGAJAR) -->
+          <!-- ============================================================== -->
+          <div id="tab-jurnal" class="hidden space-y-3 sm:space-y-4 pb-32 sm:pb-12 px-[2px] sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
+            
+            <!-- 1. HEADER MODUL & PENGALIH UNIT (Formal MTs vs Non-Formal Diniyah) -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 min-w-0 max-w-full box-border">
+              <!-- Left Brand & Info with Mascot -->
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <img src="mascot.png" alt="Mascot Partner Fatih" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover shadow-md shadow-rose-500/25 border-2 border-rose-500/40 flex-shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 class="font-black text-xs sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+                      <span>Jurnal Mengajar &amp; Presensi Guru</span>
+                    </h3>
+                    <span id="jurnalActiveUnitBadge" class="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 uppercase tracking-wider">
+                      Formal MTs (Prakarya)
+                    </span>
+                  </div>
+                  <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                    Partner Fatih: Santri Sigap • Semangat • Optimis — Jadwal, materi, absensi &amp; nilai STS/SAS.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Center & Right: Unit Toggle & Quick Export Actions -->
+              <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
+                <!-- Unit Switcher: 50/50 Grid on Mobile -->
+                <div class="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl w-full sm:w-auto gap-1">
+                  <button 
+                    type="button" 
+                    id="btnUnitFormal" 
+                    onclick="switchJurnalUnit('formal')" 
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer whitespace-nowrap"
+                  >
+                    <i data-lucide="building-2" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+                    <span class="truncate">Formal: MTs</span>
+                    <span class="text-[9px] px-1 rounded bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-bold flex-shrink-0">4 Kelas</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="btnUnitNonFormal" 
+                    onclick="switchJurnalUnit('nonformal')" 
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                  >
+                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"></i>
+                    <span class="truncate">Diniyah</span>
+                    <span class="text-[9px] px-1 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-bold flex-shrink-0">2 Kelas</span>
+                  </button>
+                </div>
+
+                <!-- Quick Action Buttons: Cloud Sync, Excel & WhatsApp -->
+                <div class="grid grid-cols-3 gap-1.5 sm:flex sm:items-center">
+                  <button 
+                    type="button" 
+                    id="btnJurnalCloudSyncHeader"
+                    onclick="openModalJurnalCloudSync()" 
+                    class="px-2.5 py-2 sm:py-1.5 rounded-xl text-xs font-bold bg-cyan-600 hover:bg-cyan-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                    title="Sinkronisasi Cloud Supabase (Siswa, Presensi, Nilai & Sesi)"
+                  >
+                    <i data-lucide="cloud" class="w-3.5 h-3.5 text-cyan-200"></i>
+                    <span id="labelJurnalCloudStatus">Cloud Sync</span>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    onclick="exportJurnalToExcel()" 
+                    class="px-2.5 py-2 sm:py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                    title="Unduh Lembar Kerja Lengkap (.xlsx)"
+                  >
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                    <span>Ekspor Excel</span>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    onclick="openJurnalWaModal()" 
+                    class="px-2.5 py-2 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                    title="Salin Rekap untuk WhatsApp"
+                  >
+                    <i data-lucide="message-square" class="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600"></i>
+                    <span>Salin WA</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 1.5. ASISTEN SUARA & PENCARIAN CERDAS JURNAL GURU (VOICE AI ASSISTANT) -->
+            <div id="jurnalVoiceSearchCard" class="bg-gradient-to-r from-rose-950/90 via-slate-900/90 to-purple-950/90 rounded-2xl border border-rose-500/40 p-3 sm:p-4 shadow-md text-white space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-7 h-7 rounded-xl bg-rose-500/30 border border-rose-400/40 text-rose-300 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="mic" class="w-4 h-4 text-rose-300"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="text-xs sm:text-sm font-black tracking-tight flex items-center gap-1.5 truncate">
+                      <span>Asisten Suara Jurnal Guru</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-rose-400/20 text-rose-200 border border-rose-400/30">AI Voice</span>
+                    </h4>
+                  </div>
+                </div>
+                <!-- Quick hint -->
+                <span class="text-[10.5px] text-rose-200/80 hidden sm:inline">
+                  💡 Bicara: "Berapa kali Budi tidak masuk?" atau "Siapa yang absen pertemuan 1?"
+                </span>
+              </div>
+
+              <!-- Big Voice Input Bar -->
+              <div class="relative flex items-center">
+                <i data-lucide="search" class="w-4 h-4 text-rose-300 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input 
+                  type="text" 
+                  id="jurnalTopVoiceSearchInput" 
+                  placeholder="Tanya suara atau ketik (cth: 'Berapa kali Budi absen?', 'Siapa tidak masuk?')..." 
+                  onkeydown="if(event.key==='Enter'){event.preventDefault(); processJurnalVoiceSmartCommand(this.value);}"
+                  class="w-full pl-9 pr-24 py-2 sm:py-2.5 rounded-xl bg-slate-950/80 border border-rose-400/40 text-xs sm:text-sm font-medium text-white placeholder-rose-200/60 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition-all shadow-inner"
+                />
+                
+                <button 
+                  type="button" 
+                  id="btnJurnalTopVoiceSearch" 
+                  onclick="toggleJurnalVoiceSearch()" 
+                  class="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 active:scale-95 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition-all border border-rose-300/30"
+                  title="Perintah Suara (Tanya kehadiran santri, jadwal mengajar, atau materi)"
+                >
+                  <i data-lucide="mic" class="w-3.5 h-3.5" id="iconJurnalTopVoice"></i>
+                  <span id="labelJurnalTopVoice">Bicara</span>
+                </button>
+              </div>
+
+              <!-- Voice Listening Banner -->
+              <div id="jurnalVoiceListeningBanner" class="hidden p-2.5 bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 text-white rounded-xl shadow-lg flex items-center justify-between gap-2 text-xs animate-pulse border border-white/20">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-3 h-3 rounded-full bg-red-400 animate-ping flex-shrink-0"></div>
+                  <div class="min-w-0">
+                    <span class="font-extrabold uppercase tracking-wide text-[10.5px]">🎙️ Asisten Jurnal Mendengarkan...</span>
+                    <p id="jurnalVoiceLiveTranscript" class="text-xs opacity-95 truncate font-medium">Silakan sebutkan nama santri atau pertanyaan kehadiran...</p>
+                  </div>
+                </div>
+                <button type="button" onclick="stopJurnalVoiceSearch()" class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold cursor-pointer whitespace-nowrap flex-shrink-0">
+                  Selesai
+                </button>
+              </div>
+
+              <!-- Interactive Voice Answer Display Card -->
+              <div id="jurnalVoiceAnswerCard" class="hidden p-3 sm:p-4 bg-slate-950/95 rounded-xl border-2 border-rose-400/70 shadow-2xl space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
+                <div class="flex items-center justify-between gap-2 border-b border-rose-500/30 pb-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-rose-500 to-amber-500 flex items-center justify-center text-xs text-white shadow-xs">
+                      🎓
+                    </div>
+                    <span class="text-xs font-black text-rose-200 uppercase tracking-wider">Jawaban Asisten Jurnal Guru</span>
+                    <span id="jurnalVoiceSpeakingBadge" class="hidden text-[9px] px-2 py-0.5 rounded-full bg-amber-500/30 text-amber-300 font-bold border border-amber-500/40 animate-pulse">
+                      🔊 Berbicara...
+                    </span>
+                  </div>
+                  <button type="button" onclick="closeJurnalVoiceAnswerCard()" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer transition-all">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+
+                <!-- Query User -->
+                <div class="text-[11px] text-rose-300/90 font-mono">
+                  🗣️ Pertanyaan: <span id="jurnalVoiceAnswerQuery" class="text-white font-bold italic">"Berapa kali Budi Santoso tidak masuk?"</span>
+                </div>
+
+                <!-- Spoken Answer Banner -->
+                <div class="p-3 rounded-xl bg-rose-950/70 border border-rose-400/50 text-xs sm:text-sm font-bold text-white leading-relaxed flex items-start gap-2.5 shadow-inner">
+                  <i data-lucide="volume-2" class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5 animate-bounce"></i>
+                  <p id="jurnalVoiceAnswerSpeechText" class="flex-1 text-slate-100">
+                    Santri Budi Santoso di kelas 1 Ula A memiliki akumulasi ketidakhadiran sebanyak...
+                  </p>
+                </div>
+
+                <!-- Student & Attendance Stats Grid -->
+                <div id="jurnalVoiceAnswerDetailsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-emerald-300 block">Hadir</span>
+                    <span id="jurnalVoiceStatHadir" class="text-base font-black text-emerald-400 mt-0.5 block">0</span>
+                    <span class="text-[9px] text-slate-400">Pertemuan</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-amber-300 block">Sakit</span>
+                    <span id="jurnalVoiceStatSakit" class="text-base font-black text-amber-400 mt-0.5 block">0</span>
+                    <span class="text-[9px] text-slate-400">Pertemuan</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-blue-300 block">Izin</span>
+                    <span id="jurnalVoiceStatIzin" class="text-base font-black text-blue-400 mt-0.5 block">0</span>
+                    <span class="text-[9px] text-slate-400">Pertemuan</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-rose-300 block">Alfa (Tanpa Ket.)</span>
+                    <span id="jurnalVoiceStatAlpa" class="text-base font-black text-rose-400 mt-0.5 block">0</span>
+                    <span class="text-[9px] text-slate-400">Pertemuan</span>
+                  </div>
+                </div>
+
+                <!-- Extra Info (Attendance %, Keaktifan & Grade) -->
+                <div id="jurnalVoiceAnswerExtraBox" class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-300">Tingkat Kehadiran:</span>
+                    <span id="jurnalVoiceAttendancePct" class="px-2 py-0.5 rounded-full font-black text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">100%</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-300">Poin Keaktifan:</span>
+                    <span id="jurnalVoiceBonusPoints" class="px-2 py-0.5 rounded-full font-black text-xs bg-amber-500/20 text-amber-300 border border-amber-400/40">+10 Poin ⭐</span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-between gap-2 pt-1 border-t border-rose-500/20 text-xs">
+                  <button type="button" onclick="repeatJurnalVoiceAnswer()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-all">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    <span>Ulangi Suara</span>
+                  </button>
+                  <button type="button" onclick="openJurnalStudentLedgerFromVoice()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-rose-200 font-semibold flex items-center gap-1.5 cursor-pointer transition-all">
+                    <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                    <span>Buka Ledger Nilai &rarr;</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick Voice Chips -->
+              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] touch-pan-x">
+                <span class="text-[10px] text-rose-300 font-bold shrink-0">Tanya Cepat:</span>
+                <button type="button" onclick="processJurnalVoiceSmartCommand('Siapa saja yang tidak masuk di kelas ini?')" class="px-2.5 py-1 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">🎙️ Siapa Tidak Masuk?</button>
+                <button type="button" onclick="processJurnalVoiceSmartCommand('Kapan jadwal mengajar saya berikutnya?')" class="px-2.5 py-1 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 border border-blue-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">📅 Jadwal Berikutnya</button>
+                <button type="button" onclick="processJurnalVoiceSmartCommand('Materi pertemuan 1 apa?')" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">📖 Materi Pertemuan 1</button>
+                <button type="button" onclick="processJurnalVoiceSmartCommand('Siapa santri yang paling banyak absen?')" class="px-2.5 py-1 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">⚠️ Paling Banyak Absen</button>
+                <button type="button" onclick="processJurnalVoiceSmartCommand('Rekap presensi seluruh kelas')" class="px-2.5 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 shrink-0 cursor-pointer text-[10.5px] font-bold active:scale-95">📊 Rekap Presensi</button>
+              </div>
+            </div>
+
+            <!-- 2. SUB-NAVIGATION PILLS (MATCHING REFERENSI NATIVE MOBILE) -->
+            <div class="flex items-center gap-1 p-1 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 overflow-x-auto no-scrollbar touch-pan-x">
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_beranda" 
+                onclick="switchJurnalSubTab('beranda')" 
+                class="flex-shrink-0 px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 bg-rose-600 text-white shadow-xs cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                <span>Beranda</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_materi" 
+                onclick="switchJurnalSubTab('materi')" 
+                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-rose-500"></i>
+                <span>Jurnal Anda</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_kelas" 
+                onclick="switchJurnalSubTab('kelas')" 
+                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>Daftar Kelas</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_presensi" 
+                onclick="switchJurnalSubTab('presensi')" 
+                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>Presensi</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_jadwal" 
+                onclick="switchJurnalSubTab('jadwal')" 
+                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i>
+                <span>Pengingat &amp; Jadwal</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_penilaian" 
+                onclick="switchJurnalSubTab('penilaian')" 
+                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="award" class="w-3.5 h-3.5 text-purple-500"></i>
+                <span>Nilai STS/SAS</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_rekap" 
+                onclick="switchJurnalSubTab('rekap')" 
+                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="table-2" class="w-3.5 h-3.5 text-teal-500"></i>
+                <span>Rekap Semester</span>
+              </button>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 0: BERANDA / DASHBOARD GURU (PERSIS SCREENSHOT 3)     -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_beranda" class="space-y-4">
+              <!-- Profile Greeting Banner -->
+              <div class="mobile-ref-card p-4 sm:p-5 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-rose-500/40 shadow-sm flex-shrink-0 bg-rose-50 dark:bg-slate-800 flex items-center justify-center">
+                    <img src="mascot.png" alt="Mascot Guru" class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 mb-1">
+                      <span>Guru Aktif</span>
+                      <span>👑</span>
+                    </span>
+                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight" id="dashboardGreetingTitle">
+                      Selamat Datang, Ust. Fatih
+                    </h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5" id="dashboardGreetingSubtitle">
+                      fatih.pendidikan@gmail.com • YTPAI Babat
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="showToast('Notifikasi', 'Tidak ada notifikasi mendesak saat ini.')" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 transition-all cursor-pointer">
+                  <i data-lucide="bell" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Promo / Announcement Carousel (Persis Screenshot 3) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Card Promo 1: Jurnal Mengajar Merah -->
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-red-600 via-rose-600 to-rose-700 text-white shadow-md shadow-rose-500/20 relative overflow-hidden flex flex-col justify-between min-h-[120px]">
+                  <div class="relative z-10">
+                    <h4 class="text-sm font-black tracking-tight mb-1">Jurnal Mengajar</h4>
+                    <p class="text-xs text-white/90 leading-snug max-w-[80%]">
+                      Aplikasi yang memudahkan guru dalam mengelola jadwal pelajaran, presensi dan nilai.
+                    </p>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between text-[11px] text-white/80 font-bold relative z-10">
+                    <span>Partner Fatih 2026/2027</span>
+                    <span class="underline cursor-pointer" onclick="switchJurnalSubTab('materi')">Buka Jurnal &rarr;</span>
+                  </div>
+                  <!-- Background watermark wave -->
+                  <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/10 pointer-events-none"></div>
+                </div>
+
+                <!-- Card Promo 2: Status Akun Oranye -->
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/20 relative overflow-hidden flex flex-col justify-between min-h-[120px]">
+                  <div class="relative z-10">
+                    <span class="text-[10px] uppercase font-bold text-white/80 block">Status Akun Saat Ini:</span>
+                    <h4 class="text-base font-black tracking-tight">Aktif &amp; Terintegrasi</h4>
+                    <p class="text-xs text-white/90 mt-1">
+                      Masa Berlaku: Semester Ganjil / Genap 2026-2027
+                    </p>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between text-[11px] text-white/80 font-bold relative z-10">
+                    <span>Cloud LocalSync</span>
+                    <span class="underline cursor-pointer" onclick="exportJurnalToExcel()">Unduh Rekap &rarr;</span>
+                  </div>
+                  <div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/10 pointer-events-none"></div>
+                </div>
+              </div>
+
+              <!-- 4-BENTO STAT CARDS (PERSIS SCREENSHOT 3) -->
+              <div class="space-y-1.5">
+                <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                  Dashboard
+                </h4>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+                  <!-- 01: Kelas (Merah) -->
+                  <div onclick="switchJurnalSubTab('kelas')" class="bento-card-red p-3.5 sm:p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-95 transition-all">
+                    <div>
+                      <span class="text-xl sm:text-2xl font-black block leading-none" id="bentoCountKelas">04</span>
+                      <span class="text-[11px] font-bold opacity-90 mt-1 block">Kelas</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="layout-grid" class="w-5 h-5 text-white"></i>
+                    </div>
+                  </div>
+
+                  <!-- 02: Materi / Tugas (Kuning) -->
+                  <div onclick="switchJurnalSubTab('materi')" class="bento-card-amber p-3.5 sm:p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-95 transition-all">
+                    <div>
+                      <span class="text-xl sm:text-2xl font-black block leading-none" id="bentoCountMateri">18</span>
+                      <span class="text-[11px] font-bold opacity-90 mt-1 block">Materi Sesi</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
+                    </div>
+                  </div>
+
+                  <!-- 03: Pengingat (Teal) -->
+                  <div onclick="switchJurnalSubTab('jadwal')" class="bento-card-teal p-3.5 sm:p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-95 transition-all">
+                    <div>
+                      <span class="text-xl sm:text-2xl font-black block leading-none" id="bentoCountPengingat">06</span>
+                      <span class="text-[11px] font-bold opacity-90 mt-1 block">Jadwal Sesi</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="clock" class="w-5 h-5 text-white"></i>
+                    </div>
+                  </div>
+
+                  <!-- 04: Catatan / Siswa (Biru) -->
+                  <div onclick="switchJurnalSubTab('presensi')" class="bento-card-blue p-3.5 sm:p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-95 transition-all">
+                    <div>
+                      <span class="text-xl sm:text-2xl font-black block leading-none" id="bentoCountSiswa">28</span>
+                      <span class="text-[11px] font-bold opacity-90 mt-1 block">Siswa Aktif</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <i data-lucide="users" class="w-5 h-5 text-white"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preview Kelas Cepat (Persis Screenshot 3 Bawah) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Kelas Aktif
+                  </h4>
+                  <button type="button" onclick="switchJurnalSubTab('kelas')" class="text-xs font-bold text-rose-600 hover:underline cursor-pointer">
+                    Lihat Semua
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="dashboardClassPreviewGrid">
+                  <!-- Di-render oleh JavaScript -->
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 1: LIST JURNAL ANDA (PERSIS SCREENSHOT 1)             -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_materi" class="hidden space-y-3.5">
+              <!-- Top Curved Banner Mobile (Persis Screenshot 1) -->
+              <div class="mobile-curved-hero p-4 sm:p-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-white/80 block" id="jurnalMobileTodayText">
+                    Senin, 17 September 2026
+                  </span>
+                  <h3 class="text-lg sm:text-xl font-black text-white tracking-tight">
+                    List Jurnal Anda
+                  </h3>
+                  <p class="text-xs text-white/80 mt-0.5" id="jurnalMobileClassSubtitle">
+                    Kelas 7A MTs • Mata Pelajaran Prakarya
+                  </p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+                  <button 
+                    type="button" 
+                    onclick="openJurnalAiQuizModal(currentJurnalPertemuan)" 
+                    class="px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Uji kefahaman santri dengan kuis seru AI"
+                  >
+                    <span>🎯 Tanya Santri (AI)</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="openJurnalAiScannerModal('presensi')" 
+                    class="px-3.5 py-2 rounded-full bg-white/15 hover:bg-white/25 text-white font-bold text-xs border border-white/25 backdrop-blur-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Pindai lembar absensi atau catatan kelas dengan AI"
+                  >
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                    <span>Scan AI Foto</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="openAddJurnalSessionModal()" 
+                    class="px-4 py-2 rounded-full bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah +</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Search Bar & Dropdown Filter (Persis Screenshot 1) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="relative">
+                  <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input 
+                    type="text" 
+                    id="jurnalSearchInput" 
+                    oninput="filterJurnalSessionCards()" 
+                    placeholder="Cari Jurnal / Materi..." 
+                    class="w-full pl-9 pr-3 py-2.5 rounded-2xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-rose-500 shadow-2xs"
+                  />
+                </div>
+                <div class="relative">
+                  <select 
+                    id="jurnalSortFilter" 
+                    onchange="sortJurnalSessionCards()" 
+                    class="w-full px-3.5 py-2.5 rounded-2xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold outline-none cursor-pointer shadow-2xs"
+                  >
+                    <option value="asc">Filter: Pertemuan 1 ke 18 (Urut)</option>
+                    <option value="desc">Filter: Pertemuan 18 ke 1 (Terbaru)</option>
+                    <option value="filled">Filter: Hanya yang Sudah Terlaksana</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- List Kartu Sesi Jurnal (Persis Screenshot 1) -->
+              <div class="space-y-2.5" id="jurnalSessionCardsContainer">
+                <!-- Di-render dinamis oleh JavaScript -->
+              </div>
+
+              <!-- Editor Form Drawer / Collapsible Container -->
+              <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5 text-rose-500"></i>
+                    <span>Form Detail Editor Jurnal</span>
+                  </h4>
+                  <div class="flex items-center gap-1.5" id="jurnalPertemuanPills">
+                    <!-- Pills P1-P18 -->
+                  </div>
+                </div>
+
+                <div class="mobile-ref-card p-4 sm:p-5 space-y-4">
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                        <h4 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white" id="jurnalFormTitle">
+                          Jurnal Pembelajaran Pertemuan 1
+                        </h4>
+                      </div>
+                      <p class="text-xs text-slate-500 dark:text-slate-400" id="jurnalFormSubtitle">
+                        Kelas: 7A (MTs) • Mata Pelajaran: Prakarya
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button 
+                        type="button" 
+                        onclick="openJurnalAiScannerModal('presensi')" 
+                        class="px-3 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-rose-50 to-indigo-50 dark:from-rose-950/40 dark:to-indigo-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        title="Scan absensi & nama siswa dari foto catatan kelas"
+                      >
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+                        <span>Scan Foto (AI)</span>
+                      </button>
+                      <span id="jurnalSaveStatusBadge" class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        <span>Tersimpan</span>
+                      </span>
+                      <button 
+                        type="button" 
+                        onclick="saveCurrentJurnalSession()" 
+                        class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                        <span>Simpan Jurnal</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Tanggal Tatap Muka
+                      </label>
+                      <input 
+                        type="date" 
+                        id="jurnalFormDate" 
+                        onchange="autoSaveJurnalDebounced()" 
+                        class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-rose-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Jam Ke- / Waktu
+                      </label>
+                      <input 
+                        type="text" 
+                        id="jurnalFormTime" 
+                        placeholder="Contoh: Jam 1-2 (07.00 - 08.20)" 
+                        oninput="autoSaveJurnalDebounced()" 
+                        class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-rose-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Status Pertemuan
+                      </label>
+                      <select 
+                        id="jurnalFormStatus" 
+                        onchange="autoSaveJurnalDebounced()" 
+                        class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-rose-500 outline-none cursor-pointer"
+                      >
+                        <option value="terlaksana">Terlaksana Penuh</option>
+                        <option value="pengganti">Kelas Pengganti / Inval</option>
+                        <option value="libur">Hari Libur / Tugas Mandiri</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Materi Pokok / Pembahasan Kitab / Bab
+                    </label>
+                    <input 
+                      type="text" 
+                      id="jurnalFormMateri" 
+                      placeholder="Tuliskan pokok materi pembelajaran pertemuan ini..." 
+                      oninput="autoSaveJurnalDebounced()" 
+                      class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-rose-500 outline-none font-semibold"
+                    />
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Indikator &amp; Capaian Pembelajaran
+                      </label>
+                      <textarea 
+                        id="jurnalFormIndikator" 
+                        rows="3" 
+                        placeholder="Siswa mampu memahami dan mempraktikkan..." 
+                        oninput="autoSaveJurnalDebounced()" 
+                        class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-rose-500 outline-none"
+                      ></textarea>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Catatan Kelas, Refleksi &amp; Evaluasi
+                      </label>
+                      <textarea 
+                        id="jurnalFormCatatan" 
+                        rows="3" 
+                        placeholder="Catatan keaktifan siswa, kendala materi, atau tugas rumah..." 
+                        oninput="autoSaveJurnalDebounced()" 
+                        class="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-rose-500 outline-none"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 2: DAFTAR KELAS (PERSIS SCREENSHOT 2)                 -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_kelas" class="hidden space-y-3.5">
+              <!-- Top Curved Banner Mobile -->
+              <div class="mobile-curved-hero p-4 sm:p-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-lg sm:text-xl font-black text-white tracking-tight">
+                    Daftar Kelas Mengajar
+                  </h3>
+                  <p class="text-xs text-white/80 mt-0.5">
+                    Pilih kelas untuk mengelola jadwal, modul jurnal, dan absensi santri.
+                  </p>
+                </div>
+                <button 
+                  type="button" 
+                  onclick="openAddClassModalPrompt()" 
+                  class="px-4 py-2 rounded-full bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  <span>Tambah +</span>
+                </button>
+              </div>
+
+              <!-- List Kartu Kelas (Persis Screenshot 2) -->
+              <div class="space-y-3" id="jurnalClassCardsList">
+                <!-- Di-render dinamis oleh JavaScript -->
+              </div>
+
+              <!-- Limit Info Banner (Persis Screenshot 2 Bawah) -->
+              <div class="text-center py-6 px-4 space-y-1">
+                <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-600 mx-auto flex items-center justify-center">
+                  <i data-lucide="crown" class="w-5 h-5"></i>
+                </div>
+                <h5 class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Mode Master Multi-Kelas Aktif
+                </h5>
+                <p class="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed">
+                  Semua kelas MTs (7A-7D) &amp; Diniyah (1 Ula A-B) terintegrasi otomatis dengan bank data siswa resmi YTPAI.
+                </p>
+              </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 3: PRESENSI & ABSENSI SISWA                          -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_presensi" class="hidden space-y-4">
+              <!-- Action Bar Presensi -->
+              <div class="mobile-ref-card p-3.5 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black flex-shrink-0 shadow-xs">
+                    <i data-lucide="check-check" class="w-4.5 h-4.5"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white" id="presensiHeading">
+                      Presensi Pertemuan 1 — Kelas 7A (Prakarya)
+                    </h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400" id="presensiSubHeading">
+                      Klik status untuk masing-masing siswa atau gunakan tombol cepat di samping.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Live Quick Actions: 1-Click All Present, AI Scan & Add Student -->
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button 
+                    type="button" 
+                    onclick="openJurnalAiScannerModal('presensi')" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-indigo-600 hover:from-rose-700 hover:to-indigo-700 text-white shadow-md shadow-rose-600/25 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Pindai foto lembar absensi santri / catatan fisik dengan AI"
+                  >
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                    <span>Scan Absen dari Foto (AI)</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="markAllStudentsPresent()" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                    <span>Tandai Semua Hadir</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="openManageStudentsModal()" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                    <span>Kelola Siswa</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Statistik Kehadiran Sesi Terpilih (Sleek Compact 5-in-1 Row) -->
+              <div class="grid grid-cols-5 gap-1.5 sm:gap-2.5 text-center" id="presensiStatsGrid">
+                <div class="p-2 sm:p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                  <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block truncate">Total</span>
+                  <span class="text-xs sm:text-base font-black text-slate-900 dark:text-white" id="presensiStatTotal">0</span>
+                </div>
+                <div class="p-2 sm:p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 shadow-2xs">
+                  <span class="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase block truncate">Hadir (H)</span>
+                  <span class="text-xs sm:text-base font-black text-emerald-700 dark:text-emerald-300" id="presensiStatHadir">0</span>
+                </div>
+                <div class="p-2 sm:p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 shadow-2xs">
+                  <span class="text-[9px] sm:text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase block truncate">Sakit (S)</span>
+                  <span class="text-xs sm:text-base font-black text-amber-700 dark:text-amber-300" id="presensiStatSakit">0</span>
+                </div>
+                <div class="p-2 sm:p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 shadow-2xs">
+                  <span class="text-[9px] sm:text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase block truncate">Izin (I)</span>
+                  <span class="text-xs sm:text-base font-black text-blue-700 dark:text-blue-300" id="presensiStatIzin">0</span>
+                </div>
+                <div class="p-2 sm:p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 shadow-2xs">
+                  <span class="text-[9px] sm:text-[10px] text-rose-600 dark:text-rose-400 font-bold uppercase block truncate">Alpa (A)</span>
+                  <span class="text-xs sm:text-base font-black text-rose-700 dark:text-rose-300" id="presensiStatAlpa">0</span>
+                </div>
+              </div>
+
+              <!-- List Absensi Siswa Mobile (Touch-Friendly Thumb Cards) -->
+              <div id="presensiMobileList" class="block sm:hidden space-y-2">
+                <!-- Di-render oleh JavaScript khusus tampilan layar HP -->
+              </div>
+
+              <!-- Tabel Absensi Siswa Interaktif Desktop -->
+              <div class="hidden sm:block mobile-ref-card overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold">
+                        <th class="py-2.5 px-3 w-10 text-center">No</th>
+                        <th class="py-2.5 px-3">Nama Santri / Siswa</th>
+                        <th class="py-2.5 px-3 text-center w-12">L/P</th>
+                        <th class="py-2.5 px-3 text-center w-48">Status Kehadiran</th>
+                        <th class="py-2.5 px-3">Catatan / Keterangan</th>
+                      </tr>
+                    </thead>
+                    <tbody id="presensiTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
+                      <!-- Di-render oleh JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 4: PENGINGAT & JADWAL MENGAJAR (PERSIS SCREENSHOT 5)  -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_jadwal" class="hidden space-y-3.5">
+              <!-- Top Curved Banner Mobile -->
+              <div class="mobile-curved-hero p-4 sm:p-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-lg sm:text-xl font-black text-white tracking-tight">
+                    Pengingat &amp; Jadwal Mengajar
+                  </h3>
+                  <p class="text-xs text-white/80 mt-0.5" id="jurnalJadwalTodaySubtitle">
+                    Hari ini tanggal: Memeriksa tanggal...
+                  </p>
+                </div>
+                <button 
+                  type="button" 
+                  onclick="openAddJadwalModal()" 
+                  class="px-4 py-2 rounded-full bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  <span>Tambah Sesi</span>
+                </button>
+              </div>
+
+              <!-- Search Bar Acara -->
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input 
+                  type="text" 
+                  id="jurnalAcaraSearchInput" 
+                  oninput="filterJurnalReminders()" 
+                  placeholder="Cari Acara / Jam Mengajar..." 
+                  class="w-full pl-9 pr-3 py-2.5 rounded-2xl text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-rose-500 shadow-2xs"
+                />
+              </div>
+
+              <!-- List Pengingat (Persis Screenshot 5) -->
+              <div class="space-y-2.5" id="jurnalRemindersList">
+                <!-- Di-render dinamis oleh JavaScript -->
+              </div>
+
+              <!-- Grid Jadwal Mingguan Desktop (Senin s.d. Sabtu) -->
+              <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Jadwal Mingguan Lengkap
+                  </h4>
+                  <button type="button" onclick="resetJadwalToDefault()" class="text-xs text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer font-semibold">
+                    Reset Jadwal Default
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5" id="jurnalTimetableGrid">
+                  <!-- Di-render dinamis oleh JavaScript -->
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 5: PENILAIAN & NILAI TAMBAHAN STS / SAS               -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_penilaian" class="hidden space-y-4">
+              <!-- Banner Edukasi & Pengaturan Rumus Tambahan STS/SAS -->
+              <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-transparent border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black flex-shrink-0 shadow-sm">
+                    <i data-lucide="calculator" class="w-4.5 h-4.5"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-extrabold text-slate-900 dark:text-white">
+                      Kalkulator Poin Tambahan STS &amp; SAS
+                    </h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                      Akumulasi nilai harian (tugas, kuis, praktik, setoran hafalan) dan poin keaktifan otomatis mendongkrak nilai ujian tengah/akhir semester.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 self-stretch md:self-auto justify-end">
+                  <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">Bobot Tambahan:</span>
+                  <select 
+                    id="penilaianBonusWeight" 
+                    onchange="recalculateAllBonusScores()" 
+                    class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none cursor-pointer"
+                  >
+                    <option value="15">+15% dari Rata-rata Harian</option>
+                    <option value="20" selected>+20% dari Rata-rata Harian (Rekomendasi)</option>
+                    <option value="30">+30% dari Rata-rata Harian</option>
+                    <option value="pure">+ Poin Keaktifan Penuh</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Tabel Penilaian & Kalkulasi STS/SAS -->
+              <div class="mobile-ref-card overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold">
+                        <th class="py-2.5 px-3 w-10 text-center">No</th>
+                        <th class="py-2.5 px-3 min-w-[150px]">Nama Siswa</th>
+                        <th class="py-2.5 px-2 text-center w-24">Rata2 Harian</th>
+                        <th class="py-2.5 px-2 text-center w-24">Bonus Keaktifan</th>
+                        <th class="py-2.5 px-2 text-center w-28 bg-amber-500/10 text-amber-700 dark:text-amber-300">Poin Tambahan</th>
+                        <th class="py-2.5 px-2 text-center w-24">Nilai STS Murni</th>
+                        <th class="py-2.5 px-2 text-center w-24 font-extrabold text-blue-600 dark:text-blue-400">STS + Bonus</th>
+                        <th class="py-2.5 px-2 text-center w-24">Nilai SAS Murni</th>
+                        <th class="py-2.5 px-2 text-center w-24 font-extrabold text-emerald-600 dark:text-emerald-400">SAS + Bonus</th>
+                        <th class="py-2.5 px-3 text-center w-28">Nilai Akhir Rapor</th>
+                      </tr>
+                    </thead>
+                    <tbody id="penilaianTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
+                      <!-- Di-render oleh JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 6: REKAPITULASI SEMESTER & EKSPOR                    -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_rekap" class="hidden space-y-4">
+              <!-- Ringkasan Agregat Kelas -->
+              <div class="mobile-ref-card p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <div>
+                  <h4 class="text-sm font-extrabold text-slate-900 dark:text-white" id="rekapClassTitle">
+                    Rekapitulasi Semester — Kelas 7A (Prakarya)
+                  </h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Laporan komprehensif kehadiran, jurnal materi, dan hasil nilai akhir siswa siap cetak / arsip.
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    onclick="window.print()" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <span>Cetak PDF</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="exportJurnalToExcel()" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Unduh Excel .xlsx</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tabel Rekap Agregat Semester -->
+              <div class="mobile-ref-card overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold">
+                        <th class="py-2.5 px-3 w-10 text-center">No</th>
+                        <th class="py-2.5 px-3">Nama Siswa</th>
+                        <th class="py-2.5 px-2 text-center w-12">H</th>
+                        <th class="py-2.5 px-2 text-center w-12">S</th>
+                        <th class="py-2.5 px-2 text-center w-12">I</th>
+                        <th class="py-2.5 px-2 text-center w-12">A</th>
+                        <th class="py-2.5 px-2 text-center w-16">% Hadir</th>
+                        <th class="py-2.5 px-2 text-center w-20">Rata Formatif</th>
+                        <th class="py-2.5 px-2 text-center w-20">Nilai Akhir STS</th>
+                        <th class="py-2.5 px-2 text-center w-20">Nilai Akhir SAS</th>
+                        <th class="py-2.5 px-2 text-center w-20 font-black text-indigo-600 dark:text-indigo-400">Rapor Akhir</th>
+                      </tr>
+                    </thead>
+                    <tbody id="rekapTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
+                      <!-- Di-render oleh JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Action Button (FAB) Tambah Sesi (Persis Screenshot 1 & 5) -->
+            <button 
+              type="button" 
+              onclick="openAddJurnalSessionModal()" 
+              class="mobile-ref-fab"
+              title="Tambah Jurnal Baru"
+            >
+              <i data-lucide="plus" class="w-6 h-6 text-white"></i>
+            </button>
+
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL DETAIL JURNAL (PERSIS SCREENSHOT 4 REFERENSI)           -->
+          <!-- ============================================================== -->
+          <div id="modalJurnalDetail" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs hidden animate-in fade-in duration-200">
+            <div class="bg-white dark:bg-[#111622] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[94vh]">
+              
+              <!-- Curved Red Header with Circular Back Button (Screenshot 4) -->
+              <div class="mobile-curved-hero p-5 text-white flex flex-col items-center justify-center relative">
+                <!-- Back Button (White Circle) -->
+                <button 
+                  type="button" 
+                  onclick="closeJurnalDetailModal()" 
+                  class="absolute left-4 top-4 w-9 h-9 rounded-full bg-white text-rose-600 flex items-center justify-center shadow-md hover:bg-slate-100 active:scale-90 transition-transform cursor-pointer"
+                  title="Kembali"
+                >
+                  <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                </button>
+
+                <h4 class="text-sm font-black tracking-wide text-white uppercase mt-0.5">
+                  Detail Jurnal
+                </h4>
+
+                <!-- 3D / Vector Illustration Notebook -->
+                <div class="w-16 h-16 my-2 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner border border-white/30 text-white">
+                  <i data-lucide="book-open-check" class="w-9 h-9 text-white drop-shadow"></i>
+                </div>
+              </div>
+
+              <!-- Content Cards (Screenshot 4) -->
+              <div class="p-4 space-y-3 overflow-y-auto flex-1 bg-slate-50/60 dark:bg-slate-950/50">
+                <!-- Session Date & Class Info -->
+                <div class="flex items-center justify-between pb-1 text-xs">
+                  <div>
+                    <span class="text-rose-600 dark:text-rose-400 font-extrabold block" id="detailModalDate">Senin, 17 Sep 2026</span>
+                    <h4 class="font-black text-slate-900 dark:text-white text-sm" id="detailModalTitle">Jurnal Pertemuan 1</h4>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-slate-500 font-bold block" id="detailModalClass">7A MTs</span>
+                    <span class="text-slate-700 dark:text-slate-300 font-extrabold text-xs" id="detailModalSubject">Prakarya</span>
+                  </div>
+                </div>
+
+                <!-- Card 1: Deskripsi Jurnal -->
+                <div class="mobile-ref-card p-3.5 space-y-1">
+                  <h5 class="text-xs font-black text-slate-800 dark:text-white">Deskripsi Jurnal</h5>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-semibold" id="detailModalMateri">
+                    Memuat materi pokok pembelajaran...
+                  </p>
+                  <p class="text-[10px] text-slate-400 mt-1 leading-snug" id="detailModalIndikator">
+                    Indikator capaian siswa...
+                  </p>
+                </div>
+
+                <!-- Card 2: Siswa Izin -->
+                <div class="mobile-ref-card p-3.5 space-y-1">
+                  <div class="flex items-center justify-between">
+                    <h5 class="text-xs font-black text-slate-800 dark:text-white">Siswa Izin</h5>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700" id="detailModalIzinCount">0 Siswa</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-300" id="detailModalIzinList">
+                    Tidak ada siswa izin.
+                  </p>
+                </div>
+
+                <!-- Card 3: Siswa Sakit -->
+                <div class="mobile-ref-card p-3.5 space-y-1">
+                  <div class="flex items-center justify-between">
+                    <h5 class="text-xs font-black text-slate-800 dark:text-white">Siswa Sakit</h5>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700" id="detailModalSakitCount">0 Siswa</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-300" id="detailModalSakitList">
+                    Tidak ada siswa sakit.
+                  </p>
+                </div>
+
+                <!-- Card 4: Siswa Alpha -->
+                <div class="mobile-ref-card p-3.5 space-y-1">
+                  <div class="flex items-center justify-between">
+                    <h5 class="text-xs font-black text-slate-800 dark:text-white">Siswa Alpha</h5>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700" id="detailModalAlpaCount">0 Siswa</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-300" id="detailModalAlpaList">
+                    Tidak ada siswa tanpa keterangan.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Footer Actions (Screenshot 4) -->
+              <div class="p-4 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2.5">
+                <button 
+                  type="button" 
+                  onclick="resetJurnalDetailSession()" 
+                  class="w-11 h-11 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center hover:bg-rose-100 active:scale-95 transition-all cursor-pointer"
+                  title="Hapus / Reset Sesi Jurnal"
+                >
+                  <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="openJurnalAiQuizModal(currentDetailPertemuan)" 
+                  class="flex-1 py-3 px-3 rounded-2xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md shadow-orange-500/25 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  title="Mulai Tanya Santri & Evaluasi Pemahaman Materi"
+                >
+                  <i data-lucide="sparkles" class="w-4 h-4 text-amber-200"></i>
+                  <span>Tanya Santri (AI) 🎯</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="editJurnalFromDetailModal()" 
+                  class="py-3 px-4 rounded-2xl font-black text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                >
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                  <span>Edit Jurnal</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL: KELOLA NAMA SISWA / IMPORT DARI EXCEL ATAU TEKS         -->
+          <!-- ============================================================== -->
+          <div id="modalManageStudents" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs hidden animate-in fade-in duration-200">
+            <div class="bg-white dark:bg-[#111622] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[92vh]">
+              <div class="px-5 py-3.5 bg-rose-600 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="users" class="w-4.5 h-4.5 text-white"></i>
+                  <h4 class="text-sm font-black" id="manageStudentsModalTitle">Kelola Daftar Siswa</h4>
+                </div>
+                <button type="button" onclick="closeManageStudentsModal()" class="text-white/80 hover:text-white cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="p-4 space-y-3 overflow-y-auto flex-1">
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Tempelkan daftar nama siswa satu baris per nama untuk kelas ini. Sistem akan otomatis memperbarui data presensi dan penilaian.
+                </p>
+                <textarea 
+                  id="manageStudentsTextarea" 
+                  rows="8" 
+                  placeholder="Ahmad Fauzi&#10;Budi Santoso&#10;Citra Lestari..." 
+                  class="w-full p-3.5 rounded-2xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-rose-500"
+                ></textarea>
+                <div class="flex items-center justify-between text-[11px] text-slate-400 gap-2 flex-wrap">
+                  <span id="manageStudentsCountLabel">0 Siswa</span>
+                  <div class="flex items-center gap-2">
+                    <button 
+                      type="button" 
+                      onclick="openJurnalAiScannerModal('roster')" 
+                      class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                      title="Pindai daftar nama santri dari foto dokumen / kertas"
+                    >
+                      <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                      <span>Ekstrak dari Foto (AI)</span>
+                    </button>
+                    <button type="button" onclick="loadDefaultStudentsForCurrentClass()" class="text-rose-600 dark:text-rose-400 hover:underline cursor-pointer font-bold">
+                      Muat Default
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeManageStudentsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer">
+                  Batal
+                </button>
+                <button type="button" onclick="saveImportedStudentsList()" class="px-5 py-2 rounded-xl text-xs font-black bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer">
+                  Simpan Daftar Siswa
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL: FORMAT LAPORAN WHATSAPP                                 -->
+          <!-- ============================================================== -->
+          <div id="modalJurnalWa" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs hidden animate-in fade-in duration-200">
+            <div class="bg-white dark:bg-[#111622] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[92vh]">
+              <div class="px-5 py-3.5 bg-emerald-700 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="message-square" class="w-4.5 h-4.5"></i>
+                  <h4 class="text-sm font-black">Salin Laporan Jurnal ke WhatsApp</h4>
+                </div>
+                <button type="button" onclick="closeJurnalWaModal()" class="text-emerald-200 hover:text-white cursor-pointer">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <div class="p-4 space-y-3 overflow-y-auto flex-1">
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    id="btnWaFormat_sesi" 
+                    onclick="generateWaFormat('sesi')" 
+                    class="flex-1 py-2 px-2 rounded-xl text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 cursor-pointer"
+                  >
+                    Laporan Pertemuan Hari Ini
+                  </button>
+                  <button 
+                    type="button" 
+                    id="btnWaFormat_rekap" 
+                    onclick="generateWaFormat('rekap')" 
+                    class="flex-1 py-2 px-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 cursor-pointer"
+                  >
+                    Rekap Semester &amp; Nilai
+                  </button>
+                </div>
+                <textarea 
+                  id="jurnalWaTextarea" 
+                  rows="10" 
+                  readonly 
+                  class="w-full p-3.5 rounded-2xl text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white outline-none"
+                ></textarea>
+              </div>
+              <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <span class="text-xs text-emerald-600 font-semibold hidden" id="waCopySuccessNotice">
+                  ✓ Berhasil disalin ke clipboard!
+                </span>
+                <div class="flex items-center gap-2 ml-auto">
+                  <button type="button" onclick="closeJurnalWaModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer">
+                    Tutup
+                  </button>
+                  <button type="button" onclick="copyJurnalWaText()" class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Salin Teks</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL: AI VISION PHOTO SCANNER (INPUT NAMA & ABSEN DARI FOTO)  -->
+          <!-- ============================================================== -->
+          <div id="modalJurnalAiScanner" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs hidden animate-in fade-in duration-200">
+            <div class="bg-white dark:bg-[#111622] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[94vh]">
+              
+              <!-- Modal Header -->
+              <div class="px-5 py-3.5 bg-gradient-to-r from-rose-600 via-pink-600 to-indigo-700 text-white flex items-center justify-between shadow-md">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shadow-inner">
+                    <i data-lucide="sparkles" class="w-4.5 h-4.5 text-amber-300"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-black tracking-tight flex items-center gap-1.5">
+                      <span>AI Vision — Input dari Foto</span>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/30 text-amber-200 border border-amber-300/40 font-bold uppercase tracking-wider">Multi-Modal</span>
+                    </h4>
+                    <p class="text-[11px] text-white/80 leading-tight">
+                      Pindai foto lembar absensi kertas, daftar nama santri, atau catatan kehadiran
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeJurnalAiScannerModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white cursor-pointer transition-all">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Modal Body (Scrollable) -->
+              <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 text-slate-800 dark:text-slate-100">
+                
+                <!-- Target Mode Selector -->
+                <div class="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
+                    Target Input AI:
+                  </span>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button 
+                      type="button" 
+                      id="aiTargetPill_presensi" 
+                      onclick="setJurnalAiTargetMode('presensi')" 
+                      class="py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-rose-600 text-white shadow-xs"
+                    >
+                      <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                      <span>Presensi Sesi Hari Ini</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      id="aiTargetPill_roster" 
+                      onclick="setJurnalAiTargetMode('roster')" 
+                      class="py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    >
+                      <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                      <span>Daftar Siswa Kelas</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Hidden File Inputs -->
+                <input type="file" id="jurnalAiPhotoInput" accept="image/*" capture="environment" onchange="handleJurnalAiPhotoSelect(event)" class="hidden">
+                <input type="file" id="jurnalAiGalleryInput" accept="image/*" onchange="handleJurnalAiPhotoSelect(event)" class="hidden">
+
+                <!-- Upload / Camera Dropzone -->
+                <div id="jurnalAiDropzoneContainer" class="space-y-2.5">
+                  <div 
+                    id="jurnalAiDropzone"
+                    onclick="document.getElementById('jurnalAiGalleryInput').click()" 
+                    class="border-2 border-dashed border-rose-300 dark:border-rose-900/60 rounded-2xl p-5 text-center bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 transition-all cursor-pointer group"
+                  >
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-indigo-600 text-white flex items-center justify-center mx-auto mb-2.5 shadow-md shadow-rose-500/20 group-hover:scale-105 transition-transform">
+                      <i data-lucide="camera" class="w-6 h-6"></i>
+                    </div>
+                    <h5 class="text-xs font-extrabold text-slate-900 dark:text-white">
+                      Ambil Foto atau Unggah Gambar Absensi
+                    </h5>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                      Format JPG, PNG, WEBP. Mendukung foto dokumen kertas, daftar nama tabel, hingga tulisan tangan.
+                    </p>
+                  </div>
+
+                  <!-- Quick Action Buttons -->
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button 
+                      type="button" 
+                      onclick="document.getElementById('jurnalAiPhotoInput').click()" 
+                      class="py-2.5 px-3 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                    >
+                      <i data-lucide="camera" class="w-4 h-4"></i>
+                      <span>Buka Kamera HP</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      onclick="document.getElementById('jurnalAiGalleryInput').click()" 
+                      class="py-2.5 px-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      <i data-lucide="image" class="w-4 h-4"></i>
+                      <span>Pilih dari Galeri</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      onclick="loadDemoAttendancePhoto()" 
+                      class="py-2.5 px-3 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                    >
+                      <i data-lucide="sparkles" class="w-4 h-4"></i>
+                      <span>Contoh Foto Demo</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Preview Container (Revealed when photo loaded) -->
+                <div id="jurnalAiPreviewContainer" class="hidden space-y-3">
+                  <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center max-h-60">
+                    <!-- Scanner Laser Overlay -->
+                    <div id="jurnalAiLaserBar" class="ai-scanner-laser hidden"></div>
+                    <img id="jurnalAiPreviewImg" src="" alt="Pratinjau Foto Absensi" class="w-full max-h-60 object-contain rounded-2xl">
+                    <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-900/85 backdrop-blur-xs text-white text-[11px]">
+                      <span id="jurnalAiPhotoInfo" class="truncate max-w-[220px]">Foto siap dipindai</span>
+                      <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="document.getElementById('jurnalAiGalleryInput').click()" class="text-rose-400 hover:text-white font-bold cursor-pointer">
+                          Ganti
+                        </button>
+                        <span class="text-white/40">•</span>
+                        <button type="button" onclick="resetJurnalAiPhoto()" class="text-slate-400 hover:text-white cursor-pointer">
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Engine Selector & API Key Settings -->
+                  <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i>
+                        <span class="text-xs font-bold text-slate-800 dark:text-white">Metode Ekstraksi:</span>
+                      </div>
+                      <select 
+                        id="jurnalAiEngineSelect" 
+                        onchange="handleAiEngineChange()" 
+                        class="text-xs font-semibold py-1 px-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
+                      >
+                        <option value="gemini">Google Gemini Vision (Direkomendasikan)</option>
+                        <option value="local">OCR Offline / Browser Text Scanner</option>
+                      </select>
+                    </div>
+
+                    <!-- Gemini API Key Box -->
+                    <div id="jurnalGeminiKeyBox" class="space-y-1 pt-1">
+                      <div class="flex items-center gap-1.5">
+                        <input 
+                          type="password" 
+                          id="jurnalGeminiApiKeyInput" 
+                          placeholder="Masukkan Google Gemini API Key..." 
+                          class="flex-1 px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                        />
+                        <button 
+                          type="button" 
+                          onclick="saveGeminiApiKeyFromInput()" 
+                          class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+                        >
+                          Simpan
+                        </button>
+                      </div>
+                      <p class="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>Tersimpan aman di browser Anda</span>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">
+                          Dapatkan Key Gratis di Google AI Studio ↗
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Scan Action Button -->
+                  <button 
+                    type="button" 
+                    id="btnStartAiScan" 
+                    onclick="runJurnalAiVisionExtraction()" 
+                    class="w-full py-3 px-4 rounded-2xl font-black text-xs bg-gradient-to-r from-rose-600 via-pink-600 to-indigo-600 hover:from-rose-700 hover:to-indigo-700 text-white shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+                    <span id="btnStartAiScanLabel">Mulai Pindai AI (Ekstrak Nama &amp; Kehadiran)</span>
+                  </button>
+                </div>
+
+                <!-- Loading State / Radar Scanning Effect -->
+                <div id="jurnalAiLoadingState" class="hidden py-8 text-center space-y-3">
+                  <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full bg-rose-500/20 animate-ping"></div>
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-rose-600 to-indigo-600 text-white flex items-center justify-center shadow-lg ai-radar-glow animate-spin">
+                      <i data-lucide="sparkles" class="w-6 h-6 text-amber-300"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 class="text-xs font-black text-slate-900 dark:text-white" id="jurnalAiLoadingTitle">
+                      AI Vision Sedang Menganalisis Foto...
+                    </h5>
+                    <p class="text-[11px] text-slate-400 mt-0.5" id="jurnalAiLoadingStep">
+                      Membaca baris nama, tabel, dan tanda centang kehadiran...
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="jurnalAiResultsContainer" class="hidden space-y-3">
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <h5 class="text-xs font-extrabold text-slate-900 dark:text-white">
+                        Hasil Deteksi AI: <span id="jurnalAiResultCount" class="text-rose-600 dark:text-rose-400">0 Siswa</span>
+                      </h5>
+                    </div>
+                    <button 
+                      type="button" 
+                      onclick="addManualRowToAiResults()" 
+                      class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                      <span>Tambah Baris</span>
+                    </button>
+                  </div>
+
+                  <!-- Quick Stats Bar of Detected Items -->
+                  <div class="grid grid-cols-4 gap-1.5 text-center text-[10px]">
+                    <div class="p-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800/60">
+                      Hadir: <span id="aiCountH">0</span>
+                    </div>
+                    <div class="p-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800/60">
+                      Sakit: <span id="aiCountS">0</span>
+                    </div>
+                    <div class="p-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold border border-blue-200 dark:border-blue-800/60">
+                      Izin: <span id="aiCountI">0</span>
+                    </div>
+                    <div class="p-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold border border-rose-200 dark:border-rose-800/60">
+                      Alpa: <span id="aiCountA">0</span>
+                    </div>
+                  </div>
+
+                  <!-- Editable Items Table -->
+                  <div class="max-h-56 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/50" id="jurnalAiResultsList">
+                    <!-- Di-render oleh JavaScript -->
+                  </div>
+
+                  <p class="text-[10px] text-slate-400 italic">
+                    💡 Periksa nama dan status di atas jika ada yang perlu disesuaikan sebelum diterapkan.
+                  </p>
+                </div>
+
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                <button 
+                  type="button" 
+                  onclick="closeJurnalAiScannerModal()" 
+                  class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Batal
+                </button>
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    id="btnCopyAiNamesText" 
+                    onclick="copyAiDetectedNamesText()" 
+                    class="hidden px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-200 cursor-pointer transition-all"
+                  >
+                    Salin Teks
+                  </button>
+                  <button 
+                    type="button" 
+                    id="btnApplyAiResults" 
+                    onclick="applyJurnalAiResults()" 
+                    class="hidden px-5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-600/25 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span id="btnApplyAiResultsLabel">Terapkan Hasil ke Presensi</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL: AI EVALUASI & KUIS TANYA SANTRI MENYENANGKAN            -->
+          <!-- ============================================================== -->
+          <div id="modalJurnalAiQuiz" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs hidden animate-in fade-in duration-200">
+            <div class="bg-white dark:bg-[#111622] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full overflow-hidden flex flex-col max-h-[94vh]">
+              
+              <!-- Modal Header -->
+              <div class="px-5 py-3.5 bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-between shadow-md">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shadow-inner">
+                    <span class="text-lg">🎯</span>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-black tracking-tight flex items-center gap-1.5">
+                      <span>AI Tanya Santri — Evaluasi Seru</span>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/25 text-white font-bold uppercase tracking-wider">Interaktif</span>
+                    </h4>
+                    <p class="text-[11px] text-white/90 leading-tight" id="quizModalSubtitle">
+                      Pertemuan 1: Mukadimah Safinah • Kelas 1 Ula A
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeJurnalAiQuizModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white cursor-pointer transition-all">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Fun Mode Navigation Tabs -->
+              <div class="px-4 pt-2.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto">
+                <button 
+                  type="button" 
+                  id="tabBtnQuiz_wheel" 
+                  onclick="switchAiQuizTab('wheel')" 
+                  class="pb-2.5 px-3 text-xs font-black border-b-2 border-orange-500 text-orange-600 dark:text-orange-400 flex items-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <span>🎲 Roda Santri</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="tabBtnQuiz_blitz" 
+                  onclick="switchAiQuizTab('blitz')" 
+                  class="pb-2.5 px-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <span>⚡ Kuis Kilat (Tebak Cepat)</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="tabBtnQuiz_riddle" 
+                  onclick="switchAiQuizTab('riddle')" 
+                  class="pb-2.5 px-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <span>💡 Teka-Teki Santri</span>
+                </button>
+              </div>
+
+              <!-- Modal Body (Scrollable) -->
+              <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 text-slate-800 dark:text-slate-100">
+                
+                <!-- ========================================== -->
+                <!-- MODE 1: RODA SANTRI / LUCKY SPINNER        -->
+                <!-- ========================================== -->
+                <div id="quizView_wheel" class="space-y-4">
+                  <!-- Rolling Box -->
+                  <div class="p-5 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-rose-500/10 border-2 border-amber-300 dark:border-amber-700/50 text-center relative overflow-hidden">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 text-white flex items-center justify-center mx-auto mb-2 text-xl shadow-md">
+                      🎲
+                    </div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                      Siapa yang akan menjawab?
+                    </span>
+                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="quizSelectedSantriName">
+                      [Klik Putar Roda Santri]
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="quizSelectedSantriClass">
+                      Siap menguji kefahaman santri secara menyenangkan
+                    </p>
+
+                    <!-- Spin Button -->
+                    <div class="mt-4 flex items-center justify-center gap-2">
+                      <button 
+                        type="button" 
+                        id="btnSpinSantri" 
+                        onclick="spinRandomSantri()" 
+                        class="py-2.5 px-6 rounded-2xl font-black text-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/25 flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+                      >
+                        <i data-lucide="rotate-cw" class="w-4 h-4" id="spinIcon"></i>
+                        <span>Putar Roda Santri 🎲</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Question Card for Selected Student -->
+                  <div id="quizQuestionBox" class="hidden mobile-ref-card p-4 sm:p-5 space-y-3.5 border-l-4 border-l-orange-500">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300">
+                        Pertanyaan Tantangan
+                      </span>
+                      <button type="button" onclick="nextRandomQuestion()" class="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                        <span>Ganti Pertanyaan</span>
+                      </button>
+                    </div>
+                    <h4 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white leading-snug" id="quizCurrentQuestionText">
+                      Memuat pertanyaan...
+                    </h4>
+
+                    <!-- Clue / Answer Hint for Teacher -->
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 text-xs">
+                      <span class="font-bold text-slate-500 dark:text-slate-400 block mb-0.5">💡 Kunci Jawaban &amp; Panduan Guru:</span>
+                      <p class="text-slate-700 dark:text-slate-200 font-medium" id="quizCurrentAnswerHint">
+                        Kunci jawaban...
+                      </p>
+                    </div>
+
+                    <!-- Teacher Scoring & Point Reward -->
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                      <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Beri Nilai &amp; Apresiasi Santri:</span>
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button 
+                          type="button" 
+                          onclick="rewardSantriPoints(10)" 
+                          class="py-2 px-3 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                        >
+                          <span>⭐ Mantap! (+10 Poin)</span>
+                        </button>
+                        <button 
+                          type="button" 
+                          onclick="rewardSantriPoints(5)" 
+                          class="py-2 px-3 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                        >
+                          <span>👍 Bagus (+5 Poin)</span>
+                        </button>
+                        <button 
+                          type="button" 
+                          onclick="rewardSantriPoints(0)" 
+                          class="py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                        >
+                          <span>💪 Semangat Belajar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- MODE 2: KUIS KILAT TEBAK CEPAT             -->
+                <!-- ========================================== -->
+                <div id="quizView_blitz" class="hidden space-y-4">
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <div>
+                      <h5 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                        ⚡ Kuis Kilat Ceria
+                      </h5>
+                      <p class="text-[11px] text-slate-400">Pilih opsi jawaban untuk memeriksa kefahaman materi</p>
+                    </div>
+                    <span class="text-xs font-black px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300" id="quizScoreBadge">
+                      Skor: 0 Benar
+                    </span>
+                  </div>
+
+                  <!-- Blitz Question Container -->
+                  <div class="space-y-4" id="quizBlitzQuestionsList">
+                    <!-- Di-render oleh JavaScript -->
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- MODE 3: TEKA-TEKI & STUDI KASUS SANTRI     -->
+                <!-- ========================================== -->
+                <div id="quizView_riddle" class="hidden space-y-3.5">
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <div>
+                      <h5 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                        💡 Teka-Teki Santri &amp; Kasus Fiqih
+                      </h5>
+                      <p class="text-[11px] text-slate-400">Diskusi seru untuk memantik nalar kritis santri</p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-3" id="quizRiddlesList">
+                    <!-- Di-render oleh JavaScript -->
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                <button 
+                  type="button" 
+                  onclick="generateGeminiAiQuestions()" 
+                  class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-100 flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                  title="Gunakan Google Gemini untuk menghasilkan pertanyaan seru baru secara dinamis"
+                >
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-500"></i>
+                  <span>Buat Soal AI Baru ✨</span>
+                </button>
+
+                <button 
+                  type="button" 
+                  onclick="closeJurnalAiQuizModal()" 
+                  class="px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 shadow-xs cursor-pointer active:scale-95 transition-all"
+                >
+                  Selesai Kuis
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL CLOUD SYNC DATABASE SUPABASE JURNAL GURU                 -->
+          <!-- ============================================================== -->
+          <div id="modalJurnalCloudSync" class="hidden fixed inset-0 z-[99999] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" style="z-index: 99999 !important;">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <!-- Modal Header -->
+              <div class="px-5 py-4 bg-gradient-to-r from-cyan-600 via-sky-600 to-indigo-600 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shadow-inner flex-shrink-0">
+                    <i data-lucide="cloud" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-sm sm:text-base font-black tracking-tight leading-tight">Sinkronisasi Cloud Supabase</h4>
+                    <p class="text-[11px] text-cyan-100 font-medium">Backup &amp; Pulihkan Data Siswa, Kehadiran &amp; Nilai</p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeModalJurnalCloudSync()" class="p-1.5 rounded-xl hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <!-- Modal Body -->
+              <div class="p-5 space-y-4">
+                <!-- Connection Status Card -->
+                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Status Koneksi Supabase</span>
+                    <div id="jurnalCloudStatusIndicator" class="flex items-center gap-2 mt-0.5 font-black text-xs sm:text-sm text-slate-800 dark:text-white truncate">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Terhubung ke Supabase PostgreSQL</span>
+                    </div>
+                  </div>
+                  <button type="button" onclick="openModalSupabaseConfig()" class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-600 flex items-center gap-1 cursor-pointer transition-all shadow-2xs">
+                    <i data-lucide="settings" class="w-3.5 h-3.5 text-cyan-500"></i>
+                    <span>Kredensial</span>
+                  </button>
+                </div>
+
+                <!-- Sync Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- Push to Cloud -->
+                  <div class="p-4 rounded-2xl bg-gradient-to-b from-cyan-50 to-sky-50/50 dark:from-cyan-950/40 dark:to-slate-800/60 border border-cyan-200 dark:border-cyan-800/50 space-y-2.5 flex flex-col justify-between">
+                    <div>
+                      <div class="w-8 h-8 rounded-xl bg-cyan-600 text-white flex items-center justify-center shadow-sm">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-white"></i>
+                      </div>
+                      <h5 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-2">Simpan ke Cloud</h5>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">Unggah 6 kelas, siswa, presensi, catatan, &amp; nilai dari perangkat ini ke Supabase.</p>
+                    </div>
+                    <button type="button" onclick="syncJurnalToSupabase(true)" class="w-full py-2 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 active:scale-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                      <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+                      <span>Unggah Sekarang</span>
+                    </button>
+                  </div>
+
+                  <!-- Pull from Cloud -->
+                  <div class="p-4 rounded-2xl bg-gradient-to-b from-indigo-50 to-purple-50/50 dark:from-indigo-950/40 dark:to-slate-800/60 border border-indigo-200 dark:border-indigo-800/50 space-y-2.5 flex flex-col justify-between">
+                    <div>
+                      <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+                        <i data-lucide="download-cloud" class="w-4 h-4 text-white"></i>
+                      </div>
+                      <h5 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-2">Tarik dari Cloud</h5>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">Perbarui data perangkat ini dengan data terbaru yang tersimpan di Supabase.</p>
+                    </div>
+                    <button type="button" onclick="pullJurnalFromSupabase(true)" class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                      <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+                      <span>Tarik Pembaruan</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed flex items-start gap-2">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5"></i>
+                  <span><strong>Aman &amp; Terintegrasi:</strong> Data disimpan menggunakan tabel PostgreSQL Supabase institusi (`jurnal_classes`). Aplikasi tetap dapat berjalan secara penuh offline saat tidak ada jaringan.</span>
+                </div>
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400 font-mono" id="jurnalLastCloudSyncTime">Belum pernah disinkronkan</span>
+                <button type="button" onclick="closeModalJurnalCloudSync()" class="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-all">
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+
+
