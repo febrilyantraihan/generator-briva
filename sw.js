@@ -131,7 +131,7 @@ self.addEventListener('push', event => {
     try {
       const data = event.data.json();
       event.waitUntil(
-        self.registration.showNotification(data.title || "Partner Fatih - Generator BRIVA", {
+        self.registration.showNotification(data.title || "Partner Fatih", {
           body: data.body || "Aplikasi siap digunakan offline.",
           icon: './icon-192.png',
           badge: './favicon.png',
@@ -141,7 +141,7 @@ self.addEventListener('push', event => {
       );
     } catch (e) {
       event.waitUntil(
-        self.registration.showNotification("Partner Fatih - Generator BRIVA", {
+        self.registration.showNotification("Partner Fatih", {
           body: event.data.text(),
           icon: './icon-192.png',
           badge: './favicon.png'
