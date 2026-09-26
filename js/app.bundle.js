@@ -15093,7 +15093,24 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       }
     });
 
+    function checkStandalonePwa() {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        const installBtn = document.getElementById('pwaInstallBtn');
+        if (installBtn) installBtn.classList.add('hidden');
+      }
+    }
+    checkStandalonePwa();
+    window.addEventListener('DOMContentLoaded', checkStandalonePwa);
+
     function triggerPwaInstall() {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        if (typeof showToast === 'function') {
+          showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+        } else {
+          alert('Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+        }
+        return;
+      }
       if (deferredPwaPrompt) {
         deferredPwaPrompt.prompt();
         deferredPwaPrompt.userChoice.then((choiceResult) => {
@@ -15106,21 +15123,27 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         });
       } else {
         if (typeof showToast === 'function') {
-          showToast('Pasang Aplikasi', 'Tekan menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
+          showToast("Pasang Aplikasi", 'Tekan menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
         } else {
           alert('Untuk memasang di HP atau desktop, buka menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
         }
       }
     }
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then(reg => {
-          console.log('PWA ServiceWorker active:', reg.scope);
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      const regSw = () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
+          console.log('[PWA] ServiceWorker active:', reg.scope);
         }).catch(err => {
-          console.warn('PWA ServiceWorker note (safe):', err);
+          console.warn('[PWA] ServiceWorker note (safe):', err);
         });
-      });
+      };
+      if (document.readyState === 'complete') {
+        regSw();
+      } else {
+        window.addEventListener('load', regSw);
+      }
+    }
     }
 
 
@@ -26163,12 +26186,17 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
           }
         }
         // Fallback jika serviceWorker belum siap
+        // Fallback jika serviceWorker belum siap (hanya desktop)
         if (window.Notification && Notification.permission === 'granted') {
-          return new Notification(title, {
-            body: body,
-            icon: './icon-192.png',
-            tag: tag
-          });
+          try {
+            return new Notification(title, {
+              body: body,
+              icon: './icon-192.png',
+              tag: tag
+            });
+          } catch (notifErr) {
+            console.warn('[PWA] Direct Notification constructor blocked (Android standard):', notifErr);
+          }
         }
       } catch (err) {
         console.warn('Gagal kirim notifikasi native:', err);
@@ -26260,6 +26288,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
