@@ -15127,7 +15127,6 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         } else {
           alert('Untuk memasang di HP atau desktop, buka menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
         }
-      }
     }
 
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
@@ -26288,6 +26287,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
