@@ -1,4 +1,49 @@
-﻿    /* ==========================================================================
+﻿/* ==========================================================================
+   DEFENSIVE SHIELD: NATIVE CORE UTILITY FALLBACK (ZERO-FOUC & ANTI-OVERFLOW)
+   ========================================================================== */
+.hidden {
+  display: none !important;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+img[src*="mascot"],
+.brand-mascot-img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+#floatingDockNav {
+  display: none !important;
+}
+@media (min-width: 640px) {
+  #floatingDockNav {
+    display: flex !important;
+  }
+}
+
+#floatingDockNav img,
+#appSidebar img,
+#canvasHeader img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+}
+
+#appSidebar {
+  pointer-events: none;
+}
+#appSidebar.active,
+#appSidebar:not(.-translate-x-full) {
+  pointer-events: auto;
+}
+
+    /* ==========================================================================
        MODERN MOBILE DRAWER STYLES (APP SIDEBAR)
        ========================================================================== */
     #appSidebar {
