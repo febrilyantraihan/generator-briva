@@ -2,7 +2,9 @@
   "name": "Partner Fatih - Generator BRIVA & Tahfidz YTPAI",
   "short_name": "Partner Fatih",
   "description": "Aplikasi Manajemen Tagihan BRIVA, Analisis PPDB, Generator Akun & Studio Tahfidz Tasmi' Yayasan Pondok Pesantren Raudlatul Muta'allimin",
-  "start_url": "./index.html",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0f172a",
@@ -54,7 +56,7 @@
       "name": "Jurnal Mengajar & Presensi",
       "short_name": "Jurnal Guru",
       "description": "Buka Jurnal Mengajar MTs & Diniyah",
-      "url": "./index.html?tab=jurnal",
+      "url": "./?tab=jurnal",
       "icons": [
         {
           "src": "icon-192.png",
@@ -67,7 +69,7 @@
       "name": "Radar Agenda Humas H-7",
       "short_name": "Radar Humas",
       "description": "Pusat Publikasi & Radar Agenda YTPAI",
-      "url": "./index.html?tab=humas",
+      "url": "./?tab=humas",
       "icons": [
         {
           "src": "icon-192.png",
@@ -80,7 +82,7 @@
       "name": "Generator Tagihan BRIVA",
       "short_name": "BRIVA CMS",
       "description": "Generator Tagihan Massal Bank BRI",
-      "url": "./index.html?tab=briva",
+      "url": "./?tab=briva",
       "icons": [
         {
           "src": "icon-192.png",
@@ -93,7 +95,7 @@
       "name": "Tahfidz Tasmi' Santri",
       "short_name": "Tahfidz",
       "description": "Studio Cetak & Database Santri",
-      "url": "./index.html?tab=tahfidz",
+      "url": "./?tab=tahfidz",
       "icons": [
         {
           "src": "icon-192.png",
