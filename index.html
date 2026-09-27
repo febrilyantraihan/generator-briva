@@ -39,6 +39,10 @@
 
   <!-- SheetJS (xlsx) - Local Offline First with CDN Fallback -->
   <script defer src="js/vendor/xlsx.full.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'"></script>
+  <!-- JSZip - Local Offline First with CDN Fallback (For Word DOCX CBT Generation) -->
+  <script defer src="js/vendor/jszip.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'"></script>
+  <!-- PptxGenJS - Local Offline First for Presentation Generation -->
+  <script defer src="js/vendor/pptxgen.bundle.js"></script>
 
   <script>
     // Inisialisasi tema sebelum render pertama untuk mencegah kedipan cahaya (FOUC)
@@ -239,6 +243,19 @@
             Keuangan & Dompet
           </span>
         </button>
+
+        <!-- 11. Generator Soal CBT & Kunci Jawaban (FileText Icon) -->
+        <button 
+          onclick="switchTab('cbt')" 
+          id="dock-cbt" 
+          title="Generator Soal CBT & Kunci Jawaban Word" 
+          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+        >
+          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+            Soal CBT &amp; Kunci
+          </span>
+        </button>
       </nav>
     </div>
 
@@ -347,6 +364,22 @@
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0 ml-1.5">
               <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">Pintar</span>
+              <i data-lucide="chevron-right" class="drawer-chevron w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 transition-all"></i>
+            </div>
+          </button>
+          <!-- Generator Soal CBT -->
+          <button onclick="switchTab('cbt'); toggleMobileDrawer(false);" id="nav-cbt" class="drawer-nav-item w-full flex items-center justify-between p-2 rounded-2xl text-left transition-all duration-200 group cursor-pointer active:scale-[0.98]">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="drawer-icon-box w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400 border border-violet-500/20 shadow-2xs transition-all">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex flex-col">
+                <span class="drawer-title text-xs font-bold text-slate-800 dark:text-slate-100 truncate">Soal CBT &amp; Kunci</span>
+                <span class="drawer-sub text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">Generator Word DOCX Presisi</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0 ml-1.5">
+              <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">Word</span>
               <i data-lucide="chevron-right" class="drawer-chevron w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 transition-all"></i>
             </div>
           </button>
@@ -644,6 +677,11 @@
           <button onclick="switchTab('keuangan')" id="room-keuangan" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
             <i data-lucide="wallet" class="w-3.5 h-3.5 text-emerald-500"></i>
             <span>Keuangan Pintar</span>
+          </button>
+          <!-- Category Pill 12: Soal CBT -->
+          <button onclick="switchTab('cbt')" id="room-cbt" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-violet-500"></i>
+            <span>Soal CBT</span>
           </button>
         </div>
       </div>
@@ -9096,13 +9134,13 @@
               </div>
             </div>
 
-            <!-- 2. SUB-NAVIGATION PILLS (MATCHING REFERENSI NATIVE MOBILE) -->
-            <div class="flex items-center gap-1 p-1 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 overflow-x-auto no-scrollbar touch-pan-x">
+            <!-- 2. SUB-NAVIGATION TOOLBAR (SHARP ARCHITECTURAL & TIDAK ROUNDED) -->
+            <div id="jurnalSubNavContainer" class="jurnal-subnav-bar flex items-center gap-1.5 p-1.5 bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar touch-pan-x shadow-xs select-none">
               <button 
                 type="button" 
                 id="jurnalSubTabBtn_beranda" 
                 onclick="switchJurnalSubTab('beranda')" 
-                class="flex-shrink-0 px-3.5 py-2 sm:py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 bg-rose-600 text-white shadow-xs cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn active flex-shrink-0 px-3.5 py-2 text-xs font-bold transition-all flex items-center gap-2 bg-gradient-to-r from-rose-600 via-rose-600 to-rose-700 text-white border border-rose-500 shadow-sm cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="home" class="w-3.5 h-3.5"></i>
                 <span>Beranda</span>
@@ -9111,7 +9149,7 @@
                 type="button" 
                 id="jurnalSubTabBtn_materi" 
                 onclick="switchJurnalSubTab('materi')" 
-                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="book-open" class="w-3.5 h-3.5 text-rose-500"></i>
                 <span>Jurnal Anda</span>
@@ -9120,7 +9158,7 @@
                 type="button" 
                 id="jurnalSubTabBtn_kelas" 
                 onclick="switchJurnalSubTab('kelas')" 
-                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-amber-500"></i>
                 <span>Daftar Kelas</span>
@@ -9129,7 +9167,7 @@
                 type="button" 
                 id="jurnalSubTabBtn_presensi" 
                 onclick="switchJurnalSubTab('presensi')" 
-                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-500"></i>
                 <span>Presensi</span>
@@ -9138,7 +9176,7 @@
                 type="button" 
                 id="jurnalSubTabBtn_jadwal" 
                 onclick="switchJurnalSubTab('jadwal')" 
-                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i>
                 <span>Pengingat &amp; Jadwal</span>
@@ -9147,7 +9185,7 @@
                 type="button" 
                 id="jurnalSubTabBtn_penilaian" 
                 onclick="switchJurnalSubTab('penilaian')" 
-                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="award" class="w-3.5 h-3.5 text-purple-500"></i>
                 <span>Nilai STS/SAS</span>
@@ -9156,10 +9194,19 @@
                 type="button" 
                 id="jurnalSubTabBtn_rekap" 
                 onclick="switchJurnalSubTab('rekap')" 
-                class="flex-shrink-0 px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap"
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="table-2" class="w-3.5 h-3.5 text-teal-500"></i>
                 <span>Rekap Semester</span>
+              </button>
+              <button 
+                type="button" 
+                id="jurnalSubTabBtn_slide" 
+                onclick="switchJurnalSubTab('slide')" 
+                class="jurnal-subnav-btn flex-shrink-0 px-3.5 py-2 text-xs font-semibold transition-all flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="presentation" class="w-3.5 h-3.5 text-indigo-500"></i>
+                <span>Slide &amp; Canva</span>
               </button>
             </div>
 
@@ -9646,6 +9693,8 @@
               </div>
             </div>
 
+
+
             <!-- ============================================================== -->
             <!-- SUB-VIEW 4: PENGINGAT & JADWAL MENGAJAR (PERSIS SCREENSHOT 5)  -->
             <!-- ============================================================== -->
@@ -9763,6 +9812,8 @@
               </div>
             </div>
 
+
+
             <!-- ============================================================== -->
             <!-- SUB-VIEW 6: REKAPITULASI SEMESTER & EKSPOR                    -->
             <!-- ============================================================== -->
@@ -9822,6 +9873,345 @@
                   </table>
                 </div>
               </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- SUB-VIEW 8: STUDIO SLIDE PRESENTASI & CANVA HUB                -->
+            <!-- SLIDE DECK GENERATOR ALA CANVA   CANVA EMBED   EXPORT PPTX      -->
+            <!-- ============================================================== -->
+            <div id="jurnalSubView_slide" class="hidden space-y-4">
+              
+              <!-- 1. TOP CONTROL BAR: PILIH KELAS & SESI + ACTION BUTTONS -->
+              <div class="mobile-ref-card p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-gradient-to-r from-violet-900/10 via-indigo-900/10 to-rose-900/10 border-indigo-200/80 dark:border-indigo-900/50">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 flex-shrink-0">
+                    <i data-lucide="presentation" class="w-5 h-5"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                        <span>Studio Slide Ajar &amp; Canva Hub</span>
+                      </h4>
+                      <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
+                        PPTX &amp; Canva Embed
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Buat presentasi interaktif otomatis dari materi jurnal atau hubungkan langsung dengan Canva Anda.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Selectors: Kelas & Pertemuan -->
+                <div class="flex items-center gap-2 flex-wrap">
+                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                    <span class="text-slate-400 px-1 font-semibold">Kelas:</span>
+                    <select id="slideSelectClass" onchange="onSlideClassChange(this.value)" class="bg-transparent font-bold text-slate-800 dark:text-white outline-none cursor-pointer">
+                      <option value="7A">7A (Prakarya)</option>
+                      <option value="7B">7B (Prakarya)</option>
+                      <option value="7C">7C (Prakarya)</option>
+                      <option value="7D">7D (Prakarya)</option>
+                      <option value="1UlaA">1 Ula A (Safinah)</option>
+                      <option value="1UlaB">1 Ula B (Safinah)</option>
+                    </select>
+                  </div>
+
+                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                    <span class="text-slate-400 px-1 font-semibold">Sesi:</span>
+                    <select id="slideSelectPertemuan" onchange="onSlidePertemuanChange(parseInt(this.value))" class="bg-transparent font-bold text-slate-800 dark:text-white outline-none cursor-pointer">
+                      <!-- 1 to 18 generated -->
+                    </select>
+                  </div>
+
+                  <!-- Quick Action Buttons -->
+                  <button 
+                    type="button" 
+                    onclick="openCanvaStudioWindow()" 
+                    class="px-3 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                    title="Buka Canva Presentation Studio di jendela baru"
+                  >
+                    <i data-lucide="palette" class="w-3.5 h-3.5"></i>
+                    <span>Buka Canva</span>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    onclick="exportCurrentSlideDeckToPptx()" 
+                    class="px-3 py-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                    title="Unduh seluruh slide materi ini ke berkas PowerPoint (.pptx)"
+                  >
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Unduh .pptx</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. MODE TOGGLER: STUDIO SLIDE BAWAAN vs CANVA EMBED HUB -->
+              <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    id="btnSlideMode_native" 
+                    onclick="switchSlideStudioMode('native')" 
+                    class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <i data-lucide="layout-template" class="w-3.5 h-3.5"></i>
+                    <span>Studio Slide PPTX (Bawaan)</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    id="btnSlideMode_canva" 
+                    onclick="switchSlideStudioMode('canva')" 
+                    class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <i data-lucide="external-link" class="w-3.5 h-3.5 text-cyan-500"></i>
+                    <span>Hub Desain Canva (Sematkan)</span>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    onclick="startSlidePresentationFullScreen()" 
+                    class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Mulai presentasi tayang layar penuh di kelas"
+                  >
+                    <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                    <span>Mulai Presentasi (F11)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ========================================================== -->
+              <!-- TAB KONTEN A: STUDIO SLIDE BAWAAN (PPTX)                   -->
+              <!-- ========================================================== -->
+              <div id="slideContainer_native" class="space-y-4">
+                
+                <!-- Info Bar & Generator Trigger -->
+                <div class="p-3.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                  <div class="min-w-0">
+                    <span class="text-[10px] uppercase font-bold text-indigo-500 tracking-wider block">Topik Pertemuan Terpilih:</span>
+                    <h5 id="slideActiveMateriTitle" class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                      P1: Pengenalan Mapel Prakarya &amp; Kontrak Belajar
+                    </h5>
+                    <p id="slideActiveIndikator" class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                      Indikator: Memahami tujuan pembelajaran Prakarya, tata tertib, dan lingkup materi.
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <button 
+                      type="button" 
+                      onclick="generateSlidesFromCurrentJurnal()" 
+                      class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Otomatis menyusun 5-6 slide ajar berdasarkan materi pertemuan ini"
+                    >
+                      <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                      <span>âœ¨ Susun Slide Otomatis (AI)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- MAIN WORKSPACE: THUMBNAIL RAIL (LEFT) + CANVAS PREVIEW & EDITOR (RIGHT) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                  
+                  <!-- Left: Thumbnail Navigation Strip (lg:col-span-3) -->
+                  <div class="lg:col-span-3 bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 shadow-xs space-y-2.5">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                      <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span>Daftar Slide (<span id="slideCountBadge">6</span>)</span>
+                      </span>
+                      <button 
+                        type="button" 
+                        onclick="addNewSlideToDeck()" 
+                        class="px-2 py-1 text-[11px] font-bold rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 cursor-pointer transition-all"
+                      >
+                        + Tambah
+                      </button>
+                    </div>
+
+                    <!-- Thumbnails list container -->
+                    <div id="slideThumbnailsContainer" class="space-y-2 max-h-[520px] overflow-y-auto no-scrollbar pr-0.5">
+                      <!-- Rendered by JS -->
+                    </div>
+                  </div>
+
+                  <!-- Right: Big Interactive 16:9 Canvas & Slide Property Editor (lg:col-span-9) -->
+                  <div class="lg:col-span-9 space-y-3">
+                    
+                    <!-- 16:9 Canvas Stage -->
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-slate-300/80 dark:border-slate-700/80 bg-slate-950 select-none flex flex-col justify-between" id="slideStageCanvas">
+                      <!-- Slide content dynamically rendered here -->
+                      <div id="slideStageInner" class="w-full h-full p-6 sm:p-10 flex flex-col justify-between transition-all duration-300">
+                        <!-- Dynamic Canvas -->
+                      </div>
+
+                      <!-- Stage Overlay Navigation (Hover Controls) -->
+                      <div class="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs z-20">
+                        <button type="button" onclick="prevSlide()" class="hover:text-amber-300 p-1 cursor-pointer transition-colors" title="Slide Sebelumnya">&larr;</button>
+                        <span id="slideIndexDisplay" class="font-mono text-[11px] px-1">1 / 6</span>
+                        <button type="button" onclick="nextSlide()" class="hover:text-amber-300 p-1 cursor-pointer transition-colors" title="Slide Berikutnya">&rarr;</button>
+                        <div class="w-[1px] h-3 bg-white/20 mx-1"></div>
+                        <button type="button" onclick="startSlidePresentationFullScreen()" class="hover:text-emerald-400 p-1 cursor-pointer transition-colors" title="Layar Penuh"><i data-lucide="maximize" class="w-3.5 h-3.5"></i></button>
+                      </div>
+                    </div>
+
+                    <!-- Slide Content Inline Form Editor -->
+                    <div class="mobile-ref-card p-4 sm:p-5 space-y-3 bg-white/95 dark:bg-slate-900/95">
+                      <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 flex-wrap gap-2">
+                        <span class="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                          <i data-lucide="edit" class="w-3.5 h-3.5 text-rose-500"></i>
+                          <span>Edit Konten Slide Terpilih</span>
+                        </span>
+                        
+                        <!-- Theme Chooser -->
+                        <div class="flex items-center gap-1.5 text-xs">
+                          <span class="text-[11px] text-slate-400 font-semibold">Tema Desain:</span>
+                          <select id="slideThemeSelect" onchange="changeSlideDeckTheme(this.value)" class="text-xs font-bold p-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 outline-none cursor-pointer">
+                            <option value="emerald">Royal Emerald (Islami/Madrasah)</option>
+                            <option value="indigo">Modern Indigo (Kreatif/Tech)</option>
+                            <option value="rose">Sunset Rose (Hangat/Dinamis)</option>
+                            <option value="minimal">Clean Minimalist (Kontras Rapi)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Judul Slide:</label>
+                          <input type="text" id="inputSlideTitle" oninput="updateActiveSlideProperty('title', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold outline-none focus:ring-1 focus:ring-indigo-500" placeholder="Ketik judul slide...">
+                        </div>
+                        <div>
+                          <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Subjudul / Topik Kecil:</label>
+                          <input type="text" id="inputSlideSubtitle" oninput="updateActiveSlideProperty('subtitle', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500" placeholder="Ketik subjudul atau badge topik...">
+                        </div>
+                      </div>
+
+                      <div>
+                        <div class="flex items-center justify-between mb-1">
+                          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Poin Pembahasan / Materi Slide (Satu baris per poin):</label>
+                          <span class="text-[10.5px] text-slate-400">Tekan Enter untuk poin baru</span>
+                        </div>
+                        <textarea id="inputSlideBullets" rows="4" oninput="updateActiveSlideProperty('bullets', this.value)" class="w-full p-3 font-sans text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed" placeholder="Poin 1...&#10;Poin 2...&#10;Poin 3..."></textarea>
+                      </div>
+
+                      <div class="flex items-center justify-between pt-1">
+                        <button type="button" onclick="deleteActiveSlide()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-all flex items-center gap-1">
+                          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                          <span>Hapus Slide Ini</span>
+                        </button>
+                        <div class="flex items-center gap-2">
+                          <button type="button" onclick="duplicateActiveSlide()" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-all">
+                            Duplikat Slide
+                          </button>
+                          <button type="button" onclick="saveSlideDeckToSession()" class="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs cursor-pointer active:scale-95 transition-all">
+                            Simpan Perubahan
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- ========================================================== -->
+              <!-- TAB KONTEN B: HUB DESAIN CANVA (EMBED & VIEWER)            -->
+              <!-- ========================================================== -->
+              <div id="slideContainer_canva" class="hidden space-y-4">
+                
+                <!-- Canva Link Input & Launcher Box -->
+                <div class="mobile-ref-card p-4 sm:p-5 space-y-3 bg-gradient-to-r from-cyan-950/20 via-sky-950/20 to-slate-900/40 border-cyan-500/30">
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-2xl bg-[#00C4CC] text-white flex items-center justify-center font-black text-lg shadow-md shadow-cyan-500/25 flex-shrink-0">
+                        C
+                      </div>
+                      <div>
+                        <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                          Sematkan Presentasi Canva Pertemuan Ini
+                        </h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                          Buka Canva untuk membuat/mengedit, lalu tempel tautan "Smart Embed" atau tautan berbagi presentasi Anda di bawah ini.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button 
+                      type="button" 
+                      onclick="openCanvaStudioWindow()" 
+                      class="px-4 py-2 rounded-xl bg-[#00C4CC] hover:bg-[#00b0b8] text-white font-black text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
+                    >
+                      <i data-lucide="external-link" class="w-4 h-4"></i>
+                      <span>Buka Canva Studio Baru</span>
+                    </button>
+                  </div>
+
+                  <!-- Input URL Bar -->
+                  <div class="flex items-center gap-2 flex-col sm:flex-row pt-1">
+                    <div class="relative flex-1 w-full">
+                      <i data-lucide="link" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                      <input 
+                        type="url" 
+                        id="inputCanvaEmbedUrl" 
+                        placeholder="Tempel tautan Canva di sini (cth: https://www.canva.com/design/.../view?embed)" 
+                        class="w-full pl-9 pr-3 py-2.5 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 shadow-2xs font-mono"
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      onclick="saveAndLoadCanvaEmbed()" 
+                      class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                    >
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                      <span>Simpan &amp; Tampilkan</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Canva Embed Viewport Container -->
+                <div class="mobile-ref-card p-3 sm:p-4 bg-slate-950 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-800 text-xs text-slate-400 mb-2">
+                    <span class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                      <span>Canva Interactive Presenter</span>
+                    </span>
+                    <button type="button" onclick="refreshCanvaIframe()" class="hover:text-white text-[11px] flex items-center gap-1 cursor-pointer">
+                      <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                      <span>Muat Ulang</span>
+                    </button>
+                  </div>
+
+                  <!-- Iframe Viewer (16:9) -->
+                  <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center">
+                    <iframe 
+                      id="canvaLiveIframe" 
+                      src="" 
+                      class="w-full h-full border-0 hidden" 
+                      allowfullscreen="allowfullscreen" 
+                      allow="fullscreen"
+                    ></iframe>
+
+                    <!-- Placeholder when no link is provided yet -->
+                    <div id="canvaPlaceholderBox" class="p-6 text-center space-y-3 max-w-sm">
+                      <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto">
+                        <i data-lucide="presentation" class="w-6 h-6"></i>
+                      </div>
+                      <h5 class="text-sm font-bold text-white">Belum Ada Tautan Canva Terpasang</h5>
+                      <p class="text-xs text-slate-400 leading-relaxed">
+                        Klik <strong>"Buka Canva Studio Baru"</strong> untuk mendesain slide Anda, lalu salin tautan embed-nya ke kolom di atas.
+                      </p>
+                      <button type="button" onclick="openCanvaStudioWindow()" class="px-4 py-2 rounded-xl bg-[#00C4CC] text-white font-bold text-xs shadow-md cursor-pointer hover:bg-[#00b0b8] transition-all inline-flex items-center gap-1.5">
+                        <i data-lucide="palette" class="w-3.5 h-3.5"></i>
+                        <span>Buat Presentasi di Canva</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
 
             <!-- Floating Action Button (FAB) Tambah Sesi (Persis Screenshot 1 & 5) -->
@@ -10643,7 +11033,41 @@
             </div>
           </div>
 
+          <!-- ============================================================== -->
+          <!-- MODAL FULLSCREEN SLIDE PRESENTER (TAYANG DI KELAS)             -->
+          <!-- ============================================================== -->
+          <div id="modalSlideFullScreenPresenter" class="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between hidden select-none animate-in fade-in duration-200">
+            <!-- Top Presenter Bar -->
+            <div class="p-4 bg-gradient-to-b from-black/80 to-transparent flex items-center justify-between z-20">
+              <div class="flex items-center gap-2">
+                <span id="fsPresenterBadge" class="px-2 py-0.5 rounded-full text-[11px] font-black bg-indigo-600 text-white uppercase tracking-wider">Prakarya 7A</span>
+                <span id="fsPresenterMateri" class="text-xs font-bold text-slate-300 truncate max-w-md">Pertemuan 1</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-mono text-slate-400" id="fsPresenterIndex">Slide 1 / 6</span>
+                <button type="button" onclick="closeSlidePresentationFullScreen()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all cursor-pointer" title="Tutup (Esc)">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
 
+            <!-- Main Big Slide Canvas -->
+            <div class="flex-1 flex items-center justify-center p-4 sm:p-12 min-h-0">
+              <div id="fsSlideStageInner" class="w-full max-w-6xl aspect-video rounded-3xl p-8 sm:p-14 shadow-2xl flex flex-col justify-between transition-all duration-300">
+                <!-- Big Slide Contents -->
+              </div>
+            </div>
+
+            <!-- Bottom Floating Controls -->
+            <div class="p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-center gap-4 z-20">
+              <button type="button" onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all">
+                <span>&larr; Sebelumnya</span>
+              </button>
+              <button type="button" onclick="nextSlide()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-black text-xs shadow-lg flex items-center gap-2 cursor-pointer transition-all">
+                <span>Selanjutnya &rarr;</span>
+              </button>
+            </div>
+          </div>
 
 <!-- END COMPONENT: Tab11_JurnalMengajar.html -->
 
@@ -11776,6 +12200,299 @@
             </div>
           </div>
 <!-- END COMPONENT: Tab12_KeuanganPribadi.html -->
+
+<!-- START COMPONENT: Tab13_SoalCbt.html -->
+          <!-- ============================================================== -->
+          <!-- TAB 13: GENERATOR SOAL CBT & KUNCI JAWABAN (WORD PRESISI)         -->
+          <!-- FAST PASTE AI   TABEL TITIK-TITIK SAMAR   DUAL DOCX SEPARATED     -->
+          <!-- ============================================================== -->
+          <div id="tab-cbt" class="hidden space-y-3 sm:space-y-4 pb-32 sm:pb-12 px-[2px] sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
+            
+            <!-- 1. HEADER MODUL & AKSI EKSPOR CEPAT -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 min-w-0 max-w-full box-border">
+              <!-- Left Brand & Info with Mascot -->
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <div class="relative flex-shrink-0">
+                  <img src="mascot.png" alt="Mascot Partner Fatih" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover shadow-md shadow-violet-500/25 border-2 border-violet-500/40" />
+                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-violet-500 text-white flex items-center justify-center text-[9px] font-black shadow-xs ring-2 ring-white dark:ring-slate-900">
+                    <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 class="font-black text-xs sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></span>
+                      <span>Generator Soal CBT &amp; Kunci Jawaban</span>
+                    </h3>
+                    <span class="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/60 uppercase tracking-wider flex items-center gap-1">
+                      <i data-lucide="check-circle-2" class="w-3 h-3 text-violet-600 dark:text-violet-400"></i>
+                      <span>Format Word Presisi</span>
+                    </span>
+                  </div>
+                  <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                    Injeksi Otomatis Dokumen Word (DOCX) berstandar CBT dengan batas titik-titik samar &amp; file kunci terpisah.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Independent Download Buttons -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                  <span id="cbtStatCompleted">0</span>/<span id="cbtStatTotal">35</span> Lengkap
+                </div>
+                <button 
+                  type="button" 
+                  id="btnCbtExportSoal" 
+                  class="px-3 py-1.5 rounded-lg border border-violet-500/40 bg-violet-600/10 hover:bg-violet-600 text-violet-700 dark:text-violet-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  title="Unduh berkas soal CBT murni tanpa kunci (.docx)"
+                >
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Unduh Soal Saja (.docx)</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="btnCbtExportKunci" 
+                  class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-violet-500/25 active:scale-95"
+                  title="Unduh matriks kunci jawaban 4 kolom (.docx)"
+                >
+                  <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                  <span>Unduh Kunci Saja (.docx)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. SUBTAB NAVIGATION PILLS -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+              <button 
+                type="button" 
+                id="cbt-tab-btn-editor" 
+                onclick="switchCbtSubtab('editor')" 
+                class="px-3 py-2 text-xs font-bold rounded-xl border border-violet-500/40 bg-violet-600 text-white shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                <span>Form Soal Interaktif</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-bulk" 
+                onclick="switchCbtSubtab('bulk')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>Fast Paste Massal (Otomatis)</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-preview-soal" 
+                onclick="switchCbtSubtab('preview-soal')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-500"></i>
+                <span>Pratinjau File Soal</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-preview-kunci" 
+                onclick="switchCbtSubtab('preview-kunci')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="key-round" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>Pratinjau File Kunci (4 Kolom)</span>
+              </button>
+            </div>
+
+            <!-- 3. METADATA COLLAPSIBLE ACCORDION -->
+            <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+              <button 
+                type="button" 
+                onclick="document.getElementById('cbtMetaBody').classList.toggle('hidden')" 
+                class="w-full px-4 py-2.5 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+              >
+                <span class="flex items-center gap-2">
+                  <i data-lucide="settings-2" class="w-4 h-4 text-violet-500"></i>
+                  <span>Atur Kop, Mapel &amp; Tanda Tangan Guru Ujian</span>
+                </span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+              </button>
+              
+              <div id="cbtMetaBody" class="p-4 border-t border-slate-200/80 dark:border-slate-800 hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-slate-50/50 dark:bg-slate-950/40 text-xs">
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Judul Ujian</label>
+                  <input type="text" id="cbt_meta_exam_title" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Nama Madrasah</label>
+                  <input type="text" id="cbt_meta_institution" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Tahun Pelajaran</label>
+                  <input type="text" id="cbt_meta_academic_year" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Mata Pelajaran &amp; Kelas</label>
+                  <input type="text" id="cbt_meta_subject" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Akun CBT</label>
+                  <input type="text" id="cbt_meta_cbt_account" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Kota &amp; Tanggal</label>
+                  <input type="text" id="cbt_meta_date" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div class="sm:col-span-2 lg:col-span-3">
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Nama Guru Penyusun</label>
+                  <input type="text" id="cbt_meta_author" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. PANE 1: INTERACTIVE QUESTION EDITOR -->
+            <div id="cbt-pane-editor" class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+              <!-- Left: Grid Matrix Nomor Soal -->
+              <div class="lg:col-span-4 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-xs flex flex-col">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-violet-500"></i>
+                    <span>Daftar Nomor Soal</span>
+                  </span>
+                  <div class="flex items-center gap-1">
+                    <button type="button" id="cbtAddBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer">+ Tambah</button>
+                    <button type="button" id="cbtDeleteBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-600 dark:text-rose-300 cursor-pointer">Hapus</button>
+                  </div>
+                </div>
+                <!-- Grid items container -->
+                <div id="cbtQuestionGrid" class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-1.5 max-h-[380px] overflow-y-auto no-scrollbar p-1">
+                  <!-- Generated dynamically -->
+                </div>
+              </div>
+
+              <!-- Right: Form Butir Soal & Pilihan Ganda -->
+              <div class="lg:col-span-8 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs space-y-3 sm:space-y-4">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-lg bg-violet-600 text-white text-xs">Soal No. <span id="cbtActiveQNumber">1</span></span>
+                    <span>Teks Pertanyaan &amp; Opsi</span>
+                  </h4>
+                  <span class="text-[10px] text-slate-400">Pintasan: Alt+A..E (Kunci) | Alt+N (Lanjut)</span>
+                </div>
+
+                <!-- Stem Textarea -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Pertanyaan / Stimulus:</label>
+                  <textarea id="cbtStemInput" rows="3" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="Ketik teks pertanyaan soal di sini..."></textarea>
+                </div>
+
+                <!-- Options List (A-E) -->
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Pilihan Ganda &amp; Kunci Jawaban:</label>
+                    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Pilih bulatan untuk menetapkan kunci</span>
+                  </div>
+                  <div id="cbtOptionsList" class="space-y-2">
+                    <!-- Dynamic option rows -->
+                  </div>
+                </div>
+
+                <!-- Bottom Navigation Buttons -->
+                <div class="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+                  <button type="button" id="cbtPrevBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">&larr; Sebelumnya</button>
+                  <button type="button" id="cbtNextBtn" class="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-bold text-white shadow-xs cursor-pointer">Selanjutnya &rarr;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. PANE 2: FAST PASTE MASSAL -->
+            <div id="cbt-pane-bulk" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3">
+              <div class="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-900/60 text-violet-900 dark:text-violet-200 text-xs space-y-2">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <span class="font-bold flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-violet-600"></i>
+                    <span>Tempelkan Soal dari Dokumen Lama atau AI (ChatGPT/Gemini)</span>
+                  </span>
+                  <button type="button" id="cbtCopyPromptBtn" class="px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center gap-1">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                    <span>Salin Template Prompt AI (35 Soal MTs 7)</span>
+                  </button>
+                </div>
+                <p class="text-[11px] opacity-90 leading-relaxed">
+                  Sistem otomatis mengenali nomor soal, teks pertanyaan, pilihan A-E, dan baris kunci jawaban (cth: <code>Kunci: D</code>).
+                </p>
+              </div>
+
+              <textarea id="cbtBulkTextInput" rows="12" class="w-full p-3 font-mono text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="1. Soal pertanyaan...&#10;A. Pilihan A&#10;B. Pilihan B&#10;C. Pilihan C&#10;D. Pilihan D&#10;E. Pilihan E&#10;Kunci: D&#10;&#10;2. Soal pertanyaan..."></textarea>
+
+              <div class="flex justify-end">
+                <button type="button" onclick="parseCbtBulkText(document.getElementById('cbtBulkTextInput').value)" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-2">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                  <span>Proses &amp; Masukkan ke Butir Soal</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 6. PANE 3: LIVE PREVIEW FILE SOAL (CBT) -->
+            <div id="cbt-pane-preview-soal" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">📄 Pratinjau Dokumen 1: File Soal CBT (.docx)</h4>
+                  <p class="text-[10px] text-slate-400">Berkas soal murni tanpa kunci dengan garis pembatas titik-titik samar presisi.</p>
+                </div>
+                <button type="button" onclick="document.getElementById('btnCbtExportSoal').click()" class="px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold cursor-pointer">
+                  Unduh File Soal Ini
+                </button>
+              </div>
+
+              <!-- Word Document Container -->
+              <div class="p-4 sm:p-6 bg-white text-black rounded-lg shadow-sm border border-slate-300 font-sans max-h-[500px] overflow-y-auto">
+                <div class="border-b border-slate-400 pb-2 mb-3">
+                  <div id="cbtPreviewMeta" class="text-[10px] text-slate-500">This post was published to CBT...</div>
+                  <div id="cbtPreviewTitle" class="text-sm font-bold mt-0.5">PRAKARYA 7</div>
+                </div>
+                <table id="cbtPreviewTable" class="w-full text-xs border-collapse">
+                  <!-- Dynamic content -->
+                </table>
+              </div>
+            </div>
+
+            <!-- 7. PANE 4: LIVE PREVIEW FILE KUNCI JAWABAN (4 KOLOM) -->
+            <div id="cbt-pane-preview-kunci" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">🔑 Pratinjau Dokumen 2: File Kunci Jawaban (.docx)</h4>
+                  <p class="text-[10px] text-slate-400">Berkas terpisah matriks 4 kolom paralel lengkap dengan kop madrasah dan tanda tangan.</p>
+                </div>
+                <button type="button" onclick="document.getElementById('btnCbtExportKunci').click()" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold cursor-pointer">
+                  Unduh File Kunci Ini
+                </button>
+              </div>
+
+              <div class="p-4 sm:p-6 bg-white text-black rounded-lg shadow-sm border border-slate-300 font-sans max-w-2xl mx-auto max-h-[500px] overflow-y-auto">
+                <div class="text-center font-bold mb-3 space-y-0.5">
+                  <div id="cbtPreviewKunciExam" class="text-xs">KUNCI JAWABAN SOAL SUMATIF TENGAH SEMESTER</div>
+                  <div id="cbtPreviewKunciInst" class="text-xs">MTS RAUDLATUL MUTA'ALLIMIN</div>
+                  <div id="cbtPreviewKunciYear" class="text-[11px]">TAHUN PELAJARAN 2025/2026</div>
+                </div>
+                <div class="text-[11px] font-bold mb-2">MATA PELAJARAN : <span id="cbtPreviewKunciSubject">PRAKARYA 7</span></div>
+
+                <table id="cbtPreviewTableKunci" class="w-full text-xs border-collapse">
+                  <!-- Dynamic content -->
+                </table>
+
+                <div class="mt-6 flex justify-end">
+                  <div class="text-[11px] text-left min-w-[180px]">
+                    <div id="cbtPreviewKunciCityDate">Lamongan, 21 September 2024</div>
+                    <div class="mt-1">Penyusun,</div>
+                    <div class="h-12"></div>
+                    <div id="cbtPreviewKunciAuthor" class="font-bold underline">Mohammad Ilham Mahmudi</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- END COMPONENT: Tab13_SoalCbt.html -->
+
+<!-- END COMPONENT: Tab13_SoalCbt.html -->
 
 
 
