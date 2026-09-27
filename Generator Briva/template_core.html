@@ -5389,8 +5389,9 @@
           if (t === 'jurnal' && typeof initJurnalModule === 'function') {
             initJurnalModule();
           }
-          if (t === 'keuangan' && typeof initKeuanganModule === 'function') {
-            initKeuanganModule();
+if (t === 'keuangan') {
+            if (typeof initKeuanganModule === 'function') initKeuanganModule();
+            if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
           }
           if (t === 'cbt' && typeof window.initCbtTab === 'function') {
             window.initCbtTab();
@@ -19587,7 +19588,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     checkStandalonePwa();
     window.addEventListener('DOMContentLoaded', checkStandalonePwa);
 
-    function triggerPwaInstall() {
+        function triggerPwaInstall() {
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         if (typeof showToast === 'function') {
           showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
@@ -19612,24 +19613,97 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         } else {
           alert('Untuk memasang di HP atau desktop, buka menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
         }
+      }
     }
 
+    // ==========================================================================
+    // PWA SERVICE WORKER AUTO-UPDATE & SYNC LIFECYCLE (v16)
+    // ==========================================================================
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       const regSw = () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
-          console.log('[PWA] ServiceWorker active:', reg.scope);
+          console.log('[PWA v16] ServiceWorker active:', reg.scope);
+
+          // Auto-check update setiap kali aplikasi dibuka atau kembali dari background
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              reg.update().catch(() => {});
+              if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
+            }
+          });
+
+          // Auto-check saat window focus
+          window.addEventListener('focus', () => {
+            reg.update().catch(() => {});
+            if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
+          });
+
+          // Cek update berkala setiap 10 menit
+          setInterval(() => {
+            reg.update().catch(() => {});
+          }, 10 * 60 * 1000);
+
+          // Deteksi Service Worker versi baru yang sudah terpasang
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA v16] Versi baru aplikasi siap digunakan!');
+                if (typeof showToast === 'function') {
+                  showToast('ðŸš€ Pembaruan Sistem', 'Versi baru aplikasi terdeteksi & langsung disinkronkan.');
+                }
+              }
+            });
+          });
         }).catch(err => {
           console.warn('[PWA] ServiceWorker note (safe):', err);
         });
       };
+
+      // Mulus reload otomatis saat Service Worker baru mengambil alih kendali
+      let isPwaRefreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (isPwaRefreshing) return;
+        isPwaRefreshing = true;
+        window.location.reload();
+      });
+
       if (document.readyState === 'complete') {
         regSw();
       } else {
         window.addEventListener('load', regSw);
       }
     }
-    }
 
+    // Fungsi global Cek Pembaruan Manual untuk Pengguna
+    window.forceCheckAppUpdate = function() {
+      if (typeof showToast === 'function') {
+        showToast('Memeriksa Pembaruan', 'Menghubungkan ke server Vercel...');
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          if (!regs || !regs.length) {
+            window.location.reload(true);
+            return;
+          }
+          Promise.all(regs.map(r => r.update())).then(() => {
+            if ('caches' in window) {
+              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+                if (typeof showToast === 'function') {
+                  showToast('âœ… Berhasil Diperbarui', 'Aplikasi memuat versi terbaru...');
+                }
+                setTimeout(() => window.location.reload(true), 500);
+              });
+            } else {
+              window.location.reload(true);
+            }
+          }).catch(() => window.location.reload(true));
+        });
+      } else {
+        window.location.reload(true);
+      }
+    };
 
     // ==========================================================================
     // 14. MODUL STUDIO HUMAS & SOSMED: KALENDER TAHUNAN & RADAR PENGINGAT H-7
@@ -30824,6 +30898,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -35367,15 +35442,171 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       console.warn('Gagal membaca finance data:', e);
       financeTransactions = [];
     }
+
+    // Auto pull latest data from cloud if available (HP <-> Laptop sync)
+    setTimeout(() => {
+      pullKeuanganFromCloud(false);
+    }, 300);
   }
 
   function saveFinanceData() {
     try {
       localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+      triggerCloudSyncKeuangan();
     } catch (e) {
       console.error('Gagal menyimpan finance data:', e);
     }
   }
+
+  // ============================================================================
+  // MULTI-DEVICE CLOUD SYNC ENGINE (HP <-> LAPTOP OTOMATIS VIA SUPABASE)
+  // ============================================================================
+  const CLOUD_SYNC_ID = 'sync_keuangan_state';
+  const DEFAULT_SB_URL = 'https://maziyyookpafeenuiirl.supabase.co';
+  const DEFAULT_SB_KEY = 'sb_publishable_bC64CatZmPbb5t6G2RFLPg__fNccr9r';
+
+  function getKeuanganSupabaseHeaders() {
+    let cfg = { url: DEFAULT_SB_URL, anonKey: DEFAULT_SB_KEY };
+    try {
+      const raw = localStorage.getItem('supabase_config_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.url && parsed.anonKey) cfg = parsed;
+      }
+    } catch (e) {}
+    return {
+      url: cfg.url,
+      headers: {
+        'apikey': cfg.anonKey,
+        'Authorization': 'Bearer ' + cfg.anonKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      }
+    };
+  }
+
+  let syncDebounceTimer = null;
+  function triggerCloudSyncKeuangan() {
+    clearTimeout(syncDebounceTimer);
+    syncDebounceTimer = setTimeout(() => {
+      syncKeuanganToCloud(false);
+    }, 600);
+  }
+
+  async function syncKeuanganToCloud(isManual = false) {
+    const { url, headers } = getKeuanganSupabaseHeaders();
+    if (!url || !headers.apikey) return false;
+
+    const labelBadge = document.getElementById('labelKeuanganCloudStatus');
+    if (labelBadge) labelBadge.textContent = 'Menyimpan...';
+
+    const payload = [{
+      id: CLOUD_SYNC_ID,
+      no: 99999,
+      uraian: JSON.stringify({
+        wallets: walletStartingBalances,
+        transactions: financeTransactions,
+        updatedAt: new Date().toISOString()
+      }),
+      pj: 'Keuangan AutoSync',
+      updated_at: new Date().toISOString()
+    }];
+
+    try {
+      const res = await fetch(`${url}/rest/v1/humas_programs?on_conflict=id`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+      localStorage.setItem('keuangan_last_cloud_sync_time', timeStr);
+      if (labelBadge) labelBadge.textContent = 'Sync: ' + timeStr;
+
+      if (isManual && typeof showToast === 'function') {
+        showToast('✅ Cloud Sync Berhasil', 'Saldo & riwayat transaksi telah disinkronkan ke Cloud!');
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Keuangan Cloud] Gagal sync:', err);
+      if (labelBadge) labelBadge.textContent = 'Mode Offline';
+      if (isManual && typeof showToast === 'function') {
+        showToast('⚠️ Gagal Sync', 'Periksa koneksi internet Anda.');
+      }
+      return false;
+    }
+  }
+
+  async function pullKeuanganFromCloud(isManual = false) {
+    const { url, headers } = getKeuanganSupabaseHeaders();
+    if (!url || !headers.apikey) return false;
+
+    const labelBadge = document.getElementById('labelKeuanganCloudStatus');
+    if (labelBadge && isManual) labelBadge.textContent = 'Memeriksa...';
+
+    try {
+      const res = await fetch(`${url}/rest/v1/humas_programs?id=eq.${CLOUD_SYNC_ID}&select=*`, {
+        method: 'GET',
+        headers: headers
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data && data.length > 0 && data[0].uraian) {
+        const cloudData = JSON.parse(data[0].uraian);
+        if (cloudData) {
+          let updated = false;
+          if (cloudData.wallets) {
+            const currentStr = JSON.stringify(walletStartingBalances);
+            const cloudStr = JSON.stringify(cloudData.wallets);
+            if (currentStr !== cloudStr) {
+              walletStartingBalances = Object.assign({ pribadi: 0, operasional: 0, tabungan: 0 }, cloudData.wallets);
+              localStorage.setItem(STORAGE_WALLETS, JSON.stringify(walletStartingBalances));
+              updated = true;
+            }
+          }
+          if (Array.isArray(cloudData.transactions)) {
+            if (financeTransactions.length === 0 || cloudData.transactions.length !== financeTransactions.length) {
+              financeTransactions = cloudData.transactions;
+              localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+              updated = true;
+            }
+          }
+
+          if (updated) {
+            renderHeroAndWallets();
+            renderMoneyLeakRadar();
+            renderFinanceTable();
+          }
+
+          const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+          if (labelBadge) labelBadge.textContent = 'Sync: ' + timeStr;
+
+          if (isManual && typeof showToast === 'function') {
+            showToast('✅ Data Terbaru Diambil', 'Saldo & transaksi berhasil disinkronkan dari perangkat lain!');
+          }
+        }
+      } else {
+        if (walletStartingBalances.pribadi > 0 || walletStartingBalances.operasional > 0 || walletStartingBalances.tabungan > 0 || financeTransactions.length > 0) {
+          syncKeuanganToCloud(false);
+        }
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Keuangan Cloud] Gagal pull:', err);
+      if (labelBadge) labelBadge.textContent = 'Mode Offline';
+      return false;
+    }
+  }
+
+  // Auto-sync when window is focused or tab is activated
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      pullKeuanganFromCloud(false);
+    }
+  });
 
   // ============================================================================
   // MONEY FORMATTERS & DATE HELPERS
@@ -36876,6 +37107,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
 
     try {
       localStorage.setItem(STORAGE_WALLETS, JSON.stringify(walletStartingBalances));
+      triggerCloudSyncKeuangan();
     } catch(err) {
       console.warn('Gagal menyimpan wallet starting balances:', err);
     }
@@ -36906,6 +37138,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
       try {
         localStorage.setItem(STORAGE_WALLETS, JSON.stringify(walletStartingBalances));
         localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+        triggerCloudSyncKeuangan();
       } catch(e) {}
       renderAllFinanceViews();
       if (typeof showToast === 'function') {
@@ -36945,6 +37178,8 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
   global.saveGeminiApiKeySettings = saveGeminiApiKeySettings;
 
   global.exportFinanceExcel = exportFinanceExcel;
+  global.syncKeuanganToCloud = syncKeuanganToCloud;
+  global.pullKeuanganFromCloud = pullKeuanganFromCloud;
 
 })(window);
 
@@ -38893,6 +39128,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
       try { initHumasModule(); } catch (e) { console.warn('Humas init error:', e); }
       try { initJurnalModule(); } catch (e) { console.warn('Jurnal init error:', e); }
       try { initKeuanganModule(); } catch (e) { console.warn('Keuangan init error:', e); }
+      try { if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false); } catch(e) {}
       try { if (typeof window.initCbtTab === 'function') window.initCbtTab(); } catch (e) { console.warn('CBT init error:', e); }
       try { updateHumasNotifButtonUI(); } catch (e) { console.warn('Notif UI init error:', e); }
       try { checkHumasH7MobileNotifications(); } catch (e) { console.warn('Notif check error:', e); }
