@@ -1,10 +1,10 @@
 /**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
- * High-Performance Offline-First Service Worker (PWA v16)
+ * High-Performance Offline-First Service Worker (PWA v17)
  * Fitur: Seamless Auto-Update (Tanpa Uninstall/Reinstall) & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-v16';
+const CACHE_NAME = 'partner-fatih-v17';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -17,8 +17,8 @@ const PRECACHE_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './css/main.css?v=16',
-  './js/app.bundle.js?v=16',
+  './css/main.css?v=17',
+  './js/app.bundle.js?v=17',
   './mascot.png'
 ];
 
@@ -27,7 +27,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[PWA SW v16] Pre-caching offline assets...');
+      console.log('[PWA SW v17] Pre-caching offline assets...');
       return cache.addAll(PRECACHE_ASSETS).catch(err => {
         console.warn('[PWA SW] Pre-cache partial warning:', err);
       });
