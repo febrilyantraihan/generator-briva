@@ -2669,3 +2669,60 @@ img[src*="mascot"],
     .ai-radar-glow {
       box-shadow: 0 0 30px -5px rgba(225, 29, 72, 0.35), 0 0 15px -2px rgba(99, 102, 241, 0.3);
     }
+
+/* ==========================================================================
+   JURNAL MENGAJAR SHARP MODERN SUB-NAV (TIDAK ROUNDED)
+   ========================================================================== */
+#jurnalSubNavContainer,
+#jurnalSubNavContainer *,
+.jurnal-subnav-btn,
+.jurnal-subnav-bar {
+  border-radius: 0px !important;
+}
+
+.jurnal-subnav-bar {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+html.dark .jurnal-subnav-bar {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.jurnal-subnav-btn {
+  position: relative;
+  border-radius: 0px !important;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.jurnal-subnav-btn:hover:not(.active) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.jurnal-subnav-btn.active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
+}
+
+/* Crisp bottom indicator bar on active tab */
+.jurnal-subnav-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #fbbf24;
+  box-shadow: 0 1px 3px rgba(251, 191, 36, 0.6);
+}
+
+/* Active icon turns clean crisp white */
+.jurnal-subnav-btn.active i,
+.jurnal-subnav-btn.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
