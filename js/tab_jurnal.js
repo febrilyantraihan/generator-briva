@@ -143,36 +143,32 @@
   ];
 
   const DEFAULT_CLASS_SCHEDULE = {
-    '7A': { day: 'Kamis', time: '08.30 - 09.50', hours: 'Jam 3-4', room: 'Ruang MTs 7A', subject: 'Prakarya (Kode 34)' },
-    '7B': { day: 'Ahad',  time: '10.20 - 11.40', hours: 'Jam 5-6', room: 'Ruang MTs 7B', subject: 'Prakarya (Kode 34)' },
-    '7C': { day: 'Ahad',  time: '12.10 - 13.20', hours: 'Jam 7-8', room: 'Ruang MTs 7C', subject: 'Prakarya (Kode 34)' },
-    '7D': { day: 'Kamis', time: '12.10 - 13.20', hours: 'Jam 7-8', room: 'Ruang MTs 7D', subject: 'Prakarya (Kode 34)' },
-    '8A': { day: 'Selasa', time: '07.00 - 08.30', hours: 'Jam 1-2', room: 'Ruang MTs 8A', subject: 'Prakarya (Kode 34)' },
-    '8B': { day: 'Selasa', time: '08.30 - 09.50', hours: 'Jam 3-4', room: 'Ruang MTs 8B', subject: 'Prakarya (Kode 34)' },
-    '8C': { day: 'Kamis', time: '07.00 - 08.30', hours: 'Jam 1-2', room: 'Ruang MTs 8C', subject: 'Prakarya (Kode 34)' },
-    '8D': { day: 'Senin', time: '12.10 - 13.20', hours: 'Jam 7-8', room: 'Ruang MTs 8D', subject: 'Prakarya (Kode 34)' },
+    '7A': { day: 'Ahad',  time: '10.20 - 11.40', hours: 'Jam 5-6', room: 'Ruang MTs 7A', subject: 'Prakarya (Kode 33)' },
+    '7B': { day: 'Ahad',  time: '12.10 - 13.20', hours: 'Jam 7-8', room: 'Ruang MTs 7B', subject: 'Prakarya (Kode 33)' },
+    '7C': { day: 'Kamis', time: '07.00 - 08.30', hours: 'Jam 1-2', room: 'Ruang MTs 7C', subject: 'Prakarya (Kode 33)' },
+    '7D': { day: 'Senin', time: '12.10 - 13.20', hours: 'Jam 7-8', room: 'Ruang MTs 7D', subject: 'Prakarya (Kode 33)' },
+    '8A': { day: 'Kamis', time: '07.00 - 08.30', hours: 'Jam 1-2', room: 'Ruang MTs 8A', subject: 'Prakarya' },
+    '8B': { day: 'Kamis', time: '10.20 - 11.40', hours: 'Jam 5-6', room: 'Ruang MTs 8B', subject: 'Prakarya' },
+    '8C': { day: 'Ahad',  time: '07.00 - 08.30', hours: 'Jam 1-2', room: 'Ruang MTs 8C', subject: 'Prakarya' },
+    '8D': { day: 'Senin', time: '07.00 - 08.30', hours: 'Jam 1-2', room: 'Ruang MTs 8D', subject: 'Prakarya' },
     '1UlaA': { day: 'Selasa', time: '18.00 - 19.30', hours: 'Malam / Ba\'da Maghrib', room: 'Gedung Diniyah Lt. 1', subject: 'Safinatun Najah' },
     '1UlaB': { day: 'Jumat', time: '18.00 - 19.30', hours: 'Malam / Ba\'da Maghrib', room: 'Gedung Diniyah Lt. 2', subject: 'Safinatun Najah' }
   };
 
   const DEFAULT_SCHEDULES = [
-    // 1. AHAD: Pengembangan Diri (Jam 3-4) + 7B (Jam 5-6) + 7C (Jam 7-8)
+    // 1. AHAD: Pengembangan Diri (Jam 3-4) + 7A (Jam 5-6) + 7B (Jam 7-8)
     { id: 'sch-ahad-pd', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: 'Semua', subject: 'Pengembangan Diri', time: '08.30 - 09.50 (Jam 3-4)', room: 'Gedung MTs / Terpadu' },
-    { id: 'sch-ahad-7b', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '7B', subject: 'Prakarya (Kode 34)', time: '10.20 - 11.40 (Jam 5-6)', room: 'Ruang MTs 7B' },
-    { id: 'sch-ahad-7c', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '7C', subject: 'Prakarya (Kode 34)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 7C' },
+    { id: 'sch-ahad-7a', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '7A', subject: 'Prakarya (Kode 33)', time: '10.20 - 11.40 (Jam 5-6)', room: 'Ruang MTs 7A' },
+    { id: 'sch-ahad-7b', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '7B', subject: 'Prakarya (Kode 33)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 7B' },
 
-    // 2. SENIN: 8D (Jam 7-8)
-    { id: 'sch-senin-8d', day: 'Senin', dayIndex: 1, unit: 'formal', classId: '8D', subject: 'Prakarya (Kode 34)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 8D' },
+    // 2. SENIN: 7D (Jam 7-8)
+    { id: 'sch-senin-7d', day: 'Senin', dayIndex: 1, unit: 'formal', classId: '7D', subject: 'Prakarya (Kode 33)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 7D' },
 
-    // 3. SELASA: 8A (Jam 1-2) + 8B (Jam 3-4) + Madin Malam 1 Ula A
-    { id: 'sch-selasa-8a', day: 'Selasa', dayIndex: 2, unit: 'formal', classId: '8A', subject: 'Prakarya (Kode 34)', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 8A' },
-    { id: 'sch-selasa-8b', day: 'Selasa', dayIndex: 2, unit: 'formal', classId: '8B', subject: 'Prakarya (Kode 34)', time: '08.30 - 09.50 (Jam 3-4)', room: 'Ruang MTs 8B' },
+    // 3. SELASA: Madin Malam 1 Ula A
     { id: 'sch-selasa-madin', day: 'Selasa', dayIndex: 2, unit: 'nonformal', classId: '1UlaA', subject: 'Safinatun Najah', time: '18.00 - 19.30 (Malam / Ba\'da Maghrib)', room: 'Gedung Diniyah Lt. 1' },
 
-    // 4. KAMIS: 8C (Jam 1-2) + 7A (Jam 3-4) + 7D (Jam 7-8)
-    { id: 'sch-kamis-8c', day: 'Kamis', dayIndex: 4, unit: 'formal', classId: '8C', subject: 'Prakarya (Kode 34)', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 8C' },
-    { id: 'sch-kamis-7a', day: 'Kamis', dayIndex: 4, unit: 'formal', classId: '7A', subject: 'Prakarya (Kode 34)', time: '08.30 - 09.50 (Jam 3-4)', room: 'Ruang MTs 7A' },
-    { id: 'sch-kamis-7d', day: 'Kamis', dayIndex: 4, unit: 'formal', classId: '7D', subject: 'Prakarya (Kode 34)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 7D' },
+    // 4. KAMIS: 7C (Jam 1-2)
+    { id: 'sch-kamis-7c', day: 'Kamis', dayIndex: 4, unit: 'formal', classId: '7C', subject: 'Prakarya (Kode 33)', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 7C' },
 
     // 5. JUMAT: Madin Malam 1 Ula B
     { id: 'sch-jumat-madin', day: 'Jumat', dayIndex: 5, unit: 'nonformal', classId: '1UlaB', subject: 'Safinatun Najah', time: '18.00 - 19.30 (Malam / Ba\'da Maghrib)', room: 'Gedung Diniyah Lt. 2' }
@@ -202,14 +198,14 @@
         bonusWeight: 20,
         schedules: JSON.parse(JSON.stringify(DEFAULT_SCHEDULES)),
         classes: {
-          '7A': createInitialClassData('formal', 'Prakarya (Kode 34)', '7A', DEFAULT_STUDENTS_7A),
-          '7B': createInitialClassData('formal', 'Prakarya (Kode 34)', '7B', DEFAULT_STUDENTS_7B),
-          '7C': createInitialClassData('formal', 'Prakarya (Kode 34)', '7C', DEFAULT_STUDENTS_7C),
-          '7D': createInitialClassData('formal', 'Prakarya (Kode 34)', '7D', DEFAULT_STUDENTS_7D),
-          '8A': createInitialClassData('formal', 'Prakarya (Kode 34)', '8A', DEFAULT_STUDENTS_8A),
-          '8B': createInitialClassData('formal', 'Prakarya (Kode 34)', '8B', DEFAULT_STUDENTS_8B),
-          '8C': createInitialClassData('formal', 'Prakarya (Kode 34)', '8C', DEFAULT_STUDENTS_8C),
-          '8D': createInitialClassData('formal', 'Prakarya (Kode 34)', '8D', DEFAULT_STUDENTS_8D),
+          '7A': createInitialClassData('formal', 'Prakarya (Kode 33)', '7A', DEFAULT_STUDENTS_7A),
+          '7B': createInitialClassData('formal', 'Prakarya (Kode 33)', '7B', DEFAULT_STUDENTS_7B),
+          '7C': createInitialClassData('formal', 'Prakarya (Kode 33)', '7C', DEFAULT_STUDENTS_7C),
+          '7D': createInitialClassData('formal', 'Prakarya (Kode 33)', '7D', DEFAULT_STUDENTS_7D),
+          '8A': createInitialClassData('formal', 'Prakarya', '8A', DEFAULT_STUDENTS_8A),
+          '8B': createInitialClassData('formal', 'Prakarya', '8B', DEFAULT_STUDENTS_8B),
+          '8C': createInitialClassData('formal', 'Prakarya', '8C', DEFAULT_STUDENTS_8C),
+          '8D': createInitialClassData('formal', 'Prakarya', '8D', DEFAULT_STUDENTS_8D),
           '1UlaA': createInitialClassData('nonformal', 'Safinatun Najah', '1 Ula A', DEFAULT_STUDENTS_1ULA_A),
           '1UlaB': createInitialClassData('nonformal', 'Safinatun Najah', '1 Ula B', DEFAULT_STUDENTS_1ULA_B)
         }
@@ -228,28 +224,26 @@
 
       Object.keys(studentMap).forEach(clsId => {
         if (!jurnalState.classes[clsId]) {
-          jurnalState.classes[clsId] = createInitialClassData('formal', 'Prakarya (Kode 34)', clsId, studentMap[clsId]);
+          const mapelName = ['7A', '7B', '7C', '7D'].includes(clsId) ? 'Prakarya (Kode 33)' : 'Prakarya';
+          jurnalState.classes[clsId] = createInitialClassData('formal', mapelName, clsId, studentMap[clsId]);
           isUpdated = true;
         }
       });
 
-      // 2. Kalibrasi nama mapel & jam sesi tiap kelas formal ke Jadwal Resmi MTs Kode 34
+      // 2. Kalibrasi nama mapel & jam sesi tiap kelas formal ke Jadwal Resmi MTs Kode 33
       Object.keys(jurnalState.classes).forEach(clsId => {
         const cls = jurnalState.classes[clsId];
         const sched = DEFAULT_CLASS_SCHEDULE[clsId];
         if (cls && sched) {
-          if (cls.unit === 'formal') {
-            cls.subject = 'Prakarya (Kode 34)';
+          if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
+            cls.subject = 'Prakarya (Kode 33)';
           }
           if (cls.sessions) {
             const officialTime = `${sched.time} (${sched.hours})`;
             for (let p = 1; p <= 18; p++) {
               if (cls.sessions[p]) {
-                if (!cls.sessions[p].time || cls.sessions[p].time === '07.00 - 08.20' || cls.sessions[p].time.includes('07.00 - 08.20')) {
+                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34') || cls.sessions[p].time !== officialTime) {
                   cls.sessions[p].time = officialTime;
-                  isUpdated = true;
-                }
-                if (!cls.sessions[p].day) {
                   cls.sessions[p].day = sched.day;
                   isUpdated = true;
                 }
@@ -259,17 +253,18 @@
         }
       });
 
-      // 3. Kalibrasi list schedules (jadwal mengajar mingguan resmi MTs & Diniyah)
-      if (!jurnalState.schedules || !jurnalState.schedules.some(s => s.id === 'sch-ahad-pd')) {
+      // 3. Kalibrasi list schedules (jadwal mengajar mingguan resmi MTs Kode 33 & Diniyah)
+      if (!jurnalState.schedules || !jurnalState.schedules.some(s => s.id === 'sch-kamis-7c') || jurnalState.schedules.some(s => s.subject && s.subject.includes('34'))) {
         jurnalState.schedules = JSON.parse(JSON.stringify(DEFAULT_SCHEDULES));
         isUpdated = true;
       } else {
         DEFAULT_SCHEDULES.forEach(defS => {
           const match = jurnalState.schedules.find(s => s.id === defS.id);
           if (match) {
-            if (match.time !== defS.time || match.subject !== defS.subject) {
+            if (match.time !== defS.time || match.subject !== defS.subject || match.day !== defS.day) {
               match.time = defS.time;
               match.subject = defS.subject;
+              match.day = defS.day;
               isUpdated = true;
             }
           } else {
@@ -329,7 +324,6 @@
       sessions: sessions
     };
   }
-
   function saveJurnalState() {
     try {
       localStorage.setItem(JURNAL_STORAGE_KEY, JSON.stringify(jurnalState));
@@ -377,7 +371,7 @@
       if (btnNF) btnNF.className = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap';
       if (badge) {
         badge.className = 'text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 uppercase tracking-wider';
-        badge.textContent = 'Formal MTs (Prakarya Kode 34)';
+        badge.textContent = 'Formal MTs (Prakarya Kode 33)';
       }
       currentJurnalClass = '7A';
     } else {
@@ -499,14 +493,14 @@
     if (previewGrid) {
       const classList = currentJurnalUnit === 'formal'
         ? [
-            { id: '7A', label: 'Kelas 7A MTs', mapel: 'Prakarya (34)', schedule: 'Kamis Jam 3-4' },
-            { id: '7B', label: 'Kelas 7B MTs', mapel: 'Prakarya (34)', schedule: 'Ahad Jam 5-6' },
-            { id: '7C', label: 'Kelas 7C MTs', mapel: 'Prakarya (34)', schedule: 'Ahad Jam 7-8' },
-            { id: '7D', label: 'Kelas 7D MTs', mapel: 'Prakarya (34)', schedule: 'Kamis Jam 7-8' },
-            { id: '8A', label: 'Kelas 8A MTs', mapel: 'Prakarya (34)', schedule: 'Selasa Jam 1-2' },
-            { id: '8B', label: 'Kelas 8B MTs', mapel: 'Prakarya (34)', schedule: 'Selasa Jam 3-4' },
-            { id: '8C', label: 'Kelas 8C MTs', mapel: 'Prakarya (34)', schedule: 'Kamis Jam 1-2' },
-            { id: '8D', label: 'Kelas 8D MTs', mapel: 'Prakarya (34)', schedule: 'Senin Jam 7-8' }
+            { id: '7A', label: 'Kelas 7A MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 5-6' },
+            { id: '7B', label: 'Kelas 7B MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 7-8' },
+            { id: '7C', label: 'Kelas 7C MTs', mapel: 'Prakarya (33)', schedule: 'Kamis Jam 1-2' },
+            { id: '7D', label: 'Kelas 7D MTs', mapel: 'Prakarya (33)', schedule: 'Senin Jam 7-8' },
+            { id: '8A', label: 'Kelas 8A MTs', mapel: 'Prakarya', schedule: 'MTs 8A' },
+            { id: '8B', label: 'Kelas 8B MTs', mapel: 'Prakarya', schedule: 'MTs 8B' },
+            { id: '8C', label: 'Kelas 8C MTs', mapel: 'Prakarya', schedule: 'MTs 8C' },
+            { id: '8D', label: 'Kelas 8D MTs', mapel: 'Prakarya', schedule: 'MTs 8D' }
           ]
         : [
             { id: '1UlaA', label: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa Malam' },
@@ -628,14 +622,14 @@
 
     const classList = currentJurnalUnit === 'formal'
       ? [
-          { id: '7A', title: 'Kelas 7A MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Kamis • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '7B', title: 'Kelas 7B MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Ahad • 10.20 - 11.40 (Jam 5-6)' },
-          { id: '7C', title: 'Kelas 7C MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Ahad • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '7D', title: 'Kelas 7D MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Kamis • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '8A', title: 'Kelas 8A MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Selasa • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8B', title: 'Kelas 8B MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Selasa • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '8C', title: 'Kelas 8C MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Kamis • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8D', title: 'Kelas 8D MTs', mapel: 'Prakarya (Kode 34)', schedule: 'Senin • 12.10 - 13.20 (Jam 7-8)' }
+          { id: '7A', title: 'Kelas 7A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 08.30 - 09.50 (Jam 3-4)' },
+          { id: '7B', title: 'Kelas 7B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 10.20 - 11.40 (Jam 5-6)' },
+          { id: '7C', title: 'Kelas 7C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 12.10 - 13.20 (Jam 7-8)' },
+          { id: '7D', title: 'Kelas 7D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 12.10 - 13.20 (Jam 7-8)' },
+          { id: '8A', title: 'Kelas 8A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 07.00 - 08.30 (Jam 1-2)' },
+          { id: '8B', title: 'Kelas 8B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 08.30 - 09.50 (Jam 3-4)' },
+          { id: '8C', title: 'Kelas 8C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 07.00 - 08.30 (Jam 1-2)' },
+          { id: '8D', title: 'Kelas 8D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Senin • 12.10 - 13.20 (Jam 7-8)' }
         ]
       : [
           { id: '1UlaA', title: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa • 18.00 - 19.30 (Malam)' },
