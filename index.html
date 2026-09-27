@@ -93,7 +93,7 @@
 
   <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=15">
+  <link rel="stylesheet" href="css/main.css?v=16">
 
 </head>
 
@@ -11161,6 +11161,18 @@
                     >
                       <i data-lucide="key" class="w-3.5 h-3.5 text-amber-500"></i>
                     </button>
+
+                    <!-- 5. Multi-Device Cloud Sync Button (HP <-> Laptop) -->
+                    <button 
+                      type="button" 
+                      id="btnKeuanganCloudSync"
+                      onclick="syncKeuanganToCloud(true)" 
+                      class="h-9 px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-xs font-bold bg-cyan-600 hover:bg-cyan-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap min-w-0"
+                      title="Sinkronkan Saldo & Transaksi Antar HP dan Laptop"
+                    >
+                      <i data-lucide="cloud" class="w-3.5 h-3.5 text-cyan-200 shrink-0"></i>
+                      <span id="labelKeuanganCloudStatus" class="truncate">Sync Cloud</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -13083,6 +13095,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=15"></script>
+  <script src="js/app.bundle.js?v=16"></script>
 </body>
 </html>
