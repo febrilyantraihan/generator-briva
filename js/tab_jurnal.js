@@ -3613,46 +3613,15 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
     }
 
     try {
-      // 1. Prepare class payload (6 rows)
-      const classRows = Object.keys(jurnalState.classes).map(classId => {
-        const c = jurnalState.classes[classId];
-        return {
-          class_id: classId,
-          unit: c.unit || 'formal',
-          label: c.label || classId,
-          subject: c.subject || 'Mapel',
-          students: c.students || [],
-          sessions: c.sessions || {},
-          updated_at: new Date().toISOString()
-        };
-      });
-
-      // PostgREST upsert: POST /rest/v1/jurnal_classes?on_conflict=class_id
-      const resClasses = await fetch(`${cfg.url}/rest/v1/jurnal_classes?on_conflict=class_id`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': cfg.anonKey,
-          'Authorization': `Bearer ${cfg.anonKey}`,
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify(classRows)
-      });
-
-      if (!resClasses.ok) {
-        const errTxt = await resClasses.text();
-        throw new Error(`Gagal simpan kelas: ${resClasses.status} - ${errTxt}`);
-      }
-
-      // 2. Prepare meta payload (1 row for schedules and bonus weight)
-      const metaRow = [{
-        key: 'global_config',
-        bonus_weight: jurnalState.bonusWeight || 20,
-        schedules: jurnalState.schedules || [],
+      const payload = [{
+        id: 'sync_jurnal_state',
+        no: 99998,
+        uraian: JSON.stringify(jurnalState),
+        pj: 'Jurnal AutoSync',
         updated_at: new Date().toISOString()
       }];
 
-      await fetch(`${cfg.url}/rest/v1/jurnal_meta?on_conflict=key`, {
+      const res = await fetch(`${cfg.url}/rest/v1/humas_programs?on_conflict=id`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -3660,8 +3629,13 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
           'Authorization': `Bearer ${cfg.anonKey}`,
           'Prefer': 'resolution=merge-duplicates'
         },
-        body: JSON.stringify(metaRow)
+        body: JSON.stringify(payload)
       });
+
+      if (!res.ok) {
+        const errTxt = await res.text();
+        throw new Error(`HTTP ${res.status} - ${errTxt}`);
+      }
 
       const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
       localStorage.setItem('jurnal_last_cloud_sync_time', timeStr);
@@ -3670,7 +3644,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
 
       if (isManual) {
         if (typeof showToast === 'function') {
-          showToast('✅ Cloud Sync Berhasil', 'Seluruh data 6 kelas, santri, presensi, & nilai tersimpan di Supabase.');
+          showToast('âœ… Cloud Sync Berhasil', 'Seluruh data jurnal, jadwal, presensi & nilai tersimpan di Supabase.');
         }
         setTimeout(() => closeModalJurnalCloudSync(), 800);
       }
@@ -3678,7 +3652,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
     } catch (err) {
       console.warn('Sync Jurnal to Supabase error:', err);
       if (isManual) {
-        alert('Gagal menyinkronkan ke Supabase: ' + err.message + '\n\nPastikan Anda telah menjalankan skema SQL di Dashboard Supabase.');
+        alert('Gagal menyinkronkan ke Supabase: ' + err.message);
       }
       return false;
     }
@@ -3694,65 +3668,35 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
     }
 
     try {
-      // 1. Fetch class records
-      const resClasses = await fetch(`${cfg.url}/rest/v1/jurnal_classes?select=*`, {
+      const res = await fetch(`${cfg.url}/rest/v1/humas_programs?id=eq.sync_jurnal_state&select=*`, {
         headers: {
           'apikey': cfg.anonKey,
           'Authorization': `Bearer ${cfg.anonKey}`
         }
       });
 
-      if (!resClasses.ok) {
-        throw new Error(`HTTP ${resClasses.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
 
-      const rows = await resClasses.json();
-      if (!Array.isArray(rows) || rows.length === 0) {
+      const rows = await res.json();
+      if (!Array.isArray(rows) || rows.length === 0 || !rows[0].uraian) {
         if (isManual) {
-          alert('Database cloud Supabase masih kosong. Silakan unggah data lokal terlebih dahulu.');
+          alert('Database cloud Supabase belum berisi data jurnal. Silakan unggah simpan ke cloud terlebih dahulu.');
         }
         return false;
       }
 
-      // Rebuild jurnalState.classes from cloud
-      jurnalState = jurnalState || {};
-      jurnalState.classes = jurnalState.classes || {};
-
-      rows.forEach(r => {
-        if (r.class_id) {
-          jurnalState.classes[r.class_id] = {
-            unit: r.unit || 'formal',
-            label: r.label || r.class_id,
-            subject: r.subject || 'Mapel',
-            students: Array.isArray(r.students) ? r.students : [],
-            sessions: (r.sessions && typeof r.sessions === 'object') ? r.sessions : {}
-          };
-        }
-      });
-
-      // 2. Fetch meta records
-      try {
-        const resMeta = await fetch(`${cfg.url}/rest/v1/jurnal_meta?key=eq.global_config&select=*`, {
-          headers: {
-            'apikey': cfg.anonKey,
-            'Authorization': `Bearer ${cfg.anonKey}`
-          }
-        });
-        if (resMeta.ok) {
-          const metaRows = await resMeta.json();
-          if (Array.isArray(metaRows) && metaRows[0]) {
-            if (metaRows[0].bonus_weight) jurnalState.bonusWeight = metaRows[0].bonus_weight;
-            if (Array.isArray(metaRows[0].schedules) && metaRows[0].schedules.length > 0) {
-              jurnalState.schedules = metaRows[0].schedules;
-            }
-          }
-        }
-      } catch (metaErr) {
-        console.warn('Meta pull error:', metaErr);
+      const remoteState = JSON.parse(rows[0].uraian);
+      if (remoteState && remoteState.classes) {
+        jurnalState = remoteState;
+        saveJurnalState();
       }
 
-      // Save to localStorage
-      saveJurnalState();
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+      localStorage.setItem('jurnal_last_cloud_sync_time', timeStr);
+      const elLast = document.getElementById('jurnalLastCloudSyncTime');
+      if (elLast) elLast.textContent = `Sinkronisasi terakhir: ${timeStr}`;
 
       // Refresh UI components
       renderJurnalDashboard();
@@ -3766,17 +3710,15 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       renderPresensiTable();
       renderPenilaianTable();
       renderRekapSemesterTable();
+      checkTodaySchedule();
       if (typeof safeCreateIcons === 'function') safeCreateIcons();
 
-      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
-      localStorage.setItem('jurnal_last_cloud_sync_time', timeStr);
-      const elLast = document.getElementById('jurnalLastCloudSyncTime');
-      if (elLast) elLast.textContent = `Sinkronisasi terakhir: ${timeStr}`;
-
-      if (isManual && typeof showToast === 'function') {
-        showToast('✅ Cloud Data Diterapkan', `Berhasil menarik data ${rows.length} kelas dan ribuan presensi dari Supabase.`);
+      if (isManual) {
+        if (typeof showToast === 'function') {
+          showToast('âœ… Cloud Data Diterapkan', 'Berhasil menyelaraskan data jurnal dari Supabase.');
+        }
+        setTimeout(() => closeModalJurnalCloudSync(), 800);
       }
-      setTimeout(() => closeModalJurnalCloudSync(), 800);
       return true;
     } catch (err) {
       console.warn('Pull Jurnal from Supabase error:', err);
@@ -3786,7 +3728,6 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       return false;
     }
   };
-
 
   // ============================================================================
   // STUDIO SLIDE PRESENTASI & CANVA HUB ENGINE
