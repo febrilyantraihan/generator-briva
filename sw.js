@@ -1,10 +1,10 @@
 /**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
- * High-Performance Offline-First Service Worker (PWA)
- * Menjamin 100% fungsionalitas aplikasi tanpa koneksi internet (Offline Mode)
+ * High-Performance Offline-First Service Worker (PWA v16)
+ * Fitur: Seamless Auto-Update (Tanpa Uninstall/Reinstall) & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-offline-v13';
+const CACHE_NAME = 'partner-fatih-v16';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -17,31 +17,32 @@ const PRECACHE_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './css/main.css',
-  './js/app.bundle.js',
+  './css/main.css?v=16',
+  './js/app.bundle.js?v=16',
   './mascot.png'
 ];
 
-// 1. INSTALL EVENT: Pre-cache seluruh aset offline
+// 1. INSTALL EVENT: Pre-cache aset & langsung lewati masa tunggu (Skip Waiting)
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[PWA SW] Pre-caching offline assets...');
+      console.log('[PWA SW v16] Pre-caching offline assets...');
       return cache.addAll(PRECACHE_ASSETS).catch(err => {
-        console.warn('[PWA SW] Partial pre-cache warning (safe to proceed):', err);
+        console.warn('[PWA SW] Pre-cache partial warning:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// 2. ACTIVATE EVENT: Bersihkan cache versi lama & klaim klien aktif
+// 2. ACTIVATE EVENT: Bersihkan seluruh cache lama & langsung klaim semua klien
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME) {
-            console.log('[PWA SW] Removing outdated cache:', key);
+            console.log('[PWA SW] Menghapus cache versi lama:', key);
             return caches.delete(key);
           }
         })
@@ -50,62 +51,63 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. FETCH EVENT: Cache-First dengan Dynamic Runtime Caching & 404 Rescue Fallback
+// 3. FETCH EVENT: Network-First untuk Navigasi HTML (Auto-Update) + Stale-While-Revalidate untuk Aset
 self.addEventListener('fetch', event => {
   const request = event.request;
 
-  // Hanya tangani request GET (abaikan non-GET atau chrome-extension://)
+  // Hanya proses request GET yang valid
   if (request.method !== 'GET' || !request.url.startsWith('http')) {
     return;
   }
 
-  event.respondWith(
-    caches.match(request, { ignoreSearch: true }).then(cachedResponse => {
-      if (cachedResponse) {
-        // Aset ditemukan di cache -> Sajikan instan 0ms (100% Offline Ready)
-        // Background update jika online (Stale-While-Revalidate)
-        fetch(request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
-          }
-        }).catch(() => {/* Silent offline */});
-
-        return cachedResponse;
-      }
-
-      // Jika belum ada di cache -> Ambil dari network lalu simpan ke runtime cache
-      return fetch(request).then(networkResponse => {
-        // PERLINDUNGAN ANTI-404: Jika server (Vercel) mengembalikan 404 untuk navigasi halaman HTML
-        if (!networkResponse || networkResponse.status !== 200) {
-          if (request.mode === 'navigate') {
-            return caches.match('./index.html', { ignoreSearch: true }).then(fallback => {
-              return fallback || caches.match('./', { ignoreSearch: true }) || networkResponse;
-            });
-          }
-          return networkResponse;
+  // --- A. NAVIGASI HALAMAN UTAMA (index.html): NETWORK-FIRST ---
+  // Menjamin jika HP online langsung dapat tampilan & fitur terbaru tanpa perlu install ulang
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(request, responseToCache);
-        });
-
         return networkResponse;
       }).catch(() => {
-        // Jika offline & request navigasi halaman HTML -> Sajikan index.html dari cache
-        if (request.mode === 'navigate') {
-          return caches.match('./index.html', { ignoreSearch: true }).then(fallback => {
-            return fallback || caches.match('./', { ignoreSearch: true });
-          });
+        // Mode Offline: Sajikan dari cache lokal
+        return caches.match('./index.html') || caches.match('./');
+      })
+    );
+    return;
+  }
+
+  // --- B. ASET STATIS (CSS, JS, GAMBAR): STALE-WHILE-REVALIDATE DENGAN EXACT URL ---
+  event.respondWith(
+    caches.match(request).then(cachedResponse => {
+      const fetchPromise = fetch(request).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, responseToCache));
         }
-        // Fallback pencarian cache dengan mengabaikan query search
-        return caches.match(request, { ignoreSearch: true });
-      });
+        return networkResponse;
+      }).catch(() => null);
+
+      // Jika ada di cache, kirim instan 0ms; jika belum ada, tunggu jaringan
+      return cachedResponse || fetchPromise || caches.match(request, { ignoreSearch: true });
     })
   );
 });
 
-// 4. NOTIFICATION CLICK LISTENER (Mobile & Desktop App Notification)
+// 4. MESSAGE EVENT: Menerima perintah skip waiting atau force refresh dari UI
+self.addEventListener('message', event => {
+  if (event.data) {
+    if (event.data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+    if (event.data.type === 'CLEAR_CACHE') {
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+    }
+  }
+});
+
+// 5. NOTIFICATION CLICK LISTENER (Mobile & Desktop App Notification)
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const urlToOpen = (event.notification.data && event.notification.data.url) || './';
@@ -123,7 +125,7 @@ self.addEventListener('notificationclick', event => {
   );
 });
 
-// 5. BACKGROUND PUSH NOTIFICATION LISTENER
+// 6. BACKGROUND PUSH NOTIFICATION LISTENER
 self.addEventListener('push', event => {
   if (event.data) {
     try {
