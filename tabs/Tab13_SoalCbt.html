@@ -180,26 +180,29 @@
               <!-- Right: Form Butir Soal & Pilihan Ganda -->
               <div class="lg:col-span-8 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs space-y-3 sm:space-y-4">
                 <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                  <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <span class="px-2 py-0.5 rounded-lg bg-violet-600 text-white text-xs">Soal No. <span id="cbtActiveQNumber">1</span></span>
+                  <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-lg bg-violet-600 text-white text-xs sm:text-sm font-black shadow-xs">Soal No. <span id="cbtActiveQNumber">1</span></span>
                     <span>Teks Pertanyaan &amp; Opsi</span>
                   </h4>
-                  <span class="text-[10px] text-slate-400">Pintasan: Alt+A..E (Kunci) | Alt+N (Lanjut)</span>
+                  <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Pintasan: Alt+A..E (Kunci) | Alt+N (Lanjut)</span>
                 </div>
 
                 <!-- Stem Textarea -->
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Pertanyaan / Stimulus:</label>
-                  <textarea id="cbtStemInput" rows="3" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="Ketik teks pertanyaan soal di sini..."></textarea>
+                  <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Pertanyaan / Stimulus:</label>
+                  <textarea id="cbtStemInput" rows="3" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm sm:text-base font-medium text-slate-950 dark:text-white leading-relaxed focus:ring-2 focus:ring-violet-500 focus:outline-none shadow-xs" placeholder="Ketik teks pertanyaan soal di sini..."></textarea>
                 </div>
 
                 <!-- Options List (A-E) -->
                 <div>
                   <div class="flex items-center justify-between mb-1.5">
-                    <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Pilihan Ganda &amp; Kunci Jawaban:</label>
-                    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Pilih bulatan untuk menetapkan kunci</span>
+                    <label class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">Pilihan Ganda &amp; Kunci Jawaban:</label>
+                    <span class="text-xs text-emerald-700 dark:text-emerald-400 font-extrabold flex items-center gap-1">
+                      <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                      <span>Pilih bulatan untuk menetapkan kunci</span>
+                    </span>
                   </div>
-                  <div id="cbtOptionsList" class="space-y-2">
+                  <div id="cbtOptionsList" class="space-y-2.5">
                     <!-- Dynamic option rows -->
                   </div>
                 </div>
