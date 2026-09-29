@@ -4556,12 +4556,12 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
 
       const statusEl = document.getElementById('ppdbFileStatusText');
       if (statusEl) {
-        statusEl.textContent = `AI Chat WA Ã¢â‚¬¢ ${parsedCount} Santri Terkonversi (Dual-Account)`;
+        statusEl.textContent = `AI Chat WA - ${parsedCount} Santri Terkonversi (Dual-Account)`;
       }
 
       soundSuccess();
       showToast(
-        'âœï¸¨ Konversi AI Berhasil!', 
+        'Konversi AI Berhasil!', 
         `${parsedCount} Santri berhasil diekstrak menjadi 2 Akun (Akun Ortu 11 Kolom + Akun Siswa).`
       );
 
@@ -5255,7 +5255,7 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
       // Perbarui UI
       const statusEl = document.getElementById('ppdbFileStatusText');
       if (statusEl && sourceName) {
-        statusEl.textContent = `${sourceName} Ã¢â‚¬¢ ${currentPpdbSiswaList.length} Siswa Teranalisis`;
+        statusEl.textContent = `${sourceName} - ${currentPpdbSiswaList.length} Siswa Teranalisis`;
       }
 
       renderPpdbAll();
@@ -6665,7 +6665,7 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
     }
 
     // --- FITUR GULIR TABEL (BUTTON & DRAG-TO-SCROLL MOUSE) ---
-    // Geser kolom dengan tombol [◀] dan [Ã¢â€“¶]
+    // Geser kolom dengan tombol tabel
     function scrollPpdbTable(type, amount) {
       const id = type === 'ortu' ? 'scrollWrapperPpdbOrtu' : 'scrollWrapperPpdbSiswa';
       const el = document.getElementById(id);
@@ -15362,7 +15362,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       if (btn) btn.disabled = true;
 
       if (typeof showToast === 'function') {
-        showToast('ðŸ”„ Memulai Sinkronisasi', 'Menyelaraskan seluruh tab, jadwal resmi Kode 33, dan data Cloud Supabase...');
+        showToast('Memulai Sinkronisasi', 'Menyelaraskan seluruh tab, jadwal resmi Kode 33, dan data Cloud Supabase...');
       }
 
       const summary = [];
@@ -15467,13 +15467,13 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       if (icon) icon.classList.remove('animate-spin');
       if (btn) btn.disabled = false;
 
-      const detailMsg = summary.length > 0 ? ('â€¢ ' + summary.join('\nâ€¢ ')) : 'Seluruh modul telah diselaraskan.';
+      const detailMsg = summary.length > 0 ? ('- ' + summary.join('\n- ')) : 'Seluruh modul telah diselaraskan.';
       
       if (typeof showToast === 'function') {
-        showToast('âœ… Sinkronisasi Selesai', 'Semua tab & data cloud telah tersinkronkan.');
+        showToast('Sinkronisasi Selesai', 'Semua tab & data cloud telah tersinkronkan.');
       }
 
-      if (confirm('âœ… SEMUA TAB & CLOUD BERHASIL DISINKRONKAN!\n\n' + detailMsg + '\n\nSegarkan halaman sekarang agar tampilan HP langsung bersih dan terbarui?')) {
+      if (confirm('SEMUA TAB & CLOUD BERHASIL DISINKRONKAN!\n\n' + detailMsg + '\n\nSegarkan halaman sekarang agar tampilan HP langsung bersih dan terbarui?')) {
         window.location.reload();
       }
     };
@@ -15513,7 +15513,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 console.log('[PWA v16] Versi baru aplikasi siap digunakan!');
                 if (typeof showToast === 'function') {
-                  showToast('ðŸš€ Pembaruan Sistem', 'Versi baru aplikasi terdeteksi & langsung disinkronkan.');
+                  showToast('Pembaruan Sistem', 'Versi baru aplikasi terdeteksi & langsung disinkronkan.');
                 }
               }
             });
@@ -15553,7 +15553,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
             if ('caches' in window) {
               caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
                 if (typeof showToast === 'function') {
-                  showToast('âœ… Berhasil Diperbarui', 'Aplikasi memuat versi terbaru...');
+                  showToast('Berhasil Diperbarui', 'Aplikasi memuat versi terbaru...');
                 }
                 setTimeout(() => window.location.reload(true), 500);
               });
@@ -25491,7 +25491,7 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
               renderHumasH7RadarCards();
               renderHumasTable();
               if (typeof showToast === 'function') {
-                showToast('Sinkronisasi Selesai', `Memuat ${res.count} kegiatan dari sheet "Kalender_Humas_Sosmed".`);
+        showToast('Sinkronisasi Selesai', 'Semua tab & data cloud telah tersinkronkan.');
               }
             } else {
               if (typeof showToast === 'function') {
@@ -26777,6 +26777,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -27375,7 +27377,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
             </div>
             <div class="flex items-center gap-1.5 mt-1.5">
               <button type="button" onclick="event.stopPropagation(); openSlideStudioForPertemuan(${p});" class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 border border-indigo-500/20 active:scale-95 transition-all" title="Buka Slide Presentasi & Canva">
-                <span>Slide</span> ðŸŽ¨
+                <span>Slide</span>
               </button>
               <button type="button" onclick="event.stopPropagation(); openJurnalAiQuizModal(${p});" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 border border-amber-500/20 active:scale-95 transition-all" title="Tanya Santri (AI Evaluasi)">
                 <span>Tanya AI</span> 🎯
@@ -27988,7 +27990,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       }
       const avgFormatif = count > 0 ? Math.round(totalScore / count) : 80;
 
-      // Bonus Points Calculation
+          `3. Siapa yang bisa menyimpulkan perbedaan poin penting materi ini? (Bonus Poin)`
       let bonusPoints = 0;
       if (bonusWeight === 15) bonusPoints = Math.round(avgFormatif * 0.15);
       else if (bonusWeight === 20) bonusPoints = Math.round(avgFormatif * 0.20);
@@ -30422,7 +30424,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
 
       if (isManual) {
         if (typeof showToast === 'function') {
-          showToast('âœ… Cloud Sync Berhasil', 'Seluruh data jurnal, jadwal, presensi & nilai tersimpan di Supabase.');
+          showToast('Cloud Sync Berhasil', 'Seluruh data jurnal, jadwal, presensi & nilai tersimpan di Supabase.');
         }
         setTimeout(() => closeModalJurnalCloudSync(), 800);
       }
@@ -30493,7 +30495,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
 
       if (isManual) {
         if (typeof showToast === 'function') {
-          showToast('âœ… Cloud Data Diterapkan', 'Berhasil menyelaraskan data jurnal dari Supabase.');
+          showToast('Cloud Data Diterapkan', 'Berhasil menyelaraskan data jurnal dari Supabase.');
         }
         setTimeout(() => closeModalJurnalCloudSync(), 800);
       }
@@ -30647,11 +30649,11 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
         type: 'cover',
         tag: `Pertemuan ke-${p}`,
         title: materiTitle,
-        subtitle: `${mapel} â€¢ Kelas ${className} â€¢ ${sekolah}`,
+        subtitle: `${mapel} | Kelas ${className} | ${sekolah}`,
         bullets: [
           `Guru Pengampu: ${guru}`,
           `Tahun Pelajaran: 2026/2027`,
-          `Partner Fatih: Santri Sigap â€¢ Semangat â€¢ Optimis`
+          `Partner Fatih: Santri Sigap - Semangat - Optimis`
         ]
       },
       {
@@ -30695,7 +30697,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
         bullets: [
           `1. Berdasarkan pembahasan tadi, apa pengertian utama dari topik hari ini?`,
           `2. Sebutkan minimal 2 contoh penerapan atau hikmah yang bisa kita ambil!`,
-          `3. Siapa yang bisa menyimpulkan perbedaan poin penting materi ini? (Bonus Poin â­)`
+          `3. Siapa yang bisa menyimpulkan perbedaan poin penting materi ini? (Bonus Poin)`
         ]
       },
       {
@@ -30706,7 +30708,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
         bullets: [
           `Intisari: Menguasai materi sebagai bekal ilmu yang berkah dan bermanfaat`,
           `Tugas Tindak Lanjut: Pelajari kembali catatan materi untuk pertemuan berikutnya`,
-          `"Man Jadda Wajada" â€” Barangsiapa bersungguh-sungguh, pasti ia akan berhasil.`
+          `"Man Jadda Wajada" - Barangsiapa bersungguh-sungguh, pasti ia akan berhasil.`
         ]
       }
     ];
@@ -30716,7 +30718,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
     renderSlideDeckUI();
 
     if (shouldToast && typeof showToast === 'function') {
-      showToast('âœ¨ Slide Berhasil Disusun', `6 slide presentasi Pertemuan ${p} siap digunakan.`);
+      showToast('Slide Berhasil Disusun', `6 slide presentasi Pertemuan ${p} siap digunakan.`);
     }
   };
 
@@ -30778,7 +30780,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
           <span class="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${theme.badgeClass}">
             ${s.tag || `Slide ${activeSlideIndex + 1}`}
           </span>
-          <span class="text-[11px] opacity-75 font-semibold">MTs &amp; Diniyah â€¢ Partner Fatih</span>
+          <span class="text-[11px] opacity-75 font-semibold">MTs &amp; Diniyah | Partner Fatih</span>
         </div>
         <h2 class="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight leading-snug">
           ${s.title || ''}
@@ -31132,7 +31134,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
           bullets.forEach((bText, bIdx) => {
             const curY = startY + (bIdx * (cardHeight + 0.15));
             slide.addShape(pptx.ShapeType.roundRect, { x: 0.8, y: curY, w: 11.5, h: cardHeight, fill: { color: theme.pptx.cardBg }, line: { color: theme.pptx.accent, width: 0.5 } });
-            slide.addText(`â€¢  ${bText}`, { x: 1.1, y: curY + 0.1, w: 11.0, h: cardHeight - 0.2, fontSize: 13, color: theme.pptx.text, bold: false, wrap: true });
+            slide.addText(`- ${bText}`, { x: 1.1, y: curY + 0.1, w: 11.0, h: cardHeight - 0.2, fontSize: 13, color: theme.pptx.text, bold: false, wrap: true });
           });
 
           slide.addText(`${mapel} - ${className} | ${pptx.company}`, { x: 0.8, y: 6.8, w: 8, h: 0.3, fontSize: 9, color: theme.pptx.textMuted });
