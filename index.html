@@ -93,7 +93,7 @@
 
   <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=23">
+  <link rel="stylesheet" href="css/main.css?v=24">
 
 </head>
 
@@ -105,8 +105,8 @@
     <!-- Top Brand Logo & Squircle Navigation Group -->
     <div class="flex flex-col items-center gap-3">
       <!-- Logo Squircle (Mascot Partner Fatih) -->
-            <span class="text-[9px] block font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase">Sigap - Semangat - Optimis</span>
-        <img src="mascot.png" alt="Mascot Partner Fatih" width="44" height="44" style="max-width: 44px; max-height: 44px;" class="w-full h-full object-cover" />
+      <div class="relative w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-emerald-500 via-teal-400 to-amber-300 shadow-md shadow-emerald-500/20 flex-shrink-0 flex items-center justify-center overflow-hidden">
+        <img src="mascot.png" alt="Mascot Partner Fatih" width="44" height="44" style="max-width: 44px; max-height: 44px;" class="w-full h-full object-cover rounded-[14px]" />
       </div>
 
       <div class="w-6 h-[1px] bg-white/15 my-1"></div>
@@ -287,11 +287,11 @@
     <!-- 1. LEFT SIDEBAR MENU (Modern Glassmorphic Mobile Drawer) -->
   <aside 
     id="appSidebar"
-    class="sm:hidden fixed top-0 bottom-0 left-0 z-50 w-80 max-w-[88vw] bg-white/95 dark:bg-[#0c101a]/95 backdrop-blur-2xl border-r border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-slate-200 flex flex-col justify-between p-4 flex-shrink-0 select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto no-scrollbar min-h-0"
+    class="sm:hidden fixed top-0 bottom-0 left-0 z-50 w-[335px] max-w-[90vw] bg-white/95 dark:bg-[#0c101a]/95 backdrop-blur-2xl border-r border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-slate-200 flex flex-col justify-between p-4 flex-shrink-0 select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto no-scrollbar min-h-0"
   >
     <div class="space-y-3">
-      <!-- HEADER DRAWER: Mascott + Brand + Close Button -->
-      <div class="flex items-center justify-between px-1 pb-3 border-b border-slate-200/70 dark:border-white/[0.08]">
+      <!-- HEADER DRAWER: Mascott + Brand + Close Button (Sticky Luxury Header) -->
+      <div class="sticky top-0 z-20 bg-white/95 dark:bg-[#0c101a]/95 backdrop-blur-xl flex items-center justify-between px-1 pb-3 -mt-1 pt-1 border-b border-slate-200/70 dark:border-white/[0.08]">
         <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('jurnal'); toggleMobileDrawer(false);">
           <div class="relative w-10 h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-emerald-500 via-teal-400 to-amber-300 shadow-md shadow-emerald-500/20 flex-shrink-0">
             <img src="mascot.png" alt="Mascot Partner Fatih" width="40" height="40" style="max-width: 40px; max-height: 40px;" class="w-full h-full rounded-[14px] object-cover" />
@@ -13131,6 +13131,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=23"></script>
+  <script src="js/app.bundle.js?v=24"></script>
 </body>
 </html>
