@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -597,7 +597,7 @@
             </div>
             <div class="flex items-center gap-1.5 mt-1.5">
               <button type="button" onclick="event.stopPropagation(); openSlideStudioForPertemuan(${p});" class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 border border-indigo-500/20 active:scale-95 transition-all" title="Buka Slide Presentasi & Canva">
-                <span>Slide</span> ðŸŽ¨
+                <span>Slide</span>
               </button>
               <button type="button" onclick="event.stopPropagation(); openJurnalAiQuizModal(${p});" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 border border-amber-500/20 active:scale-95 transition-all" title="Tanya Santri (AI Evaluasi)">
                 <span>Tanya AI</span> 🎯
@@ -1210,7 +1210,7 @@
       }
       const avgFormatif = count > 0 ? Math.round(totalScore / count) : 80;
 
-      // Bonus Points Calculation
+          `3. Siapa yang bisa menyimpulkan perbedaan poin penting materi ini? (Bonus Poin)`
       let bonusPoints = 0;
       if (bonusWeight === 15) bonusPoints = Math.round(avgFormatif * 0.15);
       else if (bonusWeight === 20) bonusPoints = Math.round(avgFormatif * 0.20);
@@ -3644,7 +3644,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
 
       if (isManual) {
         if (typeof showToast === 'function') {
-          showToast('âœ… Cloud Sync Berhasil', 'Seluruh data jurnal, jadwal, presensi & nilai tersimpan di Supabase.');
+          showToast('Cloud Sync Berhasil', 'Seluruh data jurnal, jadwal, presensi & nilai tersimpan di Supabase.');
         }
         setTimeout(() => closeModalJurnalCloudSync(), 800);
       }
@@ -3715,7 +3715,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
 
       if (isManual) {
         if (typeof showToast === 'function') {
-          showToast('âœ… Cloud Data Diterapkan', 'Berhasil menyelaraskan data jurnal dari Supabase.');
+          showToast('Cloud Data Diterapkan', 'Berhasil menyelaraskan data jurnal dari Supabase.');
         }
         setTimeout(() => closeModalJurnalCloudSync(), 800);
       }
@@ -3869,11 +3869,11 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
         type: 'cover',
         tag: `Pertemuan ke-${p}`,
         title: materiTitle,
-        subtitle: `${mapel} â€¢ Kelas ${className} â€¢ ${sekolah}`,
+        subtitle: `${mapel} | Kelas ${className} | ${sekolah}`,
         bullets: [
           `Guru Pengampu: ${guru}`,
           `Tahun Pelajaran: 2026/2027`,
-          `Partner Fatih: Santri Sigap â€¢ Semangat â€¢ Optimis`
+          `Partner Fatih: Santri Sigap - Semangat - Optimis`
         ]
       },
       {
@@ -3917,7 +3917,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
         bullets: [
           `1. Berdasarkan pembahasan tadi, apa pengertian utama dari topik hari ini?`,
           `2. Sebutkan minimal 2 contoh penerapan atau hikmah yang bisa kita ambil!`,
-          `3. Siapa yang bisa menyimpulkan perbedaan poin penting materi ini? (Bonus Poin â­)`
+          `3. Siapa yang bisa menyimpulkan perbedaan poin penting materi ini? (Bonus Poin)`
         ]
       },
       {
@@ -3928,7 +3928,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
         bullets: [
           `Intisari: Menguasai materi sebagai bekal ilmu yang berkah dan bermanfaat`,
           `Tugas Tindak Lanjut: Pelajari kembali catatan materi untuk pertemuan berikutnya`,
-          `"Man Jadda Wajada" â€” Barangsiapa bersungguh-sungguh, pasti ia akan berhasil.`
+          `"Man Jadda Wajada" - Barangsiapa bersungguh-sungguh, pasti ia akan berhasil.`
         ]
       }
     ];
@@ -3938,7 +3938,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
     renderSlideDeckUI();
 
     if (shouldToast && typeof showToast === 'function') {
-      showToast('âœ¨ Slide Berhasil Disusun', `6 slide presentasi Pertemuan ${p} siap digunakan.`);
+      showToast('Slide Berhasil Disusun', `6 slide presentasi Pertemuan ${p} siap digunakan.`);
     }
   };
 
@@ -4000,7 +4000,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
           <span class="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${theme.badgeClass}">
             ${s.tag || `Slide ${activeSlideIndex + 1}`}
           </span>
-          <span class="text-[11px] opacity-75 font-semibold">MTs &amp; Diniyah â€¢ Partner Fatih</span>
+          <span class="text-[11px] opacity-75 font-semibold">MTs &amp; Diniyah | Partner Fatih</span>
         </div>
         <h2 class="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight leading-snug">
           ${s.title || ''}
@@ -4354,7 +4354,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
           bullets.forEach((bText, bIdx) => {
             const curY = startY + (bIdx * (cardHeight + 0.15));
             slide.addShape(pptx.ShapeType.roundRect, { x: 0.8, y: curY, w: 11.5, h: cardHeight, fill: { color: theme.pptx.cardBg }, line: { color: theme.pptx.accent, width: 0.5 } });
-            slide.addText(`â€¢  ${bText}`, { x: 1.1, y: curY + 0.1, w: 11.0, h: cardHeight - 0.2, fontSize: 13, color: theme.pptx.text, bold: false, wrap: true });
+            slide.addText(`- ${bText}`, { x: 1.1, y: curY + 0.1, w: 11.0, h: cardHeight - 0.2, fontSize: 13, color: theme.pptx.text, bold: false, wrap: true });
           });
 
           slide.addText(`${mapel} - ${className} | ${pptx.company}`, { x: 0.8, y: 6.8, w: 8, h: 0.3, fontSize: 9, color: theme.pptx.textMuted });
