@@ -3135,7 +3135,7 @@
     <header id="canvasHeader" class="h-14 sm:h-16 lg:h-[68px] px-3 sm:px-5 lg:px-6 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between bg-white/80 dark:bg-[#0c101a]/80 backdrop-blur-xl z-30 flex-shrink-0 gap-2 sm:gap-3 w-full max-w-full min-w-0 box-border">
       
       <!-- MOBILE VIEW: Minimalist Native App Bar (sm:hidden) -->
-      <div id="mobileHeaderBrand" class="flex sm:hidden items-center gap-2 min-w-0 flex-1">
+      <div id="mobileHeaderBrand" class="flex sm:hidden items-center gap-2 min-w-0 flex-1 overflow-hidden mr-1">
         <button 
           onclick="toggleMobileDrawer()" 
           class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 dark:text-slate-200 bg-slate-100/90 dark:bg-white/10 active:scale-95 transition-all flex-shrink-0 cursor-pointer shadow-2xs border border-slate-200/60 dark:border-white/10"
@@ -3145,8 +3145,8 @@
         </button>
         <div class="flex items-center gap-1.5 min-w-0">
           <span id="mobileHeaderDot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse flex-shrink-0"></span>
-          <span id="mobileHeaderTitle" class="text-sm font-extrabold text-slate-900 dark:text-white truncate leading-tight">Humas &amp; Sosmed</span>
-          <span id="mobileHeaderBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-md border bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40 flex-shrink-0">Radar H-7</span>
+          <span id="mobileHeaderTitle" class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate leading-tight">Humas &amp; Sosmed</span>
+          <span id="mobileHeaderBadge" class="hidden xs:inline-flex text-[9.5px] font-bold px-1.5 py-0.5 rounded-md border bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40 flex-shrink-0">Radar H-7</span>
         </div>
       </div>
 
@@ -3232,7 +3232,7 @@
       <span id="topHeaderBreadcrumb" class="hidden">Generator Akun &amp; PPDB</span>
 
       <!-- Right Toolbar: Clock, PWA, Sound, Theme, Profile -->
-      <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-auto">
+      <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-auto z-10">
         
         <!-- Live Clock & Date Pill (Compact & Ultra-Sharp) -->
         <div class="hidden xl:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100/90 dark:bg-white/[0.04] text-[11px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/[0.08] select-none flex-shrink-0 shadow-2xs">
@@ -3253,10 +3253,10 @@
           id="pwaInstallBtn" 
           onclick="triggerPwaInstall()" 
           title="Pasang Aplikasi ke Layar Utama (HP Android/iOS atau Desktop)" 
-          class="flex px-3 py-1.5 rounded-xl items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 hover:bg-emerald-200/90 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          class="flex w-8 h-8 sm:w-auto p-1.5 sm:px-3 sm:py-1.5 rounded-xl items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 hover:bg-emerald-200/90 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
         >
           <svg data-lucide="download" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 pointer-events-none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          <span class="inline font-bold">Pasang App</span>
+          <span class="hidden md:inline font-bold">Pasang App</span>
         </button>
 
         <!-- Tombol Singkron Master (Semua Tab & Cloud Supabase & PWA Update) -->
@@ -3264,10 +3264,10 @@
           id="masterSyncBtn" 
           onclick="triggerMasterSync()" 
           title="Sinkronkan Semua Tab, Data Cloud Supabase & Perbarui Aplikasi" 
-          class="flex px-2.5 sm:px-3 py-1.5 rounded-xl items-center gap-1.5 text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-100/90 hover:bg-sky-200/90 dark:bg-sky-950/80 dark:hover:bg-sky-900 border border-sky-300 dark:border-sky-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          class="flex w-8 h-8 sm:w-auto p-1.5 sm:px-3 sm:py-1.5 rounded-xl items-center justify-center gap-1.5 text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-100/90 hover:bg-sky-200/90 dark:bg-sky-950/80 dark:hover:bg-sky-900 border border-sky-300 dark:border-sky-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
         >
           <svg id="masterSyncIcon" data-lucide="refresh-cw" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 pointer-events-none"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-          <span class="inline font-bold">Sinkron Semua</span>
+          <span class="hidden md:inline font-bold">Sinkron Semua</span>
         </button>
 
         <!-- Audio Toggle Button -->
@@ -3280,7 +3280,7 @@
           id="themeToggleBtn" 
           onclick="toggleTheme()" 
           title="Beralih Tema Siang / Malam" 
-          class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-white/[0.04] hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-white/[0.1] dark:hover:text-amber-300 border border-slate-200/80 dark:border-white/[0.08] shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-white/[0.04] hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-white/[0.1] dark:hover:text-amber-300 border border-slate-200/80 dark:border-white/[0.08] shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
         >
           <svg id="themeIcon" data-lucide="moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-slate-700 dark:text-amber-400 transition-transform pointer-events-none"><path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"/></svg>
         </button>
@@ -31179,6 +31179,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
