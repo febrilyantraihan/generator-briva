@@ -93,7 +93,7 @@
 
   <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=21">
+  <link rel="stylesheet" href="css/main.css?v=22">
 
 </head>
 
@@ -12464,11 +12464,11 @@
                   </button>
                 </div>
                 <p class="text-[11px] opacity-90 leading-relaxed">
-                  Sistem otomatis mengenali nomor soal, teks pertanyaan, pilihan A-E, dan baris kunci jawaban (cth: <code>Kunci: D</code>).
+                  Sistem otomatis mengenali teks pertanyaan (<strong>bisa tanpa nomor atau dengan nomor</strong>), pilihan opsi A-E, dan baris kunci jawaban (cth: <code>Kunci: D</code>). Nomor soal otomatis diurutkan rapi secara berurutan.
                 </p>
               </div>
 
-              <textarea id="cbtBulkTextInput" rows="12" class="w-full p-3 font-mono text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="1. Soal pertanyaan...&#10;A. Pilihan A&#10;B. Pilihan B&#10;C. Pilihan C&#10;D. Pilihan D&#10;E. Pilihan E&#10;Kunci: D&#10;&#10;2. Soal pertanyaan..."></textarea>
+              <textarea id="cbtBulkTextInput" rows="12" class="w-full p-3 font-mono text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="Soal pertanyaan (boleh tanpa nomor)...&#10;A. Pilihan A&#10;B. Pilihan B&#10;C. Pilihan C&#10;D. Pilihan D&#10;E. Pilihan E&#10;Kunci: D&#10;&#10;Soal pertanyaan kedua...&#10;A. Pilihan A&#10;B. Pilihan B&#10;C. Pilihan C&#10;D. Pilihan D&#10;E. Pilihan E&#10;Kunci: A"></textarea>
 
               <div class="flex justify-end">
                 <button type="button" onclick="parseCbtBulkText(document.getElementById('cbtBulkTextInput').value)" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-2">
@@ -13131,6 +13131,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=21"></script>
+  <script src="js/app.bundle.js?v=22"></script>
 </body>
 </html>
