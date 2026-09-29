@@ -38,6 +38,16 @@
                 </div>
                 <button 
                   type="button" 
+                  id="btnCbtShuffleHeader" 
+                  onclick="shuffleCbtQuestions()" 
+                  class="px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-700 dark:text-amber-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  title="Acak urutan seluruh butir soal (agar persebaran materi acak & berimbang)"
+                >
+                  <i data-lucide="shuffle" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
+                  <span>Acak Soal</span>
+                </button>
+                <button 
+                  type="button" 
                   id="btnCbtExportSoal" 
                   class="px-3 py-1.5 rounded-lg border border-violet-500/40 bg-violet-600/10 hover:bg-violet-600 text-violet-700 dark:text-violet-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                   title="Unduh berkas soal CBT murni tanpa kunci (.docx)"
@@ -153,6 +163,10 @@
                     <span>Daftar Nomor Soal</span>
                   </span>
                   <div class="flex items-center gap-1">
+                    <button type="button" id="cbtShuffleBtn" onclick="shuffleCbtQuestions()" class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 flex items-center gap-1 cursor-pointer transition-all active:scale-95" title="Acak urutan seluruh butir soal agar persebaran materi berimbang">
+                      <i data-lucide="shuffle" class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400"></i>
+                      <span>Acak</span>
+                    </button>
                     <button type="button" id="cbtAddBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer">+ Tambah</button>
                     <button type="button" id="cbtDeleteBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-600 dark:text-rose-300 cursor-pointer">Hapus</button>
                   </div>
