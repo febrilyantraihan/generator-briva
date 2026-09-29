@@ -1,0 +1,289 @@
+          <!-- ============================================================== -->
+          <!-- TAB 13: GENERATOR SOAL CBT & KUNCI JAWABAN (WORD PRESISI)         -->
+          <!-- FAST PASTE AI   TABEL TITIK-TITIK SAMAR   DUAL DOCX SEPARATED     -->
+          <!-- ============================================================== -->
+          <div id="tab-cbt" class="hidden space-y-3 sm:space-y-4 pb-32 sm:pb-12 px-[2px] sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
+            
+            <!-- 1. HEADER MODUL & AKSI EKSPOR CEPAT -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 min-w-0 max-w-full box-border">
+              <!-- Left Brand & Info with Mascot -->
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <div class="relative flex-shrink-0">
+                  <img src="mascot.png" alt="Mascot Partner Fatih" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl object-cover shadow-md shadow-violet-500/25 border-2 border-violet-500/40" />
+                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-violet-500 text-white flex items-center justify-center text-[9px] font-black shadow-xs ring-2 ring-white dark:ring-slate-900">
+                    <i data-lucide="file-text" class="w-2.5 h-2.5"></i>
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 class="font-black text-xs sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></span>
+                      <span>Generator Soal CBT &amp; Kunci Jawaban</span>
+                    </h3>
+                    <span class="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/60 uppercase tracking-wider flex items-center gap-1">
+                      <i data-lucide="check-circle-2" class="w-3 h-3 text-violet-600 dark:text-violet-400"></i>
+                      <span>Format Word Presisi</span>
+                    </span>
+                  </div>
+                  <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                    Injeksi Otomatis Dokumen Word (DOCX) berstandar CBT dengan batas titik-titik samar &amp; file kunci terpisah.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Independent Download Buttons -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                  <span id="cbtStatCompleted">0</span>/<span id="cbtStatTotal">35</span> Lengkap
+                </div>
+                <button 
+                  type="button" 
+                  id="btnCbtExportSoal" 
+                  class="px-3 py-1.5 rounded-lg border border-violet-500/40 bg-violet-600/10 hover:bg-violet-600 text-violet-700 dark:text-violet-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  title="Unduh berkas soal CBT murni tanpa kunci (.docx)"
+                >
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Unduh Soal Saja (.docx)</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="btnCbtExportKunci" 
+                  class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-violet-500/25 active:scale-95"
+                  title="Unduh matriks kunci jawaban 4 kolom (.docx)"
+                >
+                  <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                  <span>Unduh Kunci Saja (.docx)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. SUBTAB NAVIGATION PILLS -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+              <button 
+                type="button" 
+                id="cbt-tab-btn-editor" 
+                onclick="switchCbtSubtab('editor')" 
+                class="px-3 py-2 text-xs font-bold rounded-xl border border-violet-500/40 bg-violet-600 text-white shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                <span>Form Soal Interaktif</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-bulk" 
+                onclick="switchCbtSubtab('bulk')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>Fast Paste Massal (Otomatis)</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-preview-soal" 
+                onclick="switchCbtSubtab('preview-soal')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-500"></i>
+                <span>Pratinjau File Soal</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-preview-kunci" 
+                onclick="switchCbtSubtab('preview-kunci')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="key-round" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>Pratinjau File Kunci (4 Kolom)</span>
+              </button>
+            </div>
+
+            <!-- 3. METADATA COLLAPSIBLE ACCORDION -->
+            <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
+              <button 
+                type="button" 
+                onclick="document.getElementById('cbtMetaBody').classList.toggle('hidden')" 
+                class="w-full px-4 py-2.5 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+              >
+                <span class="flex items-center gap-2">
+                  <i data-lucide="settings-2" class="w-4 h-4 text-violet-500"></i>
+                  <span>Atur Kop, Mapel &amp; Tanda Tangan Guru Ujian</span>
+                </span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+              </button>
+              
+              <div id="cbtMetaBody" class="p-4 border-t border-slate-200/80 dark:border-slate-800 hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-slate-50/50 dark:bg-slate-950/40 text-xs">
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Judul Ujian</label>
+                  <input type="text" id="cbt_meta_exam_title" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Nama Madrasah</label>
+                  <input type="text" id="cbt_meta_institution" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Tahun Pelajaran</label>
+                  <input type="text" id="cbt_meta_academic_year" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Mata Pelajaran &amp; Kelas</label>
+                  <input type="text" id="cbt_meta_subject" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Akun CBT</label>
+                  <input type="text" id="cbt_meta_cbt_account" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div>
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Kota &amp; Tanggal</label>
+                  <input type="text" id="cbt_meta_date" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+                <div class="sm:col-span-2 lg:col-span-3">
+                  <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-400">Nama Guru Penyusun</label>
+                  <input type="text" id="cbt_meta_author" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. PANE 1: INTERACTIVE QUESTION EDITOR -->
+            <div id="cbt-pane-editor" class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+              <!-- Left: Grid Matrix Nomor Soal -->
+              <div class="lg:col-span-4 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-xs flex flex-col">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-violet-500"></i>
+                    <span>Daftar Nomor Soal</span>
+                  </span>
+                  <div class="flex items-center gap-1">
+                    <button type="button" id="cbtAddBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer">+ Tambah</button>
+                    <button type="button" id="cbtDeleteBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-600 dark:text-rose-300 cursor-pointer">Hapus</button>
+                  </div>
+                </div>
+                <!-- Grid items container -->
+                <div id="cbtQuestionGrid" class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-1.5 max-h-[380px] overflow-y-auto no-scrollbar p-1">
+                  <!-- Generated dynamically -->
+                </div>
+              </div>
+
+              <!-- Right: Form Butir Soal & Pilihan Ganda -->
+              <div class="lg:col-span-8 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs space-y-3 sm:space-y-4">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-lg bg-violet-600 text-white text-xs">Soal No. <span id="cbtActiveQNumber">1</span></span>
+                    <span>Teks Pertanyaan &amp; Opsi</span>
+                  </h4>
+                  <span class="text-[10px] text-slate-400">Pintasan: Alt+A..E (Kunci) | Alt+N (Lanjut)</span>
+                </div>
+
+                <!-- Stem Textarea -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Pertanyaan / Stimulus:</label>
+                  <textarea id="cbtStemInput" rows="3" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="Ketik teks pertanyaan soal di sini..."></textarea>
+                </div>
+
+                <!-- Options List (A-E) -->
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Pilihan Ganda &amp; Kunci Jawaban:</label>
+                    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Pilih bulatan untuk menetapkan kunci</span>
+                  </div>
+                  <div id="cbtOptionsList" class="space-y-2">
+                    <!-- Dynamic option rows -->
+                  </div>
+                </div>
+
+                <!-- Bottom Navigation Buttons -->
+                <div class="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+                  <button type="button" id="cbtPrevBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">&larr; Sebelumnya</button>
+                  <button type="button" id="cbtNextBtn" class="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-bold text-white shadow-xs cursor-pointer">Selanjutnya &rarr;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. PANE 2: FAST PASTE MASSAL -->
+            <div id="cbt-pane-bulk" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3">
+              <div class="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-900/60 text-violet-900 dark:text-violet-200 text-xs space-y-2">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <span class="font-bold flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-violet-600"></i>
+                    <span>Tempelkan Soal dari Dokumen Lama atau AI (ChatGPT/Gemini)</span>
+                  </span>
+                  <button type="button" id="cbtCopyPromptBtn" class="px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center gap-1">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                    <span>Salin Template Prompt AI (35 Soal MTs 7)</span>
+                  </button>
+                </div>
+                <p class="text-[11px] opacity-90 leading-relaxed">
+                  Sistem otomatis mengenali teks pertanyaan (<strong>bisa tanpa nomor atau dengan nomor</strong>), pilihan opsi A-E, dan baris kunci jawaban (cth: <code>Kunci: D</code>). Nomor soal otomatis diurutkan rapi secara berurutan.
+                </p>
+              </div>
+
+              <textarea id="cbtBulkTextInput" rows="12" class="w-full p-3 font-mono text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-violet-500 focus:outline-none" placeholder="Soal pertanyaan (boleh tanpa nomor)...&#10;A. Pilihan A&#10;B. Pilihan B&#10;C. Pilihan C&#10;D. Pilihan D&#10;E. Pilihan E&#10;Kunci: D&#10;&#10;Soal pertanyaan kedua...&#10;A. Pilihan A&#10;B. Pilihan B&#10;C. Pilihan C&#10;D. Pilihan D&#10;E. Pilihan E&#10;Kunci: A"></textarea>
+
+              <div class="flex justify-end">
+                <button type="button" onclick="parseCbtBulkText(document.getElementById('cbtBulkTextInput').value)" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-2">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                  <span>Proses &amp; Masukkan ke Butir Soal</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 6. PANE 3: LIVE PREVIEW FILE SOAL (CBT) -->
+            <div id="cbt-pane-preview-soal" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">📄 Pratinjau Dokumen 1: File Soal CBT (.docx)</h4>
+                  <p class="text-[10px] text-slate-400">Berkas soal murni tanpa kunci dengan garis pembatas titik-titik samar presisi.</p>
+                </div>
+                <button type="button" onclick="document.getElementById('btnCbtExportSoal').click()" class="px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold cursor-pointer">
+                  Unduh File Soal Ini
+                </button>
+              </div>
+
+              <!-- Word Document Container -->
+              <div class="p-4 sm:p-6 bg-white text-black rounded-lg shadow-sm border border-slate-300 font-sans max-h-[500px] overflow-y-auto">
+                <div class="border-b border-slate-400 pb-2 mb-3">
+                  <div id="cbtPreviewMeta" class="text-[10px] text-slate-500">This post was published to CBT...</div>
+                  <div id="cbtPreviewTitle" class="text-sm font-bold mt-0.5">PRAKARYA 7</div>
+                </div>
+                <table id="cbtPreviewTable" class="w-full text-xs border-collapse">
+                  <!-- Dynamic content -->
+                </table>
+              </div>
+            </div>
+
+            <!-- 7. PANE 4: LIVE PREVIEW FILE KUNCI JAWABAN (4 KOLOM) -->
+            <div id="cbt-pane-preview-kunci" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">🔑 Pratinjau Dokumen 2: File Kunci Jawaban (.docx)</h4>
+                  <p class="text-[10px] text-slate-400">Berkas terpisah matriks 4 kolom paralel lengkap dengan kop madrasah dan tanda tangan.</p>
+                </div>
+                <button type="button" onclick="document.getElementById('btnCbtExportKunci').click()" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold cursor-pointer">
+                  Unduh File Kunci Ini
+                </button>
+              </div>
+
+              <div class="p-4 sm:p-6 bg-white text-black rounded-lg shadow-sm border border-slate-300 font-sans max-w-2xl mx-auto max-h-[500px] overflow-y-auto">
+                <div class="text-center font-bold mb-3 space-y-0.5">
+                  <div id="cbtPreviewKunciExam" class="text-xs">KUNCI JAWABAN SOAL SUMATIF TENGAH SEMESTER</div>
+                  <div id="cbtPreviewKunciInst" class="text-xs">MTS RAUDLATUL MUTA'ALLIMIN</div>
+                  <div id="cbtPreviewKunciYear" class="text-[11px]">TAHUN PELAJARAN 2025/2026</div>
+                </div>
+                <div class="text-[11px] font-bold mb-2">MATA PELAJARAN : <span id="cbtPreviewKunciSubject">PRAKARYA 7</span></div>
+
+                <table id="cbtPreviewTableKunci" class="w-full text-xs border-collapse">
+                  <!-- Dynamic content -->
+                </table>
+
+                <div class="mt-6 flex justify-end">
+                  <div class="text-[11px] text-left min-w-[180px]">
+                    <div id="cbtPreviewKunciCityDate">Lamongan, 21 September 2024</div>
+                    <div class="mt-1">Penyusun,</div>
+                    <div class="h-12"></div>
+                    <div id="cbtPreviewKunciAuthor" class="font-bold underline">Mohammad Ilham Mahmudi</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- END COMPONENT: Tab13_SoalCbt.html -->
