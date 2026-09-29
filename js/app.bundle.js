@@ -26806,6 +26806,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34640,15 +34641,15 @@ window.SAMPLE_QUESTIONS = [
       const hasStem = (q.stem || "").trim().length > 0;
       const hasKey = (q.correct_answer || "").trim().length > 0;
 
-      let borderClass = "border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400";
-      let keyBadgeClass = "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300";
+      let borderClass = "border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200";
+      let keyBadgeClass = "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-black";
 
       if (hasStem && hasKey) {
-        borderClass = "border-emerald-400 dark:border-emerald-600/80 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300";
-        keyBadgeClass = "bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-100";
+        borderClass = "border-emerald-500 dark:border-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/60 text-slate-950 dark:text-white shadow-xs";
+        keyBadgeClass = "bg-emerald-600 text-white font-black shadow-xs";
       } else if (hasStem && !hasKey) {
-        borderClass = "border-amber-400 dark:border-amber-600/80 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300";
-        keyBadgeClass = "bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-100";
+        borderClass = "border-amber-500 dark:border-amber-600 bg-amber-50/80 dark:bg-amber-950/60 text-slate-950 dark:text-white shadow-xs";
+        keyBadgeClass = "bg-amber-500 text-white font-black shadow-xs";
       }
 
       if (isAct) {
@@ -34659,8 +34660,8 @@ window.SAMPLE_QUESTIONS = [
       item.type = "button";
       item.className = `p-1.5 rounded-lg border flex flex-col items-center justify-center transition-all cursor-pointer ${borderClass}`;
       item.innerHTML = `
-        <span class="text-xs font-bold leading-none">${idx + 1}</span>
-        <span class="text-[10px] font-extrabold mt-1 px-1.5 rounded font-mono ${keyBadgeClass}">${hasKey ? q.correct_answer : "-"}</span>
+        <span class="text-sm font-black leading-none text-slate-900 dark:text-white">${idx + 1}</span>
+        <span class="text-[11px] font-black mt-1 px-2 py-0.5 rounded font-mono ${keyBadgeClass}">${hasKey ? q.correct_answer : "-"}</span>
       `;
       item.onclick = () => {
         window.cbtState.currentIndex = idx;
@@ -34697,21 +34698,21 @@ window.SAMPLE_QUESTIONS = [
       const isKey = (q.correct_answer || "").toUpperCase() === lbl;
 
       const row = document.createElement("div");
-      row.className = `flex items-center gap-2 sm:gap-3 p-2 rounded-xl border transition-all ${
+      row.className = `flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl border transition-all ${
         isKey
-          ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 ring-1 ring-emerald-500/50"
-          : "border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60"
+          ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 ring-2 ring-emerald-500/50 shadow-xs"
+          : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xs hover:border-slate-400"
       }`;
 
       row.innerHTML = `
-        <label class="cursor-pointer flex items-center" title="Jadikan Kunci Jawaban">
-          <input type="radio" name="cbtCorrectKey" value="${lbl}" ${isKey ? "checked" : ""} class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+        <label class="cursor-pointer flex items-center p-0.5" title="Jadikan Kunci Jawaban">
+          <input type="radio" name="cbtCorrectKey" value="${lbl}" ${isKey ? "checked" : ""} class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
         </label>
-        <span class="w-7 h-7 flex-shrink-0 flex items-center justify-center font-bold text-xs rounded-lg ${
-          isKey ? "bg-emerald-600 text-white" : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+        <span class="w-8 h-8 flex-shrink-0 flex items-center justify-center font-black text-sm rounded-lg shadow-xs ${
+          isKey ? "bg-emerald-600 text-white ring-2 ring-emerald-400" : "bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
         }">${lbl}</span>
-        <input type="text" class="flex-1 bg-transparent border-0 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-0" placeholder="Pilihan ${lbl}..." value="${escapeXml(opt.text)}">
-        ${isKey ? `<span class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white">KUNCI</span>` : ""}
+        <input type="text" class="flex-1 bg-transparent border-0 text-sm sm:text-base font-semibold text-slate-950 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-0 leading-normal" placeholder="Pilihan ${lbl}..." value="${escapeXml(opt.text)}">
+        ${isKey ? `<span class="hidden sm:inline-flex items-center px-2.5 py-0.5 text-xs font-black tracking-wider rounded-full bg-emerald-600 text-white shadow-xs">KUNCI</span>` : ""}
       `;
 
       row.querySelector("input[type=radio]").onchange = () => {
