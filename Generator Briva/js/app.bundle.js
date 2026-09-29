@@ -514,6 +514,7 @@
 
       if (sidebar) {
         if (isDrawerOpen) {
+          sidebar.scrollTop = 0;
           sidebar.classList.remove('-translate-x-full');
           sidebar.classList.add('translate-x-0'); if (typeof lucide !== 'undefined' && lucide.createIcons) { lucide.createIcons(); }
         } else {
@@ -26708,6 +26709,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
