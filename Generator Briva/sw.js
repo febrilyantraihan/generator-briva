@@ -1,10 +1,10 @@
 /**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
- * High-Performance Offline-First Service Worker (PWA v22)
+ * High-Performance Offline-First Service Worker (PWA v23)
  * Fitur: Seamless Auto-Update (Tanpa Uninstall/Reinstall) & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-v22';
+const CACHE_NAME = 'partner-fatih-v23';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -17,8 +17,8 @@ const PRECACHE_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './css/main.css?v=22',
-  './js/app.bundle.js?v=22',
+  './css/main.css?v=23',
+  './js/app.bundle.js?v=23',
   './mascot.png'
 ];
 
