@@ -26805,6 +26805,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -35023,8 +35024,58 @@ window.SAMPLE_QUESTIONS = [
     if (subtab === "preview-kunci") renderCbtPreviewKunci();
   };
 
+  window.shuffleCbtQuestions = function () {
+    const qList = window.cbtState && window.cbtState.questions;
+    if (!qList || qList.length <= 1) {
+      alert("Minimal harus ada lebih dari 1 butir soal untuk diacak!");
+      return;
+    }
+    const count = qList.length;
+    const confirmShuffle = confirm(
+      `Acak urutan seluruh ${count} butir soal sekarang?\n\nUrutan pertanyaan & topik materi akan diacak secara acak (Fisher-Yates Shuffle). Setiap butir soal tetap mempertahankan teks stimulus, pilihan ganda, dan kunci jawabannya masing-masing.`
+    );
+    if (!confirmShuffle) return;
+
+    // Algoritma Fisher-Yates Shuffle untuk pengacakan sempurna tanpa bias
+    for (let i = qList.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = qList[i];
+      qList[i] = qList[j];
+      qList[j] = temp;
+    }
+
+    // Re-assign nomor urut 1..N secara berurutan
+    qList.forEach((q, idx) => {
+      q.number = idx + 1;
+    });
+
+    // Reset index ke nomor pertama
+    window.cbtState.currentIndex = 0;
+    saveCbtLocalStorage();
+    renderCbtAll();
+
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
+
+    if (typeof showAppNotification === "function") {
+      showAppNotification(`Berhasil mengacak urutan ${count} butir soal!`, "success");
+    } else {
+      alert(`Berhasil mengacak urutan ${count} butir soal! Topik materi kini telah tersebar secara acak.`);
+    }
+  };
+
   // --- EVENT SETUP ---
   function setupCbtEvents() {
+    const shuffleBtn = document.getElementById("cbtShuffleBtn");
+    if (shuffleBtn) {
+      shuffleBtn.onclick = () => window.shuffleCbtQuestions();
+    }
+    const shuffleHeaderBtn = document.getElementById("btnCbtShuffleHeader");
+    if (shuffleHeaderBtn) {
+      shuffleHeaderBtn.onclick = () => window.shuffleCbtQuestions();
+    }
+
     const stemEl = document.getElementById("cbtStemInput");
     if (stemEl) {
       stemEl.oninput = (e) => {
