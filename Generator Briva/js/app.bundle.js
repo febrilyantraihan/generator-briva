@@ -26779,6 +26779,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34811,51 +34813,116 @@ window.SAMPLE_QUESTIONS = [
     const parsed = [];
     let currentQ = null;
     let currentOpt = null;
+    let isAfterKey = false;
 
-    const qNumRegex = /^(?:no\.?|soal\s*)?(\d+)[\.\)\:\-]\s*(.*)/i;
-    const optRegex = /^([A-Ea-e])[\.\)\:\-]\s*(.*)/;
-    const keyRegex = /(?:kunci|jawaban|kunci\s*jawaban|ans|key)\s*[\:\=\-]?\s*[\(\[]?([A-Ea-e])[\)\]]?/i;
+    // Regex pengenal nomor soal (opsional, jika ada): 1. / 1) / No. 1 / Soal 1 / **1.**
+    const qNumRegex = /^(?:[\*\_]{1,2})?(?:no\.?|soal\s*no\.?|soal\s*|pertanyaan\s*)?(\d+)[\.\)\:\-](?:[\*\_]{1,2})?\s*(.*)/i;
+    // Regex pengenal pilihan: A. / A) / (A) / A: / A- / **A.** / a.
+    const optRegex = /^(?:[\*\_]{1,2})?(?:[\(\[])?([A-Ea-e])(?:[\)\]\.\:\-])(?:[\*\_]{1,2})?\s*(.*)/;
+    // Regex kunci jawaban: Kunci: B / Jawaban: B / Ans: B / **Kunci:** B
+    const keyRegex = /(?:^|\s|\*|_)(?:kunci(?:\s*jawaban)?|jawaban(?:\s*benar)?|ans(?:wer)?|key)\s*[\:\=\-]?\s*[\(\[\*\_]?([A-Ea-e])[\)\]\*\_]?(?:\s|$|\.)/i;
+
+    function startNewQuestion(stemText) {
+      if (currentQ) {
+        parsed.push(finalizeCbtQuestion(currentQ, parsed.length));
+      }
+      currentQ = {
+        number: parsed.length + 1,
+        stem: stemText || "",
+        options: [],
+        correct_answer: ""
+      };
+      currentOpt = null;
+      isAfterKey = false;
+    }
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      if (!line) continue;
+      if (!line) {
+        // Baris kosong setelah baris Kunci menandakan pemisah tegas ke soal berikutnya
+        if (currentQ && isAfterKey) {
+          parsed.push(finalizeCbtQuestion(currentQ, parsed.length));
+          currentQ = null;
+          currentOpt = null;
+          isAfterKey = false;
+        }
+        continue;
+      }
 
+      // 1. Cek baris Kunci Jawaban
       const keyMatch = line.match(keyRegex);
-      if (keyMatch && currentQ) {
+      if (keyMatch) {
+        if (!currentQ) {
+          startNewQuestion("");
+        }
         currentQ.correct_answer = keyMatch[1].toUpperCase();
         currentOpt = null;
+        isAfterKey = true;
         continue;
       }
 
+      // 2. Cek baris Nomor Soal Eksplisit (cth: "1. Teks soal...")
       const qMatch = line.match(qNumRegex);
       if (qMatch) {
-        if (currentQ) parsed.push(finalizeCbtQuestion(currentQ));
-        currentQ = { number: parsed.length + 1, stem: qMatch[2] || "", options: [], correct_answer: "" };
-        currentOpt = null;
+        startNewQuestion(qMatch[2] || "");
         continue;
       }
 
+      // 3. Cek baris Pilihan Opsi (A - E)
       const optMatch = line.match(optRegex);
-      if (optMatch && currentQ) {
-        currentOpt = optMatch[1].toUpperCase();
-        currentQ.options.push({ label: currentOpt, text: optMatch[2] || "" });
+      if (optMatch) {
+        const optLetter = optMatch[1].toUpperCase();
+        const optText = optMatch[2] || "";
+
+        // Jika opsi adalah 'A' dan soal saat ini sudah memiliki opsi 'A' (atau sudah ada kunci sebelumnya):
+        // maka ini adalah opsi dari butir soal baru!
+        if (currentQ && (isAfterKey || currentQ.options.some(o => o.label === optLetter))) {
+          startNewQuestion("");
+        } else if (!currentQ) {
+          startNewQuestion("");
+        }
+
+        currentOpt = optLetter;
+        const existing = currentQ.options.find(o => o.label === currentOpt);
+        if (existing) {
+          existing.text = optText;
+        } else {
+          currentQ.options.push({ label: currentOpt, text: optText });
+        }
         continue;
       }
 
-      if (currentQ) {
-        if (currentOpt) {
-          const o = currentQ.options.find((x) => x.label === currentOpt);
-          if (o) o.text += (o.text ? " " : "") + line;
-        } else {
-          currentQ.stem += (currentQ.stem ? "\n" : "") + line;
-        }
+      // 4. Baris Teks Biasa (Bukan Kunci, Bukan Nomor Eksplisit, Bukan Opsi)
+      if (!currentQ || isAfterKey) {
+        // Setelah kunci jawaban atau pada awal dokumen: teks adalah PERTANYAAN (Stem) soal baru!
+        startNewQuestion(line);
+      } else if (currentQ.options.length >= 3) {
+        // Jika soal saat ini sudah memiliki opsi (A-C atau A-D) dan belum ada kunci,
+        // lalu muncul baris teks baru yang bukan opsi: ini adalah pertanyaan soal baru!
+        startNewQuestion(line);
+      } else if (currentOpt) {
+        // Kelanjutan teks opsi yang panjang (multi-baris)
+        const o = currentQ.options.find(x => x.label === currentOpt);
+        if (o) o.text += (o.text ? " " : "") + line;
+      } else {
+        // Kelanjutan teks pertanyaan (Stem) multi-baris sebelum masuk ke opsi A
+        currentQ.stem += (currentQ.stem ? "\n" : "") + line;
       }
     }
 
-    if (currentQ) parsed.push(finalizeCbtQuestion(currentQ));
+    if (currentQ) {
+      parsed.push(finalizeCbtQuestion(currentQ, parsed.length));
+    }
+
+    // Pastikan seluruh nomor urut otomatis dari 1 sampai N secara presisi
+    parsed.forEach((q, idx) => {
+      q.number = idx + 1;
+    });
 
     if (parsed.length === 0) {
-      if (typeof showToast === "function") showToast("Format Tidak Cocok", "Pastikan ada nomor (1.) dan opsi (A.).", true);
+      if (typeof showToast === "function") {
+        showToast("Format Tidak Dikenali", "Pastikan teks berisi pertanyaan dan opsi jawaban (A, B, C...).", true);
+      }
       return;
     }
 
@@ -34865,19 +34932,19 @@ window.SAMPLE_QUESTIONS = [
     renderCbtAll();
     window.switchCbtSubtab("editor");
     if (typeof showToast === "function") {
-      showToast("Sukses", `Berhasil memproses ${parsed.length} butir soal secara otomatis!`);
+      showToast("Sukses Auto-Numbering", `Berhasil memproses & memberi nomor otomatis ${parsed.length} butir soal!`);
     }
   };
 
-  function finalizeCbtQuestion(q) {
+  function finalizeCbtQuestion(q, idx) {
     const labels = ["A", "B", "C", "D", "E"];
     const completeOptions = labels.map((lbl) => {
-      const found = q.options.find((o) => o.label === lbl);
+      const found = q.options ? q.options.find((o) => o.label === lbl) : null;
       return found ? found : { label: lbl, text: "" };
     });
     return {
-      number: q.number,
-      stem: (q.stem || "").trim(),
+      number: typeof idx === "number" ? idx + 1 : (q.number || 1),
+      stem: (q.stem || "").trim() || `Pertanyaan ${(typeof idx === "number" ? idx + 1 : (q.number || 1))}`,
       options: completeOptions,
       correct_answer: (q.correct_answer || "").toUpperCase(),
     };
