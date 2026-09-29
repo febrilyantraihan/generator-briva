@@ -3898,7 +3898,53 @@ DATA WALI/ORANG TUA:
 8. Alamat : Babat, Lamongan
 Mondok atau Tidak Mondok: TIDAK
 Sekolah Asal: MTs Negeri 1 Lamongan
-Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
+Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`,
+
+      4: `* Nama Siswa : Apriliana Afif Kharunia Husna 
+* Alamat : Ds. Sumurgung, Dsn. Sumurjalak, Kec. Plumpang, Kab. Tuban
+* Tempat tgl lahir : Tuban, 09 April 2012
+* Anak ke : 1
+* NISN :
+* Nomor NIK : 
+* Asal sekolah : MTs Al-Fathimiyah
+* Alamat Sekolah : Jl. Sunan Drajat No.97, Banjaranyar, Banjarwati, Kec. Paciran, Kabupaten Lamongan, Jawa Timur
+* Nama ayah : Ahmad Rofiq Ulinnuha 
+* Pekerjaan ayah: Guru
+* Nomor NIK Ayah :
+* Nama ibu : Sri Amina
+* Pekerjaan ibu : Guru 
+* Nomor NIK ibu : 
+* Email siswa : 
+* Nomor KK :
+* Mondok / bajak : mondok`,
+
+      5: `REKAP PENDAFTARAN SANTRI DARI BENDAHARA:
+1. M. Rizky Pratama / TTL: Gresik, 15 Januari 2012 / Laki-laki / MTs Sunan Drajat / Mondok / Ortu: Bpk. Bambang Irawan & Ibu Siti Aminah / Guru / 085712345678 / Dsn. Tanggungan, Pucuk, Lamongan / Rekomendasi: Ust. Fauzi
+2. Alya Khansa Putri / TTL: Bojonegoro, 20-08-2012 / Perempuan / SMPN 1 Baureno / Mukim VIP / Wali: Sugeng Wahyudi / Wiraswasta / 081398765432 / Baureno Bojonegoro / Rekomendasi: Ustzh. Nisa`,
+
+      6: `Data santri baru kiriman WA:
+Fahmi Maulana
+TTL: Lamongan, 12 Mei 2014
+Jenis Kelamin: Laki-laki
+Asal Sekolah: MI Sunan Drajat
+Status: Mukim reguler
+Nama Ayah: H. Mas'ud
+Pekerjaan Ayah: Pedagang
+Nama Ibu: Hj. Mahmudah
+Pekerjaan Ibu: Ibu Rumah Tangga
+Alamat: Jl. Raya Babat No. 45, Lamongan
+Hp: 081234567891`,
+
+      7: `Data Siswa Laju (Mbajak):
+Nama Siswa: Dimas Arya Sena
+Asal Sekolah: SMP Ma'arif Paciran
+TTL: Lamongan, 10 Oktober 2010
+Status: Laju / Mbajak / Non Mukim
+Kelas: Kelas 11 MA
+Nama Wali: Sukandar
+Pekerjaan: Petani
+No HP: 085611223344
+Alamat: Dsn. Krajan, Paciran, Lamongan`
     };
 
     function loadAiPreset(num) {
@@ -3956,9 +4002,19 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       let currentChunk = [];
 
       const isStudentHeaderLine = (line) => {
-        const l = line.trim().toLowerCase();
+        let l = line.trim().toLowerCase();
         if (!l) return false;
-        if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah')) {
+
+        // Cek pola nomor daftar santri: "1. M. Rizky Pratama..." atau "Santri 2: ..."
+        if (/^(?:\d+[\.\)]|\#\d+|\b(?:santri|siswa|calon|anak)\s*(?:ke[\-\s]*)?\d+)\s+[^:]+/i.test(l) &&
+            !l.includes('ayah') && !l.includes('ibu') && !l.includes('wali') && !l.includes('guru') && !l.includes('sekolah') && !l.includes('profesi') && !l.includes('alamat') && !l.includes('nik') && !l.includes('nisn')) {
+          return true;
+        }
+
+        // Strip markdown bullets, numbering, and whatsapp bold tags
+        l = l.replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\s\d\.\)\(\]]+\s*/, '').replace(/^\*+|\*+$/g, '').trim();
+        if (!l) return false;
+        if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah') || l.includes('email') || l.includes('profesi') || l.includes('pekerjaan')) {
           return false;
         }
         if (/^(?:data\s+murid|data\s+santri|data\s+siswa|data\s+calon|formulir\s+pendaftaran)/i.test(l)) {
@@ -3966,9 +4022,9 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         }
         if (/^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]/i.test(l)) {
           const alreadyHasStudentName = currentChunk.some(prevLine => {
-            const pl = prevLine.trim().toLowerCase();
+            let pl = prevLine.trim().toLowerCase().replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\s\d\.\)\(\]]+\s*/, '').replace(/^\*+|\*+$/g, '').trim();
             return /^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]/i.test(pl) &&
-                   !pl.includes('ayah') && !pl.includes('ibu') && !pl.includes('wali') && !pl.includes('guru') && !pl.includes('sekolah');
+                   !pl.includes('ayah') && !pl.includes('ibu') && !pl.includes('wali') && !pl.includes('guru') && !pl.includes('sekolah') && !pl.includes('email');
           });
           return alreadyHasStudentName;
         }
@@ -3991,8 +4047,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       return chunks.length > 0 ? chunks : [cleaned];
     }
 
-    // Heuristic pattern extractor per student chunk
-        // Helper Format Tanggal Lahir Siswa ke format tanda hubung DD-MM-YYYY (cth: "Lamongan, 14 Maret 2009." -> "14-03-2009")
+    // Helper Format Tanggal Lahir Siswa ke format tanda hubung DD-MM-YYYY (cth: "Lamongan, 14 Maret 2009." -> "14-03-2009")
     function formatPpdbTanggalLahir(rawInput) {
       if (!rawInput) return '';
       let str = String(rawInput).trim().replace(/[\.\,\;]+$/, '');
@@ -4092,38 +4147,78 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
         phone: '',
         mondok: '',
         sekolahAsal: '',
-        guru: ''
+        guru: '',
+        briva: ''
       };
 
-      const lines = chunk.split('\n').map(l => l.trim()).filter(Boolean);
+      // 0. Ekspansi Baris Rekap Delimiter Garis Miring (/) jika ada
+      // Cth: "1. M. Rizky Pratama / TTL: Gresik, 15 Januari 2012 / Laki-laki / MTs Sunan Drajat / Mondok / Ortu: Bambang..."
+      let rawLines = [];
+      chunk.split('\n').forEach(l => {
+        const tr = l.trim();
+        if (!tr) return;
+        if ((tr.match(/\//g) || []).length >= 3 && /(?:ttl|ortu|wali|ayah|ibu|alamat|hp|wa|sekolah|mondok|status|rekomendasi)/i.test(tr)) {
+          const parts = tr.split(/\s*\/\s*/);
+          parts.forEach((p, idx) => {
+            if (idx === 0 && !p.includes(':')) {
+              rawLines.push('Nama: ' + p);
+            } else {
+              rawLines.push(p);
+            }
+          });
+        } else {
+          rawLines.push(tr);
+        }
+      });
 
-      // 1. Deteksi Kelas / Murid Pindahan (contoh: X-2, XI-1, Kelas 8, Siswa baru kelas 7)
-      const klsMatch = chunk.match(/(?:data\s+murid\s+pindahan|siswa\s*baru\s*kelas|kelas|kls|pindahan)\s*[:=;]?\s*([A-Za-z0-9\-\s]+?)(?=\n|$)/i);
+      // Bersihkan karakter bullet, numbering, dan whatsapp bold tags
+      const cleanLines = rawLines.map(line => {
+        let cl = line.trim();
+        cl = cl.replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>]\s*/, '');
+        cl = cl.replace(/^\*([^*:]+)\*\s*([:=])/, '$1 $2');
+        return cl.trim();
+      });
+
+      // 1. Deteksi Kelas / Murid Pindahan (contoh: X-2, XI-1, Kelas 8, Siswa baru kelas 7, Kelas 10 MA)
+      const klsMatch = chunk.match(/(?:data\s+murid\s+pindahan|siswa\s*baru\s*kelas|kelas|kls|pindahan)\s*[:=;]?\s*([A-Za-z0-9\-\s]+?)(?=\n|\/|$)/i);
       if (klsMatch && klsMatch[1]) {
         res.kelas = klsMatch[1].trim().replace(/^(?:kelas|kls)\s*/i, '');
       }
 
       // 2. Deteksi Nama Siswa
-      for (const line of lines) {
+      for (const line of cleanLines) {
         const l = line.toLowerCase();
-        if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah')) continue;
+        if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah') || l.includes('email') || l.includes('profesi') || l.includes('pekerjaan')) continue;
         const m = line.match(/^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=]\s*(.+)$/i);
         if (m && m[1]) {
-          res.namaSiswa = m[1].trim();
+          res.namaSiswa = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
           break;
         }
       }
       if (!res.namaSiswa) {
-        for (const line of lines) {
+        for (const line of cleanLines) {
           const l = line.toLowerCase();
-          if (l.startsWith('data murid') || l.startsWith('formulir') || l.startsWith('pendaftaran')) continue;
+          if (l.startsWith('data murid') || l.startsWith('data santri') || l.startsWith('formulir') || l.startsWith('pendaftaran') || l.startsWith('rekap')) continue;
           if (line.includes(':')) {
             const parts = line.split(':');
-            const label = parts[0].trim().toLowerCase();
-            if (label === 'nama' || label === 'nama lengkap') {
-              res.namaSiswa = parts.slice(1).join(':').trim();
+            const label = parts[0].trim().toLowerCase().replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\d\.\)\(\]]+\s*/, '').trim();
+            if (label === 'nama' || label === 'nama lengkap' || label === 'nama siswa' || label === 'nama santri' || label === 'nama calon') {
+              res.namaSiswa = parts.slice(1).join(':').replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
               break;
             }
+          }
+        }
+      }
+      // Fallback Cerdas Chat Kasual: Baris pertama setelah judul chat yang berisi 2 s.d 5 kata tanpa titik dua (cth: "Fahmi Maulana")
+      if (!res.namaSiswa) {
+        for (let i = 0; i < cleanLines.length; i++) {
+          const cl = cleanLines[i];
+          const l = cl.toLowerCase();
+          if (l.startsWith('data') || l.startsWith('pendaftaran') || l.startsWith('santri baru') || l.includes(':') || l.includes('/')) continue;
+          const words = cl.split(/\s+/).filter(w => /^[a-zA-Z\.\'\`]+$/.test(w));
+          if (words.length >= 2 && words.length <= 6 && !l.includes('jalan') && !l.includes('desa') && !l.includes('kecamatan') && !l.includes('tuban') && !l.includes('lamongan')) {
+            res.namaSiswa = cl.replace(/^(?:\d+[\.\)]\s*)?/, '').trim();
+            break;
           }
         }
       }
@@ -4144,7 +4239,7 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
           res.nikSiswa = all16Digits[0];
         }
       } else if (all16Digits.length >= 2) {
-        lines.forEach(line => {
+        cleanLines.forEach(line => {
           const m16 = line.match(/\b\d{16}\b/);
           if (m16) {
             const l = line.toLowerCase();
@@ -4158,94 +4253,198 @@ Guru Pembawa / Pendamping: Ustadz Ahmad Fauzi, M.Pd`
       }
 
       // 4. Deteksi TTL
-      const ttlMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:,|\/)?\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tgl\s*lahir|tanggal\s*lahir|lahir)\s*[:=;]?\s*([^\r\n]+)/i);
-      if (ttlMatch && ttlMatch[1]) {
-        res.ttl = ttlMatch[1].trim();
+      for (const line of cleanLines) {
+        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tanggal\s*lahir|tgl\s*lahir|lahir)\s*[:=;]?\s*(.+)$/i);
+        if (m && m[1]) {
+          res.ttl = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          break;
+        }
+      }
+      if (!res.ttl) {
+        const ttlMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tanggal\s*lahir|tgl\s*lahir|lahir)\s*[:=;]?\s*([^\r\n\/]+)/i);
+        if (ttlMatch && ttlMatch[1]) res.ttl = ttlMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
       }
 
-      // 5. Deteksi Jenis Kelamin
-      const jkMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:jenis\s*kelamin|gender|jk)\s*[:=]\s*([^\r\n]+)/i);
-      if (jkMatch && jkMatch[1]) {
-        const jkRaw = jkMatch[1].trim().toLowerCase();
-        res.gender = (jkRaw.startsWith('p') || jkRaw.includes('putri') || jkRaw.includes('wanita') || jkRaw.includes('perempuan')) ? 'Perempuan' : 'Laki-laki';
+      // 5. Deteksi Sekolah Asal (harus sebelum deteksi alamat agar alamat sekolah tidak terambil)
+      for (const line of cleanLines) {
+        const l = line.toLowerCase();
+        if (l.includes('alamat sekolah')) continue;
+        const mSek = line.match(/^(?:\d+[\.\)]\s*)?(?:sekolah\s*asal|asal\s*sekolah|asal\s*madrasah|dari\s*sekolah|dari\s*madrasah)\s*[:=]\s*(.+)$/i);
+        if (mSek && mSek[1]) {
+          res.sekolahAsal = mSek[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          break;
+        }
+      }
+      if (!res.sekolahAsal) {
+        for (const line of cleanLines) {
+          const l = line.toLowerCase();
+          if (l.startsWith('asal ') && (l.includes('smp') || l.includes('mts') || l.includes('sd') || l.includes('mi'))) {
+            res.sekolahAsal = line.replace(/^asal\s+/i, '').trim();
+            break;
+          }
+        }
       }
 
-      // 6. Deteksi Alamat
-      const almtMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal)?)\s*[:=]\s*([^\r\n]+)/i);
-      if (almtMatch && almtMatch[1]) {
-        res.alamat = almtMatch[1].trim();
+      // 6. Deteksi Jenis Kelamin & Inferensi Cerdas
+      for (const line of cleanLines) {
+        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:jenis\s*kelamin|gender|jk)\s*[:=]\s*(.+)$/i);
+        if (m && m[1]) {
+          const jkRaw = m[1].trim().toLowerCase();
+          res.gender = (jkRaw === 'p' || jkRaw.startsWith('per') || jkRaw.includes('putri') || jkRaw.includes('wanita') || jkRaw.includes('perempuan')) ? 'Perempuan' : 'Laki-laki';
+          break;
+        }
+      }
+      if (!res.gender) {
+        for (const line of cleanLines) {
+          const l = line.toLowerCase();
+          if (l === 'laki-laki' || l === 'laki laki' || l === 'putra' || l === 'pria' || l === 'l') {
+            res.gender = 'Laki-laki';
+            break;
+          } else if (l === 'perempuan' || l === 'putri' || l === 'wanita' || l === 'p') {
+            res.gender = 'Perempuan';
+            break;
+          }
+        }
+      }
+      if (!res.gender) {
+        const fullLower = chunk.toLowerCase();
+        // Cek nama sekolah asal (MTs Al-Fathimiyah adalah unit MTs Putri di PP Sunan Drajat)
+        if (fullLower.includes('fathimiyah') || fullLower.includes('putri') || fullLower.includes('banat') || fullLower.includes('akhwat') || fullLower.includes('(pi)')) {
+          res.gender = 'Perempuan';
+        } else if (fullLower.includes('putra') || fullLower.includes('banin') || fullLower.includes('ikhwan') || fullLower.includes('(pa)')) {
+          res.gender = 'Laki-laki';
+        } else if (res.namaSiswa) {
+          const nLower = res.namaSiswa.toLowerCase();
+          if (/\b(?:apriliana|putri|aulia|siti|nurul|husna|kharunia|aisyah|zahra|nabila|lestari|dewi|indah|fitri|anisa|annisa|salma|fatimah|aminah|amina|wardah|khadijah|safira|zhafira|cantika|nayla|naylah|alya|khansa)\b/i.test(nLower) || /(?:ana|ina|na|ni|wati|ah|ti)$/i.test(nLower.split(' ')[0])) {
+            res.gender = 'Perempuan';
+          } else {
+            res.gender = 'Laki-laki';
+          }
+        }
       }
 
-      // 7. Deteksi No Telepon / WA
-      const telpMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:no\.?\s*(?:hp|telp|wa|telepon|ponsel)|kontak|telepon|wa)\s*[:=]\s*([^\r\n]+)/i);
-      if (telpMatch && telpMatch[1]) {
-        const pMatch = telpMatch[1].match(/(?:\+62|08)\d{8,12}/);
-        res.phone = pMatch ? pMatch[0] : telpMatch[1].trim();
-      } else {
+      // 7. Auto-Inferensi Kelas / Jenjang jika belum terisi
+      if (!res.kelas) {
+        const fullText = chunk.toLowerCase();
+        const mKls = fullText.match(/\b(?:kelas|kls)\s*([7-9]|1[0-2])\b/i);
+        if (mKls && mKls[1]) {
+          res.kelas = mKls[1];
+        } else if (res.sekolahAsal) {
+          const sLower = res.sekolahAsal.toLowerCase();
+          if (sLower.includes('mts') || sLower.includes('smp')) {
+            res.kelas = '10'; // Lulusan MTs/SMP masuk jenjang MA/SMA Kelas 10
+          } else if (sLower.includes('mi') || sLower.includes('sd')) {
+            res.kelas = '7';  // Lulusan MI/SD masuk jenjang MTs/SMP Kelas 7
+          }
+        }
+      }
+
+      // 8. Deteksi Alamat Siswa (Abaikan jika baris alamat sekolah)
+      for (const line of cleanLines) {
+        const l = line.toLowerCase();
+        if (l.includes('sekolah') || l.includes('kantor') || l.includes('instansi')) continue;
+        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal|\s*santri|\s*siswa)?)\s*[:=]\s*(.+)$/i);
+        if (m && m[1]) {
+          res.alamat = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          break;
+        }
+      }
+      if (!res.alamat) {
+        const almtMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal)?)\s*[:=]\s*([^\r\n\/]+)/i);
+        if (almtMatch && almtMatch[1] && !almtMatch[0].toLowerCase().includes('sekolah')) {
+          res.alamat = almtMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        }
+      }
+
+      // 9. Deteksi No Telepon / WA
+      for (const line of cleanLines) {
+        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:no\.?\s*(?:hp|telp|wa|telepon|ponsel)|kontak|telepon|wa)\s*[:=]\s*(.+)$/i);
+        if (m && m[1]) {
+          const pMatch = m[1].match(/(?:\+62|08)\d{8,12}/);
+          res.phone = pMatch ? pMatch[0] : m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          break;
+        }
+      }
+      if (!res.phone) {
         const anyPhone = chunk.match(/\b(?:08\d{8,12}|\+62\d{8,12})\b/);
         if (anyPhone) res.phone = anyPhone[0];
       }
 
-      // 8. Deteksi Orang Tua / Wali
-      const ortuCombinedMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?orang\s*tua\s*[:=]\s*([^\r\n]+)/i);
-      if (ortuCombinedMatch && ortuCombinedMatch[1]) {
-        const combined = ortuCombinedMatch[1].trim();
-        if (combined.includes('/')) {
-          const parts = combined.split('/');
-          res.namaAyah = parts[0].trim();
-          res.namaIbu = parts[1].trim();
-        } else if (combined.includes('&')) {
-          const parts = combined.split('&');
-          res.namaAyah = parts[0].trim();
-          res.namaIbu = parts[1].trim();
-        } else {
-          res.namaAyah = combined;
-        }
+      // 10. Deteksi Orang Tua / Wali
+      for (const line of cleanLines) {
+        const mAyah = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*ayah(?:\s*kandung)?|ayah)\s*[:=]\s*(.+)$/i);
+        if (mAyah && mAyah[1]) res.namaAyah = mAyah[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+
+        const mIbu = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*ibu(?:\s*kandung)?|ibu)\s*[:=]\s*(.+)$/i);
+        if (mIbu && mIbu[1]) res.namaIbu = mIbu[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+
+        const mWali = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*wali|wali)\s*[:=]\s*(.+)$/i);
+        if (mWali && mWali[1]) res.namaWali = mWali[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+
+        const mProfAyah = line.match(/^(?:\d+[\.\)]\s*)?(?:profesi\s*ayah|pekerjaan\s*ayah)\s*[:=]\s*(.+)$/i);
+        if (mProfAyah && mProfAyah[1]) res.profesiAyah = mProfAyah[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+
+        const mProfIbu = line.match(/^(?:\d+[\.\)]\s*)?(?:profesi\s*ibu|pekerjaan\s*ibu)\s*[:=]\s*(.+)$/i);
+        if (mProfIbu && mProfIbu[1]) res.profesiIbu = mProfIbu[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
       }
 
-      const ayahMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:nama\s*ayah|ayah)\s*[:=]\s*([^\r\n]+)/i);
-      if (ayahMatch && ayahMatch[1]) res.namaAyah = ayahMatch[1].trim();
-
-      const ibuMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:nama\s*ibu|ibu)\s*[:=]\s*([^\r\n]+)/i);
-      if (ibuMatch && ibuMatch[1]) res.namaIbu = ibuMatch[1].trim();
-
-      const waliMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:nama\s*wali|wali)\s*[:=]\s*([^\r\n]+)/i);
-      if (waliMatch && waliMatch[1]) res.namaWali = waliMatch[1].trim();
-
-      const profAyahMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:profesi\s*ayah|pekerjaan\s*ayah)\s*[:=]\s*([^\r\n]+)/i);
-      if (profAyahMatch && profAyahMatch[1]) res.profesiAyah = profAyahMatch[1].trim();
-
-      const profIbuMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:profesi\s*ibu|pekerjaan\s*ibu)\s*[:=]\s*([^\r\n]+)/i);
-      if (profIbuMatch && profIbuMatch[1]) res.profesiIbu = profIbuMatch[1].trim();
+      if (!res.namaAyah && !res.namaIbu) {
+        const ortuCombinedMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:orang\s*tua|ortu)\s*[:=]\s*([^\r\n\/]+)/i);
+        if (ortuCombinedMatch && ortuCombinedMatch[1]) {
+          const combined = ortuCombinedMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          if (combined.includes('&')) {
+            const parts = combined.split('&');
+            res.namaAyah = parts[0].replace(/^(?:bpk\.?|bapak)\s*/i, '').trim();
+            res.namaIbu = parts[1].replace(/^(?:ibu|ibuk)\s*/i, '').trim();
+          } else if (combined.includes('/')) {
+            const parts = combined.split('/');
+            res.namaAyah = parts[0].trim();
+            res.namaIbu = parts[1].trim();
+          } else {
+            res.namaAyah = combined;
+          }
+        }
+      }
 
       if (!res.namaWali) {
         res.namaWali = res.namaAyah || res.namaIbu || `Wali ${res.namaSiswa}`;
       }
 
-      // 9. Deteksi Status Mondok (Mukim / Non-Mukim / Asrama)
-      const mondokMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:mondok\s*atau\s*tidak\s*mondok|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*([^\r\n]+)/i);
-      if (mondokMatch && mondokMatch[1]) {
-        res.mondok = mondokMatch[1].trim();
-      } else if (/mondok\s*\((?:mukim|asrama)\)/i.test(chunk)) {
-        res.mondok = 'Mukim';
+      // 11. Deteksi Status Mondok (Mondok / Bajak / Non-Mukim / Asrama / Laju)
+      for (const line of cleanLines) {
+        const mMondok = line.match(/^(?:\d+[\.\)]\s*)?(?:mondok\s*(?:atau\s*tidak\s*mondok|\/\s*bajak|\/\s*laju|\/\s*mbajak)?|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*(.+)$/i);
+        if (mMondok && mMondok[1]) {
+          res.mondok = mMondok[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          break;
+        }
+      }
+      if (!res.mondok) {
+        const mondokMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:mondok\s*(?:atau\s*tidak\s*mondok|\/\s*bajak|\/\s*laju|\/\s*mbajak)?|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*([^\r\n\/]+)/i);
+        if (mondokMatch && mondokMatch[1]) {
+          res.mondok = mondokMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        } else if (/mondok\s*\((?:mukim|asrama)\)|mukim\s*(?:reguler|vip)/i.test(chunk)) {
+          res.mondok = 'Mukim';
+        } else if (/\b(laju|mbajak|non\s*mukim)\b/i.test(chunk)) {
+          res.mondok = 'Non Mukim';
+        }
       }
 
-      // 10. Deteksi Sekolah Asal
-      const sekMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:sekolah\s*asal|asal\s*sekolah|dari\s*sekolah)\s*[:=]\s*([^\r\n]+)/i);
-      if (sekMatch && sekMatch[1]) {
-        res.sekolahAsal = sekMatch[1].trim();
+      // 12. Deteksi Guru Pendamping / Pembawa / Rekomendasi
+      for (const line of cleanLines) {
+        const guruMatch = line.match(/^(?:\d+[\.\)]\s*)?(?:guru(?:\s*(?:pembawa|pendamping|\/|\-)+)*|rekomendasi(?:\s*guru)?|pembawa|pendamping)\s*[:=]\s*(.+)$/i);
+        if (guruMatch && guruMatch[1]) {
+          res.guru = guruMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+          break;
+        }
       }
 
-      // 11. Deteksi Guru Pendamping / Pembawa
-      const guruMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:guru(?:\s*(?:pembawa|pendamping|\/|\-)+)*|rekomendasi\s*guru|pembawa|pendamping)\s*[:=]\s*([^\r\n]+)/i);
-      if (guruMatch && guruMatch[1]) {
-        res.guru = guruMatch[1].trim();
-      }
-
-      // 12. Deteksi Nomor BRIVA / Virtual Account jika ada di chat
-      const brivaMatch = chunk.match(/(?:^|\n)\s*(?:\d+[\.\)]\s*)?(?:nomor\s*briva|no\s*briva|briva|nomor\s*va|no\s*va|va|virtual\s*account)\s*[:=]\s*([^\r\n]+)/i);
-      if (brivaMatch && brivaMatch[1]) {
-        res.briva = brivaMatch[1].trim().replace(/[^0-9]/g, '');
+      // 13. Deteksi Nomor BRIVA / Virtual Account jika ada di chat
+      for (const line of cleanLines) {
+        const brivaMatch = line.match(/^(?:\d+[\.\)]\s*)?(?:nomor\s*briva|no\s*briva|briva|nomor\s*va|no\s*va|va|virtual\s*account)\s*[:=]\s*(.+)$/i);
+        if (brivaMatch && brivaMatch[1]) {
+          res.briva = brivaMatch[1].trim().replace(/[^0-9]/g, '');
+          break;
+        }
       }
 
       return res;
@@ -26509,6 +26708,11 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
