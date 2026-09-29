@@ -26802,6 +26802,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34357,8 +34360,36 @@ window.SAMPLE_QUESTIONS = [
       .join("");
   }
 
+  async function ensureJSZip() {
+    if (window.JSZip) return window.JSZip;
+    return new Promise((resolve, reject) => {
+      const sources = [
+        "js/vendor/jszip.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+        "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js",
+        "https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"
+      ];
+      let idx = 0;
+      function tryLoad() {
+        if (window.JSZip) return resolve(window.JSZip);
+        if (idx >= sources.length) {
+          return reject(new Error("JSZip library gagal dimuat dari semua sumber (lokal & CDN)!"));
+        }
+        const s = document.createElement("script");
+        s.src = sources[idx++];
+        s.onload = () => {
+          if (window.JSZip) resolve(window.JSZip);
+          else tryLoad();
+        };
+        s.onerror = () => tryLoad();
+        document.head.appendChild(s);
+      }
+      tryLoad();
+    });
+  }
+
   async function generateSoalDocx(metadata, questions) {
-    if (!window.JSZip) throw new Error("JSZip library belum dimuat!");
+    await ensureJSZip();
     if (!window.DOCX_TEMPLATE_SOAL_B64) throw new Error("Template SOAL tidak ditemukan!");
 
     const zip = await window.JSZip.loadAsync(base64ToUint8Array(window.DOCX_TEMPLATE_SOAL_B64));
@@ -34463,7 +34494,7 @@ window.SAMPLE_QUESTIONS = [
   }
 
   async function generateKunciDocx(metadata, questions) {
-    if (!window.JSZip) throw new Error("JSZip library belum dimuat!");
+    await ensureJSZip();
     if (!window.DOCX_TEMPLATE_KUNCI_B64) throw new Error("Template KUNCI tidak ditemukan!");
 
     const zip = await window.JSZip.loadAsync(base64ToUint8Array(window.DOCX_TEMPLATE_KUNCI_B64));
