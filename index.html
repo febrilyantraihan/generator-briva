@@ -38,11 +38,11 @@
   </script>
 
   <!-- SheetJS (xlsx) - Local Offline First with CDN Fallback -->
-  <script defer src="js/vendor/xlsx.full.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'"></script>
+  <script defer src="js/vendor/xlsx.full.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.defer=true;document.head.appendChild(s);"></script>
   <!-- JSZip - Local Offline First with CDN Fallback (For Word DOCX CBT Generation) -->
-  <script defer src="js/vendor/jszip.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'"></script>
+  <script defer src="js/vendor/jszip.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.defer=true;document.head.appendChild(s);"></script>
   <!-- PptxGenJS - Local Offline First for Presentation Generation -->
-  <script defer src="js/vendor/pptxgen.bundle.js"></script>
+  <script defer src="js/vendor/pptxgen.bundle.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.defer=true;document.head.appendChild(s);"></script>
 
   <script>
     // Inisialisasi tema sebelum render pertama untuk mencegah kedipan cahaya (FOUC)
@@ -93,7 +93,7 @@
 
   <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=25">
+  <link rel="stylesheet" href="css/main.css?v=26">
 
 </head>
 
@@ -13131,6 +13131,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=25"></script>
+  <script src="js/app.bundle.js?v=26"></script>
 </body>
 </html>
