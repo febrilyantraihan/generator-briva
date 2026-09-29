@@ -4,7 +4,7 @@
  * Fitur: Seamless Auto-Update (Tanpa Uninstall/Reinstall) & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-v19';
+const CACHE_NAME = 'partner-fatih-v20';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -17,8 +17,8 @@ const PRECACHE_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './css/main.css?v=19',
-  './js/app.bundle.js?v=19',
+  './css/main.css?v=20',
+  './js/app.bundle.js?v=20',
   './mascot.png'
 ];
 
@@ -27,7 +27,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[PWA SW v18] Pre-caching offline assets...');
+      console.log('[PWA SW v20] Pre-caching offline assets...');
       return cache.addAll(PRECACHE_ASSETS).catch(err => {
         console.warn('[PWA SW] Pre-cache partial warning:', err);
       });
