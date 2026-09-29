@@ -138,19 +138,19 @@ img[src*="mascot"],
       scrollbar-width: none;
     }
 
-    /* Active Tab Highlight in Sidebar (Ontrack Style Minimalist White Pill) */
-    .sidebar-active {
+    /* Active Tab Highlight in Legacy Sidebar (Ontrack Style Minimalist White Pill) */
+    :not(.drawer-nav-item).sidebar-active {
       background-color: #ffffff !important;
       color: #0f172a !important;
       font-weight: 700 !important;
       box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
       border: 1px solid rgba(226, 232, 240, 0.9) !important;
     }
-    .sidebar-active .nav-icon-box {
+    :not(.drawer-nav-item).sidebar-active .nav-icon-box {
       background-color: #ffedd5 !important;
       color: #ea580c !important;
     }
-    .sidebar-active i {
+    :not(.drawer-nav-item).sidebar-active i {
       color: #ea580c !important;
     }
 
@@ -563,50 +563,43 @@ img[src*="mascot"],
       color: #ffffff !important;
       border-color: rgba(71, 85, 105, 0.6) !important;
     }
-    html.dark #sidebarMenuNav button {
-      color: #e2e8f0 !important;
+    /* Modern Luxury Mobile Drawer Navigation Styling */
+    #sidebarMenuNav .drawer-nav-item {
+      position: relative;
+      border-radius: 1rem;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    html.dark #sidebarMenuNav button span {
-      color: #e2e8f0 !important;
-      font-weight: 600 !important;
-    }
-    html.dark #sidebarMenuNav button:not(.sidebar-active) {
+    #sidebarMenuNav .drawer-nav-item > div:first-child,
+    #sidebarMenuNav .drawer-nav-item > div:first-child > div:last-child {
       background: transparent !important;
-      color: #e2e8f0 !important;
-      border: 1px solid transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
-    html.dark #sidebarMenuNav button:not(.sidebar-active):hover {
-      background: #1e293b !important;
-      color: #ffffff !important;
+    html:not(.dark) #sidebarMenuNav .drawer-nav-item:not(.sidebar-active) {
+      background: rgba(255, 255, 255, 0.8) !important;
+      border: 1px solid rgba(226, 232, 240, 0.9) !important;
     }
-    html.dark #sidebarMenuNav button:not(.sidebar-active) span {
-      color: #e2e8f0 !important;
+    html:not(.dark) #sidebarMenuNav .drawer-nav-item:not(.sidebar-active):hover {
+      background: #ffffff !important;
+      border-color: rgba(203, 213, 225, 1) !important;
     }
-    html.dark #sidebarMenuNav button:not(.sidebar-active):hover span {
-      color: #ffffff !important;
+    html.dark #sidebarMenuNav .drawer-nav-item:not(.sidebar-active) {
+      background: rgba(255, 255, 255, 0.03) !important;
+      border: 1px solid rgba(255, 255, 255, 0.07) !important;
     }
-    html.dark #sidebarMenuNav button:not(.sidebar-active) div:first-child {
-      background: #1e293b !important;
-      color: #93c5fd !important;
-      border: 1px solid rgba(71, 85, 105, 0.5) !important;
+    html.dark #sidebarMenuNav .drawer-nav-item:not(.sidebar-active):hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
     }
-    html.dark #sidebarMenuNav button:not(.sidebar-active):hover div:first-child {
-      background: #2563eb !important;
-      color: #ffffff !important;
+    #sidebarMenuNav .drawer-nav-item.sidebar-active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(20, 184, 166, 0.08) 100%) !important;
+      border: 1px solid rgba(16, 185, 129, 0.5) !important;
+      box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.2) !important;
     }
-    html.dark #sidebarMenuNav button.sidebar-active {
-      background: #1e293b !important;
-      border-color: rgba(249, 115, 22, 0.6) !important;
-      box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(249, 115, 22, 0.3) !important;
-    }
-    html.dark #sidebarMenuNav button.sidebar-active span {
-      color: #ffffff !important;
-      font-weight: 800 !important;
-    }
-    html.dark #sidebarMenuNav button.sidebar-active div:first-child {
-      background: rgba(249, 115, 22, 0.25) !important;
-      color: #fb923c !important;
-      border: 1px solid rgba(249, 115, 22, 0.5) !important;
+    html.dark #sidebarMenuNav .drawer-nav-item.sidebar-active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(20, 184, 166, 0.1) 100%) !important;
+      border: 1px solid rgba(52, 211, 153, 0.55) !important;
+      box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.3) !important;
     }
     html.dark #appSidebar [onclick*="switchPpdbSubtab"],
     html.dark #appSidebar [onclick*="presetConverter"],
