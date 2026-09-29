@@ -512,14 +512,30 @@
         isDrawerOpen = !isDrawerOpen;
       }
 
+      const mc = document.getElementById('mainCanvas');
+      const appContainer = document.getElementById('appContainer');
+
       if (sidebar) {
         if (isDrawerOpen) {
           sidebar.scrollTop = 0;
           sidebar.classList.remove('-translate-x-full');
-          sidebar.classList.add('translate-x-0'); if (typeof lucide !== 'undefined' && lucide.createIcons) { lucide.createIcons(); }
+          sidebar.classList.add('translate-x-0');
+          if (typeof lucide !== 'undefined' && lucide.createIcons) { lucide.createIcons(); }
+
+          // Lock background scrolling completely so background doesn't move when drawer scrolls
+          document.body.style.overflow = 'hidden';
+          document.documentElement.style.overflow = 'hidden';
+          if (mc) mc.style.overflow = 'hidden';
+          if (appContainer) appContainer.style.overflow = 'hidden';
         } else {
           sidebar.classList.add('-translate-x-full');
           sidebar.classList.remove('translate-x-0');
+
+          // Unlock background scrolling
+          document.body.style.overflow = '';
+          document.documentElement.style.overflow = '';
+          if (mc) mc.style.overflow = '';
+          if (appContainer) appContainer.style.overflow = '';
         }
       }
 
@@ -26709,6 +26725,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
