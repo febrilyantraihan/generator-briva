@@ -195,8 +195,14 @@
 
                 <!-- Options List (A-E) -->
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">Pilihan Ganda &amp; Kunci Jawaban:</label>
+                  <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <label class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">Pilihan Ganda &amp; Kunci Jawaban:</label>
+                      <button type="button" onclick="capitalizeCbtActiveOptions()" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition-all active:scale-95" title="Kapitalisasi huruf pertama opsi soal ini (cth: pasir -> Pasir)">
+                        <i data-lucide="type" class="w-3 h-3 text-violet-500"></i>
+                        <span>Kapital Awal Opsi (Aa)</span>
+                      </button>
+                    </div>
                     <span class="text-xs text-emerald-700 dark:text-emerald-400 font-extrabold flex items-center gap-1">
                       <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
                       <span>Pilih bulatan untuk menetapkan kunci</span>
