@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // MODULE: tab_ppdb.js
 // Tab 2: Generator Akun Ganda PPDB (Ortu & Siswa), Ekspor Excel & WA Sender
 // ============================================================================
@@ -1142,12 +1142,12 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
 
       const statusEl = document.getElementById('ppdbFileStatusText');
       if (statusEl) {
-        statusEl.textContent = `AI Chat WA Ã¢â‚¬¢ ${parsedCount} Santri Terkonversi (Dual-Account)`;
+        statusEl.textContent = `AI Chat WA - ${parsedCount} Santri Terkonversi (Dual-Account)`;
       }
 
       soundSuccess();
       showToast(
-        'âœï¸¨ Konversi AI Berhasil!', 
+        'Konversi AI Berhasil!', 
         `${parsedCount} Santri berhasil diekstrak menjadi 2 Akun (Akun Ortu 11 Kolom + Akun Siswa).`
       );
 
@@ -1840,7 +1840,7 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
       // Perbarui UI
       const statusEl = document.getElementById('ppdbFileStatusText');
       if (statusEl && sourceName) {
-        statusEl.textContent = `${sourceName} Ã¢â‚¬¢ ${currentPpdbSiswaList.length} Siswa Teranalisis`;
+        statusEl.textContent = `${sourceName} - ${currentPpdbSiswaList.length} Siswa Teranalisis`;
       }
 
       renderPpdbAll();
@@ -3250,7 +3250,7 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
     }
 
     // --- FITUR GULIR TABEL (BUTTON & DRAG-TO-SCROLL MOUSE) ---
-    // Geser kolom dengan tombol [◀] dan [Ã¢â€“¶]
+    // Geser kolom dengan tombol tabel
     function scrollPpdbTable(type, amount) {
       const id = type === 'ortu' ? 'scrollWrapperPpdbOrtu' : 'scrollWrapperPpdbSiswa';
       const el = document.getElementById(id);
