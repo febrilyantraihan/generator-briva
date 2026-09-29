@@ -93,7 +93,7 @@
 
   <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=24">
+  <link rel="stylesheet" href="css/main.css?v=25">
 
 </head>
 
@@ -279,7 +279,7 @@
   <div 
     id="drawerBackdrop" 
     onclick="toggleMobileDrawer(false)" 
-    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 opacity-0 pointer-events-none transition-opacity duration-300"
+    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 opacity-0 pointer-events-none transition-opacity duration-300 touch-none overscroll-contain"
     style="display: none; pointer-events: none;"
   ></div>
 
@@ -287,7 +287,7 @@
     <!-- 1. LEFT SIDEBAR MENU (Modern Glassmorphic Mobile Drawer) -->
   <aside 
     id="appSidebar"
-    class="sm:hidden fixed top-0 bottom-0 left-0 z-50 w-[335px] max-w-[90vw] bg-white/95 dark:bg-[#0c101a]/95 backdrop-blur-2xl border-r border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-slate-200 flex flex-col justify-between p-4 flex-shrink-0 select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto no-scrollbar min-h-0"
+    class="sm:hidden fixed top-0 bottom-0 left-0 z-50 w-[335px] max-w-[90vw] bg-white/95 dark:bg-[#0c101a]/95 backdrop-blur-2xl border-r border-slate-200/90 dark:border-white/10 text-slate-800 dark:text-slate-200 flex flex-col justify-between p-4 flex-shrink-0 select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto overscroll-contain no-scrollbar min-h-0"
   >
     <div class="space-y-3">
       <!-- HEADER DRAWER: Mascott + Brand + Close Button (Sticky Luxury Header) -->
@@ -13131,6 +13131,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=24"></script>
+  <script src="js/app.bundle.js?v=25"></script>
 </body>
 </html>
