@@ -93,7 +93,7 @@
 
   <!-- STYLESHEET DIPISAH AGAR TIDAK MELEBIHI BUFFER PASTE GOOGLE APPS SCRIPT -->
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=16">
+  <link rel="stylesheet" href="css/main.css?v=20">
 
 </head>
 
@@ -1872,31 +1872,55 @@
                     </div>
 
                     <!-- Clean Uniform Presets -->
-                    <div class="flex items-center gap-1">
-                      <span class="text-[10px] text-slate-400 hidden sm:inline mr-0.5">Contoh:</span>
+                    <div class="flex items-center flex-wrap gap-1">
+                      <span class="text-[10px] text-slate-400 font-semibold mr-0.5">Template Bendahara:</span>
                       <button 
                         type="button" 
-                        onclick="loadAiPreset(1)" 
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
-                        title="Contoh chat santri pindahan"
+                        onclick="loadAiPreset(4)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                        title="Format Asterisk (*) Apriliana"
                       >
-                        Pindahan
+                        <span>â­ Asterisk (*)</span>
                       </button>
                       <button 
                         type="button" 
-                        onclick="loadAiPreset(2)" 
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
-                        title="Contoh chat dengan NIK/NISN terbalik"
+                        onclick="loadAiPreset(5)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold hover:bg-blue-100 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                        title="Rekap Singkat Garis Miring (/) Multi-Santri Sekaligus"
                       >
-                        Terbalik
+                        <span>âš¡ Rekap Slash (/)</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="loadAiPreset(6)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold hover:bg-purple-100 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                        title="Chat Santai Kasual Tanpa Label Baku"
+                      >
+                        <span>ðŸ’¬ Chat Santai</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="loadAiPreset(7)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-100 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                        title="Format Santri Laju / Mbajak (Non-Mukim)"
+                      >
+                        <span>ðŸš² Santri Laju</span>
                       </button>
                       <button 
                         type="button" 
                         onclick="loadAiPreset(3)" 
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-emerald-50 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors font-semibold cursor-pointer"
-                        title="Contoh teks formulir PPDB"
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition-colors font-semibold cursor-pointer"
+                        title="Format Formulir Pendaftaran PPDB Resmi"
                       >
-                        Formulir
+                        ðŸ“‹ Formulir
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="loadAiPreset(1)" 
+                        class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.05] hover:bg-slate-200 text-slate-700 dark:text-slate-300 transition-colors font-semibold cursor-pointer"
+                        title="Contoh chat santri pindahan"
+                      >
+                        ðŸ”„ Pindahan
                       </button>
                     </div>
                   </div>
@@ -13107,6 +13131,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=16"></script>
+  <script src="js/app.bundle.js?v=20"></script>
 </body>
 </html>
