@@ -26807,6 +26807,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34711,7 +34712,7 @@ window.SAMPLE_QUESTIONS = [
         <span class="w-8 h-8 flex-shrink-0 flex items-center justify-center font-black text-sm rounded-lg shadow-xs ${
           isKey ? "bg-emerald-600 text-white ring-2 ring-emerald-400" : "bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
         }">${lbl}</span>
-        <input type="text" class="flex-1 bg-transparent border-0 text-sm sm:text-base font-semibold text-slate-950 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-0 leading-normal" placeholder="Pilihan ${lbl}..." value="${escapeXml(opt.text)}">
+        <input type="text" class="flex-1 min-w-0 bg-transparent border-0 pl-3.5 sm:pl-4 pr-3 py-1.5 text-sm sm:text-base font-bold text-slate-950 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-0 leading-normal tracking-wide" placeholder="Pilihan ${lbl}..." value="${escapeXml(opt.text)}">
         ${isKey ? `<span class="hidden sm:inline-flex items-center px-2.5 py-0.5 text-xs font-black tracking-wider rounded-full bg-emerald-600 text-white shadow-xs">KUNCI</span>` : ""}
       `;
 
@@ -35063,6 +35064,47 @@ window.SAMPLE_QUESTIONS = [
       showAppNotification(`Berhasil mengacak urutan ${count} butir soal!`, "success");
     } else {
       alert(`Berhasil mengacak urutan ${count} butir soal! Topik materi kini telah tersebar secara acak.`);
+    }
+  };
+
+  window.capitalizeCbtActiveOptions = function () {
+    const q = window.cbtState && window.cbtState.questions && window.cbtState.questions[window.cbtState.currentIndex];
+    if (!q || !q.options) return;
+    q.options.forEach((opt) => {
+      if (opt.text && opt.text.trim().length > 0) {
+        const trimmed = opt.text.trim();
+        opt.text = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+      }
+    });
+    saveCbtLocalStorage();
+    renderCbtEditor();
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
+    if (typeof showAppNotification === "function") {
+      showAppNotification("Huruf awal opsi (A s.d. E) berhasil diubah menjadi huruf kapital!", "success");
+    }
+  };
+
+  window.capitalizeAllCbtOptions = function () {
+    const questions = window.cbtState && window.cbtState.questions;
+    if (!questions || questions.length === 0) return;
+    if (confirm("Ubah huruf pertama pada seluruh opsi (A s.d. E) di semua soal menjadi huruf kapital?")) {
+      questions.forEach((q) => {
+        (q.options || []).forEach((opt) => {
+          if (opt.text && opt.text.trim().length > 0) {
+            const trimmed = opt.text.trim();
+            opt.text = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+          }
+        });
+      });
+      saveCbtLocalStorage();
+      renderCbtAll();
+      if (typeof showAppNotification === "function") {
+        showAppNotification("Seluruh opsi (A s.d. E) di semua soal berhasil dikapitalisasi!", "success");
+      } else {
+        alert("Huruf pertama seluruh opsi pada semua butir soal berhasil diubah menjadi huruf kapital!");
+      }
     }
   };
 
