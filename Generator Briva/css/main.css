@@ -48,6 +48,13 @@ img[src*="mascot"],
        ========================================================================== */
     #appSidebar {
       box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      overscroll-behavior: contain !important;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
+    #drawerBackdrop {
+      touch-action: none !important;
+      overscroll-behavior: contain !important;
     }
     html.dark #appSidebar {
       box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
