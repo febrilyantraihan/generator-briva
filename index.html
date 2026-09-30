@@ -12316,6 +12316,15 @@
                   <i data-lucide="key" class="w-3.5 h-3.5"></i>
                   <span>Unduh Kunci Saja (.docx)</span>
                 </button>
+                <button 
+                  type="button" 
+                  id="btnCbtExportRemidi" 
+                  class="px-3 py-1.5 rounded-lg border border-amber-500/50 bg-amber-500/10 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  title="Unduh berkas soal remidi esai/uraian (.docx) dengan kop & ttd resmi"
+                >
+                  <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
+                  <span>Unduh Soal Remidi (.docx)</span>
+                </button>
               </div>
             </div>
 
@@ -12328,7 +12337,16 @@
                 class="px-3 py-2 text-xs font-bold rounded-xl border border-violet-500/40 bg-violet-600 text-white shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                <span>Form Soal Interaktif</span>
+                <span>Form Soal Pilihan Ganda</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-remidi" 
+                onclick="switchCbtSubtab('remidi')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="edit-2" class="w-3.5 h-3.5 text-amber-500"></i>
+                <span>Soal Remidi Esai (1-15)</span>
               </button>
               <button 
                 type="button" 
@@ -12346,7 +12364,7 @@
                 class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-500"></i>
-                <span>Pratinjau File Soal</span>
+                <span>Pratinjau File Soal CBT</span>
               </button>
               <button 
                 type="button" 
@@ -12356,6 +12374,15 @@
               >
                 <i data-lucide="key-round" class="w-3.5 h-3.5 text-emerald-500"></i>
                 <span>Pratinjau File Kunci (4 Kolom)</span>
+              </button>
+              <button 
+                type="button" 
+                id="cbt-tab-btn-preview-remidi" 
+                onclick="switchCbtSubtab('preview-remidi')" 
+                class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i>
+                <span>Pratinjau File Remidi</span>
               </button>
             </div>
 
@@ -12555,6 +12582,159 @@
                     <div class="mt-1">Penyusun,</div>
                     <div class="h-12"></div>
                     <div id="cbtPreviewKunciAuthor" class="font-bold underline">Mohammad Ilham Mahmudi</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 8. PANE 5: SOAL REMIDI ESAI (1-15 BUTIR) -->
+            <div id="cbt-pane-remidi" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+              <!-- Left: Grid Matrix Nomor Soal Remidi -->
+              <div class="lg:col-span-4 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-xs flex flex-col">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <i data-lucide="award" class="w-3.5 h-3.5 text-amber-500"></i>
+                    <span>Nomor Soal Remidi</span>
+                  </span>
+                  <div class="flex items-center gap-1">
+                    <button type="button" id="cbtRemidiAddBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 cursor-pointer transition-all active:scale-95" title="Tambah butir soal remidi (Maksimal 15)">+ Tambah</button>
+                    <button type="button" id="cbtRemidiDeleteBtn" class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 cursor-pointer">Hapus</button>
+                  </div>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="flex items-center justify-between gap-1 mb-2 px-1 py-1 rounded-lg bg-slate-100/80 dark:bg-slate-800/60 text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                  <span class="text-[10px] font-semibold text-slate-500">Preset Cepat:</span>
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="setRemidiQuestionCount(5)" class="px-2 py-0.5 rounded bg-white dark:bg-slate-700 hover:bg-amber-500 hover:text-white text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-2xs">5 Soal</button>
+                    <button type="button" onclick="setRemidiQuestionCount(10)" class="px-2 py-0.5 rounded bg-white dark:bg-slate-700 hover:bg-amber-500 hover:text-white text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-2xs">10 Soal</button>
+                    <button type="button" onclick="setRemidiQuestionCount(15)" class="px-2 py-0.5 rounded bg-white dark:bg-slate-700 hover:bg-amber-500 hover:text-white text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-2xs">15 Soal</button>
+                  </div>
+                </div>
+
+                <!-- Grid items container -->
+                <div id="cbtRemidiGrid" class="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-1.5 max-h-[380px] overflow-y-auto no-scrollbar p-1">
+                  <!-- Generated dynamically -->
+                </div>
+
+                <div class="mt-auto pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+                  <span>Jumlah: <strong id="cbtRemidiStatTotal" class="text-amber-600 dark:text-amber-400">5</strong> Soal</span>
+                  <span class="text-[10px] italic text-slate-400">Rentang standar: 1-15</span>
+                </div>
+              </div>
+
+              <!-- Right: Form Butir Soal Remidi (Esai) -->
+              <div class="lg:col-span-8 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-5 shadow-xs space-y-3 sm:space-y-4">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 flex-wrap gap-2">
+                  <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-xs sm:text-sm font-black shadow-xs">Soal Remidi No. <span id="cbtActiveRemidiQNumber">1</span></span>
+                    <span>Pertanyaan Esai / Uraian</span>
+                  </h4>
+                  <div class="flex items-center gap-1.5">
+                    <button 
+                      type="button" 
+                      id="cbtCopyRemidiPromptBtn" 
+                      class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 font-bold text-[11px] transition-all cursor-pointer flex items-center gap-1"
+                      title="Salin template prompt AI untuk membuat butir soal remidi esai"
+                    >
+                      <i data-lucide="sparkles" class="w-3 h-3 text-amber-500"></i>
+                      <span>Salin Prompt AI Remidi</span>
+                    </button>
+                    <button 
+                      type="button" 
+                      id="cbtToggleRemidiFastPasteBtn" 
+                      onclick="document.getElementById('cbtRemidiFastPasteBox').classList.toggle('hidden')" 
+                      class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      <i data-lucide="zap" class="w-3 h-3 text-amber-500"></i>
+                      <span>Fast Paste Remidi</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Collapsible Fast Paste Box for Remidi -->
+                <div id="cbtRemidiFastPasteBox" class="hidden p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 space-y-2">
+                  <div class="text-[11px] font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600"></i>
+                    <span>Tempel Cepat Daftar Soal Remidi (Maksimal 15 Soal)</span>
+                  </div>
+                  <p class="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">
+                    Tempelkan daftar soal esai dari AI atau catatan. Tiap baris nomor (contoh: <code>1. Jelaskan...</code>) akan otomatis dimasukkan sebagai butir soal esai.
+                  </p>
+                  <textarea id="cbtRemidiBulkInput" rows="5" class="w-full p-2.5 font-mono text-xs rounded-lg border border-amber-300 dark:border-amber-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-1 focus:ring-amber-500 focus:outline-none" placeholder="1. Jelaskan perbedaan mendasar antara bahan serat alam dan serat buatan!&#10;2. Sebutkan 3 teknik dasar pengolahan bahan pangan sayuran!&#10;3. Mengapa sterilisasi alat sangat penting dalam proses pengemasan?&#10;4. Uraikan tahapan budidaya tanaman obat dari bibit hingga panen!&#10;5. Bagaimana langkah mengatasi serangan hama tanaman secara alami?"></textarea>
+                  <div class="flex justify-end">
+                    <button type="button" onclick="parseCbtRemidiBulkText(document.getElementById('cbtRemidiBulkInput').value)" class="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                      <span>Terapkan ke Soal Remidi</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Stem / Question Textarea -->
+                <div>
+                  <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Teks Soal / Pertanyaan Remidi:</label>
+                  <textarea id="cbtRemidiQuestionInput" rows="5" class="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm sm:text-base font-bold text-slate-950 dark:text-white leading-relaxed focus:ring-2 focus:ring-amber-500 focus:outline-none shadow-xs" placeholder="Ketik teks pertanyaan soal remidi esai di sini..."></textarea>
+                </div>
+
+                <!-- Guidance Note -->
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-start gap-2.5">
+                  <i data-lucide="info" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+                  <div class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <strong>Format Jawaban Siswa di Word (.docx):</strong> Dokumen remidi yang diunduh akan otomatis memberikan garis titik-titik samar berjarak presisi di bawah tiap pertanyaan, sehingga siswa dapat langsung menuliskan jawaban esai mereka dengan rapi.
+                  </div>
+                </div>
+
+                <!-- Bottom Navigation Buttons -->
+                <div class="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
+                  <button type="button" id="cbtRemidiPrevBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">&larr; Sebelumnya</button>
+                  <button type="button" id="cbtRemidiNextBtn" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-xs font-bold text-white shadow-xs cursor-pointer">Selanjutnya &rarr;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 9. PANE 6: LIVE PREVIEW FILE REMIDI (.DOCX) -->
+            <div id="cbt-pane-preview-remidi" class="hidden bg-white/90 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 flex-wrap gap-2">
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">📄 Pratinjau Dokumen 3: Berkas Soal Remidi Esai (.docx)</h4>
+                  <p class="text-[10px] text-slate-400">Format Word resmi siap cetak lengkap dengan kop madrasah, butir soal esai, ruang garis jawaban, dan tanda tangan guru.</p>
+                </div>
+                <button type="button" onclick="document.getElementById('btnCbtExportRemidi').click()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Unduh File Remidi Ini</span>
+                </button>
+              </div>
+
+              <div class="p-4 sm:p-6 bg-white text-black rounded-lg shadow-sm border border-slate-300 font-sans max-w-3xl mx-auto max-h-[500px] overflow-y-auto">
+                <!-- Header Dokumen -->
+                <div class="text-center font-bold mb-3 space-y-0.5 border-b-2 border-black pb-3">
+                  <div id="cbtPreviewRemidiExam" class="text-xs sm:text-sm uppercase tracking-wider">SOAL REMEDIAL / PERBAIKAN SUMATIF</div>
+                  <div id="cbtPreviewRemidiInst" class="text-xs sm:text-sm uppercase font-extrabold">MTS RAUDLATUL MUTA'ALLIMIN</div>
+                  <div id="cbtPreviewRemidiYear" class="text-[11px] uppercase">TAHUN PELAJARAN 2025/2026</div>
+                </div>
+
+                <!-- Info Mapel & Identitas -->
+                <div class="grid grid-cols-2 gap-2 text-[11px] font-semibold mb-4 border-b border-slate-300 pb-2">
+                  <div>MATA PELAJARAN : <span id="cbtPreviewRemidiSubject" class="font-bold">PRAKARYA 7</span></div>
+                  <div class="text-right">KELAS / SEMESTER : <span id="cbtPreviewRemidiGrade" class="font-bold">VII / GANJIL</span></div>
+                  <div>NAMA SISWA : ....................................................</div>
+                  <div class="text-right">NO. ABSEN : ..............</div>
+                </div>
+
+                <div class="text-[11px] font-bold italic mb-3">Petunjuk: Jawablah pertanyaan-pertanyaan uraian di bawah ini dengan singkat, tepat, dan jelas!</div>
+
+                <!-- Daftar Soal Esai & Dotted Lines -->
+                <div id="cbtPreviewRemidiQuestionsContainer" class="space-y-4 text-xs">
+                  <!-- Dynamic content -->
+                </div>
+
+                <!-- Tanda Tangan Footer -->
+                <div class="mt-8 flex justify-end">
+                  <div class="text-[11px] text-left min-w-[200px]">
+                    <div id="cbtPreviewRemidiCityDate">Lamongan, 21 September 2024</div>
+                    <div class="mt-1">Guru Pengampu / Penyusun,</div>
+                    <div class="h-14"></div>
+                    <div id="cbtPreviewRemidiAuthor" class="font-bold underline">Mohammad Ilham Mahmudi</div>
                   </div>
                 </div>
               </div>
