@@ -4,7 +4,7 @@
  * Fitur: Seamless Auto-Update (Tanpa Uninstall/Reinstall) & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-v28';
+const CACHE_NAME = 'partner-fatih-v29';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -17,8 +17,8 @@ const PRECACHE_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './css/main.css?v=28',
-  './js/app.bundle.js?v=28',
+  './css/main.css?v=29',
+  './js/app.bundle.js?v=29',
   './js/vendor/jszip.min.js',
   './js/vendor/xlsx.full.min.js',
   './js/vendor/pptxgen.bundle.js',
