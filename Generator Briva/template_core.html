@@ -31289,6 +31289,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -38788,7 +38791,15 @@ window.SAMPLE_QUESTIONS = [
     },
     questions: [],
     currentIndex: 0,
-    currentTab: "editor" // "editor" | "bulk" | "preview-soal" | "preview-kunci"
+    remidiQuestions: [
+      { number: 1, stem: "" },
+      { number: 2, stem: "" },
+      { number: 3, stem: "" },
+      { number: 4, stem: "" },
+      { number: 5, stem: "" }
+    ],
+    currentRemidiIndex: 0,
+    currentTab: "editor" // "editor" | "remidi" | "bulk" | "preview-soal" | "preview-kunci" | "preview-remidi"
   };
 
   // --- XML & DOCX GENERATOR HELPER ---
@@ -39048,6 +39059,152 @@ window.SAMPLE_QUESTIONS = [
     });
   }
 
+  async function generateRemidiDocx(metadata, remidiQuestions) {
+    await ensureJSZip();
+    if (!window.DOCX_TEMPLATE_KUNCI_B64) throw new Error("Template Kunci/Remidi tidak ditemukan!");
+
+    const zip = await window.JSZip.loadAsync(base64ToUint8Array(window.DOCX_TEMPLATE_KUNCI_B64));
+    let docXml = await zip.file("word/document.xml").async("text");
+
+    const examTitle = (metadata.exam_title || "SOAL SUMATIF TENGAH SEMESTER").toUpperCase();
+    const instName = (metadata.institution || "MTS RAUDLATUL MUTA'ALLIMIN").toUpperCase();
+    const acYear = metadata.academic_year || "2025/2026";
+    const subjectName = (metadata.subject || "PRAKARYA 7").toUpperCase();
+    const gradeSemester = (metadata.grade ? `${metadata.grade} / GANJIL` : "VII / GANJIL").toUpperCase();
+    const cityName = metadata.city || "Lamongan";
+    const dateStr = metadata.date || "21 September 2024";
+    const authorName = metadata.author || "Mohammad Ilham Mahmudi";
+
+    // 1. Replace Header Title with Remedial Title
+    docXml = docXml.replace(
+      /<w:p [^>]*>[\s\S]*?KUNCI JAWABAN SOAL[\s\S]*?<\/w:p>/,
+      `<w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:jc w:val="center"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>SOAL REMEDIAL / PERBAIKAN ${escapeXml(examTitle)}</w:t></w:r></w:p>`
+    );
+
+    // 2. Replace Institution
+    docXml = docXml.replace(/(<w:t>)MTS RAUDLATUL MUTA'ALLIMIN(<\/w:t>)/, `$1${escapeXml(instName)}$2`);
+
+    // 3. Replace Academic Year
+    docXml = docXml.replace(
+      /<w:p [^>]*>[\s\S]*?TAHUN PELAJARAN[\s\S]*?<\/w:p>/,
+      `<w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:jc w:val="center"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>TAHUN PELAJARAN ${escapeXml(acYear)}</w:t></w:r></w:p>`
+    );
+
+    // 4. Replace Subject Line with Complete Identity Table (Subject, Grade, Student Name, Student No)
+    const metaTableXml = `
+      <w:tbl>
+        <w:tblPr>
+          <w:tblW w:w="9600" w:type="dxa"/>
+          <w:tblBorders>
+            <w:top w:val="none"/>
+            <w:left w:val="none"/>
+            <w:bottom w:val="single" w:sz="12" w:space="4" w:color="000000"/>
+            <w:right w:val="none"/>
+            <w:insideH w:val="none"/>
+            <w:insideV w:val="none"/>
+          </w:tblBorders>
+        </w:tblPr>
+        <w:tblGrid>
+          <w:gridCol w:w="5400"/>
+          <w:gridCol w:w="4200"/>
+        </w:tblGrid>
+        <w:tr>
+          <w:tc><w:tcPr><w:tcW w:w="5400" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:spacing w:after="40" w:line="240"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr><w:t>MATA PELAJARAN : ${escapeXml(subjectName)}</w:t></w:r></w:p></w:tc>
+          <w:tc><w:tcPr><w:tcW w:w="4200" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:spacing w:after="40" w:line="240"/><w:jc w:val="right"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr><w:t>KELAS : ${escapeXml(gradeSemester)}</w:t></w:r></w:p></w:tc>
+        </w:tr>
+        <w:tr>
+          <w:tc><w:tcPr><w:tcW w:w="5400" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:spacing w:after="60" w:line="240"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr><w:t>NAMA : ....................................................</w:t></w:r></w:p></w:tc>
+          <w:tc><w:tcPr><w:tcW w:w="4200" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:spacing w:after="60" w:line="240"/><w:jc w:val="right"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="22"/></w:rPr><w:t>NO. ABSEN : ..............</w:t></w:r></w:p></w:tc>
+        </w:tr>
+      </w:tbl>
+    `;
+
+    docXml = docXml.replace(
+      /<w:p [^>]*>[\s\S]*?MATA\s+PELAJARAN[\s\S]*?<\/w:p>/,
+      metaTableXml
+    );
+
+    // 5. Instructions Paragraph + Questions with Dotted Lines
+    let questionsXml = `
+      <w:p>
+        <w:pPr>
+          <w:spacing w:before="120" w:after="160" w:line="240"/>
+          <w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:i/><w:b/><w:sz w:val="22"/></w:rPr>
+        </w:pPr>
+        <w:r>
+          <w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:i/><w:b/><w:sz w:val="22"/></w:rPr>
+          <w:t>Petunjuk: Jawablah pertanyaan-pertanyaan uraian di bawah ini dengan singkat, tepat, dan jelas!</w:t>
+        </w:r>
+      </w:p>
+    `;
+
+    const qList = (remidiQuestions && remidiQuestions.length > 0)
+      ? remidiQuestions
+      : [{ number: 1, stem: "" }];
+
+    qList.forEach((q, idx) => {
+      const qNum = idx + 1;
+      const stem = (q.stem || "").trim() || `(Pertanyaan esai ${qNum})`;
+
+      questionsXml += `
+        <w:p>
+          <w:pPr>
+            <w:spacing w:before="140" w:after="60" w:line="260" w:lineRule="auto"/>
+            <w:ind w:left="420" w:hanging="420"/>
+            <w:jc w:val="both"/>
+            <w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="24"/></w:rPr>
+          </w:pPr>
+          <w:r>
+            <w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="24"/></w:rPr>
+            <w:t xml:space="preserve">${qNum}.  </w:t>
+          </w:r>
+          <w:r>
+            <w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:b/><w:sz w:val="24"/></w:rPr>
+            <w:t>${escapeXml(stem)}</w:t>
+          </w:r>
+        </w:p>
+      `;
+
+      // 4 Dotted writing lines for student answers
+      for (let line = 0; line < 4; line++) {
+        questionsXml += `
+          <w:p>
+            <w:pPr>
+              <w:pStyle w:val="NoSpacing"/>
+              <w:spacing w:line="340" w:lineRule="auto" w:before="40" w:after="40"/>
+              <w:pBdr>
+                <w:bottom w:val="dotted" w:sz="6" w:space="1" w:color="7F7F7F"/>
+              </w:pBdr>
+              <w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma"/><w:sz w:val="20"/></w:rPr>
+            </w:pPr>
+            <w:r><w:t xml:space="preserve"> </w:t></w:r>
+          </w:p>
+        `;
+      }
+    });
+
+    // Replace original answers table with the questions & lines
+    docXml = docXml.replace(/<w:tbl>[\s\S]*?<\/w:tbl>/, questionsXml);
+
+    // 6. Update Footer: Date and Author
+    docXml = docXml.replace(
+      /<w:p [^>]*>[\s\S]*?Lamongan[\s\S]*?<\/w:p>/,
+      `<w:p><w:pPr><w:spacing w:before="240" w:after="0" w:line="240" w:lineRule="auto"/><w:ind w:left="5760" w:firstLine="720"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>${escapeXml(cityName)},  ${escapeXml(dateStr)}</w:t></w:r></w:p>`
+    );
+
+    docXml = docXml.replace(
+      /<w:p [^>]*>[\s\S]*?Mohammad Ilham Mahmudi[\s\S]*?<\/w:p>/,
+      `<w:p><w:pPr><w:ind w:left="5760" w:firstLine="720"/><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/><w:u w:val="single"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Tahoma" w:hAnsi="Tahoma" w:cs="Tahoma"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/><w:u w:val="single"/></w:rPr><w:t>${escapeXml(authorName)}</w:t></w:r></w:p>`
+    );
+
+    zip.file("word/document.xml", docXml);
+    return await zip.generateAsync({
+      type: "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      compression: "DEFLATE",
+    });
+  }
+
   // --- INITIALIZE & CONTROLLER LOGIC ---
   window.initCbtTab = function () {
     loadCbtLocalStorage();
@@ -39057,6 +39214,9 @@ window.SAMPLE_QUESTIONS = [
       } else {
         window.cbtState.questions = generateCbtBlankQuestions(35);
       }
+    }
+    if (!window.cbtState.remidiQuestions || window.cbtState.remidiQuestions.length === 0) {
+      window.cbtState.remidiQuestions = generateCbtBlankRemidiQuestions(5);
     }
     renderCbtAll();
     setupCbtEvents();
@@ -39076,6 +39236,17 @@ window.SAMPLE_QUESTIONS = [
     return arr;
   }
 
+  function generateCbtBlankRemidiQuestions(count = 5) {
+    const arr = [];
+    for (let i = 1; i <= count; i++) {
+      arr.push({
+        number: i,
+        stem: "",
+      });
+    }
+    return arr;
+  }
+
   function loadCbtLocalStorage() {
     try {
       const saved = localStorage.getItem("partner_fatih_cbt_data");
@@ -39085,6 +39256,10 @@ window.SAMPLE_QUESTIONS = [
         if (parsed.questions && parsed.questions.length > 0) {
           window.cbtState.questions = parsed.questions;
           window.cbtState.currentIndex = parsed.currentIndex || 0;
+        }
+        if (parsed.remidiQuestions && parsed.remidiQuestions.length > 0) {
+          window.cbtState.remidiQuestions = parsed.remidiQuestions;
+          window.cbtState.currentRemidiIndex = parsed.currentRemidiIndex || 0;
         }
       }
     } catch (e) {}
@@ -39100,6 +39275,7 @@ window.SAMPLE_QUESTIONS = [
     renderCbtMetadata();
     renderCbtGrid();
     renderCbtEditor();
+    renderCbtRemidiAll();
     renderCbtPreviewSoal();
     renderCbtPreviewKunci();
     updateCbtStats();
@@ -39486,25 +39662,239 @@ window.SAMPLE_QUESTIONS = [
     };
   }
 
+  // --- REMIDI FUNCTIONS & RENDERERS ---
+  function renderCbtRemidiGrid() {
+    const gridEl = document.getElementById("cbtRemidiGrid");
+    if (!gridEl) return;
+    gridEl.innerHTML = "";
+
+    const qList = window.cbtState.remidiQuestions || [];
+    qList.forEach((q, idx) => {
+      const isAct = idx === window.cbtState.currentRemidiIndex;
+      const hasStem = (q.stem || "").trim().length > 0;
+
+      let borderClass = "border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200";
+      let badgeClass = "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300";
+
+      if (hasStem) {
+        borderClass = "border-amber-500 dark:border-amber-600 bg-amber-50/80 dark:bg-amber-950/60 text-slate-950 dark:text-white shadow-xs";
+        badgeClass = "bg-amber-500 text-white font-bold";
+      }
+
+      if (isAct) {
+        borderClass += " ring-2 ring-amber-500 shadow-md";
+      }
+
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = `p-1.5 rounded-lg border flex flex-col items-center justify-center transition-all cursor-pointer ${borderClass}`;
+      item.innerHTML = `
+        <span class="text-sm font-black leading-none text-slate-900 dark:text-white">${idx + 1}</span>
+        <span class="text-[9px] font-bold mt-1 px-1.5 py-0.2 rounded font-mono ${badgeClass}">${hasStem ? "Esai" : "Kosong"}</span>
+      `;
+      item.onclick = () => {
+        window.cbtState.currentRemidiIndex = idx;
+        renderCbtRemidiAll();
+      };
+      gridEl.appendChild(item);
+    });
+  }
+
+  function renderCbtRemidiEditor() {
+    const qList = window.cbtState.remidiQuestions || [];
+    const q = qList[window.cbtState.currentRemidiIndex];
+    if (!q) return;
+
+    const numEl = document.getElementById("cbtActiveRemidiQNumber");
+    const inputEl = document.getElementById("cbtRemidiQuestionInput");
+    if (numEl) numEl.textContent = window.cbtState.currentRemidiIndex + 1;
+    if (inputEl) inputEl.value = q.stem || "";
+
+    const prevBtn = document.getElementById("cbtRemidiPrevBtn");
+    const nextBtn = document.getElementById("cbtRemidiNextBtn");
+    if (prevBtn) prevBtn.disabled = window.cbtState.currentRemidiIndex <= 0;
+    if (nextBtn) nextBtn.disabled = window.cbtState.currentRemidiIndex >= qList.length - 1;
+  }
+
+  function renderCbtPreviewRemidi() {
+    const elExam = document.getElementById("cbtPreviewRemidiExam");
+    const elInst = document.getElementById("cbtPreviewRemidiInst");
+    const elYear = document.getElementById("cbtPreviewRemidiYear");
+    const elSubj = document.getElementById("cbtPreviewRemidiSubject");
+    const elGrade = document.getElementById("cbtPreviewRemidiGrade");
+    const elCityDate = document.getElementById("cbtPreviewRemidiCityDate");
+    const elAuthor = document.getElementById("cbtPreviewRemidiAuthor");
+    const container = document.getElementById("cbtPreviewRemidiQuestionsContainer");
+
+    if (elExam) elExam.textContent = `SOAL REMEDIAL / PERBAIKAN ${(window.cbtState.metadata.exam_title || "SUMATIF TENGAH SEMESTER").toUpperCase()}`;
+    if (elInst) elInst.textContent = (window.cbtState.metadata.institution || "MTS RAUDLATUL MUTA'ALLIMIN").toUpperCase();
+    if (elYear) elYear.textContent = `TAHUN PELAJARAN ${window.cbtState.metadata.academic_year || "2025/2026"}`;
+    if (elSubj) elSubj.textContent = (window.cbtState.metadata.subject || "PRAKARYA 7").toUpperCase();
+    if (elGrade) elGrade.textContent = `${window.cbtState.metadata.grade || "VII"} / GANJIL`.toUpperCase();
+    if (elCityDate) elCityDate.textContent = `${window.cbtState.metadata.city || "Lamongan"}, ${window.cbtState.metadata.date || "21 September 2024"}`;
+    if (elAuthor) elAuthor.textContent = window.cbtState.metadata.author || "Mohammad Ilham Mahmudi";
+
+    if (!container) return;
+    const qList = window.cbtState.remidiQuestions || [];
+    let html = "";
+    qList.forEach((q, idx) => {
+      const qNum = idx + 1;
+      const stem = q.stem ? escapeXml(q.stem).replace(/\n/g, "<br>") : `<span class="italic text-slate-400 font-normal">(Pertanyaan remidi belum diisi)</span>`;
+      html += `
+        <div class="space-y-1.5 pb-2">
+          <div class="font-bold flex items-start gap-1.5 leading-relaxed">
+            <span class="w-5 flex-shrink-0">${qNum}.</span>
+            <div class="flex-1">${stem}</div>
+          </div>
+          <div class="pl-5 pt-1 space-y-2 select-none">
+            <div class="border-b border-dotted border-slate-400 h-3"></div>
+            <div class="border-b border-dotted border-slate-400 h-3"></div>
+            <div class="border-b border-dotted border-slate-400 h-3"></div>
+            <div class="border-b border-dotted border-slate-400 h-3"></div>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  window.renderCbtRemidiAll = function () {
+    renderCbtRemidiGrid();
+    renderCbtRemidiEditor();
+    renderCbtPreviewRemidi();
+  };
+
+  window.setRemidiQuestionCount = function (targetCount) {
+    targetCount = Math.max(1, Math.min(15, parseInt(targetCount, 10) || 5));
+    let current = window.cbtState.remidiQuestions || [];
+    if (targetCount === current.length) return;
+
+    if (targetCount > current.length) {
+      while (current.length < targetCount) {
+        current.push({
+          number: current.length + 1,
+          stem: "",
+        });
+      }
+    } else {
+      const hasContent = current.slice(targetCount).some((q) => (q.stem || "").trim().length > 0);
+      if (hasContent) {
+        if (!confirm(`Ubah jumlah soal remidi menjadi ${targetCount}? Soal nomor ${targetCount + 1} s.d. ${current.length} yang telah diisi akan dihapus.`)) {
+          return;
+        }
+      }
+      current = current.slice(0, targetCount);
+    }
+
+    current.forEach((q, i) => (q.number = i + 1));
+    window.cbtState.remidiQuestions = current;
+    if (window.cbtState.currentRemidiIndex >= current.length) {
+      window.cbtState.currentRemidiIndex = current.length - 1;
+    }
+    saveCbtLocalStorage();
+    renderCbtRemidiAll();
+  };
+
+  window.copyCbtRemidiPrompt = function () {
+    const count = (window.cbtState.remidiQuestions || []).length || 5;
+    const promptTemplate = `Bertindaklah sebagai guru ahli pembuat soal ujian Madrasah Tsanawiyah (MTs) Kelas 7 yang profesional.
+Buatkan saya tepat ${count} BUTIR SOAL REMEDIAL ESAI / URAIAN SINGKAT (Nomor 1 sampai ${count}) berdasarkan MATERI / RINGKASAN yang saya sertakan di bagian bawah.
+
+Tingkat Kesulitan: Soal remedial ditujukan untuk menguji pemahaman konsep esensial dan kemampuan analisis mendasar siswa yang belum tuntas pada ujian utama.
+
+ATURAN FORMAT PENULISAN (WAJIB DIIKUTI PERSIS AGAR MUDAH DITEMPEL):
+1. Setiap soal berupa pertanyaan terbuka / esai / uraian yang menuntut penjelasan terstruktur.
+2. Format nomor: gunakan angka diikuti titik, contoh:
+1. Jelaskan perbedaan mendasar antara bahan serat alam dan serat buatan!
+2. Sebutkan dan jelaskan 3 teknik dasar pengolahan bahan pangan sayuran!
+3. Mengapa sterilisasi alat sangat penting dalam proses pengemasan?
+3. JANGAN sertakan pilihan ganda (A, B, C, D, E).
+4. JANGAN gunakan tanda bintang tebal (**1.**), cukup teks nomor biasa saja.
+5. Pisahkan tiap nomor soal dengan 1 baris kosong.
+
+========================================
+MATERI / RINGKASAN BAHAN SOAL:
+[TEMPELKAN MATERI, BAB BUKU, ATAU CATATAN ANDA DI SINI]
+========================================
+
+Sekarang, buatkan ${count} butir soal remidi esai lengkap sesuai format di atas!`;
+
+    navigator.clipboard.writeText(promptTemplate).then(() => {
+      if (typeof showToast === "function") {
+        showToast("Tersalin", `Template prompt ${count} soal remidi esai berhasil disalin!`);
+      } else {
+        alert(`Template prompt ${count} soal remidi esai berhasil disalin ke clipboard!`);
+      }
+    });
+  };
+
+  window.parseCbtRemidiBulkText = function (rawText) {
+    if (!rawText || !rawText.trim()) {
+      if (typeof showToast === "function") showToast("Peringatan", "Tempelkan teks soal remidi terlebih dahulu.", true);
+      return;
+    }
+    const lines = rawText.split(/\r?\n/);
+    const parsed = [];
+    const qNumRegex = /^(?:[\*\_]{1,2})?(?:no\.?|soal\s*no\.?|soal\s*|pertanyaan\s*)?(\d+)[\.\)\:\-](?:[\*\_]{1,2})?\s*(.*)/i;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const match = line.match(qNumRegex);
+      if (match) {
+        if (parsed.length >= 15) break;
+        parsed.push({
+          number: parsed.length + 1,
+          stem: match[2] || "",
+        });
+      } else if (parsed.length > 0) {
+        parsed[parsed.length - 1].stem += (parsed[parsed.length - 1].stem ? "\n" : "") + line;
+      } else {
+        parsed.push({
+          number: 1,
+          stem: line,
+        });
+      }
+      if (parsed.length >= 15) break;
+    }
+
+    if (parsed.length === 0) {
+      if (typeof showToast === "function") showToast("Format Tidak Dikenali", "Pastikan ada nomor soal (cth: 1. Teks...)", true);
+      return;
+    }
+
+    window.cbtState.remidiQuestions = parsed;
+    window.cbtState.currentRemidiIndex = 0;
+    saveCbtLocalStorage();
+    renderCbtRemidiAll();
+    const box = document.getElementById("cbtRemidiFastPasteBox");
+    if (box) box.classList.add("hidden");
+    if (typeof showToast === "function") {
+      showToast("Sukses", `Berhasil memuat ${parsed.length} butir soal remidi!`);
+    }
+  };
+
   // --- SUBTAB SWITCHER ---
   window.switchCbtSubtab = function (subtab) {
     window.cbtState.currentTab = subtab;
-    const tabs = ["editor", "bulk", "preview-soal", "preview-kunci"];
+    const tabs = ["editor", "remidi", "bulk", "preview-soal", "preview-kunci", "preview-remidi"];
     tabs.forEach((t) => {
       const pane = document.getElementById("cbt-pane-" + t);
       const btn = document.getElementById("cbt-tab-btn-" + t);
       if (pane) pane.classList.toggle("hidden", t !== subtab);
       if (btn) {
         if (t === subtab) {
-          btn.className = "px-3 py-2 text-xs font-bold rounded-xl border border-violet-500/40 bg-violet-600 text-white shadow-sm flex items-center gap-1.5 cursor-pointer";
+          btn.className = "px-3 py-2 text-xs font-bold rounded-xl border border-violet-500/40 bg-violet-600 text-white shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
         } else {
-          btn.className = "px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer";
+          btn.className = "px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
         }
       }
     });
 
+    if (subtab === "remidi") renderCbtRemidiAll();
     if (subtab === "preview-soal") renderCbtPreviewSoal();
     if (subtab === "preview-kunci") renderCbtPreviewKunci();
+    if (subtab === "preview-remidi") renderCbtPreviewRemidi();
   };
 
   window.shuffleCbtQuestions = function () {
@@ -39743,6 +40133,104 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
           alert("Gagal mengunduh Kunci: " + e.message);
         } finally {
           exportKunciBtn.disabled = false;
+        }
+      };
+    }
+
+    // Remidi Event Listeners
+    const remidiStemEl = document.getElementById("cbtRemidiQuestionInput");
+    if (remidiStemEl) {
+      remidiStemEl.oninput = (e) => {
+        const qList = window.cbtState.remidiQuestions || [];
+        const q = qList[window.cbtState.currentRemidiIndex];
+        if (q) {
+          q.stem = e.target.value;
+          saveCbtLocalStorage();
+          renderCbtRemidiGrid();
+          renderCbtPreviewRemidi();
+        }
+      };
+    }
+
+    const remidiPrevBtn = document.getElementById("cbtRemidiPrevBtn");
+    const remidiNextBtn = document.getElementById("cbtRemidiNextBtn");
+    if (remidiPrevBtn) {
+      remidiPrevBtn.onclick = () => {
+        if (window.cbtState.currentRemidiIndex > 0) {
+          window.cbtState.currentRemidiIndex--;
+          renderCbtRemidiAll();
+        }
+      };
+    }
+    if (remidiNextBtn) {
+      remidiNextBtn.onclick = () => {
+        const qList = window.cbtState.remidiQuestions || [];
+        if (window.cbtState.currentRemidiIndex < qList.length - 1) {
+          window.cbtState.currentRemidiIndex++;
+          renderCbtRemidiAll();
+        }
+      };
+    }
+
+    const addRemidiBtn = document.getElementById("cbtAddRemidiBtn");
+    if (addRemidiBtn) {
+      addRemidiBtn.onclick = () => {
+        const qList = window.cbtState.remidiQuestions || [];
+        if (qList.length >= 15) {
+          if (typeof showToast === "function") showToast("Batas Maksimal", "Jumlah soal remidi esai maksimal 15 butir.", true);
+          else alert("Jumlah soal remidi maksimal 15 butir!");
+          return;
+        }
+        qList.push({
+          number: qList.length + 1,
+          stem: "",
+        });
+        window.cbtState.remidiQuestions = qList;
+        window.cbtState.currentRemidiIndex = qList.length - 1;
+        saveCbtLocalStorage();
+        renderCbtRemidiAll();
+      };
+    }
+
+    const delRemidiBtn = document.getElementById("cbtDeleteRemidiBtn");
+    if (delRemidiBtn) {
+      delRemidiBtn.onclick = () => {
+        const qList = window.cbtState.remidiQuestions || [];
+        if (qList.length <= 1) {
+          if (typeof showToast === "function") showToast("Batas Minimal", "Minimal harus ada 1 butir soal remidi.", true);
+          return;
+        }
+        if (confirm(`Hapus soal remidi nomor ${window.cbtState.currentRemidiIndex + 1}?`)) {
+          qList.splice(window.cbtState.currentRemidiIndex, 1);
+          qList.forEach((q, i) => (q.number = i + 1));
+          if (window.cbtState.currentRemidiIndex >= qList.length) {
+            window.cbtState.currentRemidiIndex = qList.length - 1;
+          }
+          window.cbtState.remidiQuestions = qList;
+          saveCbtLocalStorage();
+          renderCbtRemidiAll();
+        }
+      };
+    }
+
+    const copyRemidiPromptBtn = document.getElementById("cbtCopyRemidiPromptBtn");
+    if (copyRemidiPromptBtn) {
+      copyRemidiPromptBtn.onclick = () => window.copyCbtRemidiPrompt();
+    }
+
+    const exportRemidiBtn = document.getElementById("btnCbtExportRemidi");
+    if (exportRemidiBtn) {
+      exportRemidiBtn.onclick = async () => {
+        try {
+          exportRemidiBtn.disabled = true;
+          const blob = await generateRemidiDocx(window.cbtState.metadata, window.cbtState.remidiQuestions);
+          const fname = `REMIDI_${(window.cbtState.metadata.subject || "UJIAN").replace(/[^a-zA-Z0-9_\-]/g, "_")}.docx`;
+          saveBlobAsFile(blob, fname);
+          if (typeof showToast === "function") showToast("Berhasil Unduh", fname);
+        } catch (e) {
+          alert("Gagal mengunduh Soal Remidi: " + e.message);
+        } finally {
+          exportRemidiBtn.disabled = false;
         }
       };
     }
