@@ -2805,6 +2805,19 @@
             Soal CBT &amp; Kunci
           </span>
         </button>
+
+        <!-- 12. Laboratorium Ide & Inkubator Peluang (Lightbulb Icon) -->
+        <button 
+          onclick="switchTab('ide')" 
+          id="dock-ide" 
+          title="Laboratorium Ide &amp; Inkubator Peluang" 
+          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+        >
+          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+            Ruang Ide &amp; Tumbuh
+          </span>
+        </button>
       </nav>
     </div>
 
@@ -2929,6 +2942,23 @@
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0 ml-1.5">
               <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">Word</span>
+              <i data-lucide="chevron-right" class="drawer-chevron w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 transition-all"></i>
+            </div>
+          </button>
+
+          <!-- Ruang Ide & Tumbuh -->
+          <button onclick="switchTab('ide'); toggleMobileDrawer(false);" id="nav-ide" class="drawer-nav-item w-full flex items-center justify-between p-2 rounded-2xl text-left transition-all duration-200 group cursor-pointer active:scale-[0.98]">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="drawer-icon-box w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20 shadow-2xs transition-all">
+                <i data-lucide="lightbulb" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex flex-col">
+                <span class="drawer-title text-xs font-bold text-slate-800 dark:text-slate-100 truncate">Ruang Ide &amp; Tumbuh</span>
+                <span class="drawer-sub text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">Inkubator Peluang &amp; Anti-Ragu</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0 ml-1.5">
+              <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">Peluang</span>
               <i data-lucide="chevron-right" class="drawer-chevron w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 transition-all"></i>
             </div>
           </button>
@@ -3231,6 +3261,12 @@
           <button onclick="switchTab('cbt')" id="room-cbt" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
             <i data-lucide="file-text" class="w-3.5 h-3.5 text-violet-500"></i>
             <span>Soal CBT</span>
+          </button>
+
+          <!-- Category Pill 13: Ruang Ide & Tumbuh -->
+          <button onclick="switchTab('ide')" id="room-ide" class="room-pill-inactive inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer flex-shrink-0">
+            <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span>Ruang Ide</span>
           </button>
         </div>
       </div>
@@ -5380,7 +5416,8 @@
         wa: { name: 'Template WhatsApp', badge: '6 Format', dot: 'bg-emerald-500' },
         jurnal: { name: 'Jurnal Guru', badge: 'Jadwal & Nilai', dot: 'bg-orange-500' },
         keuangan: { name: 'Keuangan Pintar', badge: 'AI & Dompet', dot: 'bg-emerald-500' },
-        cbt: { name: 'Soal CBT & Kunci', badge: 'Word DOCX', dot: 'bg-violet-500' }
+        cbt: { name: 'Soal CBT & Kunci', badge: 'Word DOCX', dot: 'bg-violet-500' },
+        ide: { name: 'Laboratorium Ide', badge: 'Inkubator', dot: 'bg-amber-500' }
       };
       const curShort = tabMetaShort[tabId] || { name: 'Generator Briva', badge: 'YTPAI', dot: 'bg-blue-500' };
       const mobTitleEl = document.getElementById('mobileHeaderTitle');
@@ -5390,7 +5427,7 @@
       if (mobBadgeEl) mobBadgeEl.textContent = curShort.badge;
       if (mobDotEl) mobDotEl.className = `w-2 h-2 rounded-full ${curShort.dot} animate-pulse flex-shrink-0`;
 
-      const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt'];
+      const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide'];
       tabs.forEach(t => {
         const el = document.getElementById('tab-' + t);
         const nav = document.getElementById('nav-' + t);
@@ -5434,6 +5471,9 @@ if (t === 'keuangan') {
           }
           if (t === 'cbt' && typeof window.initCbtTab === 'function') {
             window.initCbtTab();
+          }
+          if (t === 'ide' && typeof window.initIdeTab === 'function') {
+            window.initIdeTab();
           }
         } else {
           if (el) el.classList.add('hidden');
@@ -31292,6 +31332,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40245,7 +40287,8 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
   });
 })();
 
-    // --- 15. INITIALIZATION ON LOAD (DENGAN ISOLASI TRY-CATCH PER MODUL) ---
+// MODULE: tab_ide.js
+
     function initializeApp() {
       // Pastikan iframe window tidak tergeser ke bawah (mencegah bagian atas terpotong di Apps Script)
       try {
@@ -40285,6 +40328,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
       try { initKeuanganModule(); } catch (e) { console.warn('Keuangan init error:', e); }
       try { if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false); } catch(e) {}
       try { if (typeof window.initCbtTab === 'function') window.initCbtTab(); } catch (e) { console.warn('CBT init error:', e); }
+      try { if (typeof window.initIdeTab === 'function') window.initIdeTab(); } catch (e) { console.warn('Ide init error:', e); }
       try { updateHumasNotifButtonUI(); } catch (e) { console.warn('Notif UI init error:', e); }
       try { checkHumasH7MobileNotifications(); } catch (e) { console.warn('Notif check error:', e); }
       try { renderPpdbAll(); } catch (e) { console.warn('PPDB init error:', e); }
