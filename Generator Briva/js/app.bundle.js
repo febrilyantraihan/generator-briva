@@ -895,7 +895,8 @@
         wa: { name: 'Template WhatsApp', badge: '6 Format', dot: 'bg-emerald-500' },
         jurnal: { name: 'Jurnal Guru', badge: 'Jadwal & Nilai', dot: 'bg-orange-500' },
         keuangan: { name: 'Keuangan Pintar', badge: 'AI & Dompet', dot: 'bg-emerald-500' },
-        cbt: { name: 'Soal CBT & Kunci', badge: 'Word DOCX', dot: 'bg-violet-500' }
+        cbt: { name: 'Soal CBT & Kunci', badge: 'Word DOCX', dot: 'bg-violet-500' },
+        ide: { name: 'Laboratorium Ide', badge: 'Inkubator', dot: 'bg-amber-500' }
       };
       const curShort = tabMetaShort[tabId] || { name: 'Generator Briva', badge: 'YTPAI', dot: 'bg-blue-500' };
       const mobTitleEl = document.getElementById('mobileHeaderTitle');
@@ -905,7 +906,7 @@
       if (mobBadgeEl) mobBadgeEl.textContent = curShort.badge;
       if (mobDotEl) mobDotEl.className = `w-2 h-2 rounded-full ${curShort.dot} animate-pulse flex-shrink-0`;
 
-      const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt'];
+      const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide'];
       tabs.forEach(t => {
         const el = document.getElementById('tab-' + t);
         const nav = document.getElementById('nav-' + t);
@@ -949,6 +950,9 @@ if (t === 'keuangan') {
           }
           if (t === 'cbt' && typeof window.initCbtTab === 'function') {
             window.initCbtTab();
+          }
+          if (t === 'ide' && typeof window.initIdeTab === 'function') {
+            window.initIdeTab();
           }
         } else {
           if (el) el.classList.add('hidden');
@@ -26811,6 +26815,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -35764,7 +35770,8 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
   });
 })();
 
-    // --- 15. INITIALIZATION ON LOAD (DENGAN ISOLASI TRY-CATCH PER MODUL) ---
+// MODULE: tab_ide.js
+
 
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
@@ -35822,6 +35829,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
       try { initKeuanganModule(); } catch (e) { console.warn('Keuangan init error:', e); }
       try { if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false); } catch(e) {}
       try { if (typeof window.initCbtTab === 'function') window.initCbtTab(); } catch (e) { console.warn('CBT init error:', e); }
+      try { if (typeof window.initIdeTab === 'function') window.initIdeTab(); } catch (e) { console.warn('Ide init error:', e); }
       try { updateHumasNotifButtonUI(); } catch (e) { console.warn('Notif UI init error:', e); }
       try { checkHumasH7MobileNotifications(); } catch (e) { console.warn('Notif check error:', e); }
       try { renderPpdbAll(); } catch (e) { console.warn('PPDB init error:', e); }
