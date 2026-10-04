@@ -100,29 +100,29 @@
 <body class="aurora-bg h-full max-h-full w-full flex flex-row justify-center sm:justify-start items-stretch font-sans antialiased text-slate-800 overflow-hidden p-0 sm:p-2.5 lg:p-3 gap-0 sm:gap-3 box-border mx-auto">
 
   <!-- 1. DETACHED LEFT FLOATING PILL DOCK (Sleek Glass Capsule matching Reference) -->
-  <aside id="floatingDockNav" class="hidden sm:flex flex-col items-center justify-between py-3 px-2 sm:px-2.5 rounded-full bg-[#12151d]/90 dark:bg-[#10131a]/95 backdrop-blur-3xl border border-white/20 shadow-2xl z-40 flex-shrink-0 w-14 lg:w-16 h-full max-h-full self-stretch box-border">
+  <aside id="floatingDockNav" class="hidden sm:flex flex-col items-center justify-between py-2 sm:py-2.5 px-1 sm:px-1.5 rounded-full bg-[#12151d]/90 dark:bg-[#10131a]/95 backdrop-blur-3xl border border-white/20 shadow-2xl z-40 flex-shrink-0 w-12 sm:w-13 lg:w-14 h-full max-h-full self-stretch box-border">
     
     <!-- Top Brand Logo & Squircle Navigation Group -->
-    <div class="flex flex-col items-center gap-3">
+    <div class="flex flex-col items-center gap-1.5 sm:gap-2 w-full">
       <!-- Logo Squircle (Mascot Partner Fatih) -->
-      <div class="relative w-11 h-11 rounded-2xl p-0.5 bg-gradient-to-tr from-emerald-500 via-teal-400 to-amber-300 shadow-md shadow-emerald-500/20 flex-shrink-0 flex items-center justify-center overflow-hidden">
-        <img src="mascot.png" alt="Mascot Partner Fatih" width="44" height="44" style="max-width: 44px; max-height: 44px;" class="w-full h-full object-cover rounded-[14px]" />
+      <div class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-9.5 lg:h-9.5 rounded-xl p-0.5 bg-gradient-to-tr from-emerald-500 via-teal-400 to-amber-300 shadow-md shadow-emerald-500/20 flex-shrink-0 flex items-center justify-center overflow-hidden">
+        <img src="mascot.png" alt="Mascot Partner Fatih" width="38" height="38" style="max-width: 38px; max-height: 38px;" class="w-full h-full object-cover rounded-[10px]" />
       </div>
 
-      <div class="w-6 h-[1px] bg-white/15 my-1"></div>
+      <div class="w-5 h-[1px] bg-white/15 my-0.5"></div>
 
-      <!-- Navigation Icons Group -->
-      <nav class="flex flex-col items-center gap-2.5" id="dockNavIcons">
+      <!-- Navigation Icons Group (Scrollable if viewport is ultra-short) -->
+      <nav class="flex flex-col items-center gap-1 sm:gap-1.5 w-full overflow-y-auto no-scrollbar" id="dockNavIcons">
         <!-- 1. Humas & Sosmed - Radar H-7 (Megaphone Icon - PRIORITY #1) -->
         <button 
           onclick="switchTab('humas')" 
           id="dock-humas" 
-          title="Studio Humas & Sosmed - Radar H-7 (Fokus Utama)" 
-          class="dock-item dock-item-active w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-white bg-white/20 shadow-inner border border-white/25 transition-all group relative cursor-pointer"
+          title="Studio Humas &amp; Sosmed - Radar H-7 (Fokus Utama)" 
+          class="dock-item dock-item-active w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-white bg-white/20 shadow-inner border border-white/25 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Humas & Sosmed (H-7)
+            Humas &amp; Sosmed (H-7)
           </span>
           <span id="humasDockH7Badge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
         </button>
@@ -131,10 +131,10 @@
         <button 
           onclick="switchTab('akun')" 
           id="dock-akun" 
-          title="Generator Akun & PPDB" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Generator Akun &amp; PPDB" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Generator Akun PPDB
           </span>
@@ -145,9 +145,9 @@
           onclick="switchTab('briva')" 
           id="dock-briva" 
           title="Tagihan Massal BRIVA 5-Kolom" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Tagihan BRIVA 5-Kolom
           </span>
@@ -158,9 +158,9 @@
           onclick="switchTab('konverter')" 
           id="dock-konverter" 
           title="Konverter Massal Excel" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Konverter Massal
           </span>
@@ -170,10 +170,10 @@
         <button 
           onclick="switchTab('panggil')" 
           id="dock-panggil" 
-          title="Panggil Data & Slip Kwitansi" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Panggil Data &amp; Slip Kwitansi" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Panggil Tagihan
           </span>
@@ -183,12 +183,12 @@
         <button 
           onclick="switchTab('katalog')" 
           id="dock-katalog" 
-          title="Katalog Database Tarif & 31 Kode" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Katalog Database Tarif &amp; 31 Kode" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Katalog Biaya & Kode
+            Katalog Biaya &amp; Kode
           </span>
         </button>
 
@@ -196,10 +196,10 @@
         <button 
           onclick="switchTab('tahfidz')" 
           id="dock-tahfidz" 
-          title="Tahfidz Caption Generator & Rekap Data" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Tahfidz Caption Generator &amp; Rekap Data" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Tahfidz Tasmi'
           </span>
@@ -209,12 +209,12 @@
         <button 
           onclick="switchTab('pembersih')" 
           id="dock-pembersih" 
-          title="Pembersih & SUM" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Pembersih &amp; SUM" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Pembersih & SUM
+            Pembersih &amp; SUM
           </span>
         </button>
 
@@ -222,10 +222,10 @@
         <button 
           onclick="switchTab('jurnal')" 
           id="dock-jurnal" 
-          title="Jurnal Mengajar & Presensi Guru" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Jurnal Mengajar &amp; Presensi Guru" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Jurnal Guru
           </span>
@@ -235,12 +235,12 @@
         <button 
           onclick="switchTab('keuangan')" 
           id="dock-keuangan" 
-          title="Keuangan Pintar, Multi-Dompet & Detektor Bocor Halus" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Keuangan Pintar, Multi-Dompet &amp; Detektor Bocor Halus" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-8 8H5a2 2 0 0 1-2-2V7"/><path d="M18 12h.01"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-8 8H5a2 2 0 0 1-2-2V7"/><path d="M18 12h.01"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-            Keuangan & Dompet
+            Keuangan &amp; Dompet
           </span>
         </button>
 
@@ -248,10 +248,10 @@
         <button 
           onclick="switchTab('cbt')" 
           id="dock-cbt" 
-          title="Generator Soal CBT & Kunci Jawaban Word" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          title="Generator Soal CBT &amp; Kunci Jawaban Word" 
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Soal CBT &amp; Kunci
           </span>
@@ -262,9 +262,9 @@
           onclick="switchTab('ide')" 
           id="dock-ide" 
           title="Laboratorium Ide &amp; Inkubator Peluang" 
-          class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+          class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
         >
-          <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
           <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
             Ruang Ide &amp; Tumbuh
           </span>
@@ -273,21 +273,20 @@
     </div>
 
     <!-- Bottom: Search Trigger Icon -->
-    <div class="flex flex-col items-center gap-2 pt-2">
-      <div class="w-6 h-[1px] bg-white/15 my-1"></div>
+    <div class="flex flex-col items-center gap-1 pt-1 flex-shrink-0">
+      <div class="w-5 h-[1px] bg-white/15 my-0.5"></div>
       <button 
         onclick="document.getElementById('globalSearchInput')?.focus()" 
         title="Pencarian Global (Ctrl+K)" 
-        class="dock-item w-10 h-10 lg:w-11 lg:h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
+        class="dock-item w-8 h-8 sm:w-8.5 sm:h-8.5 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all group relative cursor-pointer"
       >
-        <svg width="20" height="20" class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <svg width="18" height="18" class="w-4 h-4 sm:w-4.5 sm:h-4.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <span class="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
           Pencarian Global (Ctrl+K)
         </span>
       </button>
     </div>
   </aside>
-
   <!-- MOBILE BACKDROP OVERLAY FOR DRAWER -->
   <div 
     id="drawerBackdrop" 
