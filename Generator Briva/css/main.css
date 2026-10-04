@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    DEFENSIVE SHIELD: NATIVE CORE UTILITY FALLBACK (ZERO-FOUC & ANTI-OVERFLOW)
    ========================================================================== */
 .hidden {
@@ -2758,4 +2758,82 @@ html.dark #cbtBulkTextInput {
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
   text-rendering: optimizeLegibility !important;
+}
+
+
+/* ==========================================================================
+   FLOATING GLASS DOCK (RESPONSIVE COMPACT CALIBRATION - ZERO OVERFLOW)
+   ========================================================================== */
+#floatingDockNav {
+  display: none !important;
+  overscroll-behavior: contain;
+}
+@media (min-width: 640px) {
+  #floatingDockNav {
+    display: flex !important;
+  }
+}
+
+#dockNavIcons {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+#dockNavIcons::-webkit-scrollbar {
+  display: none !important;
+}
+
+.dock-item {
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+.dock-item svg {
+  transition: transform 0.18s ease;
+}
+.dock-item:hover svg {
+  transform: scale(1.12);
+}
+.dock-item-active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Height-based calibration: ensure all 12 items + search fit smoothly on short laptop screens (768p) */
+@media (max-height: 800px) and (min-width: 640px) {
+  #floatingDockNav {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  #dockNavIcons {
+    gap: 2.5px !important;
+  }
+  .dock-item {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+  .dock-item svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+}
+
+@media (min-height: 801px) and (max-height: 900px) and (min-width: 640px) {
+  #floatingDockNav {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  #dockNavIcons {
+    gap: 3.5px !important;
+  }
+  .dock-item {
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 11px !important;
+  }
+  .dock-item svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
 }
