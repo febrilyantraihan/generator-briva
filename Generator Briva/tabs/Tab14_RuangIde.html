@@ -1,0 +1,495 @@
+          <!-- ============================================================== -->
+          <!-- TAB 14: LABORATORIUM IDE & INKUBATOR PELUANG (RUANG TUMBUH)        -->
+          <!-- RUANG KHUSUS PENCATATAN IDE, ANTI-RAGU MATRIX, & EKSEKUSI MANDIRI  -->
+          <!-- ============================================================== -->
+          <div id="tab-ide" class="hidden space-y-4 sm:space-y-5 pb-32 sm:pb-12 px-[2px] sm:px-4 lg:px-5 w-full max-w-full min-w-0 box-border">
+            
+            <!-- 1. HEADER MODUL & AKSI UTAMA -->
+            <div class="bg-white/90 dark:bg-slate-900/90 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 min-w-0 max-w-full box-border">
+              <!-- Left Brand & Info with Mascot -->
+              <div class="flex items-center gap-3">
+                <div class="relative flex-shrink-0">
+                  <img src="mascot.png" alt="Mascot Partner Fatih" class="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl object-cover shadow-md shadow-amber-500/25 border-2 border-amber-500/40" />
+                  <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[9px] font-black shadow-xs ring-2 ring-white dark:ring-slate-900">
+                    <i data-lucide="lightbulb" class="w-2.5 h-2.5"></i>
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                      <span>Laboratorium Ide &amp; Inkubator Peluang</span>
+                    </h3>
+                    <span class="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 uppercase tracking-wider flex items-center gap-1">
+                      <i data-lucide="trending-up" class="w-3 h-3 text-amber-600 dark:text-amber-400"></i>
+                      <span>Ruang Tumbuh Guru</span>
+                    </span>
+                  </div>
+                  <p class="text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                    Catat percikan ide, redakan keraguan perang harga dengan analisis nilai unik, dan eksekusi langkah kecil menuju kemandirian ekonomi.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Quick Action Buttons -->
+              <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <button 
+                  type="button" 
+                  onclick="openIdeModal()" 
+                  class="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-amber-500/25 active:scale-95"
+                  title="Catat ide atau peluang baru"
+                >
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                  <span>Catat Ide Baru</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="exportIdeDataPrompt()" 
+                  class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+                  title="Cadangkan atau ekspor catatan ide Anda"
+                >
+                  <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                  <span>Ekspor</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="shuffleAntiRaguQuote()" 
+                  class="px-2.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95"
+                  title="Ganti motivasi penguat mental"
+                >
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span class="hidden sm:inline">Afirmasi</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. ANTI-RAGU MINDSET BOOSTER BANNER -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 dark:from-amber-950/40 dark:via-slate-900 dark:to-orange-950/30 border border-amber-500/25 p-3.5 sm:p-4 shadow-xs">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                      <span>Anti-Ragu &amp; Pengingat Nilai Diri</span>
+                    </span>
+                    <button type="button" onclick="shuffleAntiRaguQuote()" class="text-[10px] text-slate-400 hover:text-amber-500 transition-colors flex items-center gap-1 cursor-pointer">
+                      <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                      <span>Ganti</span>
+                    </button>
+                  </div>
+                  <p id="ideAntiRaguText" class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 mt-1 italic leading-relaxed">
+                    "Mereka yang banting harga menjual file mentah tanpa garansi. Anda menjual rasa aman, komunikasi yang tulus, dan pendampingan nyata dari seorang guru untuk guru."
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. GROWTH METRICS & PIPELINE SUMMARY -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+              <!-- Total Ide -->
+              <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                  <span class="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">Total Ide</span>
+                  <div class="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <div class="text-lg sm:text-2xl font-black text-slate-800 dark:text-white" id="ideStatTotal">0</div>
+                <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">Tersimpan di laptop</div>
+              </div>
+
+              <!-- Sedang Dikerjakan (WIP) -->
+              <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                  <span class="text-[10px] sm:text-[11px] font-bold text-amber-600 dark:text-amber-400">Eksekusi / WIP</span>
+                  <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                    <i data-lucide="hammer" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <div class="text-lg sm:text-2xl font-black text-amber-600 dark:text-amber-400" id="ideStatExecuting">0</div>
+                <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">Sedang dirakit</div>
+              </div>
+
+              <!-- Siap Ditawarkan -->
+              <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                  <span class="text-[10px] sm:text-[11px] font-bold text-indigo-600 dark:text-indigo-400">Siap Ditawarkan</span>
+                  <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <div class="text-lg sm:text-2xl font-black text-indigo-600 dark:text-indigo-400" id="ideStatLaunched">0</div>
+                <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">Siap dipromosikan</div>
+              </div>
+
+              <!-- Potensi Rezeki -->
+              <div class="bg-white/80 dark:bg-slate-900/80 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 shadow-2xs">
+                <div class="flex items-center justify-between text-slate-400 mb-1">
+                  <span class="text-[10px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Potensi Rezeki</span>
+                  <div class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <div class="text-xs sm:text-base font-black text-emerald-600 dark:text-emerald-400 truncate" id="ideStatRevenue">Rp 0</div>
+                <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">Estimasi nilai manfaat</div>
+              </div>
+            </div>
+
+            <!-- 4. TOOLBAR FILTER, KATEGORI & PENCARIAN -->
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
+              <!-- Filter Pills -->
+              <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                <button type="button" onclick="setIdeFilter('all')" class="ide-filter-pill active px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer" data-filter="all">
+                  Semua (<span id="countPillAll">0</span>)
+                </button>
+                <button type="button" onclick="setIdeFilter('spark')" class="ide-filter-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-white" data-filter="spark">
+                  💡 Percikan Ide
+                </button>
+                <button type="button" onclick="setIdeFilter('validating')" class="ide-filter-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-white" data-filter="validating">
+                  🔍 Riset Pasar
+                </button>
+                <button type="button" onclick="setIdeFilter('executing')" class="ide-filter-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-white" data-filter="executing">
+                  🔨 Sedang Dirakit
+                </button>
+                <button type="button" onclick="setIdeFilter('launched')" class="ide-filter-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-white" data-filter="launched">
+                  🚀 Siap Tawar
+                </button>
+                <button type="button" onclick="setIdeFilter('earned')" class="ide-filter-pill px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-white" data-filter="earned">
+                  🏆 Alhamdulillah Cuan
+                </button>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="relative w-full md:w-64 flex-shrink-0">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input 
+                  type="text" 
+                  id="ideSearchInput" 
+                  oninput="handleIdeSearch(this.value)" 
+                  placeholder="Cari nama ide, solusi, sasaran..." 
+                  class="w-full pl-8.5 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                />
+              </div>
+            </div>
+
+            <!-- 5. GRID DAFTAR KARTU IDE -->
+            <div id="ideCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4.5">
+              <!-- Rendered dynamically by tab_ide.js -->
+            </div>
+
+            <!-- 6. EMPTY STATE (IF NO IDEAS MATCH) -->
+            <div id="ideEmptyState" class="hidden text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40">
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="lightbulb-off" class="w-6 h-6"></i>
+              </div>
+              <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">Belum Ada Ide di Kategori Ini</h4>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+                Jangan biarkan keresahan atau keraguan menghentikan langkah Anda. Tuliskan apa pun ide yang terlintas!
+              </p>
+              <button 
+                type="button" 
+                onclick="openIdeModal()" 
+                class="mt-4 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+              >
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Tulis Ide Pertama</span>
+              </button>
+            </div>
+
+            <!-- 7. REALITY CHECK & PANDUAN PITCHING SECTION -->
+            <div class="mt-6 bg-slate-50/80 dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5">
+              <div class="flex items-center gap-2 mb-3">
+                <i data-lucide="compass" class="w-4 h-4 text-amber-500"></i>
+                <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100">
+                  Panduan Menawarkan Solusi Tanpa Canggung (Teknik Guru ke Guru)
+                </h4>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80">
+                  <div class="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold text-[11px] mb-1">
+                    <span class="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center text-[10px]">1</span>
+                    <span>Tanyakan Masalahnya</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Jangan langsung jualan aplikasi. Awali dengan silaturahmi &amp; pertanyaan hangat: <em>"Ustadz/Pak, di sana rekap SPP dan kartu tagihan wali santri biasanya masih manual di Excel ya?"</em>
+                  </p>
+                </div>
+                <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80">
+                  <div class="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold text-[11px] mb-1">
+                    <span class="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center text-[10px]">2</span>
+                    <span>Tunjukkan Solusi Nyata</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Kirim 1 gambar hasil contoh: <em>"Kemarin di sekolah kami coba otomasi jadi kartu matriks rapi sekali klik seperti ini, wali santri senang dan bayar lebih tepat waktu."</em>
+                  </p>
+                </div>
+                <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80">
+                  <div class="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold text-[11px] mb-1">
+                    <span class="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center text-[10px]">3</span>
+                    <span>Tawarkan Bantuan Terima Beres</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <em>"Kalau berkenan, nanti saya bantu rapikan datanya dan dampingi operatornya sampai jalan lancar."</em> Di sini nilai Anda jauh lebih mahal daripada orang luar yang banting harga!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL FORM INPUT & EDIT IDE (INKUBATOR POPUP)                    -->
+          <!-- ============================================================== -->
+          <div id="modalIdeForm" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
+            <div class="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+              
+              <!-- Modal Header -->
+              <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 id="modalIdeFormTitle" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                      Catat Ide / Peluang Baru
+                    </h3>
+                    <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400">
+                      Ubah ide abstrak menjadi rencana aksi nyata yang anti-ragu.
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeIdeModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Modal Body -->
+              <form id="formIdeRecord" onsubmit="handleIdeFormSubmit(event)" class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+                <input type="hidden" id="ideFieldId" value="" />
+
+                <!-- 1. Judul Ide -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Judul Ide / Layanan <span class="text-rose-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="ideFieldTitle" 
+                    required 
+                    placeholder="Contoh: Paket Digitalisasi Tagihan SPP & Kartu BRIVA Pesantren Sekitar" 
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                  />
+                </div>
+
+                <!-- 2. Kategori & Sasaran -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      Kategori Peluang
+                    </label>
+                    <select 
+                      id="ideFieldCategory" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                    >
+                      <option value="jasa_digital">🛠️ Jasa Digitalisasi &amp; Pendampingan</option>
+                      <option value="aplikasi_sekolah">📱 Aplikasi / Software Sekolah</option>
+                      <option value="cbt_soal">📄 Bank Soal CBT &amp; Ujian</option>
+                      <option value="desain_event">🎨 Twibbon &amp; Desain Media Event</option>
+                      <option value="kebutuhan_wali">👨‍👩‍👧 Kebutuhan Santri &amp; Wali Murid</option>
+                      <option value="peluang_bebas">💡 Peluang Bebas / Ide Lainnya</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      Siapa yang Membutuhkan?
+                    </label>
+                    <input 
+                      type="text" 
+                      id="ideFieldTarget" 
+                      placeholder="Contoh: Pesantren tetangga, Rekan guru MGMP, TU" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                    />
+                  </div>
+                </div>
+
+                <!-- 3. Masalah Nyata yang Diselesaikan -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Masalah Nyata Apa yang Diselesaikan?
+                  </label>
+                  <textarea 
+                    id="ideFieldProblem" 
+                    rows="2" 
+                    placeholder="Contoh: Bendahara sering pusing rekap SPP menunggak dari Excel lama, kartu tagihan manual sering hilang atau sobek."
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 leading-relaxed"
+                  ></textarea>
+                </div>
+
+                <!-- 4. Pembeda dari yang Banting Harga (Unfair Advantage) -->
+                <div class="p-3 rounded-xl bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20">
+                  <label class="block text-xs font-extrabold text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1.5">
+                    <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                    <span>Nilai Beda Anda (Kenapa mereka memilih Anda, bukan yang banting harga?)</span>
+                  </label>
+                  <textarea 
+                    id="ideFieldAdvantage" 
+                    rows="2" 
+                    placeholder="Contoh: Saya mendampingi langsung sampai staf TU mahir, saya rapikan datanya terima beres, dan saya sesuaikan dengan format yayasan mereka."
+                    class="w-full px-3 py-2 rounded-xl border border-amber-200/80 dark:border-amber-900/50 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 leading-relaxed"
+                  ></textarea>
+                </div>
+
+                <!-- 5. Estimasi Nilai Cuan & Status Progres -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      Estimasi Potensi Rezeki (Rp)
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
+                      <input 
+                        type="number" 
+                        id="ideFieldRevenue" 
+                        min="0" 
+                        step="10000" 
+                        placeholder="Contoh: 1500000" 
+                        class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      Status Tahapan Saat Ini
+                    </label>
+                    <select 
+                      id="ideFieldStatus" 
+                      class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40 font-semibold"
+                    >
+                      <option value="spark">💡 Percikan Ide Baru</option>
+                      <option value="validating">🔍 Sedang Riset / Validasi Pasar</option>
+                      <option value="executing">🔨 Sedang Dikerjakan (WIP)</option>
+                      <option value="launched">🚀 Siap Ditawarkan / Dipromosikan</option>
+                      <option value="earned">🏆 Alhamdulillah Berhasil &amp; Menghasilkan</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- 6. Anti-Ragu Score Matrix (1-5 sliders) -->
+                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                      Skor Kelayakan &amp; Anti-Ragu (Otomatis)
+                    </span>
+                    <span id="ideScoreBadgePreview" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                      Skor: 12/15 (🔥 Prioritas Tinggi)
+                    </span>
+                  </div>
+
+                  <div class="space-y-2">
+                    <!-- Kemudahan Eksekusi -->
+                    <div class="flex items-center justify-between gap-3 text-xs">
+                      <span class="text-slate-600 dark:text-slate-400 flex-1">Kemudahan Eksekusi (Bisa dibuat sekarang?)</span>
+                      <input type="range" id="ideScoreEase" min="1" max="5" value="4" oninput="updateIdeScorePreview()" class="w-28 accent-amber-500 cursor-pointer" />
+                      <span id="ideScoreEaseVal" class="w-4 text-right font-bold text-slate-800 dark:text-white">4</span>
+                    </div>
+                    <!-- Kebutuhan Pasar -->
+                    <div class="flex items-center justify-between gap-3 text-xs">
+                      <span class="text-slate-600 dark:text-slate-400 flex-1">Kebutuhan Pasar (Seberapa butuh mereka?)</span>
+                      <input type="range" id="ideScoreDemand" min="1" max="5" value="4" oninput="updateIdeScorePreview()" class="w-28 accent-amber-500 cursor-pointer" />
+                      <span id="ideScoreDemandVal" class="w-4 text-right font-bold text-slate-800 dark:text-white">4</span>
+                    </div>
+                    <!-- Potensi Cuan -->
+                    <div class="flex items-center justify-between gap-3 text-xs">
+                      <span class="text-slate-600 dark:text-slate-400 flex-1">Kelayakan Hasil (Seberapa pantas hasilnya?)</span>
+                      <input type="range" id="ideScoreProfit" min="1" max="5" value="4" oninput="updateIdeScorePreview()" class="w-28 accent-amber-500 cursor-pointer" />
+                      <span id="ideScoreProfitVal" class="w-4 text-right font-bold text-slate-800 dark:text-white">4</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 7. Langkah Mikro Pertama (Next Tiny Action) -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Langkah Kecil Pertama Hari Ini (Anti-Kewalahan)
+                  </label>
+                  <input 
+                    type="text" 
+                    id="ideFieldNextAction" 
+                    placeholder="Contoh: Rekam video demo 30 detik cara kerja BRIVA lewat HP" 
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                  />
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="pt-2 flex items-center justify-end gap-2">
+                  <button 
+                    type="button" 
+                    onclick="closeIdeModal()" 
+                    class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button 
+                    type="submit" 
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold transition-all shadow-md shadow-amber-500/25 cursor-pointer active:scale-95"
+                  >
+                    Simpan Ide
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL TEMPLATE PITCHING / CHAT WA KE CALON KLIEN                -->
+          <!-- ============================================================== -->
+          <div id="modalIdePitch" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-4">
+            <div class="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 my-auto animate-in fade-in zoom-in-95 duration-200">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">
+                      Draf Chat Penawaran Ramah &amp; Santun
+                    </h3>
+                    <p class="text-[10.5px] text-slate-400">Siap disalin &amp; dikirim via WhatsApp ke rekan guru/kepala sekolah.</p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeIdePitchModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white flex items-center justify-center">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <textarea 
+                id="idePitchPreviewText" 
+                rows="8" 
+                readonly 
+                class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans select-all focus:outline-none"
+              ></textarea>
+
+              <div class="mt-4 flex items-center justify-end gap-2">
+                <button 
+                  type="button" 
+                  onclick="closeIdePitchModal()" 
+                  class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Tutup
+                </button>
+                <button 
+                  type="button" 
+                  onclick="copyIdePitchToClipboard()" 
+                  id="btnCopyIdePitch" 
+                  class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/25 active:scale-95 cursor-pointer"
+                >
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Salin Format Chat WA</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- END COMPONENT: Tab14_RuangIde.html -->
