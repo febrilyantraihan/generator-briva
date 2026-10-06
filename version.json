@@ -1,13 +1,12 @@
-{
-  "version": "1.0.0",
-  "build": 1,
-  "releaseDate": "2026-10-06",
-  "title": "Rilis Resmi v1.0.0 (Tampilan Mobile & Auto-Update)",
+﻿{
+  "version": "1.0.2",
+  "build": 3,
+  "releaseDate": "2026-10-07",
+  "title": "Rilis v1.0.2 (Bilah Navigasi Proporsional & Auto-Update)",
   "changelog": [
-    "Perbaikan kontras warna teks dan latar belakang di mode HP",
-    "Penataan baris pencarian suara agar tidak terpotong",
-    "Koreksi tombol Tugas Baru (menghilangkan tanda tambah ganda)",
-    "Penambahan bantalan bawah (safe area) agar daftar tidak tertutup navigasi",
-    "Sistem pembaruan aplikasi langsung (In-App Auto Update) tanpa install ulang"
+    "Distribusi proporsional vertikal (equal spacing) seluruh item bilah navigasi kiri (dock rail)",
+    "Penskalaan ukuran tombol 40px & ikon 20px seimbang untuk resolusi desktop Full HD 1080p",
+    "Penghapusan ruang kosong berlebih di bawah menu dock navigasi",
+    "Pembaruan responsif otomatis untuk layar laptop ringkas hingga monitor besar"
   ]
 }
