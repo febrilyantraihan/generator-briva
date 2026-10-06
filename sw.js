@@ -1,16 +1,18 @@
 /**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
- * High-Performance Offline-First Service Worker (PWA v30)
- * Fitur: Seamless Auto-Update (Tanpa Reinstall) & 100% Offline Capability
+ * High-Performance Offline-First Service Worker (PWA v1.0.0)
+ * Fitur: Semantic Versioning, In-App Auto-Update & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-v30';
+const APP_VERSION = '1.0.0';
+const CACHE_NAME = `partner-fatih-v${APP_VERSION}`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './version.json',
   './favicon.ico',
   './favicon.png',
   './icon.svg',
@@ -19,9 +21,9 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './mascot.png',
   './css/main.css',
-  './css/main.css?v=30',
+  './css/main.css?v=1.0.0',
   './js/app.bundle.js',
-  './js/app.bundle.js?v=30',
+  './js/app.bundle.js?v=1.0.0',
   './js/vendor/tailwindcss.js',
   './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
@@ -140,11 +142,16 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// 4. MESSAGE EVENT: Menerima perintah skip waiting atau force refresh dari UI
+// 4. MESSAGE EVENT: Menerima perintah skip waiting, cek versi, atau force refresh dari UI
 self.addEventListener('message', event => {
   if (event.data) {
     if (event.data.type === 'SKIP_WAITING') {
       self.skipWaiting();
+    }
+    if (event.data.type === 'GET_VERSION') {
+      if (event.ports && event.ports[0]) {
+        event.ports[0].postMessage({ version: APP_VERSION });
+      }
     }
     if (event.data.type === 'CLEAR_CACHE') {
       caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
