@@ -15500,52 +15500,163 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     };
 
     // ==========================================================================
-    // PWA SERVICE WORKER AUTO-UPDATE & SYNC LIFECYCLE (v16)
+        // ==========================================================================
+    // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
-    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-      const regSw = () => {
-        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
-          console.log('[PWA v16] ServiceWorker active:', reg.scope);
+    const CURRENT_APP_VERSION = '1.0.0';
+    window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
 
-          // Auto-check update setiap kali aplikasi dibuka atau kembali dari background
+    let pendingSwRegistration = null;
+    let pendingSwWorker = null;
+    let isPwaRefreshing = false;
+
+    // Sinkronkan label versi di antarmuka UI
+    function syncAppVersionUI() {
+      try {
+        const vBadges = document.querySelectorAll('#appVersionBadgeDrawer, #appVersionDrawerPill, #appVersionHeaderBadge, #appVersionDrawerLabel, .app-version-badge');
+        vBadges.forEach(el => {
+          if (el) el.textContent = `v${CURRENT_APP_VERSION}`;
+        });
+      } catch (e) {}
+    }
+
+    // Tampilkan Pop-Up Pembaruan Aplikasi Interaktif di Ponsel
+    function showAppUpdateModal(newVer, changelogList) {
+      try {
+        const modal = document.getElementById('appUpdateModal');
+        if (!modal) return;
+
+        const curLabel = document.getElementById('updateModalCurrentVersion');
+        if (curLabel) curLabel.textContent = `v${CURRENT_APP_VERSION}`;
+
+        const newLabel = document.getElementById('updateModalNewVersion');
+        if (newLabel) newLabel.textContent = newVer ? `v${newVer}` : 'Versi Baru';
+
+        const btnLabel = document.getElementById('btnApplyPwaUpdateLabel');
+        if (btnLabel) btnLabel.textContent = newVer ? `Perbarui ke v${newVer} Sekarang` : 'Perbarui Sekarang (1 Detik)';
+
+        if (Array.isArray(changelogList) && changelogList.length > 0) {
+          const ul = document.getElementById('updateModalChangelogList');
+          if (ul) {
+            ul.innerHTML = changelogList.map(c => `<li>${c}</li>`).join('');
+          }
+        }
+
+        if (modal.parentElement !== document.body) {
+          document.body.appendChild(modal);
+        }
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        if (typeof safeCreateIcons === 'function') safeCreateIcons();
+        if (typeof triggerHaptic === 'function') triggerHaptic();
+      } catch (e) {
+        console.warn('[PWA] Error showing update modal:', e);
+      }
+    }
+    window.showAppUpdateModal = showAppUpdateModal;
+
+    // Tutup Modal Pembaruan
+    function dismissAppUpdateModal() {
+      const modal = document.getElementById('appUpdateModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+    window.dismissAppUpdateModal = dismissAppUpdateModal;
+
+    // Eksekusi Pembaruan Instan (Skip Waiting -> Evict Old Cache -> Reload)
+    function applyPwaUpdateNow() {
+      const btn = document.getElementById('btnApplyPwaUpdate');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block animate-spin mr-1">ðŸ”„</span> Memperbarui...';
+      }
+
+      try {
+        safeStorage.setItem('pwa_just_updated_to', '1');
+      } catch (e) {}
+
+      if (pendingSwWorker) {
+        pendingSwWorker.postMessage({ type: 'SKIP_WAITING' });
+      } else if (pendingSwRegistration && pendingSwRegistration.waiting) {
+        pendingSwRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      // Fallback reload dalam 800ms jika controllerchange tidak terpicu
+      setTimeout(() => {
+        if (!isPwaRefreshing) {
+          isPwaRefreshing = true;
+          window.location.reload();
+        }
+      }, 800);
+    }
+    window.applyPwaUpdateNow = applyPwaUpdateNow;
+
+    // Cek versi terbaru dari version.json di server
+    async function checkForRemoteVersionUpdate() {
+      try {
+        if (!navigator.onLine) return;
+        const res = await fetch('./version.json?_t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const meta = await res.json();
+          if (meta && meta.version && meta.version !== CURRENT_APP_VERSION) {
+            console.log(`[PWA Update Found] Lokal: v${CURRENT_APP_VERSION} -> Server: v${meta.version}`);
+            showAppUpdateModal(meta.version, meta.changelog);
+          }
+        }
+      } catch (e) {
+        // Safe offline skip
+      }
+    }
+
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      const initServiceWorkerLifecycle = () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
+          pendingSwRegistration = reg;
+          console.log(`[PWA v${CURRENT_APP_VERSION}] ServiceWorker terdaftar aktif:`, reg.scope);
+
+          // Jika ada Service Worker yang sedang menunggu aktif (Waiting Worker)
+          if (reg.waiting) {
+            pendingSwWorker = reg.waiting;
+            checkForRemoteVersionUpdate();
+          }
+
+          // Deteksi event pembaruan baru dari Service Worker
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                pendingSwWorker = newWorker;
+                console.log('[PWA] Versi baru aplikasi berhasil diunduh di latar belakang!');
+                checkForRemoteVersionUpdate();
+              }
+            });
+          });
+
+          // Cek update otomatis saat kembali ke aplikasi (Visibility Change)
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
               reg.update().catch(() => {});
+              checkForRemoteVersionUpdate();
               if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
             }
           });
 
-          // Auto-check saat window focus
-          window.addEventListener('focus', () => {
-            reg.update().catch(() => {});
-            if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
-          });
-
-          // Cek update berkala setiap 10 menit
+          // Cek berkala setiap 5 menit saat online
           setInterval(() => {
             reg.update().catch(() => {});
-          }, 10 * 60 * 1000);
+            checkForRemoteVersionUpdate();
+          }, 5 * 60 * 1000);
 
-          // Deteksi Service Worker versi baru yang sudah terpasang
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (!newWorker) return;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('[PWA v16] Versi baru aplikasi siap digunakan!');
-                if (typeof showToast === 'function') {
-                  showToast('Pembaruan Sistem', 'Versi baru aplikasi terdeteksi & langsung disinkronkan.');
-                }
-              }
-            });
-          });
         }).catch(err => {
-          console.warn('[PWA] ServiceWorker note (safe):', err);
+          console.warn('[PWA] Catatan pendaftaran ServiceWorker (aman):', err);
         });
       };
 
-      // Mulus reload otomatis saat Service Worker baru mengambil alih kendali
-      let isPwaRefreshing = false;
+      // Mulus reload otomatis saat Service Worker baru mengambil alih
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (isPwaRefreshing) return;
         isPwaRefreshing = true;
@@ -15553,42 +15664,81 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       });
 
       if (document.readyState === 'complete') {
-        regSw();
+        initServiceWorkerLifecycle();
       } else {
-        window.addEventListener('load', regSw);
+        window.addEventListener('load', initServiceWorkerLifecycle);
       }
     }
 
-    // Fungsi global Cek Pembaruan Manual untuk Pengguna
-    window.forceCheckAppUpdate = function() {
-      if (typeof showToast === 'function') {
-        showToast('Memeriksa Pembaruan', 'Menghubungkan ke server Vercel...');
-      }
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-          if (!regs || !regs.length) {
-            window.location.reload(true);
-            return;
-          }
-          Promise.all(regs.map(r => r.update())).then(() => {
-            if ('caches' in window) {
-              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
-                if (typeof showToast === 'function') {
-                  showToast('Berhasil Diperbarui', 'Aplikasi memuat versi terbaru...');
-                }
-                setTimeout(() => window.location.reload(true), 500);
-              });
-            } else {
-              window.location.reload(true);
+    // Notifikasi selebrasi setelah update berhasil dipasang
+    window.addEventListener('DOMContentLoaded', () => {
+      syncAppVersionUI();
+      try {
+        if (safeStorage.getItem('pwa_just_updated_to') === '1') {
+          safeStorage.removeItem('pwa_just_updated_to');
+          setTimeout(() => {
+            if (typeof showToast === 'function') {
+              showToast(`Aplikasi Diperbarui ðŸŽ‰`, `Versi ${CURRENT_APP_VERSION} aktif sempurna tanpa install ulang.`);
             }
-          }).catch(() => window.location.reload(true));
+          }, 600);
+        }
+      } catch (e) {}
+    });
+
+    // Fungsi Global: Cek Pembaruan Manual (Diakses lewat menu Drawer atau tombol Master Sync)
+    window.forceCheckAppUpdate = function(isUserTriggered = true) {
+      if (isUserTriggered && typeof showToast === 'function') {
+        showToast('Memeriksa Pembaruan...', 'Menghubungkan ke server Vercel...');
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(async regs => {
+          let hasUpdate = false;
+          if (regs && regs.length > 0) {
+            await Promise.all(regs.map(r => r.update().catch(() => {})));
+            for (let r of regs) {
+              if (r.waiting) {
+                pendingSwWorker = r.waiting;
+                hasUpdate = true;
+                break;
+              }
+            }
+          }
+
+          // Cek juga version.json
+          try {
+            const res = await fetch('./version.json?_t=' + Date.now(), { cache: 'no-store' });
+            if (res.ok) {
+              const meta = await res.json();
+              if (meta && meta.version && meta.version !== CURRENT_APP_VERSION) {
+                hasUpdate = true;
+                showAppUpdateModal(meta.version, meta.changelog);
+                return;
+              }
+            }
+          } catch (e) {}
+
+          if (hasUpdate) {
+            showAppUpdateModal();
+          } else if (isUserTriggered) {
+            if (typeof showToast === 'function') {
+              showToast('Aplikasi Sudah Versi Terbaru', `Versi ${CURRENT_APP_VERSION} sudah yang paling mutakhir.`);
+            }
+          }
+        }).catch(() => {
+          if (isUserTriggered && typeof showToast === 'function') {
+            showToast('Aplikasi Versi Aktif', `Versi ${CURRENT_APP_VERSION} berjalan normal.`);
+          }
         });
       } else {
-        window.location.reload(true);
+        if (isUserTriggered && typeof showToast === 'function') {
+          showToast('Aplikasi Versi Aktif', `Versi ${CURRENT_APP_VERSION} berjalan normal.`);
+        }
       }
     };
 
     // ==========================================================================
+
     // 14. MODUL STUDIO HUMAS & SOSMED: KALENDER TAHUNAN & RADAR PENGINGAT H-7
     // ==========================================================================
 
@@ -26729,6 +26879,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
