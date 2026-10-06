@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Partner Fatih | YTPAI Raudlatul Muta'allimin</title>
   
   <meta name="description" content="Partner Fatih - Sistem Informasi &amp; Manajemen Pesantren Terpadu YTPAI Raudlatul Muta'allimin Babat Lamongan.">
@@ -2864,6 +2865,7 @@
             <div class="flex items-center gap-1.5">
               <span class="text-base font-black tracking-tight text-slate-900 dark:text-white">Partner Fatih<span class="text-emerald-500">.</span></span>
               <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">PRO</span>
+              <span id="appVersionDrawerPill" class="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">v1.0.0</span>
             </div>
             <span class="text-[9px] block font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase">Sigap - Semangat - Optimis</span>
           </div>
@@ -3153,13 +3155,23 @@
         </span>
       </button>
       
-      <!-- System Badge -->
-      <div class="flex items-center justify-between px-2 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-        <span class="flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-          <span>YTPAI Offline-Ready</span>
-        </span>
-        <span class="font-bold text-slate-500 dark:text-slate-400">v2.5 Pro</span>
+            <!-- System Version & Update Button -->
+      <div class="p-2.5 rounded-2xl bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] space-y-2">
+        <div class="flex items-center justify-between text-[10.5px]">
+          <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            <span>Versi Aplikasi</span>
+          </span>
+          <span id="appVersionDrawerLabel" class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs">v1.0.0</span>
+        </div>
+        <button 
+          type="button" 
+          onclick="forceCheckAppUpdate(true)" 
+          class="w-full py-1.5 px-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 font-bold text-[10.5px] border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+        >
+          <i data-lucide="refresh-cw" class="w-3 h-3 text-indigo-500"></i>
+          <span>Periksa Pembaruan</span>
+        </button>
       </div>
     </div>
   </aside>
@@ -3187,6 +3199,7 @@
         <div class="flex items-center gap-1.5 min-w-0">
           <span id="mobileHeaderDot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse flex-shrink-0"></span>
           <span id="mobileHeaderTitle" class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate leading-tight">Humas &amp; Sosmed</span>
+          <span id="appVersionHeaderBadge" class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-white/10 flex-shrink-0">v1.0.0</span>
           <span id="mobileHeaderBadge" class="hidden xs:inline-flex text-[9.5px] font-bold px-1.5 py-0.5 rounded-md border bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40 flex-shrink-0">Radar H-7</span>
         </div>
       </div>
@@ -4514,6 +4527,75 @@
   </div>
 
   <textarea id="hiddenClipboardHelper" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
+
+  <!-- ============================================================== -->
+  <!-- IN-APP AUTO-UPDATE MODAL DIALOG (NATIVE PWA UPDATE PROMPT)      -->
+  <!-- ============================================================== -->
+  <div id="appUpdateModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all duration-300" style="display: none;">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <!-- Header with animated rocket -->
+      <div class="flex items-start gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/25 flex-shrink-0">
+          ðŸš€
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Pembaruan Tersedia!</h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">Resmi</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Versi baru Partner Fatih siap dipasang tanpa perlu install ulang.</p>
+        </div>
+      </div>
+
+      <!-- Version Difference Badge Card -->
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs">
+        <div class="flex flex-col">
+          <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Versi Aktif</span>
+          <span id="updateModalCurrentVersion" class="font-mono font-black text-slate-700 dark:text-slate-300 text-sm">v1.0.0</span>
+        </div>
+        <div class="flex items-center text-emerald-500 font-black">
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </div>
+        <div class="flex flex-col text-right">
+          <span class="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Versi Terbaru</span>
+          <span id="updateModalNewVersion" class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm">v1.0.0</span>
+        </div>
+      </div>
+
+      <!-- Changelog Summary -->
+      <div class="space-y-1.5 text-xs">
+        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span>Peningkatan di Versi Ini:</span>
+        </span>
+        <ul id="updateModalChangelogList" class="space-y-1 text-slate-600 dark:text-slate-400 pl-4 list-disc text-[11.5px] leading-relaxed">
+          <li>Penyempurnaan tampilan dan kontras warna di layar HP</li>
+          <li>Perataan bilah navigasi dan penataan tombol tugas</li>
+          <li>Peningkatan kecepatan sistem offline &amp; auto-update</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-2 flex flex-col sm:flex-row items-center gap-2">
+        <button 
+          type="button" 
+          onclick="applyPwaUpdateNow()" 
+          id="btnApplyPwaUpdate" 
+          class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+        >
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span id="btnApplyPwaUpdateLabel">Perbarui Sekarang (1 Detik)</span>
+        </button>
+        <button 
+          type="button" 
+          onclick="dismissAppUpdateModal()" 
+          class="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-all cursor-pointer"
+        >
+          Nanti Saja
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================== -->
   <!-- JAVASCRIPT LOGIC & BUSINESS RULES ENGINE                        -->
@@ -20022,52 +20104,163 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     };
 
     // ==========================================================================
-    // PWA SERVICE WORKER AUTO-UPDATE & SYNC LIFECYCLE (v16)
+        // ==========================================================================
+    // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
-    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-      const regSw = () => {
-        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
-          console.log('[PWA v16] ServiceWorker active:', reg.scope);
+    const CURRENT_APP_VERSION = '1.0.0';
+    window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
 
-          // Auto-check update setiap kali aplikasi dibuka atau kembali dari background
+    let pendingSwRegistration = null;
+    let pendingSwWorker = null;
+    let isPwaRefreshing = false;
+
+    // Sinkronkan label versi di antarmuka UI
+    function syncAppVersionUI() {
+      try {
+        const vBadges = document.querySelectorAll('#appVersionBadgeDrawer, #appVersionDrawerPill, #appVersionHeaderBadge, #appVersionDrawerLabel, .app-version-badge');
+        vBadges.forEach(el => {
+          if (el) el.textContent = `v${CURRENT_APP_VERSION}`;
+        });
+      } catch (e) {}
+    }
+
+    // Tampilkan Pop-Up Pembaruan Aplikasi Interaktif di Ponsel
+    function showAppUpdateModal(newVer, changelogList) {
+      try {
+        const modal = document.getElementById('appUpdateModal');
+        if (!modal) return;
+
+        const curLabel = document.getElementById('updateModalCurrentVersion');
+        if (curLabel) curLabel.textContent = `v${CURRENT_APP_VERSION}`;
+
+        const newLabel = document.getElementById('updateModalNewVersion');
+        if (newLabel) newLabel.textContent = newVer ? `v${newVer}` : 'Versi Baru';
+
+        const btnLabel = document.getElementById('btnApplyPwaUpdateLabel');
+        if (btnLabel) btnLabel.textContent = newVer ? `Perbarui ke v${newVer} Sekarang` : 'Perbarui Sekarang (1 Detik)';
+
+        if (Array.isArray(changelogList) && changelogList.length > 0) {
+          const ul = document.getElementById('updateModalChangelogList');
+          if (ul) {
+            ul.innerHTML = changelogList.map(c => `<li>${c}</li>`).join('');
+          }
+        }
+
+        if (modal.parentElement !== document.body) {
+          document.body.appendChild(modal);
+        }
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        if (typeof safeCreateIcons === 'function') safeCreateIcons();
+        if (typeof triggerHaptic === 'function') triggerHaptic();
+      } catch (e) {
+        console.warn('[PWA] Error showing update modal:', e);
+      }
+    }
+    window.showAppUpdateModal = showAppUpdateModal;
+
+    // Tutup Modal Pembaruan
+    function dismissAppUpdateModal() {
+      const modal = document.getElementById('appUpdateModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+    window.dismissAppUpdateModal = dismissAppUpdateModal;
+
+    // Eksekusi Pembaruan Instan (Skip Waiting -> Evict Old Cache -> Reload)
+    function applyPwaUpdateNow() {
+      const btn = document.getElementById('btnApplyPwaUpdate');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block animate-spin mr-1">ðŸ”„</span> Memperbarui...';
+      }
+
+      try {
+        safeStorage.setItem('pwa_just_updated_to', '1');
+      } catch (e) {}
+
+      if (pendingSwWorker) {
+        pendingSwWorker.postMessage({ type: 'SKIP_WAITING' });
+      } else if (pendingSwRegistration && pendingSwRegistration.waiting) {
+        pendingSwRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      // Fallback reload dalam 800ms jika controllerchange tidak terpicu
+      setTimeout(() => {
+        if (!isPwaRefreshing) {
+          isPwaRefreshing = true;
+          window.location.reload();
+        }
+      }, 800);
+    }
+    window.applyPwaUpdateNow = applyPwaUpdateNow;
+
+    // Cek versi terbaru dari version.json di server
+    async function checkForRemoteVersionUpdate() {
+      try {
+        if (!navigator.onLine) return;
+        const res = await fetch('./version.json?_t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const meta = await res.json();
+          if (meta && meta.version && meta.version !== CURRENT_APP_VERSION) {
+            console.log(`[PWA Update Found] Lokal: v${CURRENT_APP_VERSION} -> Server: v${meta.version}`);
+            showAppUpdateModal(meta.version, meta.changelog);
+          }
+        }
+      } catch (e) {
+        // Safe offline skip
+      }
+    }
+
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      const initServiceWorkerLifecycle = () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
+          pendingSwRegistration = reg;
+          console.log(`[PWA v${CURRENT_APP_VERSION}] ServiceWorker terdaftar aktif:`, reg.scope);
+
+          // Jika ada Service Worker yang sedang menunggu aktif (Waiting Worker)
+          if (reg.waiting) {
+            pendingSwWorker = reg.waiting;
+            checkForRemoteVersionUpdate();
+          }
+
+          // Deteksi event pembaruan baru dari Service Worker
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                pendingSwWorker = newWorker;
+                console.log('[PWA] Versi baru aplikasi berhasil diunduh di latar belakang!');
+                checkForRemoteVersionUpdate();
+              }
+            });
+          });
+
+          // Cek update otomatis saat kembali ke aplikasi (Visibility Change)
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
               reg.update().catch(() => {});
+              checkForRemoteVersionUpdate();
               if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
             }
           });
 
-          // Auto-check saat window focus
-          window.addEventListener('focus', () => {
-            reg.update().catch(() => {});
-            if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
-          });
-
-          // Cek update berkala setiap 10 menit
+          // Cek berkala setiap 5 menit saat online
           setInterval(() => {
             reg.update().catch(() => {});
-          }, 10 * 60 * 1000);
+            checkForRemoteVersionUpdate();
+          }, 5 * 60 * 1000);
 
-          // Deteksi Service Worker versi baru yang sudah terpasang
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (!newWorker) return;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('[PWA v16] Versi baru aplikasi siap digunakan!');
-                if (typeof showToast === 'function') {
-                  showToast('Pembaruan Sistem', 'Versi baru aplikasi terdeteksi & langsung disinkronkan.');
-                }
-              }
-            });
-          });
         }).catch(err => {
-          console.warn('[PWA] ServiceWorker note (safe):', err);
+          console.warn('[PWA] Catatan pendaftaran ServiceWorker (aman):', err);
         });
       };
 
-      // Mulus reload otomatis saat Service Worker baru mengambil alih kendali
-      let isPwaRefreshing = false;
+      // Mulus reload otomatis saat Service Worker baru mengambil alih
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (isPwaRefreshing) return;
         isPwaRefreshing = true;
@@ -20075,42 +20268,81 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       });
 
       if (document.readyState === 'complete') {
-        regSw();
+        initServiceWorkerLifecycle();
       } else {
-        window.addEventListener('load', regSw);
+        window.addEventListener('load', initServiceWorkerLifecycle);
       }
     }
 
-    // Fungsi global Cek Pembaruan Manual untuk Pengguna
-    window.forceCheckAppUpdate = function() {
-      if (typeof showToast === 'function') {
-        showToast('Memeriksa Pembaruan', 'Menghubungkan ke server Vercel...');
-      }
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-          if (!regs || !regs.length) {
-            window.location.reload(true);
-            return;
-          }
-          Promise.all(regs.map(r => r.update())).then(() => {
-            if ('caches' in window) {
-              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
-                if (typeof showToast === 'function') {
-                  showToast('Berhasil Diperbarui', 'Aplikasi memuat versi terbaru...');
-                }
-                setTimeout(() => window.location.reload(true), 500);
-              });
-            } else {
-              window.location.reload(true);
+    // Notifikasi selebrasi setelah update berhasil dipasang
+    window.addEventListener('DOMContentLoaded', () => {
+      syncAppVersionUI();
+      try {
+        if (safeStorage.getItem('pwa_just_updated_to') === '1') {
+          safeStorage.removeItem('pwa_just_updated_to');
+          setTimeout(() => {
+            if (typeof showToast === 'function') {
+              showToast(`Aplikasi Diperbarui ðŸŽ‰`, `Versi ${CURRENT_APP_VERSION} aktif sempurna tanpa install ulang.`);
             }
-          }).catch(() => window.location.reload(true));
+          }, 600);
+        }
+      } catch (e) {}
+    });
+
+    // Fungsi Global: Cek Pembaruan Manual (Diakses lewat menu Drawer atau tombol Master Sync)
+    window.forceCheckAppUpdate = function(isUserTriggered = true) {
+      if (isUserTriggered && typeof showToast === 'function') {
+        showToast('Memeriksa Pembaruan...', 'Menghubungkan ke server Vercel...');
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(async regs => {
+          let hasUpdate = false;
+          if (regs && regs.length > 0) {
+            await Promise.all(regs.map(r => r.update().catch(() => {})));
+            for (let r of regs) {
+              if (r.waiting) {
+                pendingSwWorker = r.waiting;
+                hasUpdate = true;
+                break;
+              }
+            }
+          }
+
+          // Cek juga version.json
+          try {
+            const res = await fetch('./version.json?_t=' + Date.now(), { cache: 'no-store' });
+            if (res.ok) {
+              const meta = await res.json();
+              if (meta && meta.version && meta.version !== CURRENT_APP_VERSION) {
+                hasUpdate = true;
+                showAppUpdateModal(meta.version, meta.changelog);
+                return;
+              }
+            }
+          } catch (e) {}
+
+          if (hasUpdate) {
+            showAppUpdateModal();
+          } else if (isUserTriggered) {
+            if (typeof showToast === 'function') {
+              showToast('Aplikasi Sudah Versi Terbaru', `Versi ${CURRENT_APP_VERSION} sudah yang paling mutakhir.`);
+            }
+          }
+        }).catch(() => {
+          if (isUserTriggered && typeof showToast === 'function') {
+            showToast('Aplikasi Versi Aktif', `Versi ${CURRENT_APP_VERSION} berjalan normal.`);
+          }
         });
       } else {
-        window.location.reload(true);
+        if (isUserTriggered && typeof showToast === 'function') {
+          showToast('Aplikasi Versi Aktif', `Versi ${CURRENT_APP_VERSION} berjalan normal.`);
+        }
       }
     };
 
     // ==========================================================================
+
     // 14. MODUL STUDIO HUMAS & SOSMED: KALENDER TAHUNAN & RADAR PENGINGAT H-7
     // ==========================================================================
 
@@ -31247,6 +31479,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
