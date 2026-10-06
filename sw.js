@@ -1,10 +1,10 @@
 /**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
- * High-Performance Offline-First Service Worker (PWA v25)
- * Fitur: Seamless Auto-Update (Tanpa Uninstall/Reinstall) & 100% Offline Capability
+ * High-Performance Offline-First Service Worker (PWA v30)
+ * Fitur: Seamless Auto-Update (Tanpa Reinstall) & 100% Offline Capability
  */
 
-const CACHE_NAME = 'partner-fatih-v29';
+const CACHE_NAME = 'partner-fatih-v30';
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -17,23 +17,31 @@ const PRECACHE_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './css/main.css?v=29',
-  './js/app.bundle.js?v=29',
+  './mascot.png',
+  './css/main.css',
+  './css/main.css?v=30',
+  './js/app.bundle.js',
+  './js/app.bundle.js?v=30',
+  './js/vendor/tailwindcss.js',
+  './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
   './js/vendor/xlsx.full.min.js',
-  './js/vendor/pptxgen.bundle.js',
-  './mascot.png'
+  './js/vendor/pptxgen.bundle.js'
 ];
 
 // 1. INSTALL EVENT: Pre-cache aset & langsung lewati masa tunggu (Skip Waiting)
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('[PWA SW v20] Pre-caching offline assets...');
-      return cache.addAll(PRECACHE_ASSETS).catch(err => {
-        console.warn('[PWA SW] Pre-cache partial warning:', err);
-      });
+    caches.open(CACHE_NAME).then(async cache => {
+      console.log('[PWA SW v30] Pre-caching offline assets...');
+      await Promise.all(
+        PRECACHE_ASSETS.map(url => {
+          return cache.add(url).catch(err => {
+            console.warn('[PWA SW] Pre-cache skip:', url, err);
+          });
+        })
+      );
     })
   );
 });
@@ -54,7 +62,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. FETCH EVENT: Network-First untuk Navigasi HTML (Auto-Update) + Stale-While-Revalidate untuk Aset
+// 3. FETCH EVENT: Robust Offline-First Engine
 self.addEventListener('fetch', event => {
   const request = event.request;
 
@@ -63,38 +71,72 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // --- A. NAVIGASI HALAMAN UTAMA (index.html): NETWORK-FIRST ---
-  // Menjamin jika HP online langsung dapat tampilan & fitur terbaru tanpa perlu install ulang
+  // --- A. NAVIGASI HALAMAN UTAMA (index.html): NETWORK-FIRST DENGAN OFFLINE FALLBACK ---
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).then(networkResponse => {
         if (networkResponse && networkResponse.status === 200) {
           const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, clone);
+            cache.put('./index.html', clone.clone());
+            cache.put('./', clone.clone());
+          });
         }
         return networkResponse;
-      }).catch(() => {
+      }).catch(async () => {
         // Mode Offline: Sajikan dari cache lokal
-        return caches.match('./index.html') || caches.match('./');
+        const cached = (await caches.match('./index.html')) || 
+                       (await caches.match('./')) || 
+                       (await caches.match(request));
+        if (cached) return cached;
+        return new Response(
+          '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Partner Fatih - Offline</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:sans-serif;text-align:center;padding:40px;background:#0f172a;color:#fff;"><h2>Mode Offline</h2><p>Buka aplikasi ini sekali saat tersambung internet untuk memuat seluruh sistem offline.</p></body></html>',
+          { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+        );
       })
     );
     return;
   }
 
-  // --- B. ASET STATIS (CSS, JS, GAMBAR): STALE-WHILE-REVALIDATE DENGAN EXACT URL ---
+  // --- B. ASET STATIS (CSS, JS, VENDOR, GAMBAR): CACHE-FIRST DENGAN BACKGROUND REVALIDATE ---
   event.respondWith(
-    caches.match(request).then(cachedResponse => {
-      const fetchPromise = fetch(request).then(networkResponse => {
-        if (networkResponse && networkResponse.status === 200) {
+    (async () => {
+      // 1. Cek exact match di cache
+      let cached = await caches.match(request);
+      
+      // 2. Jika tidak ada exact match, coba abaikan query string (?v=30 vs ?v=28)
+      if (!cached) {
+        cached = await caches.match(request, { ignoreSearch: true });
+      }
+
+      // Jalankan network fetch di background untuk update cache jika sedang online
+      const fetchPromise = fetch(request).then(async networkResponse => {
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
           const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, responseToCache));
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, responseToCache);
         }
         return networkResponse;
       }).catch(() => null);
 
-      // Jika ada di cache, kirim instan 0ms; jika belum ada, tunggu jaringan
-      return cachedResponse || fetchPromise || caches.match(request, { ignoreSearch: true });
-    })
+      // Jika ada di cache lokal, kembalikan instan (0ms, 100% offline-ready)
+      if (cached) {
+        return cached;
+      }
+
+      // Jika belum ada di cache (akses pertama), tunggu jaringan
+      const networkResponse = await fetchPromise;
+      if (networkResponse) {
+        return networkResponse;
+      }
+
+      // Fallback cadangan jika offline dan exact URL berbeda sedikit
+      const fallback = await caches.match(request, { ignoreSearch: true });
+      if (fallback) return fallback;
+
+      return new Response('', { status: 408, statusText: 'Offline Asset Unavailable' });
+    })()
   );
 });
 
