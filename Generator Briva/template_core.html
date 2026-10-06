@@ -24,10 +24,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS & Lucide Icons -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="js/vendor/tailwindcss.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s);"></script>
+  <script src="js/vendor/lucide.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://unpkg.com/lucide@latest/dist/umd/lucide.js';document.head.appendChild(s);"></script>
   <script>
     // Inisialisasi pengaman agar tidak melempar error jika CDN terhambat
+    window.tailwind = window.tailwind || { config: {} };
     window.lucide = window.lucide || {
       createIcons: function() {}
     };
@@ -59,6 +60,7 @@
       } catch (e) {}
     })();
 
+    window.tailwind = window.tailwind || { config: {} };
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -31245,6 +31247,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
