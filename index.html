@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Partner Fatih | YTPAI Raudlatul Muta'allimin</title>
   
   <meta name="description" content="Partner Fatih - Sistem Informasi &amp; Manajemen Pesantren Terpadu YTPAI Raudlatul Muta'allimin Babat Lamongan.">
@@ -315,6 +316,7 @@
             <div class="flex items-center gap-1.5">
               <span class="text-base font-black tracking-tight text-slate-900 dark:text-white">Partner Fatih<span class="text-emerald-500">.</span></span>
               <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">PRO</span>
+              <span id="appVersionDrawerPill" class="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">v1.0.0</span>
             </div>
             <span class="text-[9px] block font-bold text-slate-400 dark:text-slate-400 tracking-wider uppercase">Sigap - Semangat - Optimis</span>
           </div>
@@ -604,13 +606,23 @@
         </span>
       </button>
       
-      <!-- System Badge -->
-      <div class="flex items-center justify-between px-2 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-        <span class="flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-          <span>YTPAI Offline-Ready</span>
-        </span>
-        <span class="font-bold text-slate-500 dark:text-slate-400">v2.5 Pro</span>
+            <!-- System Version & Update Button -->
+      <div class="p-2.5 rounded-2xl bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] space-y-2">
+        <div class="flex items-center justify-between text-[10.5px]">
+          <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            <span>Versi Aplikasi</span>
+          </span>
+          <span id="appVersionDrawerLabel" class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs">v1.0.0</span>
+        </div>
+        <button 
+          type="button" 
+          onclick="forceCheckAppUpdate(true)" 
+          class="w-full py-1.5 px-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 font-bold text-[10.5px] border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+        >
+          <i data-lucide="refresh-cw" class="w-3 h-3 text-indigo-500"></i>
+          <span>Periksa Pembaruan</span>
+        </button>
       </div>
     </div>
   </aside>
@@ -638,6 +650,7 @@
         <div class="flex items-center gap-1.5 min-w-0">
           <span id="mobileHeaderDot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse flex-shrink-0"></span>
           <span id="mobileHeaderTitle" class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate leading-tight">Humas &amp; Sosmed</span>
+          <span id="appVersionHeaderBadge" class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-white/10 flex-shrink-0">v1.0.0</span>
           <span id="mobileHeaderBadge" class="hidden xs:inline-flex text-[9.5px] font-bold px-1.5 py-0.5 rounded-md border bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40 flex-shrink-0">Radar H-7</span>
         </div>
       </div>
@@ -6545,7 +6558,7 @@
 <!-- END COMPONENT: Tab09_TemplateWA.html -->
 
 <!-- START COMPONENT: Tab10_HumasSosmed.html -->
-          <div id="tab-humas" class="space-y-3.5 sm:space-y-5 pb-8 w-full max-w-full min-w-0 box-border px-[2px] sm:px-4 lg:px-5">
+          <div id="tab-humas" class="space-y-3.5 sm:space-y-5 pb-32 sm:pb-12 w-full max-w-full min-w-0 box-border px-[2px] sm:px-4 lg:px-5">
             
             <!-- A. Humas Header Banner & Tools (Bernafas Lega, Profesional, Kotak Modern) -->
             <!-- A. Humas Header Banner & Tools (Bernafas Lega, Profesional, Rapi & Elegan) -->
@@ -6710,7 +6723,7 @@
                 <input 
                   type="text" 
                   id="humasTopSearchInput" 
-                  placeholder="Bicara atau ketik pencarian agenda (cth: 'Acara Oktober', 'Butuh pamflet', 'Maulid')..." 
+                  placeholder="Bicara / ketik pencarian agenda..." 
                   oninput="onHumasTopSearchInput(this.value)" 
                   onkeydown="handleHumasTopSearchKeydown(event, this.value)"
                   class="w-full pl-9 pr-24 py-2 sm:py-2.5 rounded-md bg-slate-950/80 border border-indigo-400/50 text-xs sm:text-sm font-medium text-white placeholder-indigo-200/60 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-all shadow-inner"
@@ -6852,7 +6865,7 @@
                         Anti-Lupa
                       </span>
                     </div>
-                    <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                    <p class="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300 mt-0.5 truncate">
                       Tandai kegiatan yang butuh pamflet publikasi vs tugas operasional biasa agar tidak terlewat.
                     </p>
                   </div>
@@ -6879,7 +6892,7 @@
                     class="px-2.5 sm:px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] sm:text-xs shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
                   >
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                    <span>+ Tugas Baru</span>
+                    <span>Tugas Baru</span>
                   </button>
                 </div>
               </div>
@@ -6950,7 +6963,7 @@
                     type="button" 
                     onclick="filterHumasTasks('needsPamflet')" 
                     id="taskFilter-needsPamflet" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
+                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
                   >
                     <i data-lucide="palette" class="w-3 h-3 text-amber-500"></i>
                     <span>Butuh Pamflet</span>
@@ -6960,7 +6973,7 @@
                     type="button" 
                     onclick="filterHumasTasks('noPamflet')" 
                     id="taskFilter-noPamflet" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
+                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
                   >
                     <i data-lucide="zap" class="w-3 h-3 text-slate-400"></i>
                     <span>Tanpa Pamflet</span>
@@ -6970,7 +6983,7 @@
                     type="button" 
                     onclick="filterHumasTasks('pending')" 
                     id="taskFilter-pending" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
+                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
                   >
                     <i data-lucide="clock" class="w-3 h-3 text-rose-500"></i>
                     <span>Belum Selesai</span>
@@ -6980,7 +6993,7 @@
                     type="button" 
                     onclick="filterHumasTasks('completed')" 
                     id="taskFilter-completed" 
-                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
+                    class="task-filter-btn px-2.5 sm:px-3 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 shrink-0 cursor-pointer transition-all flex items-center gap-1.5"
                   >
                     <i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i>
                     <span>Selesai</span>
