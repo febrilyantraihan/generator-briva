@@ -1,10 +1,10 @@
-﻿/**
+/**
  * Partner Fatih - Generator BRIVA & Tahfidz YTPAI
  * High-Performance Offline-First Service Worker (PWA v1.0.0)
  * Fitur: Semantic Versioning, In-App Auto-Update & 100% Offline Capability
  */
 
-const APP_VERSION = '1.0.3';
+const APP_VERSION = '1.0.4';
 const CACHE_NAME = `partner-fatih-v${APP_VERSION}`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
@@ -21,9 +21,9 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './mascot.png',
   './css/main.css',
-  './css/main.css?v=1.0.3',
+  './css/main.css?v=1.0.4',
   './js/app.bundle.js',
-  './js/app.bundle.js?v=1.0.3',
+  './js/app.bundle.js?v=1.0.4',
   './js/vendor/tailwindcss.js',
   './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
