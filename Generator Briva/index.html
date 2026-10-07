@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
   <meta charset="UTF-8">
@@ -33,6 +33,28 @@
     window.lucide = window.lucide || {
       createIcons: function() {}
     };
+    // FAST LUXURY PRELOADER DISMISS CONTROLLER (Instant 0.4s Soft Transition)
+    window.dismissAppPreloader = function() {
+      var p = document.getElementById('appGlobalPreloader');
+      if (!p || p.dataset.dismissed) return;
+      p.dataset.dismissed = 'true';
+      p.style.opacity = '0';
+      p.style.pointerEvents = 'none';
+      setTimeout(function() {
+        if (p && p.parentNode) p.parentNode.removeChild(p);
+      }, 350);
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(window.dismissAppPreloader, 150);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(window.dismissAppPreloader, 150);
+      });
+    }
+    // Hard ceiling: Preloader will never show longer than 550ms
+    setTimeout(window.dismissAppPreloader, 550);
+
     // Registrasi cepat Service Worker agar kriteria instalasi PWA di Android langsung terpenuhi
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function() {});
@@ -108,9 +130,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
       will-change: opacity;
       pointer-events: all;
+      animation: preloaderCurtainFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards !important;
+    }
+    @keyframes preloaderCurtainFade {
+      0%, 65% {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      100% {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
     }
     @keyframes preloaderPulse {
       0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(16,185,129,0.3); }
