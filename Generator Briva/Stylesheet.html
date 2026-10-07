@@ -2503,4 +2503,77 @@ img[src*="mascot"],
     height: 20px !important;
   }
 }
+
+/* ==========================================================================
+   ANTI-INVERSION DEFENSIVE CONTRAST SHIELD (XIAOMI/CHROME FORCE-DARK FIX)
+   ========================================================================== */
+html:not(.dark) {
+  color-scheme: only light !important;
+  forced-color-adjust: none !important;
+}
+html.dark {
+  color-scheme: only dark !important;
+  forced-color-adjust: none !important;
+}
+
+/* 1. Light Mode Strict Protection */
+html:not(.dark) #tab-humas > div,
+html:not(.dark) #tab-humas .bg-white,
+html:not(.dark) #tab-humas [class*="bg-white"],
+html:not(.dark) #humasTaskTrackerSection {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) #tab-humas h3,
+html:not(.dark) #tab-humas h4,
+html:not(.dark) #tab-humas .text-slate-900,
+html:not(.dark) #tab-humas .font-black {
+  color: #0f172a !important;
+}
+html:not(.dark) #tab-humas p,
+html:not(.dark) #tab-humas .text-slate-500,
+html:not(.dark) #tab-humas .text-slate-600 {
+  color: #475569 !important;
+}
+html:not(.dark) #btnHumasSupabase {
+  background-color: #ecfeff !important;
+  color: #155e75 !important;
+  border-color: #67e8f9 !important;
+}
+html:not(.dark) #btnHumasSyncCloud {
+  background-color: #eef2ff !important;
+  color: #3730a3 !important;
+  border-color: #a5b4fc !important;
+}
+
+/* 2. Dark Mode Strict Protection */
+html.dark #tab-humas > div,
+html.dark #tab-humas .dark\:bg-slate-900,
+html.dark #tab-humas [class*="dark:bg-slate-900"],
+html.dark #humasTaskTrackerSection {
+  background-color: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+}
+html.dark #tab-humas h3,
+html.dark #tab-humas h4,
+html.dark #tab-humas .dark\:text-white {
+  color: #ffffff !important;
+}
+html.dark #tab-humas p,
+html.dark #tab-humas .dark\:text-slate-300,
+html.dark #tab-humas .dark\:text-slate-400 {
+  color: #94a3b8 !important;
+}
+html.dark #btnHumasSupabase {
+  background-color: rgba(8, 51, 68, 0.6) !important;
+  color: #a5f3fc !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+}
+html.dark #btnHumasSyncCloud {
+  background-color: rgba(49, 46, 129, 0.6) !important;
+  color: #c7d2fe !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+}
 </style>
