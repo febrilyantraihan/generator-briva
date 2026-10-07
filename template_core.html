@@ -31578,6 +31578,11 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -31735,19 +31740,24 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
   };
 
   const DEFAULT_SCHEDULES = [
-    // 1. AHAD: Pengembangan Diri (Jam 3-4) + 7A (Jam 5-6) + 7B (Jam 7-8)
+    // 1. AHAD: 8C (Jam 1-2) + Pengembangan Diri (Jam 3-4) + 7A (Jam 5-6) + 7B (Jam 7-8)
+    { id: 'sch-ahad-8c', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '8C', subject: 'Prakarya', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 8C' },
     { id: 'sch-ahad-pd', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: 'Semua', subject: 'Pengembangan Diri', time: '08.30 - 09.50 (Jam 3-4)', room: 'Gedung MTs / Terpadu' },
     { id: 'sch-ahad-7a', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '7A', subject: 'Prakarya (Kode 33)', time: '10.20 - 11.40 (Jam 5-6)', room: 'Ruang MTs 7A' },
     { id: 'sch-ahad-7b', day: 'Ahad', dayIndex: 0, unit: 'formal', classId: '7B', subject: 'Prakarya (Kode 33)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 7B' },
 
-    // 2. SENIN: 7D (Jam 7-8)
+    // 2. SENIN: 8D (Jam 1-2) + 7D (Jam 7-8)
+    { id: 'sch-senin-8d', day: 'Senin', dayIndex: 1, unit: 'formal', classId: '8D', subject: 'Prakarya', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 8D' },
     { id: 'sch-senin-7d', day: 'Senin', dayIndex: 1, unit: 'formal', classId: '7D', subject: 'Prakarya (Kode 33)', time: '12.10 - 13.20 (Jam 7-8)', room: 'Ruang MTs 7D' },
 
-    // 3. SELASA: Madin Malam 1 Ula A
+    // 3. SELASA: 8A (Jam 1-2) + 8B (Jam 3-4) + Madin Malam 1 Ula A
+    { id: 'sch-selasa-8a', day: 'Selasa', dayIndex: 2, unit: 'formal', classId: '8A', subject: 'Prakarya', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 8A' },
+    { id: 'sch-selasa-8b', day: 'Selasa', dayIndex: 2, unit: 'formal', classId: '8B', subject: 'Prakarya', time: '08.30 - 09.50 (Jam 3-4)', room: 'Ruang MTs 8B' },
     { id: 'sch-selasa-madin', day: 'Selasa', dayIndex: 2, unit: 'nonformal', classId: '1UlaA', subject: 'Safinatun Najah', time: '18.00 - 19.30 (Malam / Ba\'da Maghrib)', room: 'Gedung Diniyah Lt. 1' },
 
-    // 4. KAMIS: 7C (Jam 1-2)
+    // 4. KAMIS: 7C (Jam 1-2) + 8B (Jam 5-6)
     { id: 'sch-kamis-7c', day: 'Kamis', dayIndex: 4, unit: 'formal', classId: '7C', subject: 'Prakarya (Kode 33)', time: '07.00 - 08.30 (Jam 1-2)', room: 'Ruang MTs 7C' },
+    { id: 'sch-kamis-8b', day: 'Kamis', dayIndex: 4, unit: 'formal', classId: '8B', subject: 'Prakarya', time: '10.20 - 11.40 (Jam 5-6)', room: 'Ruang MTs 8B' },
 
     // 5. JUMAT: Madin Malam 1 Ula B
     { id: 'sch-jumat-madin', day: 'Jumat', dayIndex: 5, unit: 'nonformal', classId: '1UlaB', subject: 'Safinatun Najah', time: '18.00 - 19.30 (Malam / Ba\'da Maghrib)', room: 'Gedung Diniyah Lt. 2' }
@@ -31833,20 +31843,13 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       });
 
       // 3. Kalibrasi list schedules (jadwal mengajar mingguan resmi MTs Kode 33 & Diniyah)
-      if (!jurnalState.schedules || !jurnalState.schedules.some(s => s.id === 'sch-kamis-7c') || jurnalState.schedules.some(s => s.subject && s.subject.includes('34'))) {
+      if (!jurnalState.schedules || !jurnalState.schedules.length) {
         jurnalState.schedules = JSON.parse(JSON.stringify(DEFAULT_SCHEDULES));
         isUpdated = true;
       } else {
         DEFAULT_SCHEDULES.forEach(defS => {
           const match = jurnalState.schedules.find(s => s.id === defS.id);
-          if (match) {
-            if (match.time !== defS.time || match.subject !== defS.subject || match.day !== defS.day) {
-              match.time = defS.time;
-              match.subject = defS.subject;
-              match.day = defS.day;
-              isUpdated = true;
-            }
-          } else {
+          if (!match) {
             jurnalState.schedules.push(JSON.parse(JSON.stringify(defS)));
             isUpdated = true;
           }
@@ -31935,6 +31938,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     renderRekapSemesterTable();
     checkTodaySchedule();
     updateJurnalCloudStatusBadge();
+    startTeachingLiveTimer();
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
 
@@ -32947,7 +32951,429 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (summaryEl) summaryEl.textContent = 'Tidak ada jadwal mengajar tetap hari ini. Nikmati waktu istirahat atau persiapan materi!';
       if (quickBtn) quickBtn.classList.add('opacity-50', 'pointer-events-none');
     }
+    updateTeachingLiveTimer();
   }
+
+  // ============================================================================
+  // LIVE TEACHING COUNTDOWN TIMER ENGINE (FORMAL MTs & NON-FORMAL DINIYAH)
+  // 1. Hitung Mundur Akan Memasuki Waktu Mengajar
+  // 2. Hitung Mundur Sisa Waktu Mengajar Sedang Berlangsung (Hingga Selesai)
+  // ============================================================================
+  let teachingTimerInterval = null;
+  let teachingTimerUnitFilter = 'auto'; // 'auto' | 'formal' | 'nonformal'
+  let teachingTimerSimMode = 'live';    // 'live' | 'sim_upcoming' | 'sim_active' | 'sim_ending'
+  let teachingTimerAudioEnabled = true;
+  let currentTargetTimerSession = null;
+
+  function parseTimeRange(timeStr) {
+    if (!timeStr) return null;
+    const m = timeStr.match(/(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})/);
+    if (!m) return null;
+    return {
+      startH: parseInt(m[1], 10),
+      startM: parseInt(m[2], 10),
+      endH: parseInt(m[3], 10),
+      endM: parseInt(m[4], 10)
+    };
+  }
+
+  function playSoftTeachingChime(chimeType) {
+    if (!teachingTimerAudioEnabled) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const nowTime = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      if (chimeType === 'start') {
+        osc.frequency.setValueAtTime(523.25, nowTime);
+        osc.frequency.setValueAtTime(659.25, nowTime + 0.12);
+        osc.frequency.setValueAtTime(783.99, nowTime + 0.24);
+      } else if (chimeType === 'ending') {
+        osc.frequency.setValueAtTime(783.99, nowTime);
+        osc.frequency.setValueAtTime(659.25, nowTime + 0.15);
+      } else {
+        osc.frequency.setValueAtTime(587.33, nowTime);
+      }
+
+      gain.gain.setValueAtTime(0.001, nowTime);
+      gain.gain.exponentialRampToValueAtTime(0.2, nowTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, nowTime + 0.45);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(nowTime);
+      osc.stop(nowTime + 0.5);
+    } catch (err) {
+      console.warn('Web Audio synthesis tidak tersedia / diabaikan:', err);
+    }
+  }
+
+  function startTeachingLiveTimer() {
+    if (teachingTimerInterval) clearInterval(teachingTimerInterval);
+    updateTeachingLiveTimer();
+    teachingTimerInterval = setInterval(updateTeachingLiveTimer, 1000);
+  }
+
+  function updateTeachingLiveTimer() {
+    const cardEl = document.getElementById('jurnalTeachingLiveTimerCard');
+    if (!cardEl) return;
+
+    const realNow = new Date();
+    // Update live clock
+    const clockEl = document.getElementById('teachingTimerCurrentClock');
+    const dayEl = document.getElementById('teachingTimerCurrentDay');
+    if (clockEl) {
+      const hh = String(realNow.getHours()).padStart(2, '0');
+      const mm = String(realNow.getMinutes()).padStart(2, '0');
+      const ss = String(realNow.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${hh}:${mm}:${ss} WIB`;
+    }
+    if (dayEl) {
+      const opts = { weekday: 'long', day: 'numeric', month: 'short' };
+      dayEl.textContent = realNow.toLocaleDateString('id-ID', opts);
+    }
+
+    if (!jurnalState || !jurnalState.schedules) return;
+
+    // Filter jadwal sesuai unit filter
+    let schedules = jurnalState.schedules;
+    if (teachingTimerUnitFilter === 'formal') {
+      schedules = schedules.filter(s => s.unit === 'formal');
+    } else if (teachingTimerUnitFilter === 'nonformal') {
+      schedules = schedules.filter(s => s.unit === 'nonformal');
+    }
+
+    const unitBadgeEl = document.getElementById('teachingTimerUnitBadge');
+    if (unitBadgeEl) {
+      if (teachingTimerUnitFilter === 'formal') {
+        unitBadgeEl.textContent = 'Formal MTs';
+        unitBadgeEl.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30';
+      } else if (teachingTimerUnitFilter === 'nonformal') {
+        unitBadgeEl.textContent = 'Diniyah (Safinah)';
+        unitBadgeEl.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+      } else {
+        unitBadgeEl.textContent = 'Semua Unit (Auto)';
+        unitBadgeEl.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20';
+      }
+    }
+
+    // Tentukan waktu evaluasi (Real vs Simulasi)
+    let evalDate = new Date();
+    let isSimulated = teachingTimerSimMode !== 'live';
+
+    if (isSimulated) {
+      if (teachingTimerSimMode === 'sim_upcoming') {
+        evalDate = new Date(realNow);
+        evalDate.setHours(10, 5, 30); // 14m 30s sebelum jam 10:20 (Ahad 7A)
+      } else if (teachingTimerSimMode === 'sim_active') {
+        evalDate = new Date(realNow);
+        evalDate.setHours(10, 55, 0); // di tengah sesi 10:20 - 11:40
+      } else if (teachingTimerSimMode === 'sim_ending') {
+        evalDate = new Date(realNow);
+        evalDate.setHours(11, 35, 15); // 4m 45s sebelum jam 11:40
+      }
+    }
+
+    const currentDayIndex = isSimulated ? 0 : evalDate.getDay();
+    const nowMinutes = evalDate.getHours() * 60 + evalDate.getMinutes() + evalDate.getSeconds() / 60;
+
+    // Ambil jadwal hari ini yang terparse jamnya
+    const todaySchedules = [];
+    schedules.forEach(s => {
+      if (s.dayIndex === currentDayIndex) {
+        const parsed = parseTimeRange(s.time);
+        if (parsed) {
+          const startMin = parsed.startH * 60 + parsed.startM;
+          const endMin = parsed.endH * 60 + parsed.endM;
+          todaySchedules.push({
+            ...s,
+            parsed,
+            startMin,
+            endMin
+          });
+        }
+      }
+    });
+
+    todaySchedules.sort((a, b) => a.startMin - b.startMin);
+
+    // 1. Cek apakah ada SESI AKTIF (Sedang Berlangsung)
+    const activeSession = todaySchedules.find(s => nowMinutes >= s.startMin && nowMinutes < s.endMin);
+
+    // 2. Cek apakah ada SESI AKAN DATANG HARI INI (Upcoming Today)
+    const upcomingToday = todaySchedules.filter(s => nowMinutes < s.startMin);
+
+    // Elemen DOM
+    const pulseDot = document.getElementById('teachingTimerPulseDot');
+    const badgeEl = document.getElementById('teachingTimerStatusBadge');
+    const statusTextEl = document.getElementById('teachingTimerStatusText');
+    const targetLabelEl = document.getElementById('teachingTimerTargetLabel');
+    const targetHeadlineEl = document.getElementById('teachingTimerTargetHeadline');
+    const targetSubEl = document.getElementById('teachingTimerTargetSub');
+    const progressLabelEl = document.getElementById('teachingTimerProgressLabel');
+    const progressValueEl = document.getElementById('teachingTimerProgressValue');
+    const progressBarEl = document.getElementById('teachingTimerProgressBar');
+    const digitH = document.getElementById('timerDigitHours');
+    const digitM = document.getElementById('timerDigitMinutes');
+    const digitS = document.getElementById('timerDigitSeconds');
+    const labelOpenClass = document.getElementById('labelTimerOpenClass');
+
+    if (activeSession) {
+      // -------------------------------------------------------------
+      // KONDISI 2: SEDANG MENGAJAR BERLANGSUNG & AKAN SELESAI
+      // -------------------------------------------------------------
+      currentTargetTimerSession = activeSession;
+      const remainingSeconds = Math.max(0, Math.floor((activeSession.endMin - nowMinutes) * 60));
+      const totalSessionSeconds = (activeSession.endMin - activeSession.startMin) * 60;
+      const elapsedSeconds = totalSessionSeconds - remainingSeconds;
+      const progressPct = Math.min(100, Math.max(0, Math.round((elapsedSeconds / totalSessionSeconds) * 100)));
+
+      const rH = Math.floor(remainingSeconds / 3600);
+      const rM = Math.floor((remainingSeconds % 3600) / 60);
+      const rS = remainingSeconds % 60;
+
+      if (digitH) digitH.textContent = String(rH).padStart(2, '0');
+      if (digitM) digitM.textContent = String(rM).padStart(2, '0');
+      if (digitS) digitS.textContent = String(rS).padStart(2, '0');
+
+      const isEndingSoon = remainingSeconds <= 600; // <= 10 Menit
+
+      if (isEndingSoon) {
+        if (pulseDot) pulseDot.className = 'w-3 h-3 rounded-full bg-amber-400 animate-ping flex-shrink-0';
+        if (badgeEl) {
+          badgeEl.className = 'text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-500/25 text-amber-300 border border-amber-400/50 tracking-wider flex items-center gap-1.5 shadow-sm animate-pulse';
+        }
+        if (statusTextEl) statusTextEl.textContent = '⚠️ Sisa Waktu Sedikit (Persiapan Selesai / Penutup)';
+        if (targetLabelEl) targetLabelEl.textContent = 'Sisa Waktu Menuju Jam Pelajaran Selesai';
+        if (progressBarEl) progressBarEl.className = 'h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 transition-all duration-500';
+      } else {
+        if (pulseDot) pulseDot.className = 'w-3 h-3 rounded-full bg-emerald-400 animate-ping flex-shrink-0';
+        if (badgeEl) {
+          badgeEl.className = 'text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 tracking-wider flex items-center gap-1.5 shadow-xs';
+        }
+        if (statusTextEl) statusTextEl.textContent = '🟢 Sesi Mengajar Sedang Berlangsung';
+        if (targetLabelEl) targetLabelEl.textContent = 'Sisa Waktu Mengajar Aktif Menuju Selesai';
+        if (progressBarEl) progressBarEl.className = 'h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 transition-all duration-500';
+      }
+
+      const unitText = activeSession.unit === 'formal' ? 'Formal MTs' : 'Madrasah Diniyah';
+      if (targetHeadlineEl) {
+        targetHeadlineEl.textContent = `${activeSession.classId} • ${activeSession.subject}`;
+      }
+      if (targetSubEl) {
+        const endFormatted = `${String(activeSession.parsed.endH).padStart(2, '0')}.${String(activeSession.parsed.endM).padStart(2, '0')}`;
+        targetSubEl.textContent = `Sedang berlangsung s/d ${endFormatted} WIB • ${activeSession.room} (${unitText})`;
+      }
+
+      if (progressLabelEl) progressLabelEl.textContent = `Progres Sesi: ${progressPct}% Berjalan (${Math.floor(elapsedSeconds / 60)}m dari ${Math.floor(totalSessionSeconds / 60)}m)`;
+      if (progressValueEl) progressValueEl.textContent = `${progressPct}%`;
+      if (progressBarEl) progressBarEl.style.width = `${progressPct}%`;
+      if (labelOpenClass) labelOpenClass.textContent = `Buka Kelas ${activeSession.classId}`;
+
+    } else if (upcomingToday.length > 0) {
+      // -------------------------------------------------------------
+      // KONDISI 1: AKAN MEMASUKI WAKTU MENGAJAR (HARI INI)
+      // -------------------------------------------------------------
+      const nextToday = upcomingToday[0];
+      currentTargetTimerSession = nextToday;
+
+      const remainingSeconds = Math.max(0, Math.floor((nextToday.startMin - nowMinutes) * 60));
+      const rH = Math.floor(remainingSeconds / 3600);
+      const rM = Math.floor((remainingSeconds % 3600) / 60);
+      const rS = remainingSeconds % 60;
+
+      if (digitH) digitH.textContent = String(rH).padStart(2, '0');
+      if (digitM) digitM.textContent = String(rM).padStart(2, '0');
+      if (digitS) digitS.textContent = String(rS).padStart(2, '0');
+
+      const isStartingSoon = remainingSeconds <= 900; // <= 15 Menit
+
+      if (isStartingSoon) {
+        if (pulseDot) pulseDot.className = 'w-3 h-3 rounded-full bg-rose-400 animate-ping flex-shrink-0';
+        if (badgeEl) {
+          badgeEl.className = 'text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-rose-500/25 text-rose-300 border border-rose-400/50 tracking-wider flex items-center gap-1.5 shadow-sm animate-pulse';
+        }
+        if (statusTextEl) statusTextEl.textContent = '⏳ Bersiap! Waktu Mengajar Segera Masuk';
+      } else {
+        if (pulseDot) pulseDot.className = 'w-3 h-3 rounded-full bg-cyan-400 animate-ping flex-shrink-0';
+        if (badgeEl) {
+          badgeEl.className = 'text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 tracking-wider flex items-center gap-1.5 shadow-xs';
+        }
+        if (statusTextEl) statusTextEl.textContent = '⏳ Hitung Mundur Masuk Waktu Mengajar';
+      }
+
+      if (targetLabelEl) targetLabelEl.textContent = `Akan Dimulai Hari Ini (${rM}m ${rS}s lagi)`;
+      if (targetHeadlineEl) {
+        targetHeadlineEl.textContent = `Kelas ${nextToday.classId} — ${nextToday.subject}`;
+      }
+      if (targetSubEl) {
+        const startFormatted = `${String(nextToday.parsed.startH).padStart(2, '0')}.${String(nextToday.parsed.startM).padStart(2, '0')}`;
+        const unitText = nextToday.unit === 'formal' ? 'Formal MTs' : 'Madrasah Diniyah';
+        targetSubEl.textContent = `Pukul ${startFormatted} WIB • ${nextToday.room} (${unitText})`;
+      }
+
+      const oneHourSec = 3600;
+      const countPct = Math.min(100, Math.max(0, Math.round(((oneHourSec - Math.min(oneHourSec, remainingSeconds)) / oneHourSec) * 100)));
+      if (progressLabelEl) progressLabelEl.textContent = `Menuju Masuk: ${rM} Menit ${rS} Detik Tersisa`;
+      if (progressValueEl) progressValueEl.textContent = `${countPct}%`;
+      if (progressBarEl) {
+        progressBarEl.className = 'h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-400 to-rose-500 transition-all duration-500';
+        progressBarEl.style.width = `${countPct}%`;
+      }
+      if (labelOpenClass) labelOpenClass.textContent = `Siapkan Kelas ${nextToday.classId}`;
+
+    } else {
+      // -------------------------------------------------------------
+      // KONDISI 3: DI LUAR JAM MENGAJAR / SESI BERIKUTNYA DI HARI LAIN
+      // -------------------------------------------------------------
+      let nextSession = null;
+      let minDiffMinutes = Infinity;
+
+      schedules.forEach(s => {
+        const parsed = parseTimeRange(s.time);
+        if (parsed) {
+          let dayDiff = (s.dayIndex - currentDayIndex + 7) % 7;
+          if (dayDiff === 0) dayDiff = 7;
+          const sessionStartMin = dayDiff * 24 * 60 + (parsed.startH * 60 + parsed.startM);
+          const diffMin = sessionStartMin - nowMinutes;
+          if (diffMin > 0 && diffMin < minDiffMinutes) {
+            minDiffMinutes = diffMin;
+            nextSession = { ...s, parsed, diffMin, dayDiff };
+          }
+        }
+      });
+
+      currentTargetTimerSession = nextSession;
+
+      if (pulseDot) pulseDot.className = 'w-3 h-3 rounded-full bg-slate-400 flex-shrink-0';
+      if (badgeEl) {
+        badgeEl.className = 'text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 tracking-wider flex items-center gap-1.5';
+      }
+      if (statusTextEl) statusTextEl.textContent = '📅 Jadwal Mengajar Berikutnya';
+
+      if (nextSession) {
+        const totalSec = Math.floor(nextSession.diffMin * 60);
+        const days = Math.floor(totalSec / 86400);
+        const hours = Math.floor((totalSec % 86400) / 3600);
+        const mins = Math.floor((totalSec % 3600) / 60);
+        const secs = totalSec % 60;
+
+        if (digitH) digitH.textContent = String(hours + days * 24).padStart(2, '0');
+        if (digitM) digitM.textContent = String(mins).padStart(2, '0');
+        if (digitS) digitS.textContent = String(secs).padStart(2, '0');
+
+        let etaText = '';
+        if (days > 0) {
+          etaText = `${days} Hari ${hours} Jam Lagi`;
+        } else if (hours > 0) {
+          etaText = `${hours} Jam ${mins} Menit Lagi`;
+        } else {
+          etaText = `${mins} Menit ${secs} Detik Lagi`;
+        }
+
+        if (targetLabelEl) targetLabelEl.textContent = `Jadwal Terdekat: ${nextSession.day} (${etaText})`;
+        if (targetHeadlineEl) {
+          targetHeadlineEl.textContent = `Kelas ${nextSession.classId} — ${nextSession.subject}`;
+        }
+        if (targetSubEl) {
+          const startFormatted = `${String(nextSession.parsed.startH).padStart(2, '0')}.${String(nextSession.parsed.startM).padStart(2, '0')}`;
+          const unitText = nextSession.unit === 'formal' ? 'Formal MTs' : 'Madrasah Diniyah';
+          targetSubEl.textContent = `${nextSession.day}, Pukul ${startFormatted} WIB • ${nextSession.room} (${unitText})`;
+        }
+        if (progressLabelEl) progressLabelEl.textContent = `Status: Tidak Ada Sesi Aktif Hari Ini (${nextSession.day} Mendatang)`;
+        if (progressValueEl) progressValueEl.textContent = '0%';
+        if (progressBarEl) {
+          progressBarEl.className = 'h-full rounded-full bg-slate-700 transition-all duration-500';
+          progressBarEl.style.width = '10%';
+        }
+        if (labelOpenClass) labelOpenClass.textContent = `Lihat Kelas ${nextSession.classId}`;
+      } else {
+        if (digitH) digitH.textContent = '00';
+        if (digitM) digitM.textContent = '00';
+        if (digitS) digitS.textContent = '00';
+        if (targetHeadlineEl) targetHeadlineEl.textContent = 'Semua Sesi Selesai / Belum Ada Jadwal';
+        if (targetSubEl) targetSubEl.textContent = 'Gunakan tombol tambah sesi untuk mendaftarkan jadwal baru.';
+      }
+    }
+
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  }
+
+  window.startTeachingLiveTimer = startTeachingLiveTimer;
+  window.updateTeachingLiveTimer = updateTeachingLiveTimer;
+
+  window.setTeachingTimerUnitFilter = function(filterVal) {
+    teachingTimerUnitFilter = filterVal;
+    updateTeachingLiveTimer();
+  };
+
+  window.toggleTeachingTimerSound = function() {
+    teachingTimerAudioEnabled = !teachingTimerAudioEnabled;
+    const btn = document.getElementById('btnTeachingTimerAudioToggle');
+    const icon = document.getElementById('teachingTimerAudioIcon');
+    if (teachingTimerAudioEnabled) {
+      if (btn) btn.className = 'w-8 h-8 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 flex items-center justify-center text-rose-300 transition-all cursor-pointer';
+      if (icon) icon.setAttribute('data-lucide', 'bell');
+      if (typeof showToast === 'function') showToast('Pengingat Suara Aktif', 'Notifikasi bunyi chime pengingat sesi diaktifkan.');
+      playSoftTeachingChime('start');
+    } else {
+      if (btn) btn.className = 'w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-slate-400 transition-all cursor-pointer';
+      if (icon) icon.setAttribute('data-lucide', 'bell-off');
+      if (typeof showToast === 'function') showToast('Pengingat Suara Senyap', 'Notifikasi bunyi dimatikan.');
+    }
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.applyTeachingTimerSimulation = function(simMode) {
+    teachingTimerSimMode = simMode;
+    updateTeachingLiveTimer();
+    const modeNames = {
+      live: 'Waktu Nyata (Live Real-Time)',
+      sim_upcoming: 'Simulasi 15 Menit Menjelang Masuk Kelas',
+      sim_active: 'Simulasi Sesi Mengajar Sedang Berlangsung',
+      sim_ending: 'Simulasi 5 Menit Terakhir Sebelum Jam Selesai'
+    };
+    if (typeof showToast === 'function') {
+      showToast('Mode Timer', `Beralih ke: ${modeNames[simMode] || simMode}`);
+    }
+    if (simMode === 'sim_upcoming' || simMode === 'sim_active') {
+      playSoftTeachingChime('start');
+    } else if (simMode === 'sim_ending') {
+      playSoftTeachingChime('ending');
+    }
+  };
+
+  window.openClassFromTimer = function() {
+    if (!currentTargetTimerSession) {
+      switchJurnalSubTab('jadwal');
+      return;
+    }
+    const sess = currentTargetTimerSession;
+    if (sess.unit) switchJurnalUnit(sess.unit);
+    if (sess.classId && sess.classId !== 'Semua') {
+      switchJurnalClass(sess.classId);
+    }
+    switchJurnalSubTab('materi');
+  };
+
+  window.openPresensiFromTimer = function() {
+    if (!currentTargetTimerSession) {
+      switchJurnalSubTab('presensi');
+      return;
+    }
+    const sess = currentTargetTimerSession;
+    if (sess.unit) switchJurnalUnit(sess.unit);
+    if (sess.classId && sess.classId !== 'Semua') {
+      switchJurnalClass(sess.classId);
+    }
+    switchJurnalSubTab('presensi');
+  };
 
   function renderJurnalTimetable() {
     const grid = document.getElementById('jurnalTimetableGrid');
@@ -33019,43 +33445,376 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     switchJurnalSubTab('materi');
   };
 
+  // ============================================================================
+  // MANAJEMEN PENYESUAIAN JAM MENGAJAR (MODAL SCHEDULE CONTROLLER)
+  // ============================================================================
+  let modalJadwalFilter = 'all';
+
+  window.openManageJadwalModal = function(editId = null) {
+    const modal = document.getElementById('modalManageJadwalMengajar');
+    if (!modal) return;
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+
+    if (editId) {
+      const item = (jurnalState.schedules || []).find(s => s.id === editId);
+      if (item && item.unit) {
+        modalJadwalFilter = item.unit;
+      }
+    }
+    updateModalFilterTabsUI();
+    renderModalJadwalList();
+
+    if (editId) {
+      editJadwalScheduleItem(editId);
+    } else {
+      cancelJadwalEditForm();
+    }
+
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.closeManageJadwalModal = function() {
+    const modal = document.getElementById('modalManageJadwalMengajar');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
+    cancelJadwalEditForm();
+  };
+
+  window.setModalJadwalFilter = function(filter) {
+    modalJadwalFilter = filter;
+    updateModalFilterTabsUI();
+    renderModalJadwalList();
+  };
+
+  function updateModalFilterTabsUI() {
+    const allBtn = document.getElementById('tabBtnJadwalFilterAll');
+    const formBtn = document.getElementById('tabBtnJadwalFilterFormal');
+    const nonfBtn = document.getElementById('tabBtnJadwalFilterNonformal');
+    const inactiveClass = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer';
+    const activeClass = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer';
+
+    if (allBtn) allBtn.className = modalJadwalFilter === 'all' ? activeClass : inactiveClass;
+    if (formBtn) formBtn.className = modalJadwalFilter === 'formal' ? activeClass : inactiveClass;
+    if (nonfBtn) nonfBtn.className = modalJadwalFilter === 'nonformal' ? activeClass : inactiveClass;
+  }
+
+  window.onJadwalUnitChange = function(unitVal) {
+    const subjInput = document.getElementById('inputJadwalSubject');
+    const roomInput = document.getElementById('inputJadwalRoom');
+    if (unitVal === 'formal') {
+      if (subjInput && (!subjInput.value || subjInput.value.includes('Safinatun'))) subjInput.value = 'Prakarya (Kode 33)';
+      if (roomInput && (!roomInput.value || roomInput.value.includes('Diniyah'))) roomInput.value = 'Ruang MTs 7A';
+    } else {
+      if (subjInput && (!subjInput.value || subjInput.value.includes('Prakarya'))) subjInput.value = 'Safinatun Najah';
+      if (roomInput && (!roomInput.value || roomInput.value.includes('MTs'))) roomInput.value = 'Gedung Diniyah Lt. 1';
+    }
+  };
+
+  window.renderModalJadwalList = function() {
+    const container = document.getElementById('modalJadwalListContainer');
+    if (!container) return;
+
+    let schedules = (jurnalState.schedules || []);
+    if (modalJadwalFilter === 'formal') {
+      schedules = schedules.filter(s => s.unit === 'formal');
+    } else if (modalJadwalFilter === 'nonformal') {
+      schedules = schedules.filter(s => s.unit === 'nonformal');
+    }
+
+    if (!schedules.length) {
+      container.innerHTML = `
+        <div class="py-10 text-center rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-800">
+          <i data-lucide="calendar-x" class="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2"></i>
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400">Tidak ada jadwal mengajar pada filter ini.</p>
+          <button type="button" onclick="openJadwalAddForm()" class="mt-3 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Tambah Sesi Baru</span>
+          </button>
+        </div>
+      `;
+      if (typeof safeCreateIcons === 'function') safeCreateIcons();
+      return;
+    }
+
+    // Sort by dayIndex and time
+    const sorted = [...schedules].sort((a, b) => {
+      if (a.dayIndex !== b.dayIndex) return a.dayIndex - b.dayIndex;
+      const pa = parseTimeRange(a.time);
+      const pb = parseTimeRange(b.time);
+      const minA = pa ? pa.startH * 60 + pa.startM : 0;
+      const minB = pb ? pb.startH * 60 + pb.startM : 0;
+      return minA - minB;
+    });
+
+    const dayBadgeColors = {
+      'Ahad': 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-900',
+      'Senin': 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-900',
+      'Selasa': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900',
+      'Rabu': 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900',
+      'Kamis': 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-900',
+      'Jumat': 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-900',
+      'Sabtu': 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900'
+    };
+
+    container.innerHTML = sorted.map(sch => {
+      const isFormal = sch.unit === 'formal';
+      const unitBadge = isFormal 
+        ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60">Formal MTs</span>'
+        : '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">Diniyah</span>';
+      
+      const dayColor = dayBadgeColors[sch.day] || 'bg-slate-100 text-slate-700 border-slate-200';
+
+      return `
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 shadow-xs hover:border-amber-300 dark:hover:border-amber-600/60 transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <!-- Left Main Details -->
+          <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+            <div class="w-12 h-12 rounded-2xl border flex flex-col items-center justify-center flex-shrink-0 text-center ${dayColor}">
+              <span class="text-[10px] font-black uppercase tracking-wider">${sch.day.substring(0, 3)}</span>
+              <span class="text-xs font-black leading-none mt-0.5">${sch.classId}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-mono text-xs sm:text-sm font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-600">
+                  ${sch.time}
+                </span>
+                ${unitBadge}
+              </div>
+              <h5 class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 truncate mt-1">
+                ${sch.subject} — Kelas ${sch.classId}
+              </h5>
+              <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
+                <span class="flex items-center gap-1">
+                  <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+                  <span>${sch.room || 'Ruang Belajar'}</span>
+                </span>
+                <span class="text-slate-300 dark:text-slate-600">•</span>
+                <span class="text-[10.5px] font-medium text-slate-400">ID: ${sch.id}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Action Buttons -->
+          <div class="flex items-center justify-end gap-1.5 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-700">
+            <button type="button" onclick="editJadwalScheduleItem('${sch.id}')" class="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/50 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95" title="Ubah Waktu & Rincian Sesi Ini">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              <span>Ubah Jam</span>
+            </button>
+            <button type="button" onclick="deleteJadwalScheduleItem('${sch.id}')" class="p-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-300/50 dark:border-rose-800/40 cursor-pointer transition-all active:scale-95" title="Hapus Sesi Jadwal">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.openJadwalAddForm = function() {
+    const container = document.getElementById('formEditorJadwalContainer');
+    const title = document.getElementById('formEditorJadwalTitle');
+    if (!container) return;
+
+    container.classList.remove('hidden');
+    if (title) title.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4 text-rose-600"></i><span>Tambah Jadwal Mengajar Baru</span>';
+
+    const editIdEl = document.getElementById('inputJadwalEditId');
+    const unitEl = document.getElementById('inputJadwalUnit');
+    const dayEl = document.getElementById('inputJadwalDay');
+    const classIdEl = document.getElementById('inputJadwalClassId');
+    const subjEl = document.getElementById('inputJadwalSubject');
+    const roomEl = document.getElementById('inputJadwalRoom');
+    const startEl = document.getElementById('inputJadwalStartTime');
+    const endEl = document.getElementById('inputJadwalEndTime');
+    const hourLabelEl = document.getElementById('inputJadwalHourLabel');
+
+    if (editIdEl) editIdEl.value = '';
+    if (unitEl) unitEl.value = modalJadwalFilter === 'nonformal' ? 'nonformal' : 'formal';
+    if (dayEl) dayEl.value = 'Senin';
+    if (classIdEl) classIdEl.value = modalJadwalFilter === 'nonformal' ? '1UlaA' : '7A';
+    if (subjEl) subjEl.value = modalJadwalFilter === 'nonformal' ? 'Safinatun Najah' : 'Prakarya (Kode 33)';
+    if (roomEl) roomEl.value = modalJadwalFilter === 'nonformal' ? 'Gedung Diniyah Lt. 1' : 'Ruang MTs 7A';
+    if (startEl) startEl.value = '07:00';
+    if (endEl) endEl.value = '08:30';
+    if (hourLabelEl) hourLabelEl.value = 'Jam 1-2';
+
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.editJadwalScheduleItem = function(id) {
+    const sch = (jurnalState.schedules || []).find(s => s.id === id);
+    if (!sch) return;
+
+    const container = document.getElementById('formEditorJadwalContainer');
+    const title = document.getElementById('formEditorJadwalTitle');
+    if (!container) return;
+
+    container.classList.remove('hidden');
+    if (title) title.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4 text-amber-600"></i><span>Sesuaikan Jam: Kelas ${sch.classId} (${sch.day})</span>`;
+
+    const editIdEl = document.getElementById('inputJadwalEditId');
+    const unitEl = document.getElementById('inputJadwalUnit');
+    const dayEl = document.getElementById('inputJadwalDay');
+    const classIdEl = document.getElementById('inputJadwalClassId');
+    const subjEl = document.getElementById('inputJadwalSubject');
+    const roomEl = document.getElementById('inputJadwalRoom');
+    const startEl = document.getElementById('inputJadwalStartTime');
+    const endEl = document.getElementById('inputJadwalEndTime');
+    const hourLabelEl = document.getElementById('inputJadwalHourLabel');
+
+    if (editIdEl) editIdEl.value = sch.id;
+    if (unitEl) unitEl.value = sch.unit || 'formal';
+    if (dayEl) dayEl.value = sch.day || 'Ahad';
+    if (classIdEl) classIdEl.value = sch.classId || '';
+    if (subjEl) subjEl.value = sch.subject || '';
+    if (roomEl) roomEl.value = sch.room || '';
+
+    // Ekstrak Jam Mulai & Jam Selesai dari string waktu
+    const parsed = parseTimeRange(sch.time);
+    if (parsed) {
+      const sH = String(parsed.startH).padStart(2, '0');
+      const sM = String(parsed.startM).padStart(2, '0');
+      const eH = String(parsed.endH).padStart(2, '0');
+      const eM = String(parsed.endM).padStart(2, '0');
+      if (startEl) startEl.value = `${sH}:${sM}`;
+      if (endEl) endEl.value = `${eH}:${eM}`;
+    } else {
+      if (startEl) startEl.value = '07:00';
+      if (endEl) endEl.value = '08:30';
+    }
+
+    // Ekstrak label di dalam tanda kurung jika ada (misal Jam 5-6)
+    const parenMatch = (sch.time || '').match(/\(([^)]+)\)/);
+    if (parenMatch && parenMatch[1]) {
+      if (hourLabelEl) hourLabelEl.value = parenMatch[1].trim();
+    } else {
+      if (hourLabelEl) hourLabelEl.value = '';
+    }
+
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.cancelJadwalEditForm = function() {
+    const container = document.getElementById('formEditorJadwalContainer');
+    if (container) container.classList.add('hidden');
+  };
+
+  window.saveJadwalScheduleItem = function() {
+    const editId = (document.getElementById('inputJadwalEditId')?.value || '').trim();
+    const unit = document.getElementById('inputJadwalUnit')?.value || 'formal';
+    const day = document.getElementById('inputJadwalDay')?.value || 'Senin';
+    const classId = (document.getElementById('inputJadwalClassId')?.value || '').trim();
+    const subject = (document.getElementById('inputJadwalSubject')?.value || '').trim();
+    const room = (document.getElementById('inputJadwalRoom')?.value || '').trim();
+    const startVal = document.getElementById('inputJadwalStartTime')?.value;
+    const endVal = document.getElementById('inputJadwalEndTime')?.value;
+    const hourLabel = (document.getElementById('inputJadwalHourLabel')?.value || '').trim();
+
+    if (!classId) {
+      alert('Mohon isi nama kelas!');
+      return;
+    }
+    if (!startVal || !endVal) {
+      alert('Mohon isi jam mulai dan jam selesai!');
+      return;
+    }
+
+    // Format waktu standar: 07.00 - 08.30 (Jam 1-2)
+    const startFormatted = startVal.replace(':', '.');
+    const endFormatted = endVal.replace(':', '.');
+    const timeFormatted = hourLabel ? `${startFormatted} - ${endFormatted} (${hourLabel})` : `${startFormatted} - ${endFormatted}`;
+
+    const dayMap = { 'Ahad': 0, 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6 };
+    const dayIndex = dayMap[day] !== undefined ? dayMap[day] : 0;
+
+    if (!jurnalState.schedules) jurnalState.schedules = [];
+
+    if (editId) {
+      const match = jurnalState.schedules.find(s => s.id === editId);
+      if (match) {
+        match.unit = unit;
+        match.day = day;
+        match.dayIndex = dayIndex;
+        match.classId = classId;
+        match.subject = subject || (unit === 'formal' ? 'Prakarya' : 'Safinatun Najah');
+        match.room = room || `Ruang ${classId}`;
+        match.time = timeFormatted;
+      }
+    } else {
+      const newId = 'sch-' + Date.now();
+      jurnalState.schedules.push({
+        id: newId,
+        unit: unit,
+        day: day,
+        dayIndex: dayIndex,
+        classId: classId,
+        subject: subject || (unit === 'formal' ? 'Prakarya' : 'Safinatun Najah'),
+        room: room || `Ruang ${classId}`,
+        time: timeFormatted
+      });
+    }
+
+    saveJurnalState();
+    cancelJadwalEditForm();
+    renderModalJadwalList();
+    renderJurnalReminders();
+    renderJurnalTimetable();
+    checkTodaySchedule();
+    updateTeachingLiveTimer();
+
+    if (typeof showToast === 'function') {
+      showToast('Jadwal Disimpan', `Waktu belajar kelas ${classId} (${day}) berhasil disesuaikan.`);
+    }
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.deleteJadwalScheduleItem = function(id) {
+    const sch = (jurnalState.schedules || []).find(s => s.id === id);
+    if (!sch) return;
+
+    if (!confirm(`Hapus sesi jadwal ${sch.subject} - Kelas ${sch.classId} (${sch.day})?`)) {
+      return;
+    }
+
+    jurnalState.schedules = (jurnalState.schedules || []).filter(s => s.id !== id);
+    saveJurnalState();
+    renderModalJadwalList();
+    renderJurnalReminders();
+    renderJurnalTimetable();
+    checkTodaySchedule();
+    updateTeachingLiveTimer();
+
+    if (typeof showToast === 'function') {
+      showToast('Jadwal Dihapus', 'Sesi jadwal telah berhasil dihapus.');
+    }
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
   window.resetJadwalToDefault = function() {
-    if (confirm('Kembalikan jadwal ke susunan default awal?')) {
+    if (confirm('Kembalikan seluruh jadwal mengajar ke jadwal default resmi MTs & Diniyah?')) {
       jurnalState.schedules = JSON.parse(JSON.stringify(DEFAULT_SCHEDULES));
       saveJurnalState();
+      renderModalJadwalList();
       renderJurnalTimetable();
+      renderJurnalReminders();
       checkTodaySchedule();
+      updateTeachingLiveTimer();
       if (typeof safeCreateIcons === 'function') safeCreateIcons();
-      if (typeof showToast === 'function') showToast('Jadwal Direset', 'Jadwal telah dikembalikan ke pengaturan awal.');
+      if (typeof showToast === 'function') showToast('Jadwal Direset', 'Jadwal telah dikembalikan ke standar awal.');
     }
   };
 
   window.openAddJadwalModal = function() {
-    const day = prompt('Hari mengajar (Senin/Selasa/Rabu/Kamis/Jumat/Sabtu):', 'Senin');
-    if (!day) return;
-    const unitChoice = prompt('Pilih Unit (1 = Formal MTs, 2 = Diniyah):', '1');
-    const unit = unitChoice === '2' ? 'nonformal' : 'formal';
-    const classId = prompt(`Nama Kelas (${unit === 'formal' ? '7A/7B/7C/7D' : '1UlaA/1UlaB'}):`, unit === 'formal' ? '7A' : '1UlaA');
-    if (!classId) return;
-    const time = prompt('Jam Mengajar (misal: 07.00 - 08.20):', '07.00 - 08.20');
-    const room = prompt('Ruang Kelas:', `Ruang Kelas ${classId}`);
-
-    const dayMap = { 'Ahad': 0, 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6 };
-    jurnalState.schedules.push({
-      id: 'sch-' + Date.now(),
-      day: day,
-      dayIndex: dayMap[day] !== undefined ? dayMap[day] : 1,
-      unit: unit,
-      classId: classId,
-      subject: unit === 'formal' ? 'Prakarya' : 'Safinatun Najah',
-      time: time || '07.00 - 08.20',
-      room: room || `Ruang ${classId}`
-    });
-
-    saveJurnalState();
-    renderJurnalTimetable();
-    checkTodaySchedule();
-    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+    openManageJadwalModal();
+    openJadwalAddForm();
   };
 
   // --- Kelola Siswa Modal & Import ---
