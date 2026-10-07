@@ -1,12 +1,12 @@
-﻿{
-  "version": "1.0.3",
-  "build": 4,
+{
+  "version": "1.0.4",
+  "build": 5,
   "releaseDate": "2026-10-07",
-  "title": "Rilis v1.0.3 (Bilah Tombol Proporsional Grid 2 Kolom HP & Anti-Inversi)",
+  "title": "Rilis v1.0.4 (Perapihan Studio Caption Humas & Grid Kanal Distribusi HP)",
   "changelog": [
-    "Penyusunan proporsional bilah tombol aksi HP ke dalam grid 2-kolom simetris (50% / 50%)",
-    "Restorasi visibilitas tombol Database Supabase & Sinkronkan dengan kontras tinggi",
-    "Pencegahan inversi teks hitam di mode paksa gelap Chrome/Xiaomi (forced-color-adjust: none)",
-    "Peningkatan ketajaman tanggal acuan dan tombol Hari Ini pada tampilan mobile"
+    "Penyusunan tombol kategori template Humas ke dalam grid 2-kolom simetris di HP dan flex row di Desktop",
+    "Perbaikan struktur HTML & tata letak kartu Target Kanal Distribusi Postingan menjadi grid 2-kolom rapi",
+    "Penyesuaian bilah switch mode format salin sosial media dengan scroll halus tanpa wrapping teks",
+    "Pemeliharaan kelas layout saat pergantian kategori dinamis aktif/inaktif"
   ]
 }
