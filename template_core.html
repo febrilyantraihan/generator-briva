@@ -33,6 +33,28 @@
     window.lucide = window.lucide || {
       createIcons: function() {}
     };
+    // FAST LUXURY PRELOADER DISMISS CONTROLLER (Instant 0.4s Soft Transition)
+    window.dismissAppPreloader = function() {
+      var p = document.getElementById('appGlobalPreloader');
+      if (!p || p.dataset.dismissed) return;
+      p.dataset.dismissed = 'true';
+      p.style.opacity = '0';
+      p.style.pointerEvents = 'none';
+      setTimeout(function() {
+        if (p && p.parentNode) p.parentNode.removeChild(p);
+      }, 350);
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(window.dismissAppPreloader, 150);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(window.dismissAppPreloader, 150);
+      });
+    }
+    // Hard ceiling: Preloader will never show longer than 550ms
+    setTimeout(window.dismissAppPreloader, 550);
+
     // Registrasi cepat Service Worker agar kriteria instalasi PWA di Android langsung terpenuhi
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function() {});
@@ -31700,6 +31722,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -41489,7 +41512,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
       } catch (e) {}
 
       // Retry ikon bertahap & dismiss luxury preloader secara lembut
-      setTimeout(() => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 350);
+      setTimeout(() => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 100);
       setTimeout(safeCreateIcons, 800);
       setTimeout(safeCreateIcons, 2000);
     }
@@ -41499,9 +41522,9 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
     } else {
       initializeApp();
     }
-    window.addEventListener('load', () => { safeCreateIcons(); setTimeout(() => { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 200); });
+    window.addEventListener('load', () => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); });
     // Emergency safety fallback: Preloader dismiss within 1.8s
-    setTimeout(function() { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 1800);
+    setTimeout(function() { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 550);
   </script>
 </body>
 </html>
