@@ -4,7 +4,7 @@
  * Fitur: Semantic Versioning, In-App Auto-Update & 100% Offline Capability
  */
 
-const APP_VERSION = '1.0.5';
+const APP_VERSION = '1.0.6';
 const CACHE_NAME = `partner-fatih-v${APP_VERSION}`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
@@ -21,9 +21,9 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './mascot.png',
   './css/main.css',
-  './css/main.css?v=1.0.5',
+  './css/main.css?v=1.0.6',
   './js/app.bundle.js',
-  './js/app.bundle.js?v=1.0.5',
+  './js/app.bundle.js?v=1.0.6',
   './js/vendor/tailwindcss.js',
   './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
