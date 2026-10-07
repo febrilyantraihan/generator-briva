@@ -4,7 +4,7 @@
  * Fitur: Semantic Versioning, In-App Auto-Update & 100% Offline Capability
  */
 
-const APP_VERSION = '1.0.6.2';
+const APP_VERSION = '1.0.6.3';
 const CACHE_NAME = `partner-fatih-v${APP_VERSION}`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
@@ -75,30 +75,42 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // --- A. NAVIGASI HALAMAN UTAMA (index.html): NETWORK-FIRST DENGAN OFFLINE FALLBACK ---
+  // --- A. NAVIGASI HALAMAN UTAMA (index.html): INSTANT CACHE-FIRST DENGAN BACKGROUND REVALIDATE ---
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).then(networkResponse => {
-        if (networkResponse && networkResponse.status === 200) {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(request, clone);
-            cache.put('./index.html', clone.clone());
-            cache.put('./', clone.clone());
-          });
-        }
-        return networkResponse;
-      }).catch(async () => {
-        // Mode Offline: Sajikan dari cache lokal
+      (async () => {
+        // Cek cache lokal terlebih dahulu (Respon Instan 0ms)
         const cached = (await caches.match('./index.html')) || 
                        (await caches.match('./')) || 
                        (await caches.match(request));
-        if (cached) return cached;
+
+        // Revalidate di background tanpa menghambat pembukaan aplikasi
+        const fetchPromise = fetch(request).then(async networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, clone);
+            await cache.put('./index.html', clone.clone());
+            await cache.put('./', clone.clone());
+          }
+          return networkResponse;
+        }).catch(() => null);
+
+        // Jika sudah tersimpan di cache HP, sajikan INSTAN tanpa menunggu jaringan
+        if (cached) {
+          return cached;
+        }
+
+        // Jika belum ada di cache (akses perdana), tunggu jaringan
+        const networkResponse = await fetchPromise;
+        if (networkResponse) return networkResponse;
+
+        // Fallback offline
         return new Response(
           '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Partner Fatih - Offline</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:sans-serif;text-align:center;padding:40px;background:#0f172a;color:#fff;"><h2>Mode Offline</h2><p>Buka aplikasi ini sekali saat tersambung internet untuk memuat seluruh sistem offline.</p></body></html>',
           { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
         );
-      })
+      })()
     );
     return;
   }
