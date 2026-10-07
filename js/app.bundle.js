@@ -26987,6 +26987,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -36794,7 +36795,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
       } catch (e) {}
 
       // Retry ikon bertahap & dismiss luxury preloader secara lembut
-      setTimeout(() => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 350);
+      setTimeout(() => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 100);
       setTimeout(safeCreateIcons, 800);
       setTimeout(safeCreateIcons, 2000);
     }
@@ -36804,6 +36805,6 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
     } else {
       initializeApp();
     }
-    window.addEventListener('load', () => { safeCreateIcons(); setTimeout(() => { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 200); });
+    window.addEventListener('load', () => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); });
     // Emergency safety fallback: Preloader dismiss within 1.8s
-    setTimeout(function() { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 1800);
+    setTimeout(function() { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 550);
