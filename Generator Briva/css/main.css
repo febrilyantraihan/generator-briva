@@ -1,47 +1,27 @@
-﻿/* ==========================================================================
-   DEFENSIVE SHIELD: NATIVE CORE UTILITY FALLBACK (ZERO-FOUC & ANTI-OVERFLOW)
-   ========================================================================== */
-.hidden {
-  display: none !important;
-}
+﻿    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
 
-img, video, canvas, svg {
-  max-width: 100%;
-  height: auto;
-}
-
-img[src*="mascot"],
-.brand-mascot-img {
-  max-width: 100%;
-  height: auto;
-  object-fit: cover;
-}
-
-#floatingDockNav {
-  display: none !important;
-}
-@media (min-width: 640px) {
-  #floatingDockNav {
-    display: flex !important;
-  }
-}
-
-#floatingDockNav img,
-#appSidebar img,
-#canvasHeader img {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 48px !important;
-  max-height: 48px !important;
-}
-
-#appSidebar {
-  pointer-events: none;
-}
-#appSidebar.active,
-#appSidebar:not(.-translate-x-full) {
-  pointer-events: auto;
-}
+    /* Hide scrollbar for horizontal swipe on mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
 
     /* ==========================================================================
        MODERN MOBILE DRAWER STYLES (APP SIDEBAR)
@@ -120,31 +100,6 @@ img[src*="mascot"],
       transform: translateX(2px) !important;
     }
 
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-
-    /* Hide scrollbar for horizontal swipe on mobile */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
     /* Active Tab Highlight in Legacy Sidebar (Ontrack Style Minimalist White Pill) */
     :not(.drawer-nav-item).sidebar-active {
       background-color: #ffffff !important;
@@ -193,6 +148,9 @@ img[src*="mascot"],
     /* Pastikan seluruh elemen memakai Plus Jakarta Sans / Poppins (100% Sans-Serif Murni Tanpa Model Serifa) */
     *, html, body, button, input, select, textarea, table, td, th, kbd, code, pre, .font-mono, [class*="font-mono"] {
       font-family: 'Plus Jakarta Sans', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     /* Optimasi Angka: 0 bulat halus terbuka, bebas serifa mesin tik, rapi dan modern */
@@ -486,13 +444,13 @@ img[src*="mascot"],
     html:not(.dark) .text-slate-900 {
       color: #0f172a !important;
     }
-    html:not(.dark) #appSidebar button:not(.sidebar-active) {
-      color: #334155 !important;
-      font-weight: 600 !important;
+    html:not(.dark) #appSidebar .drawer-nav-item:not(.sidebar-active) {
+      background: rgba(255, 255, 255, 0.75) !important;
+      border-color: rgba(226, 232, 240, 0.9) !important;
     }
-    html:not(.dark) #appSidebar button:not(.sidebar-active):hover {
-      color: #0f172a !important;
-      background-color: #e2e8f0 !important;
+    html:not(.dark) #appSidebar .drawer-nav-item:not(.sidebar-active):hover {
+      background: #ffffff !important;
+      border-color: rgba(203, 213, 225, 1) !important;
     }
 
     /* ==========================================================================
@@ -570,54 +528,18 @@ img[src*="mascot"],
       color: #ffffff !important;
       border-color: rgba(71, 85, 105, 0.6) !important;
     }
-    /* Modern Luxury Mobile Drawer Navigation Styling */
-    #sidebarMenuNav .drawer-nav-item {
-      position: relative;
-      border-radius: 1rem;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #sidebarMenuNav .drawer-nav-item > div:first-child,
-    #sidebarMenuNav .drawer-nav-item > div:first-child > div:last-child {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-    html:not(.dark) #sidebarMenuNav .drawer-nav-item:not(.sidebar-active) {
-      background: rgba(255, 255, 255, 0.8) !important;
-      border: 1px solid rgba(226, 232, 240, 0.9) !important;
-    }
-    html:not(.dark) #sidebarMenuNav .drawer-nav-item:not(.sidebar-active):hover {
-      background: #ffffff !important;
-      border-color: rgba(203, 213, 225, 1) !important;
-    }
-    html.dark #sidebarMenuNav .drawer-nav-item:not(.sidebar-active) {
+    html.dark #appSidebar .drawer-nav-item:not(.sidebar-active) {
       background: rgba(255, 255, 255, 0.03) !important;
-      border: 1px solid rgba(255, 255, 255, 0.07) !important;
+      border-color: rgba(255, 255, 255, 0.07) !important;
     }
-    html.dark #sidebarMenuNav .drawer-nav-item:not(.sidebar-active):hover {
+    html.dark #appSidebar .drawer-nav-item:not(.sidebar-active):hover {
       background: rgba(255, 255, 255, 0.08) !important;
-      border-color: rgba(255, 255, 255, 0.16) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
     }
-    #sidebarMenuNav .drawer-nav-item.sidebar-active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(20, 184, 166, 0.08) 100%) !important;
-      border: 1px solid rgba(16, 185, 129, 0.5) !important;
-      box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.2) !important;
-    }
-    html.dark #sidebarMenuNav .drawer-nav-item.sidebar-active {
+    html.dark #appSidebar .drawer-nav-item.sidebar-active {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(20, 184, 166, 0.1) 100%) !important;
-      border: 1px solid rgba(52, 211, 153, 0.55) !important;
+      border-color: rgba(52, 211, 153, 0.45) !important;
       box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.3) !important;
-    }
-    html.dark #appSidebar [onclick*="switchPpdbSubtab"],
-    html.dark #appSidebar [onclick*="presetConverter"],
-    html.dark #appSidebar [onclick*="switchTab"] {
-      color: #cbd5e1 !important;
-    }
-    html.dark #appSidebar [onclick*="switchPpdbSubtab"]:hover,
-    html.dark #appSidebar [onclick*="presetConverter"]:hover,
-    html.dark #appSidebar [onclick*="switchTab"]:hover {
-      background: #1e293b !important;
-      color: #ffffff !important;
     }
 
     /* 4. WORKSPACE UTAMA & KARTU METRIK HERO */
@@ -1309,26 +1231,22 @@ img[src*="mascot"],
     }
 
     /* Top Room / Category Navigation Pills - Luxury Amber-BRIVA Glassmorphism */
-    /* Top Room / Category Navigation Pills - Ultra-Luxury Segmented Glassmorphism */
+    /* Top Room / Category Navigation Pills - Ultra-Clean Luxury Segmented Glassmorphism */
     .room-pill-active {
-      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important;
+      background: linear-gradient(135deg, #ea580c 0%, #d97706 100%) !important;
       color: #ffffff !important;
-      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 700 !important;
-      border-radius: 0.85rem !important;
-      box-shadow: 0 4px 16px -2px rgba(245, 158, 11, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
-      border: 1px solid rgba(255, 255, 255, 0.35) !important;
-      letter-spacing: -0.01em !important;
+      border-radius: 0.75rem !important;
+      box-shadow: 0 2px 10px -1px rgba(234, 88, 12, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
     }
     html.dark .room-pill-active {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.8) 100%) !important;
+      background: linear-gradient(135deg, rgba(234, 88, 12, 0.6) 0%, rgba(217, 119, 6, 0.45) 100%) !important;
       color: #ffffff !important;
-      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 700 !important;
-      border-radius: 0.85rem !important;
-      box-shadow: 0 4px 18px -2px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
-      border: 1px solid rgba(251, 191, 36, 0.55) !important;
-      letter-spacing: -0.01em !important;
+      border-radius: 0.75rem !important;
+      box-shadow: 0 2px 12px -1px rgba(249, 115, 22, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+      border: 1.5px solid rgba(251, 146, 60, 0.5) !important;
     }
     /* Room Pill Badges with Crisp Contrast */
     .room-pill-badge-emerald {
@@ -1348,53 +1266,35 @@ img[src*="mascot"],
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
     }
     html.dark .room-pill-active .room-pill-badge-emerald {
-      background-color: rgba(255, 255, 255, 0.18) !important;
-      color: #fef3c7 !important;
-      border: 1px solid rgba(251, 191, 36, 0.4) !important;
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      color: #fed7aa !important;
+      border: 1px solid rgba(251, 146, 60, 0.35) !important;
     }
     .room-pill-inactive {
       background-color: transparent !important;
       color: #64748b !important;
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 600 !important;
-      border-radius: 0.85rem !important;
+      border-radius: 0.75rem !important;
       border: 1px solid transparent !important;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     html.dark .room-pill-inactive {
       background-color: transparent !important;
       color: #94a3b8 !important;
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
       font-weight: 600 !important;
-      border-radius: 0.85rem !important;
+      border-radius: 0.75rem !important;
       border: 1px solid transparent !important;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     .room-pill-inactive:hover {
-      background-color: rgba(255, 255, 255, 0.9) !important;
+      background-color: rgba(255, 255, 255, 0.85) !important;
       color: #0f172a !important;
-      border-color: rgba(226, 232, 240, 0.9) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-      transform: translateY(-1px);
+      border-color: rgba(226, 232, 240, 0.8) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
     }
     html.dark .room-pill-inactive:hover {
       background-color: rgba(255, 255, 255, 0.08) !important;
       color: #f8fafc !important;
       border-color: rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
-      transform: translateY(-1px);
-    }
-
-    /* Ultra-Clean Typography Utilities */
-    .font-display {
-      font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
-    }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace !important;
-      font-variant-numeric: tabular-nums lining-nums !important;
-    }
-    .tabular-nums {
-      font-variant-numeric: tabular-nums lining-nums !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
     }
 
     /* 10. WHATSAPP WEB AUTHENTIC PREVIEW SYSTEM */
@@ -2066,6 +1966,7 @@ img[src*="mascot"],
       --bnav-bar-shadow: 0 -4px 20px rgba(15, 23, 42, 0.05);
       --bnav-cutout-bg: #f8fafc;
       --bnav-active-circle: #059669;
+      --bnav-active-circle: #059669;
       --bnav-active-circle-shadow: 0 6px 18px rgba(5, 150, 105, 0.38);
       --bnav-active-content: #ffffff;
       --bnav-active-label: #059669;
@@ -2646,310 +2547,90 @@ img[src*="mascot"],
     #accTableBody * {
       border-radius: 0px !important;
     }
-
-    /* ==========================================================================
-       AI VISION PHOTO ATTENDANCE SCANNER ANIMATIONS
-       ========================================================================== */
-    @keyframes aiScanLaserAnim {
-      0% { top: 0%; opacity: 0.85; }
-      50% { top: 96%; opacity: 1; }
-      100% { top: 0%; opacity: 0.85; }
+    /* ============================================================== */
+    /* CRITICAL ANTI-FOUC & LUXURY NATIVE PRELOADER BASELINE          */
+    /* ============================================================== */
+    #appGlobalPreloader {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0b0f19;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+      will-change: opacity;
+      pointer-events: all;
     }
-    .ai-scanner-laser {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent 0%, #f43f5e 20%, #ec4899 50%, #8b5cf6 80%, transparent 100%);
-      box-shadow: 0 0 15px rgba(244, 63, 94, 0.85), 0 0 30px rgba(139, 92, 246, 0.65);
-      animation: aiScanLaserAnim 2.4s ease-in-out infinite;
-      z-index: 25;
-      pointer-events: none;
+    @keyframes preloaderPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(16,185,129,0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(16,185,129,0.6); }
     }
-    .ai-radar-glow {
-      box-shadow: 0 0 30px -5px rgba(225, 29, 72, 0.35), 0 0 15px -2px rgba(99, 102, 241, 0.3);
+    @keyframes preloaderShimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
 
-/* ==========================================================================
-   JURNAL MENGAJAR SHARP MODERN SUB-NAV (TIDAK ROUNDED)
-   ========================================================================== */
-#jurnalSubNavContainer,
-#jurnalSubNavContainer *,
-.jurnal-subnav-btn,
-.jurnal-subnav-bar {
-  border-radius: 0px !important;
-}
+    /* Off-screen protection for Drawer and Sticky Bar before Tailwind evaluates */
+    #appSidebar {
+      position: fixed !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      transform: translateX(-100%) !important;
+      display: flex !important;
+      z-index: 50 !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #appSidebar.translate-x-0 {
+      transform: translateX(0) !important;
+    }
+    #appSidebar.-translate-x-full {
+      transform: translateX(-100%) !important;
+    }
+    #drawerBackdrop {
+      display: none !important;
+    }
+    #drawerBackdrop.backdrop-active,
+    #drawerBackdrop.drawer-active {
+      display: block !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    #mobileStickyActionBar {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: translateY(6rem) !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+    #mobileStickyActionBar.show-bar {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateY(0) !important;
+    }
 
-.jurnal-subnav-bar {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-html.dark .jurnal-subnav-bar {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-.jurnal-subnav-btn {
-  position: relative;
-  border-radius: 0px !important;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-}
-
-.jurnal-subnav-btn:hover:not(.active) {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-}
-
-.jurnal-subnav-btn.active {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
-}
-
-/* Crisp bottom indicator bar on active tab */
-.jurnal-subnav-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #fbbf24;
-  box-shadow: 0 1px 3px rgba(251, 191, 36, 0.6);
-}
-
-/* Active icon turns clean crisp white */
-.jurnal-subnav-btn.active i,
-.jurnal-subnav-btn.active svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-/* ==========================================================================
-   CBT HIGH-CONTRAST & ULTRA-CRISP TYPOGRAPHY
-   ========================================================================== */
-#cbtOptionsList input[type="text"],
-#cbtStemInput,
-#cbtBulkTextInput {
-  padding-left: 14px !important;
-  padding-right: 14px !important;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
-  font-size: 15px !important;
-  line-height: 1.6 !important;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-  font-weight: 700 !important;
-  color: #020617 !important;
-  letter-spacing: 0.015em !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
-}
-
-html.dark #cbtOptionsList input[type="text"],
-html.dark #cbtStemInput,
-html.dark #cbtBulkTextInput {
-  color: #ffffff !important;
-}
-
-#cbtQuestionGrid button span {
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
-}
-
-/* ==========================================================================
-   FLOATING GLASS DOCK (PERFECT PROPORTIONAL CALIBRATION)
-   ========================================================================== */
-#floatingDockNav {
-  display: none !important;
-  overscroll-behavior: contain;
-}
-@media (min-width: 640px) {
-  #floatingDockNav {
-    display: flex !important;
-  }
-}
-
-#dockNavIcons {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  justify-content: space-evenly !important;
-}
-#dockNavIcons::-webkit-scrollbar {
-  display: none !important;
-}
-
-.dock-item {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-.dock-item svg {
-  transition: transform 0.2s ease;
-  display: block;
-}
-.dock-item:hover svg {
-  transform: scale(1.14);
-}
-.dock-item-active {
-  background-color: rgba(255, 255, 255, 0.22) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-}
-
-/* Sizing calibration based on viewport height */
-/* 1. Short screens / laptop 768p */
-@media (max-height: 750px) and (min-width: 640px) {
-  #floatingDockNav {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-  }
-  .dock-item {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 9px !important;
-  }
-  .dock-item svg {
-    width: 15px !important;
-    height: 15px !important;
-  }
-}
-
-/* 2. Medium screens (751px - 879px) */
-@media (min-height: 751px) and (max-height: 879px) and (min-width: 640px) {
-  #floatingDockNav {
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-  }
-  .dock-item {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 11px !important;
-  }
-  .dock-item svg {
-    width: 17px !important;
-    height: 17px !important;
-  }
-}
-
-/* 3. Full HD Desktop (>= 880px height - Matching 1080p Desktop) */
-@media (min-height: 880px) and (min-width: 640px) {
-  #floatingDockNav {
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-  }
-  .dock-item {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 12px !important;
-  }
-  .dock-item svg {
-    width: 20px !important;
-    height: 20px !important;
-  }
-}
-
-/* ==========================================================================
-   ANTI-INVERSION DEFENSIVE CONTRAST SHIELD (XIAOMI/CHROME FORCE-DARK FIX)
-   ========================================================================== */
-html:not(.dark) {
-  color-scheme: only light !important;
-  forced-color-adjust: none !important;
-}
-html.dark {
-  color-scheme: only dark !important;
-  forced-color-adjust: none !important;
-}
-
-/* 1. Light Mode Strict Protection */
-html:not(.dark) #tab-humas > div,
-html:not(.dark) #tab-humas .bg-white,
-html:not(.dark) #tab-humas [class*="bg-white"],
-html:not(.dark) #humasTaskTrackerSection {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-html:not(.dark) #tab-humas h3:not(.text-white):not([class*="text-white"]),
-html:not(.dark) #tab-humas h4:not(.text-white):not([class*="text-white"]),
-html:not(.dark) #tab-humas .text-slate-900 {
-  color: #0f172a !important;
-}
-html:not(.dark) #tab-humas p,
-html:not(.dark) #tab-humas .text-slate-500,
-html:not(.dark) #tab-humas .text-slate-600 {
-  color: #475569 !important;
-}
-html:not(.dark) #btnHumasBulkImport {
-  background-color: #f0fdf4 !important;
-  color: #166534 !important;
-  border-color: #86efac !important;
-}
-html:not(.dark) #btnHumasBulkImport i,
-html:not(.dark) #btnHumasBulkImport [data-lucide] {
-  color: #16a34a !important;
-}
-html:not(.dark) #btnHumasSupabase {
-  background-color: #ecfeff !important;
-  color: #155e75 !important;
-  border-color: #67e8f9 !important;
-}
-html:not(.dark) #btnHumasSyncCloud {
-  background-color: #eef2ff !important;
-  color: #3730a3 !important;
-  border-color: #a5b4fc !important;
-}
-
-/* 2. Dark Mode Strict Protection */
-html.dark #tab-humas > div,
-html.dark #tab-humas .dark\:bg-slate-900,
-html.dark #tab-humas [class*="dark:bg-slate-900"],
-html.dark #humasTaskTrackerSection {
-  background-color: #0f172a !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: #f8fafc !important;
-}
-html.dark #tab-humas h3,
-html.dark #tab-humas h4,
-html.dark #tab-humas .dark\:text-white {
-  color: #ffffff !important;
-}
-html.dark #tab-humas p,
-html.dark #tab-humas .dark\:text-slate-300,
-html.dark #tab-humas .dark\:text-slate-400 {
-  color: #94a3b8 !important;
-}
-html.dark #btnHumasBulkImport {
-  background-color: rgba(6, 78, 59, 0.4) !important;
-  color: #a7f3d0 !important;
-  border-color: rgba(16, 185, 129, 0.4) !important;
-}
-html.dark #btnHumasBulkImport i,
-html.dark #btnHumasBulkImport [data-lucide] {
-  color: #34d399 !important;
-}
-html.dark #btnHumasSupabase {
-  background-color: rgba(8, 51, 68, 0.6) !important;
-  color: #a5f3fc !important;
-  border-color: rgba(6, 182, 212, 0.5) !important;
-}
-html.dark #btnHumasSyncCloud {
-  background-color: rgba(49, 46, 129, 0.6) !important;
-  color: #c7d2fe !important;
-  border-color: rgba(99, 102, 241, 0.5) !important;
-}
-
-/* 3. Strict White High-Contrast Protection for Dark Cards & Voice Search */
-#tab-humas .voice-search-card,
-#tab-humas .voice-search-card h4,
-#tab-humas .voice-search-card h4 span,
-#tab-humas [class*="from-indigo-900"] h4,
-#tab-humas [class*="from-indigo-900"] h4 span {
-  color: #ffffff !important;
-}
+    /* Strict icon constraints before Lucide & Tailwind evaluate */
+    [data-lucide], svg.lucide {
+      width: 1.25rem !important;
+      height: 1.25rem !important;
+      max-width: 1.25rem !important;
+      max-height: 1.25rem !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+      flex-shrink: 0 !important;
+    }
+    .drawer-chevron, .drawer-chevron svg {
+      width: 1rem !important;
+      height: 1rem !important;
+      max-width: 1rem !important;
+      max-height: 1rem !important;
+    }
+    .drawer-icon-box svg, .drawer-icon-box [data-lucide] {
+      width: 1rem !important;
+      height: 1rem !important;
+      max-width: 1rem !important;
+      max-height: 1rem !important;
+    }
