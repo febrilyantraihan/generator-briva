@@ -28,7 +28,9 @@ const PRECACHE_ASSETS = [
   './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
   './js/vendor/xlsx.full.min.js',
-  './js/vendor/pptxgen.bundle.js'
+  './js/vendor/pptxgen.bundle.js',
+  './screenshot-mobile.png',
+  './screenshot-desktop.png'
 ];
 
 // 1. INSTALL EVENT: Pre-cache aset & langsung lewati masa tunggu (Skip Waiting)
