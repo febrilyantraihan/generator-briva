@@ -338,6 +338,137 @@
                 </button>
               </div>
 
+              <!-- ============================================================== -->
+              <!-- 1.25. LIVE TEACHING COUNTDOWN TIMER (FORMAL MTs & DINIYAH)     -->
+              <!-- Menghitung Mundur: 1. Akan Masuk Mengajar  2. Sedang Mengajar Selesai -->
+              <!-- ============================================================== -->
+              <div id="jurnalTeachingLiveTimerCard" class="relative overflow-hidden rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white p-3.5 sm:p-5 shadow-lg shadow-indigo-500/10 transition-all duration-300 space-y-3 sm:space-y-3.5">
+                <!-- Decorative Glow Shapes -->
+                <div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-rose-500/15 blur-2xl pointer-events-none"></div>
+                <div class="absolute -bottom-16 -left-16 w-44 h-44 rounded-full bg-cyan-500/15 blur-2xl pointer-events-none"></div>
+
+                <!-- 1. Header Bar: Status Badge, Unit Badge & Live Digital Clock -->
+                <div class="relative z-10 flex items-center justify-between gap-2 pb-2.5 border-b border-white/10 flex-wrap">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <div id="teachingTimerPulseDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></div>
+                    <span id="teachingTimerStatusBadge" class="text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 tracking-wider flex items-center gap-1.5 shadow-xs">
+                      <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                      <span id="teachingTimerStatusText">Memeriksa Jadwal Mengajar...</span>
+                    </span>
+                    <span id="teachingTimerUnitBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20 flex-shrink-0">
+                      Semua Unit
+                    </span>
+                  </div>
+
+                  <!-- Live Clock Text (Visible on both Mobile & Desktop) -->
+                  <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <span id="teachingTimerCurrentClock" class="font-mono text-[11px] sm:text-xs font-black tracking-wider text-slate-200 bg-white/10 px-2 py-0.5 rounded-lg border border-white/10">--:--:-- WIB</span>
+                  </div>
+                </div>
+
+                <!-- 2. Controls Toolbar (Unit Switch, Simulator, Ubah Jam & Mute Bell) in Neat Grid -->
+                <div class="relative z-10 flex items-center gap-1.5 sm:gap-2">
+                  <!-- Unit Filter Selector -->
+                  <div class="flex-1 min-w-0">
+                    <select id="teachingTimerUnitFilter" onchange="setTeachingTimerUnitFilter(this.value)" class="w-full text-[11px] font-bold bg-white/10 dark:bg-slate-800 border border-white/20 rounded-xl px-2.5 py-1.5 text-white outline-none cursor-pointer hover:bg-white/15 transition-all truncate">
+                      <option value="auto" class="bg-slate-900 text-white">🔄 Auto (Semua Unit)</option>
+                      <option value="formal" class="bg-slate-900 text-white">🏫 Formal MTs (Prakarya)</option>
+                      <option value="nonformal" class="bg-slate-900 text-white">📖 Diniyah (Safinah)</option>
+                    </select>
+                  </div>
+
+                  <!-- Simulator Mode Dropdown -->
+                  <div class="flex-1 min-w-0">
+                    <select id="teachingTimerSimSelect" onchange="applyTeachingTimerSimulation(this.value)" class="w-full text-[11px] font-semibold bg-white/5 border border-white/15 rounded-xl px-2 py-1.5 text-slate-300 hover:text-white outline-none cursor-pointer truncate" title="Uji Simulasi Tampilan Timer">
+                      <option value="live" class="bg-slate-900 text-white">⏱️ Waktu Nyata (Live)</option>
+                      <option value="sim_upcoming" class="bg-slate-900 text-white">🧪 Tes: 15m Mau Masuk</option>
+                      <option value="sim_active" class="bg-slate-900 text-white">🧪 Tes: Sedang Mengajar</option>
+                      <option value="sim_ending" class="bg-slate-900 text-white">🧪 Tes: 5m Mau Selesai</option>
+                    </select>
+                  </div>
+
+                  <!-- Button Ubah Jam Mengajar -->
+                  <button type="button" onclick="openManageJadwalModal()" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-extrabold text-[11px] shadow-sm flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 flex-shrink-0" title="Ubah atau Sesuaikan Jam Mengajar">
+                    <i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Ubah Jam</span>
+                  </button>
+
+                  <!-- Audio Chime Toggle Button -->
+                  <button type="button" id="btnTeachingTimerAudioToggle" onclick="toggleTeachingTimerSound()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer flex-shrink-0" title="Bunyi Pengingat Sesi">
+                    <i data-lucide="bell" class="w-4 h-4" id="teachingTimerAudioIcon"></i>
+                  </button>
+                </div>
+
+                <!-- 3. Countdown Digits Display (Centered & Spatially Generous) -->
+                <div class="relative z-10 py-1 flex flex-col items-center justify-center">
+                  <div class="flex items-center justify-center gap-2 sm:gap-3">
+                    <!-- Box Jam -->
+                    <div class="flex flex-col items-center">
+                      <div id="timerDigitHours" class="w-14 sm:w-20 h-14 sm:h-18 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-mono font-black text-2xl sm:text-4xl tracking-tight text-white shadow-inner">
+                        00
+                      </div>
+                      <span class="text-[9.5px] uppercase tracking-wider text-slate-400 font-extrabold mt-1">Jam</span>
+                    </div>
+
+                    <span class="text-2xl sm:text-3xl font-black text-slate-400 mb-4 animate-pulse">:</span>
+
+                    <!-- Box Menit -->
+                    <div class="flex flex-col items-center">
+                      <div id="timerDigitMinutes" class="w-14 sm:w-20 h-14 sm:h-18 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-mono font-black text-2xl sm:text-4xl tracking-tight text-white shadow-inner">
+                        00
+                      </div>
+                      <span class="text-[9.5px] uppercase tracking-wider text-slate-400 font-extrabold mt-1">Menit</span>
+                    </div>
+
+                    <span class="text-2xl sm:text-3xl font-black text-slate-400 mb-4 animate-pulse">:</span>
+
+                    <!-- Box Detik -->
+                    <div class="flex flex-col items-center">
+                      <div id="timerDigitSeconds" class="w-14 sm:w-20 h-14 sm:h-18 rounded-2xl bg-rose-500/25 border border-rose-400/50 flex items-center justify-center font-mono font-black text-2xl sm:text-4xl tracking-tight text-rose-300 shadow-inner">
+                        00
+                      </div>
+                      <span class="text-[9.5px] uppercase tracking-wider text-rose-300 font-extrabold mt-1">Detik</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Session Information Card Panel (Full Width, NO TRUNCATE - Semua Tulisan Utuh) -->
+                <div class="relative z-10 p-3 sm:p-3.5 rounded-2xl bg-white/5 border border-white/10 text-center sm:text-left space-y-1 w-full box-border">
+                  <span id="teachingTimerTargetLabel" class="text-[11px] sm:text-xs font-bold text-slate-300 block leading-snug break-words">
+                    Hitung Mundur Waktu Mengajar
+                  </span>
+                  <h4 id="teachingTimerTargetHeadline" class="text-sm sm:text-base font-black text-white leading-snug break-words">
+                    Menyiapkan kalkulasi jadwal...
+                  </h4>
+                  <p id="teachingTimerTargetSub" class="text-xs text-slate-300/90 leading-relaxed break-words mt-0.5">
+                    Prakarya MTs • Safinatun Najah Diniyah
+                  </p>
+                </div>
+
+                <!-- 5. Action Buttons (2-Column Grid on Mobile, Full Width & Clickable) -->
+                <div class="relative z-10 grid grid-cols-2 gap-2 w-full" id="teachingTimerActionButtons">
+                  <button type="button" id="btnTimerOpenClass" onclick="openClassFromTimer()" class="w-full px-3 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-900 hover:bg-slate-100 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
+                    <i data-lucide="book-open" class="w-4 h-4 text-rose-600 flex-shrink-0"></i>
+                    <span id="labelTimerOpenClass" class="truncate">Buka Kelas Ini</span>
+                  </button>
+                  <button type="button" id="btnTimerOpenPresensi" onclick="openPresensiFromTimer()" class="w-full px-3 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
+                    <i data-lucide="check-check" class="w-4 h-4 flex-shrink-0"></i>
+                    <span class="truncate">Presensi Siswa</span>
+                  </button>
+                </div>
+
+                <!-- 6. Bottom Progress Bar (Active Session / Info Alert) -->
+                <div class="relative z-10 pt-2 border-t border-white/10">
+                  <div class="flex items-center justify-between text-[10.5px] text-slate-300 font-medium mb-1.5 flex-wrap gap-1">
+                    <span id="teachingTimerProgressLabel" class="break-words">Status Sesi Mengajar</span>
+                    <span id="teachingTimerProgressValue" class="font-mono font-bold text-white flex-shrink-0">0%</span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div id="teachingTimerProgressBar" class="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 transition-all duration-500" style="width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Promo / Announcement Carousel (Persis Screenshot 3) -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <!-- Card Promo 1: Jurnal Mengajar Merah -->
@@ -2130,6 +2261,181 @@
                   Tutup
                 </button>
               </div>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- MODAL ATUR & SESUAIKAN JAM MENGAJAR (FLEXIBLE SCHEDULE EDITOR) -->
+          <!-- ============================================================== -->
+          <div id="modalManageJadwalMengajar" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 hidden select-none animate-in fade-in duration-200">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
+              
+              <!-- Modal Header -->
+              <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-rose-50 via-white to-amber-50 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-600 text-white flex items-center justify-center shadow-md shadow-rose-500/20 flex-shrink-0">
+                    <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                      Penyesuaian Waktu Mengajar
+                      <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">Live Sync</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                      Ubah jam mulai/selesai, hari, atau kelas jika ada penyesuaian waktu belajar madrasah.
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onclick="closeManageJadwalModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all cursor-pointer flex-shrink-0" title="Tutup">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Filter Bar & Action Header -->
+              <div class="p-3 sm:px-5 sm:py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap flex-shrink-0">
+                <!-- Unit Tabs Filter -->
+                <div class="flex items-center gap-1 bg-slate-200/70 dark:bg-slate-800 p-1 rounded-xl">
+                  <button type="button" id="tabBtnJadwalFilterAll" onclick="setModalJadwalFilter('all')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs">
+                    Semua
+                  </button>
+                  <button type="button" id="tabBtnJadwalFilterFormal" onclick="setModalJadwalFilter('formal')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                    Formal MTs
+                  </button>
+                  <button type="button" id="tabBtnJadwalFilterNonformal" onclick="setModalJadwalFilter('nonformal')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                    Diniyah
+                  </button>
+                </div>
+
+                <!-- Action Buttons: Tambah & Reset -->
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                  <button type="button" onclick="resetJadwalToDefault()" class="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all" title="Kembalikan semua jadwal ke template resmi awal">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Reset Default</span>
+                  </button>
+                  <button type="button" onclick="openJadwalAddForm()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold flex items-center gap-1.5 shadow-sm shadow-rose-500/20 cursor-pointer transition-all active:scale-95">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Tambah Jadwal</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Modal Scrollable Content -->
+              <div class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4">
+
+                <!-- Form Editor (Hidden by default, shown when Add / Edit clicked) -->
+                <div id="formEditorJadwalContainer" class="hidden p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700/60 space-y-3.5 animate-in fade-in duration-200">
+                  <div class="flex items-center justify-between pb-2 border-b border-amber-200 dark:border-amber-800/60">
+                    <h4 id="formEditorJadwalTitle" class="text-xs sm:text-sm font-black text-amber-900 dark:text-amber-200 flex items-center gap-2">
+                      <i data-lucide="edit-3" class="w-4 h-4 text-amber-600"></i>
+                      <span>Edit Jam Mengajar</span>
+                    </h4>
+                    <button type="button" onclick="cancelJadwalEditForm()" class="text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                      Tutup Form &times;
+                    </button>
+                  </div>
+
+                  <input type="hidden" id="inputJadwalEditId" value="" />
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Satuan Unit -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Satuan Unit</label>
+                      <select id="inputJadwalUnit" onchange="onJadwalUnitChange(this.value)" class="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500">
+                        <option value="formal">Formal MTs</option>
+                        <option value="nonformal">Non-Formal Diniyah</option>
+                      </select>
+                    </div>
+
+                    <!-- Hari -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Hari Pelajaran</label>
+                      <select id="inputJadwalDay" class="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500">
+                        <option value="Ahad">Ahad (Minggu)</option>
+                        <option value="Senin">Senin</option>
+                        <option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option>
+                        <option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Sabtu">Sabtu</option>
+                      </select>
+                    </div>
+
+                    <!-- Kelas -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Kelas</label>
+                      <input type="text" id="inputJadwalClassId" placeholder="Contoh: 7A, 8C, 1UlaA" class="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500" />
+                    </div>
+
+                    <!-- Mata Pelajaran -->
+                    <div class="sm:col-span-2">
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Mata Pelajaran</label>
+                      <input type="text" id="inputJadwalSubject" placeholder="Contoh: Prakarya (Kode 33) atau Safinatun Najah" class="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500" />
+                    </div>
+
+                    <!-- Ruangan -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Ruangan / Tempat</label>
+                      <input type="text" id="inputJadwalRoom" placeholder="Contoh: Ruang MTs 7A" class="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500" />
+                    </div>
+
+                    <!-- Jam Mulai -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Jam Mulai</label>
+                      <input type="time" id="inputJadwalStartTime" value="07:00" class="w-full text-xs font-mono font-bold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500" />
+                    </div>
+
+                    <!-- Jam Selesai -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Jam Selesai</label>
+                      <input type="time" id="inputJadwalEndTime" value="08:30" class="w-full text-xs font-mono font-bold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500" />
+                    </div>
+
+                    <!-- Label Jam / Keterangan Sesi -->
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Label Sesi / Jam Ke- (Opsional)</label>
+                      <input type="text" id="inputJadwalHourLabel" placeholder="Contoh: Jam 1-2 atau Ba'da Maghrib" class="w-full text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white outline-none focus:border-amber-500" />
+                    </div>
+                  </div>
+
+                  <!-- Tombol Aksi Form -->
+                  <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="cancelJadwalEditForm()" class="px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold transition-all cursor-pointer">
+                      Batal
+                    </button>
+                    <button type="button" onclick="saveJadwalScheduleItem()" class="px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-amber-500/30 transition-all active:scale-95 cursor-pointer">
+                      <i data-lucide="check" class="w-4 h-4"></i>
+                      <span>Simpan Penyesuaian</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Info Help Banner -->
+                <div class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/40 text-[11px] text-indigo-900 dark:text-indigo-300 flex items-start gap-2.5">
+                  <i data-lucide="info" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5"></i>
+                  <div class="min-w-0">
+                    <span class="font-bold">Penyesuaian Waktu Fleksibel:</span>
+                    <span>Setiap jam yang Anda ubah akan langsung berlaku pada <strong>Live Teaching Countdown Timer</strong>, pengingat sesi hari ini, serta jadwal mengajar tanpa perlu memuat ulang halaman.</span>
+                  </div>
+                </div>
+
+                <!-- List Sesi Jadwal (Grouped & Filtered) -->
+                <div id="modalJadwalListContainer" class="space-y-2.5">
+                  <!-- Dynamic render via renderModalJadwalList() -->
+                </div>
+
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="p-3.5 sm:px-5 sm:py-3.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+                  <span>Tersimpan otomatis di penyimpanan lokal</span>
+                </span>
+                <button type="button" onclick="closeManageJadwalModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs cursor-pointer transition-all active:scale-95 shadow-sm">
+                  Selesai
+                </button>
+              </div>
+
             </div>
           </div>
 
