@@ -15503,7 +15503,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         // ==========================================================================
     // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
-    const CURRENT_APP_VERSION = '1.0.3';
+    const CURRENT_APP_VERSION = '1.0.6';
     window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
 
     let pendingSwRegistration = null;
@@ -26985,6 +26985,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -36694,6 +36696,21 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
 
 // MODULE: tab_ide.js
 
+    // --- LUXURY PRELOADER DISMISS CONTROLLER ---
+    window.dismissAppPreloader = function() {
+      const p = document.getElementById('appGlobalPreloader');
+      if (!p || p.dataset.dismissed) return;
+      p.dataset.dismissed = 'true';
+      requestAnimationFrame(() => {
+        p.style.opacity = '0';
+        p.style.pointerEvents = 'none';
+        setTimeout(() => {
+          p.style.display = 'none';
+          if (p.parentNode) p.parentNode.removeChild(p);
+        }, 450);
+      });
+    };
+
 
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
@@ -36776,8 +36793,8 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
         }
       } catch (e) {}
 
-      // Retry ikon bertahap khusus lingkungan Google Apps Script iframe
-      setTimeout(safeCreateIcons, 250);
+      // Retry ikon bertahap & dismiss luxury preloader secara lembut
+      setTimeout(() => { safeCreateIcons(); if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 350);
       setTimeout(safeCreateIcons, 800);
       setTimeout(safeCreateIcons, 2000);
     }
@@ -36787,4 +36804,6 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
     } else {
       initializeApp();
     }
-    window.addEventListener('load', safeCreateIcons);
+    window.addEventListener('load', () => { safeCreateIcons(); setTimeout(() => { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 200); });
+    // Emergency safety fallback: Preloader dismiss within 1.8s
+    setTimeout(function() { if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader(); }, 1800);
