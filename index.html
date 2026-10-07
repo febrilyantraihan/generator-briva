@@ -33,6 +33,28 @@
     window.lucide = window.lucide || {
       createIcons: function() {}
     };
+    // FAST LUXURY PRELOADER DISMISS CONTROLLER (Instant 0.4s Soft Transition)
+    window.dismissAppPreloader = function() {
+      var p = document.getElementById('appGlobalPreloader');
+      if (!p || p.dataset.dismissed) return;
+      p.dataset.dismissed = 'true';
+      p.style.opacity = '0';
+      p.style.pointerEvents = 'none';
+      setTimeout(function() {
+        if (p && p.parentNode) p.parentNode.removeChild(p);
+      }, 350);
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(window.dismissAppPreloader, 150);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(window.dismissAppPreloader, 150);
+      });
+    }
+    // Hard ceiling: Preloader will never show longer than 550ms
+    setTimeout(window.dismissAppPreloader, 550);
+
     // Registrasi cepat Service Worker agar kriteria instalasi PWA di Android langsung terpenuhi
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function() {});
