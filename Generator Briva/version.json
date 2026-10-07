@@ -1,12 +1,11 @@
 {
-  "version": "1.0.4",
-  "build": 5,
+  "version": "1.0.5",
+  "build": 6,
   "releaseDate": "2026-10-07",
-  "title": "Rilis v1.0.4 (Perapihan Studio Caption Humas & Grid Kanal Distribusi HP)",
+  "title": "Rilis v1.0.5 (Penyesuaian Warna Harmonis Impor Massal & Kontras Teks AI Voice)",
   "changelog": [
-    "Penyusunan tombol kategori template Humas ke dalam grid 2-kolom simetris di HP dan flex row di Desktop",
-    "Perbaikan struktur HTML & tata letak kartu Target Kanal Distribusi Postingan menjadi grid 2-kolom rapi",
-    "Penyesuaian bilah switch mode format salin sosial media dengan scroll halus tanpa wrapping teks",
-    "Pemeliharaan kelas layout saat pergantian kategori dinamis aktif/inaktif"
+    "Penyesuaian warna tombol Impor Massal menjadi Emerald Pastel elegan selaras dengan tema Excel dan bilah aksi",
+    "Restorasi warna teks judul Pencarian Cerdas & Filter Suara menjadi putih cerah kontras tinggi (100% terbaca)",
+    "Pembersihan selector font-black CSS yang sempat memaksa teks tombol dan kartu gelap menjadi hitam pekat"
   ]
 }
