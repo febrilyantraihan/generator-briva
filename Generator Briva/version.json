@@ -1,11 +1,11 @@
 {
   "version": "1.0.6",
-  "build": 7,
-  "releaseDate": "2026-10-07",
-  "title": "Rilis v1.0.6 (Live Teaching Countdown Timer & Penyesuaian Waktu Mengajar Fleksibel)",
+  "build": 8,
+  "releaseDate": "2026-10-09",
+  "title": "Rilis v1.0.6 Build 8 (Ultra-Smooth 120Hz Hardware-Accelerated Scrolling & GPU Optimization)",
   "changelog": [
-    "Live Teaching Countdown Timer untuk unit Formal MTs & Non-Formal Diniyah Safinatun Najah",
-    "Fitur Penyesuaian Waktu Mengajar Fleksibel: ubah jam mulai/selesai, hari, kelas, dan mapel dengan live sync otomatis",
-    "Tata letak kartu timer digital responsif tanpa teks terpotong di seluruh ukuran layar ponsel"
+    "Ultra-Smooth 120Hz/60Hz Hardware-Accelerated Compositor Scrolling tanpa interupsi main-thread",
+    "Optimasi GPU: eliminasi background-attachment fixed repaint penalty & kalibrasi blur liquid glass",
+    "Pembersihan label ganda tombol preset formulir PPDB Tab 02"
   ]
 }
