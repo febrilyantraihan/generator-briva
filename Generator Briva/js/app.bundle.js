@@ -3966,6 +3966,36 @@ Nama Wali: Sukandar
 Pekerjaan: Petani
 No HP: 085611223344
 Alamat: Dsn. Krajan, Paciran, Lamongan`
+    ,
+
+      8: `*FORMULIR PENDAFATARAN*
+*PPDB MA RM Tegalrejo*
+Tahun Pelajaran 2025/2026
+
+1. NISN : 
+2. NIK : 3522102309090002
+3. Nama Lengkap : M. FAKHRIAL RAHMA ERNAWAN
+4. Tanggal Lahir : Bojonegoro, 23/09/2009
+5. Jenis kelamin : L
+6. E-Mail :
+7. No. Hp. :
+8. Alamat Lengkap ; Gunungsari boureno Bojonegoro
+9. Nama Sekolah Asal:SMK AT TANWIR
+10. Alamat Sekolah Asal: Baureno Bojonegoro 
+
+*DATA WALI/ORANG TUA*
+
+1. Nama Wali : KHOIRUL ANWAR 
+2. NIK Wali : 3524051806780002
+3. Nama Ayah :KHOIRUL ANWAR
+4. Nama Ibu :SRI ERNAWATI
+5. Profesi Ayah : pedagang 
+6. Profesi Ibu : IRT
+7. E-Mail : 
+8. No. HP. Wali : 081334120484
+9. Alamat :  Gunungsari boureno Bojonegoro 
+
+*Mondok atau Tidak Mondok*: TIDAK`
     };
 
     function loadAiPreset(num) {
@@ -4010,63 +4040,95 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
 
     // Heuristic NLP chunk splitter: Memecah pesan chat WhatsApp majemuk menjadi per-santri
     function splitAiChatIntoStudentChunks(rawText) {
-      if (!rawText) return [];
-      let cleaned = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      // Bersihkan metadata WhatsApp (timestamp, tanda Diteruskan / Forwarded)
-      cleaned = cleaned.replace(/^\[\d{1,2}[\.\:]\d{2}[^\]]*\]\s*[^:\n]+:\s*/gm, '');
-      cleaned = cleaned.replace(/^\s*(?:[\~\-]\s*)?(?:pesan\s+)?diteruskan\s*$/gim, '');
-      cleaned = cleaned.replace(/^\s*(?:[\~\-]\s*)?forwarded(?:\s+message)?\s*$/gim, '');
-      cleaned = cleaned.replace(/^\s*\d{1,2}[\.\:]\d{2}\s*$/gm, '');
-
-      const lines = cleaned.split('\n');
-      const chunks = [];
-      let currentChunk = [];
-
-      const isStudentHeaderLine = (line) => {
-        let l = line.trim().toLowerCase();
-        if (!l) return false;
-
-        // Cek pola nomor daftar santri: "1. M. Rizky Pratama..." atau "Santri 2: ..."
-        if (/^(?:\d+[\.\)]|\#\d+|\b(?:santri|siswa|calon|anak)\s*(?:ke[\-\s]*)?\d+)\s+[^:]+/i.test(l) &&
-            !l.includes('ayah') && !l.includes('ibu') && !l.includes('wali') && !l.includes('guru') && !l.includes('sekolah') && !l.includes('profesi') && !l.includes('alamat') && !l.includes('nik') && !l.includes('nisn')) {
-          return true;
-        }
-
-        // Strip markdown bullets, numbering, and whatsapp bold tags
-        l = l.replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\s\d\.\)\(\]]+\s*/, '').replace(/^\*+|\*+$/g, '').trim();
-        if (!l) return false;
-        if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah') || l.includes('email') || l.includes('profesi') || l.includes('pekerjaan')) {
+    if (!rawText) return [];
+    let cleaned = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    cleaned = cleaned.replace(/^\[\d{1,2}[\.\:]\d{2}[^\]]*\]\s*[^:\n]+:\s*/gm, '');
+    cleaned = cleaned.replace(/^\s*(?:[\~\-]\s*)?(?:pesan\s+)?diteruskan\s*$/gim, '');
+    cleaned = cleaned.replace(/^\s*(?:[\~\-]\s*)?forwarded(?:\s+message)?\s*$/gim, '');
+    cleaned = cleaned.replace(/^\s*\d{1,2}[\.\:]\d{2}\s*$/gm, '');
+  
+    const lines = cleaned.split('\n');
+    const chunks = [];
+    let currentChunk = [];
+  
+    const isFormHeaderLine = (line) => {
+      const l = line.trim().toLowerCase().replace(/^[\*\#\-\s]+|[\*\#\-\s]+$/g, '');
+      return /^(?:formulir\s+pendaf?at?aran|pendaftaran\s+peserta\s+didik|ppdb\s+|data\s+murid\s+pindahan)/i.test(l);
+    };
+  
+    const isStudentHeaderLine = (line) => {
+      let l = line.trim().toLowerCase();
+      if (!l) return false;
+  
+      // Filter out known form field labels even if numbered
+      const ignoreLabels = [
+        'nisn', 'nik', 'nama', 'ttl', 'tempat', 'tanggal', 'tgl', 'lahir',
+        'jenis kelamin', 'gender', 'jk', 'email', 'e-mail', 'no. hp', 'no hp', 'hp', 'telp', 'ponsel', 'kontak',
+        'alamat', 'sekolah', 'asal', 'madrasah', 'kelas', 'kls', 'profesi', 'pekerjaan',
+        'ayah', 'ibu', 'wali', 'ortu', 'orang tua', 'guru', 'pendamping', 'pembawa',
+        'mondok', 'asrama', 'status', 'anak ke', 'briva', 'kk'
+      ];
+  
+      const fieldMatch = l.match(/^(?:\d+[\.\)]|\#\d+)?\s*\*?([a-z\s\.\-]+)\*?\s*[:=;]/i);
+      if (fieldMatch && !fieldMatch[1].includes('/')) {
+        const fieldKey = fieldMatch[1].trim();
+        if (ignoreLabels.some(lbl => fieldKey.includes(lbl))) {
           return false;
         }
-        if (/^(?:data\s+murid|data\s+santri|data\s+siswa|data\s+calon|formulir\s+pendaftaran)/i.test(l)) {
+      }
+  
+      if (isFormHeaderLine(line)) return true;
+  
+      // Cek pola nomor daftar santri: "1. M. Rizky Pratama..." atau "Santri 2: ..."
+      if (/^(?:\d+[\.\)]|\#\d+|\b(?:santri|siswa|calon|anak)\s*(?:ke[\-\s]*)?\d+)\s+[^:=;]+/i.test(l)) {
+        if (l.includes('/') && /(?:ttl|laki|perempuan|mondok|ortu|wali|smp|mts)/i.test(l)) {
           return true;
         }
-        if (/^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]/i.test(l)) {
-          const alreadyHasStudentName = currentChunk.some(prevLine => {
-            let pl = prevLine.trim().toLowerCase().replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\s\d\.\)\(\]]+\s*/, '').replace(/^\*+|\*+$/g, '').trim();
-            return /^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]/i.test(pl) &&
-                   !pl.includes('ayah') && !pl.includes('ibu') && !pl.includes('wali') && !pl.includes('guru') && !pl.includes('sekolah') && !pl.includes('email');
-          });
-          return alreadyHasStudentName;
+        if (!ignoreLabels.some(lbl => l.includes(lbl))) {
+          return true;
         }
+      }
+  
+      // Strip markdown bullets, numbering, and whatsapp bold tags
+      l = l.replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\s\d\.\)\(\]]+\s*/, '').replace(/^\*+|\*+$/g, '').trim();
+      if (!l) return false;
+      if (ignoreLabels.some(lbl => l.includes(lbl))) {
         return false;
-      };
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (isStudentHeaderLine(line) && currentChunk.length > 0) {
-          chunks.push(currentChunk.join('\n'));
-          currentChunk = [line];
-        } else {
-          currentChunk.push(line);
-        }
       }
-      if (currentChunk.length > 0 && currentChunk.some(l => l.trim().length > 0)) {
+      if (/^(?:data\s+murid|data\s+santri|data\s+siswa|data\s+calon|formulir\s+pendaf?at?aran)/i.test(l)) {
+        return true;
+      }
+      if (/^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]/i.test(l)) {
+        const alreadyHasStudentName = currentChunk.some(prevLine => {
+          let pl = prevLine.trim().toLowerCase().replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\s\d\.\)\(\]]+\s*/, '').replace(/^\*+|\*+$/g, '').trim();
+          return /^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]/i.test(pl) &&
+                 !pl.includes('ayah') && !pl.includes('ibu') && !pl.includes('wali') && !pl.includes('guru') && !pl.includes('sekolah') && !pl.includes('email');
+        });
+        return alreadyHasStudentName;
+      }
+      return false;
+    };
+  
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (isStudentHeaderLine(line) && currentChunk.some(l => l.includes(':') || l.includes(';'))) {
         chunks.push(currentChunk.join('\n'));
+        currentChunk = [line];
+      } else {
+        currentChunk.push(line);
       }
-
-      return chunks.length > 0 ? chunks : [cleaned];
     }
+    if (currentChunk.length > 0 && currentChunk.some(l => l.trim().length > 0)) {
+      chunks.push(currentChunk.join('\n'));
+    }
+  
+    const validChunks = chunks.filter(c => {
+      const p = parseSingleStudentChunk(c);
+      return Boolean(p.namaSiswa || p.nikSiswa || p.nikWali || p.ttl || p.phone);
+    });
+  
+    return validChunks.length > 0 ? validChunks : [cleaned];
+  }
 
     // Helper Format Tanggal Lahir Siswa ke format tanda hubung DD-MM-YYYY (cth: "Lamongan, 14 Maret 2009." -> "14-03-2009")
     function formatPpdbTanggalLahir(rawInput) {
@@ -4151,325 +4213,323 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
     }
 
     function parseSingleStudentChunk(chunk) {
-      const res = {
-        namaSiswa: '',
-        kelas: '',
-        nisn: '',
-        nikSiswa: '',
-        nikWali: '',
-        ttl: '',
-        gender: '',
-        alamat: '',
-        namaWali: '',
-        namaAyah: '',
-        namaIbu: '',
-        profesiAyah: '',
-        profesiIbu: '',
-        phone: '',
-        mondok: '',
-        sekolahAsal: '',
-        guru: '',
-        briva: ''
-      };
-
-      // 0. Ekspansi Baris Rekap Delimiter Garis Miring (/) jika ada
-      // Cth: "1. M. Rizky Pratama / TTL: Gresik, 15 Januari 2012 / Laki-laki / MTs Sunan Drajat / Mondok / Ortu: Bambang..."
-      let rawLines = [];
-      chunk.split('\n').forEach(l => {
-        const tr = l.trim();
-        if (!tr) return;
-        if ((tr.match(/\//g) || []).length >= 3 && /(?:ttl|ortu|wali|ayah|ibu|alamat|hp|wa|sekolah|mondok|status|rekomendasi)/i.test(tr)) {
-          const parts = tr.split(/\s*\/\s*/);
-          parts.forEach((p, idx) => {
-            if (idx === 0 && !p.includes(':')) {
-              rawLines.push('Nama: ' + p);
-            } else {
-              rawLines.push(p);
-            }
-          });
-        } else {
-          rawLines.push(tr);
-        }
-      });
-
-      // Bersihkan karakter bullet, numbering, dan whatsapp bold tags
-      const cleanLines = rawLines.map(line => {
-        let cl = line.trim();
-        cl = cl.replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>]\s*/, '');
-        cl = cl.replace(/^\*([^*:]+)\*\s*([:=])/, '$1 $2');
-        return cl.trim();
-      });
-
-      // 1. Deteksi Kelas / Murid Pindahan (contoh: X-2, XI-1, Kelas 8, Siswa baru kelas 7, Kelas 10 MA)
+    const res = {
+      namaSiswa: '',
+      kelas: '',
+      nisn: '',
+      nikSiswa: '',
+      nikWali: '',
+      ttl: '',
+      gender: '',
+      alamat: '',
+      namaWali: '',
+      namaAyah: '',
+      namaIbu: '',
+      profesiAyah: '',
+      profesiIbu: '',
+      phone: '',
+      mondok: '',
+      sekolahAsal: '',
+      guru: '',
+      briva: '',
+      unitSekolah: ''
+    };
+  
+    let rawLines = [];
+    chunk.split('\n').forEach(l => {
+      const tr = l.trim();
+      if (!tr) return;
+      if ((tr.match(/\//g) || []).length >= 3 && /(?:ttl|ortu|wali|ayah|ibu|alamat|hp|wa|sekolah|mondok|status|rekomendasi)/i.test(tr)) {
+        const parts = tr.split(/\s*\/\s*/);
+        parts.forEach((p, idx) => {
+          if (idx === 0 && !p.includes(':') && !p.includes(';')) {
+            rawLines.push('Nama: ' + p);
+          } else {
+            rawLines.push(p);
+          }
+        });
+      } else {
+        rawLines.push(tr);
+      }
+    });
+  
+    const cleanLines = rawLines.map(line => {
+      let cl = line.trim();
+      cl = cl.replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>]\s*/, '');
+      cl = cl.replace(/^\*([^*:=;]+)\*\s*([:=;])/, '$1 $2');
+      return cl.trim();
+    });
+  
+    const unitMatch = chunk.match(/\b(?:ppdb\s+)?(ma|mts|smk|smp|sd|mi)\s+(?:rm|raudlatul\s+muta['`]?allimin)/i);
+    if (unitMatch) {
+      res.unitSekolah = unitMatch[1].toUpperCase();
+      if (res.unitSekolah === 'MA' || res.unitSekolah === 'SMK') {
+        res.kelas = '10 ' + res.unitSekolah;
+      } else if (res.unitSekolah === 'MTS' || res.unitSekolah === 'SMP') {
+        res.kelas = '7 ' + res.unitSekolah;
+      }
+    }
+  
+    if (!res.kelas) {
       const klsMatch = chunk.match(/(?:data\s+murid\s+pindahan|siswa\s*baru\s*kelas|kelas|kls|pindahan)\s*[:=;]?\s*([A-Za-z0-9\-\s]+?)(?=\n|\/|$)/i);
       if (klsMatch && klsMatch[1]) {
         res.kelas = klsMatch[1].trim().replace(/^(?:kelas|kls)\s*/i, '');
       }
-
-      // 2. Deteksi Nama Siswa
-      for (const line of cleanLines) {
-        const l = line.toLowerCase();
-        if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah') || l.includes('email') || l.includes('profesi') || l.includes('pekerjaan')) continue;
-        const m = line.match(/^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=]\s*(.+)$/i);
-        if (m && m[1]) {
-          res.namaSiswa = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-      if (!res.namaSiswa) {
-        for (const line of cleanLines) {
-          const l = line.toLowerCase();
-          if (l.startsWith('data murid') || l.startsWith('data santri') || l.startsWith('formulir') || l.startsWith('pendaftaran') || l.startsWith('rekap')) continue;
-          if (line.includes(':')) {
-            const parts = line.split(':');
-            const label = parts[0].trim().toLowerCase().replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\d\.\)\(\]]+\s*/, '').trim();
-            if (label === 'nama' || label === 'nama lengkap' || label === 'nama siswa' || label === 'nama santri' || label === 'nama calon') {
-              res.namaSiswa = parts.slice(1).join(':').replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-              break;
-            }
-          }
-        }
-      }
-      // Fallback Cerdas Chat Kasual: Baris pertama setelah judul chat yang berisi 2 s.d 5 kata tanpa titik dua (cth: "Fahmi Maulana")
-      if (!res.namaSiswa) {
-        for (let i = 0; i < cleanLines.length; i++) {
-          const cl = cleanLines[i];
-          const l = cl.toLowerCase();
-          if (l.startsWith('data') || l.startsWith('pendaftaran') || l.startsWith('santri baru') || l.includes(':') || l.includes('/')) continue;
-          const words = cl.split(/\s+/).filter(w => /^[a-zA-Z\.\'\`]+$/.test(w));
-          if (words.length >= 2 && words.length <= 6 && !l.includes('jalan') && !l.includes('desa') && !l.includes('kecamatan') && !l.includes('tuban') && !l.includes('lamongan')) {
-            res.namaSiswa = cl.replace(/^(?:\d+[\.\)]\s*)?/, '').trim();
-            break;
-          }
-        }
-      }
-
-      // 3. Disambiguasi Cerdas NIK (16 digit) vs NISN (10 digit)
-      const all16Digits = chunk.match(/\b\d{16}\b/g) || [];
-      const all10Digits = chunk.match(/\b\d{10}\b/g) || [];
-
-      if (all10Digits.length > 0) {
-        res.nisn = all10Digits[0];
-      }
-
-      if (all16Digits.length === 1) {
-        const hasWaliNik = /(?:nik\s*wali|ktp\s*wali|nik\s*orang\s*tua)\s*[:=]?\s*\b\d{16}\b/i.test(chunk);
-        if (hasWaliNik) {
-          res.nikWali = all16Digits[0];
-        } else {
-          res.nikSiswa = all16Digits[0];
-        }
-      } else if (all16Digits.length >= 2) {
-        cleanLines.forEach(line => {
-          const m16 = line.match(/\b\d{16}\b/);
-          if (m16) {
-            const l = line.toLowerCase();
-            if (l.includes('wali') || l.includes('ortu') || l.includes('ayah') || l.includes('ibu') || l.includes('ktp')) {
-              res.nikWali = m16[0];
-            } else {
-              res.nikSiswa = m16[0];
-            }
-          }
-        });
-      }
-
-      // 4. Deteksi TTL
-      for (const line of cleanLines) {
-        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tanggal\s*lahir|tgl\s*lahir|lahir)\s*[:=;]?\s*(.+)$/i);
-        if (m && m[1]) {
-          res.ttl = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-      if (!res.ttl) {
-        const ttlMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tanggal\s*lahir|tgl\s*lahir|lahir)\s*[:=;]?\s*([^\r\n\/]+)/i);
-        if (ttlMatch && ttlMatch[1]) res.ttl = ttlMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-      }
-
-      // 5. Deteksi Sekolah Asal (harus sebelum deteksi alamat agar alamat sekolah tidak terambil)
-      for (const line of cleanLines) {
-        const l = line.toLowerCase();
-        if (l.includes('alamat sekolah')) continue;
-        const mSek = line.match(/^(?:\d+[\.\)]\s*)?(?:sekolah\s*asal|asal\s*sekolah|asal\s*madrasah|dari\s*sekolah|dari\s*madrasah)\s*[:=]\s*(.+)$/i);
-        if (mSek && mSek[1]) {
-          res.sekolahAsal = mSek[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-      if (!res.sekolahAsal) {
-        for (const line of cleanLines) {
-          const l = line.toLowerCase();
-          if (l.startsWith('asal ') && (l.includes('smp') || l.includes('mts') || l.includes('sd') || l.includes('mi'))) {
-            res.sekolahAsal = line.replace(/^asal\s+/i, '').trim();
-            break;
-          }
-        }
-      }
-
-      // 6. Deteksi Jenis Kelamin & Inferensi Cerdas
-      for (const line of cleanLines) {
-        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:jenis\s*kelamin|gender|jk)\s*[:=]\s*(.+)$/i);
-        if (m && m[1]) {
-          const jkRaw = m[1].trim().toLowerCase();
-          res.gender = (jkRaw === 'p' || jkRaw.startsWith('per') || jkRaw.includes('putri') || jkRaw.includes('wanita') || jkRaw.includes('perempuan')) ? 'Perempuan' : 'Laki-laki';
-          break;
-        }
-      }
-      if (!res.gender) {
-        for (const line of cleanLines) {
-          const l = line.toLowerCase();
-          if (l === 'laki-laki' || l === 'laki laki' || l === 'putra' || l === 'pria' || l === 'l') {
-            res.gender = 'Laki-laki';
-            break;
-          } else if (l === 'perempuan' || l === 'putri' || l === 'wanita' || l === 'p') {
-            res.gender = 'Perempuan';
-            break;
-          }
-        }
-      }
-      if (!res.gender) {
-        const fullLower = chunk.toLowerCase();
-        // Cek nama sekolah asal (MTs Al-Fathimiyah adalah unit MTs Putri di PP Sunan Drajat)
-        if (fullLower.includes('fathimiyah') || fullLower.includes('putri') || fullLower.includes('banat') || fullLower.includes('akhwat') || fullLower.includes('(pi)')) {
-          res.gender = 'Perempuan';
-        } else if (fullLower.includes('putra') || fullLower.includes('banin') || fullLower.includes('ikhwan') || fullLower.includes('(pa)')) {
-          res.gender = 'Laki-laki';
-        } else if (res.namaSiswa) {
-          const nLower = res.namaSiswa.toLowerCase();
-          if (/\b(?:apriliana|putri|aulia|siti|nurul|husna|kharunia|aisyah|zahra|nabila|lestari|dewi|indah|fitri|anisa|annisa|salma|fatimah|aminah|amina|wardah|khadijah|safira|zhafira|cantika|nayla|naylah|alya|khansa)\b/i.test(nLower) || /(?:ana|ina|na|ni|wati|ah|ti)$/i.test(nLower.split(' ')[0])) {
-            res.gender = 'Perempuan';
-          } else {
-            res.gender = 'Laki-laki';
-          }
-        }
-      }
-
-      // 7. Auto-Inferensi Kelas / Jenjang jika belum terisi
-      if (!res.kelas) {
-        const fullText = chunk.toLowerCase();
-        const mKls = fullText.match(/\b(?:kelas|kls)\s*([7-9]|1[0-2])\b/i);
-        if (mKls && mKls[1]) {
-          res.kelas = mKls[1];
-        } else if (res.sekolahAsal) {
-          const sLower = res.sekolahAsal.toLowerCase();
-          if (sLower.includes('mts') || sLower.includes('smp')) {
-            res.kelas = '10'; // Lulusan MTs/SMP masuk jenjang MA/SMA Kelas 10
-          } else if (sLower.includes('mi') || sLower.includes('sd')) {
-            res.kelas = '7';  // Lulusan MI/SD masuk jenjang MTs/SMP Kelas 7
-          }
-        }
-      }
-
-      // 8. Deteksi Alamat Siswa (Abaikan jika baris alamat sekolah)
-      for (const line of cleanLines) {
-        const l = line.toLowerCase();
-        if (l.includes('sekolah') || l.includes('kantor') || l.includes('instansi')) continue;
-        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal|\s*santri|\s*siswa)?)\s*[:=]\s*(.+)$/i);
-        if (m && m[1]) {
-          res.alamat = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-      if (!res.alamat) {
-        const almtMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal)?)\s*[:=]\s*([^\r\n\/]+)/i);
-        if (almtMatch && almtMatch[1] && !almtMatch[0].toLowerCase().includes('sekolah')) {
-          res.alamat = almtMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-        }
-      }
-
-      // 9. Deteksi No Telepon / WA
-      for (const line of cleanLines) {
-        const m = line.match(/^(?:\d+[\.\)]\s*)?(?:no\.?\s*(?:hp|telp|wa|telepon|ponsel)|kontak|telepon|wa)\s*[:=]\s*(.+)$/i);
-        if (m && m[1]) {
-          const pMatch = m[1].match(/(?:\+62|08)\d{8,12}/);
-          res.phone = pMatch ? pMatch[0] : m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-      if (!res.phone) {
-        const anyPhone = chunk.match(/\b(?:08\d{8,12}|\+62\d{8,12})\b/);
-        if (anyPhone) res.phone = anyPhone[0];
-      }
-
-      // 10. Deteksi Orang Tua / Wali
-      for (const line of cleanLines) {
-        const mAyah = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*ayah(?:\s*kandung)?|ayah)\s*[:=]\s*(.+)$/i);
-        if (mAyah && mAyah[1]) res.namaAyah = mAyah[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-
-        const mIbu = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*ibu(?:\s*kandung)?|ibu)\s*[:=]\s*(.+)$/i);
-        if (mIbu && mIbu[1]) res.namaIbu = mIbu[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-
-        const mWali = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*wali|wali)\s*[:=]\s*(.+)$/i);
-        if (mWali && mWali[1]) res.namaWali = mWali[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-
-        const mProfAyah = line.match(/^(?:\d+[\.\)]\s*)?(?:profesi\s*ayah|pekerjaan\s*ayah)\s*[:=]\s*(.+)$/i);
-        if (mProfAyah && mProfAyah[1]) res.profesiAyah = mProfAyah[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-
-        const mProfIbu = line.match(/^(?:\d+[\.\)]\s*)?(?:profesi\s*ibu|pekerjaan\s*ibu)\s*[:=]\s*(.+)$/i);
-        if (mProfIbu && mProfIbu[1]) res.profesiIbu = mProfIbu[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-      }
-
-      if (!res.namaAyah && !res.namaIbu) {
-        const ortuCombinedMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:orang\s*tua|ortu)\s*[:=]\s*([^\r\n\/]+)/i);
-        if (ortuCombinedMatch && ortuCombinedMatch[1]) {
-          const combined = ortuCombinedMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          if (combined.includes('&')) {
-            const parts = combined.split('&');
-            res.namaAyah = parts[0].replace(/^(?:bpk\.?|bapak)\s*/i, '').trim();
-            res.namaIbu = parts[1].replace(/^(?:ibu|ibuk)\s*/i, '').trim();
-          } else if (combined.includes('/')) {
-            const parts = combined.split('/');
-            res.namaAyah = parts[0].trim();
-            res.namaIbu = parts[1].trim();
-          } else {
-            res.namaAyah = combined;
-          }
-        }
-      }
-
-      if (!res.namaWali) {
-        res.namaWali = res.namaAyah || res.namaIbu || `Wali ${res.namaSiswa}`;
-      }
-
-      // 11. Deteksi Status Mondok (Mondok / Bajak / Non-Mukim / Asrama / Laju)
-      for (const line of cleanLines) {
-        const mMondok = line.match(/^(?:\d+[\.\)]\s*)?(?:mondok\s*(?:atau\s*tidak\s*mondok|\/\s*bajak|\/\s*laju|\/\s*mbajak)?|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*(.+)$/i);
-        if (mMondok && mMondok[1]) {
-          res.mondok = mMondok[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-      if (!res.mondok) {
-        const mondokMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:mondok\s*(?:atau\s*tidak\s*mondok|\/\s*bajak|\/\s*laju|\/\s*mbajak)?|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*([^\r\n\/]+)/i);
-        if (mondokMatch && mondokMatch[1]) {
-          res.mondok = mondokMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-        } else if (/mondok\s*\((?:mukim|asrama)\)|mukim\s*(?:reguler|vip)/i.test(chunk)) {
-          res.mondok = 'Mukim';
-        } else if (/\b(laju|mbajak|non\s*mukim)\b/i.test(chunk)) {
-          res.mondok = 'Non Mukim';
-        }
-      }
-
-      // 12. Deteksi Guru Pendamping / Pembawa / Rekomendasi
-      for (const line of cleanLines) {
-        const guruMatch = line.match(/^(?:\d+[\.\)]\s*)?(?:guru(?:\s*(?:pembawa|pendamping|\/|\-)+)*|rekomendasi(?:\s*guru)?|pembawa|pendamping)\s*[:=]\s*(.+)$/i);
-        if (guruMatch && guruMatch[1]) {
-          res.guru = guruMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
-          break;
-        }
-      }
-
-      // 13. Deteksi Nomor BRIVA / Virtual Account jika ada di chat
-      for (const line of cleanLines) {
-        const brivaMatch = line.match(/^(?:\d+[\.\)]\s*)?(?:nomor\s*briva|no\s*briva|briva|nomor\s*va|no\s*va|va|virtual\s*account)\s*[:=]\s*(.+)$/i);
-        if (brivaMatch && brivaMatch[1]) {
-          res.briva = brivaMatch[1].trim().replace(/[^0-9]/g, '');
-          break;
-        }
-      }
-
-      return res;
     }
+  
+    for (const line of cleanLines) {
+      const l = line.toLowerCase();
+      if (l.includes('ayah') || l.includes('ibu') || l.includes('wali') || l.includes('guru') || l.includes('sekolah') || l.includes('email') || l.includes('profesi') || l.includes('pekerjaan')) continue;
+      const m = line.match(/^(?:\d+[\.\)]\s*)?nama\s*(?:lengkap|murid|santri|siswa|calon)?\s*[:=;]\s*(.+)$/i);
+      if (m && m[1]) {
+        res.namaSiswa = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        break;
+      }
+    }
+    if (!res.namaSiswa) {
+      for (const line of cleanLines) {
+        const l = line.toLowerCase();
+        if (l.startsWith('data murid') || l.startsWith('data santri') || l.startsWith('formulir') || l.startsWith('pendaftaran') || l.startsWith('pendafataran') || l.startsWith('rekap') || l.includes('ppdb')) continue;
+        if (line.includes(':') || line.includes(';')) {
+          const parts = line.split(/[:;]/);
+          const label = parts[0].trim().toLowerCase().replace(/^[\*\-\u2022\u25AA\u25AB\u25BA\u25B6\u2714\u2705\+\~\#\>\d\.\)\(\]]+\s*/, '').trim();
+          if (label === 'nama' || label === 'nama lengkap' || label === 'nama siswa' || label === 'nama santri' || label === 'nama calon') {
+            res.namaSiswa = parts.slice(1).join(':').replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+            break;
+          }
+        }
+      }
+    }
+    if (!res.namaSiswa) {
+      for (let i = 0; i < cleanLines.length; i++) {
+        const cl = cleanLines[i];
+        const l = cl.toLowerCase();
+        if (l.startsWith('data') || l.startsWith('pendaftaran') || l.startsWith('pendafataran') || l.startsWith('santri baru') || l.includes('ppdb') || l.includes('tegalrejo') || l.includes('tahun pelajaran') || l.includes(':') || l.includes(';') || l.includes('/')) continue;
+        const words = cl.split(/\s+/).filter(w => /^[a-zA-Z\.\'\`]+$/.test(w));
+        if (words.length >= 2 && words.length <= 6 && !l.includes('jalan') && !l.includes('desa') && !l.includes('kecamatan') && !l.includes('tuban') && !l.includes('lamongan') && !l.includes('bojonegoro')) {
+          res.namaSiswa = cl.replace(/^(?:\d+[\.\)]\s*)?/, '').trim();
+          break;
+        }
+      }
+    }
+  
+    const all16Digits = chunk.match(/\b\d{16}\b/g) || [];
+    const all10Digits = chunk.match(/\b\d{10}\b/g) || [];
+  
+    if (all10Digits.length > 0) res.nisn = all10Digits[0];
+  
+    if (all16Digits.length === 1) {
+      const hasWaliNik = /(?:nik\s*wali|ktp\s*wali|nik\s*orang\s*tua)\s*[:=;]?\s*\b\d{16}\b/i.test(chunk);
+      if (hasWaliNik) {
+        res.nikWali = all16Digits[0];
+      } else {
+        res.nikSiswa = all16Digits[0];
+      }
+    } else if (all16Digits.length >= 2) {
+      cleanLines.forEach(line => {
+        const m16 = line.match(/\b\d{16}\b/);
+        if (m16) {
+          const l = line.toLowerCase();
+          if (l.includes('wali') || l.includes('ortu') || l.includes('ayah') || l.includes('ibu') || l.includes('ktp')) {
+            res.nikWali = m16[0];
+          } else {
+            res.nikSiswa = m16[0];
+          }
+        }
+      });
+    }
+  
+    for (const line of cleanLines) {
+      const m = line.match(/^(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tanggal\s*lahir|tgl\s*lahir|lahir)\s*[:=;]?\s*(.+)$/i);
+      if (m && m[1]) {
+        res.ttl = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        break;
+      }
+    }
+    if (!res.ttl) {
+      const ttlMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:ttl|tempat\s*(?:dan\s*)?tanggal\s*lahir|tempat\s*(?:,|\/)?\s*tgl\s*lahir|tanggal\s*lahir|tgl\s*lahir|lahir)\s*[:=;]?\s*([^\r\n\/]+)/i);
+      if (ttlMatch && ttlMatch[1]) res.ttl = ttlMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+    }
+  
+    for (const line of cleanLines) {
+      const l = line.toLowerCase();
+      if (l.includes('alamat sekolah')) continue;
+      const mSek = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*sekolah\s*asal|sekolah\s*asal|asal\s*sekolah|asal\s*madrasah|dari\s*sekolah|dari\s*madrasah)\s*[:=;]\s*(.+)$/i);
+      if (mSek && mSek[1]) {
+        res.sekolahAsal = mSek[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        break;
+      }
+    }
+    if (!res.sekolahAsal) {
+      for (const line of cleanLines) {
+        const l = line.toLowerCase();
+        if (l.startsWith('asal ') && (l.includes('smp') || l.includes('mts') || l.includes('sd') || l.includes('mi') || l.includes('smk'))) {
+          res.sekolahAsal = line.replace(/^asal\s+/i, '').trim();
+          break;
+        }
+      }
+    }
+  
+    for (const line of cleanLines) {
+      const m = line.match(/^(?:\d+[\.\)]\s*)?(?:jenis\s*kelamin|gender|jk)\s*[:=;]\s*(.+)$/i);
+      if (m && m[1]) {
+        const jkRaw = m[1].trim().toLowerCase();
+        res.gender = (jkRaw === 'p' || jkRaw.startsWith('per') || jkRaw.includes('putri') || jkRaw.includes('wanita') || jkRaw.includes('perempuan')) ? 'Perempuan' : 'Laki-laki';
+        break;
+      }
+    }
+    if (!res.gender) {
+      for (const line of cleanLines) {
+        const l = line.toLowerCase();
+        if (l === 'laki-laki' || l === 'laki laki' || l === 'putra' || l === 'pria' || l === 'l') {
+          res.gender = 'Laki-laki';
+          break;
+        } else if (l === 'perempuan' || l === 'putri' || l === 'wanita' || l === 'p') {
+          res.gender = 'Perempuan';
+          break;
+        }
+      }
+    }
+    if (!res.gender) {
+      const fullLower = chunk.toLowerCase();
+      if (fullLower.includes('fathimiyah') || fullLower.includes('putri') || fullLower.includes('banat') || fullLower.includes('akhwat') || fullLower.includes('(pi)')) {
+        res.gender = 'Perempuan';
+      } else if (fullLower.includes('putra') || fullLower.includes('banin') || fullLower.includes('ikhwan') || fullLower.includes('(pa)')) {
+        res.gender = 'Laki-laki';
+      } else if (res.namaSiswa) {
+        const nLower = res.namaSiswa.toLowerCase();
+        if (/\b(?:apriliana|putri|aulia|siti|nurul|husna|kharunia|aisyah|zahra|nabila|lestari|dewi|indah|fitri|anisa|annisa|salma|fatimah|aminah|amina|wardah|khadijah|safira|zhafira|cantika|nayla|naylah|alya|khansa)\b/i.test(nLower) || /(?:ana|ina|na|ni|wati|ah|ti)$/i.test(nLower.split(' ')[0])) {
+          res.gender = 'Perempuan';
+        } else {
+          res.gender = 'Laki-laki';
+        }
+      }
+    }
+  
+    if (!res.kelas) {
+      const fullText = chunk.toLowerCase();
+      const mKls = fullText.match(/\b(?:kelas|kls)\s*([7-9]|1[0-2])\b/i);
+      if (mKls && mKls[1]) {
+        res.kelas = mKls[1];
+      } else if (res.sekolahAsal) {
+        const sLower = res.sekolahAsal.toLowerCase();
+        if (sLower.includes('mts') || sLower.includes('smp') || sLower.includes('smk')) {
+          res.kelas = '10';
+        } else if (sLower.includes('mi') || sLower.includes('sd')) {
+          res.kelas = '7';
+        }
+      }
+    }
+  
+    for (const line of cleanLines) {
+      const l = line.toLowerCase();
+      if (l.includes('sekolah') || l.includes('kantor') || l.includes('instansi')) continue;
+      const m = line.match(/^(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal|\s*santri|\s*siswa)?)\s*[:=;]\s*(.+)$/i);
+      if (m && m[1]) {
+        res.alamat = m[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        break;
+      }
+    }
+    if (!res.alamat) {
+      const almtMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:alamat(?:\s*lengkap|\s*rumah|\s*asal)?)\s*[:=;]\s*([^\r\n\/]+)/i);
+      if (almtMatch && almtMatch[1] && !almtMatch[0].toLowerCase().includes('sekolah')) {
+        res.alamat = almtMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+      }
+    }
+  
+    let waliPhone = '';
+    for (const line of cleanLines) {
+      const mWaliP = line.match(/^(?:\d+[\.\)]\s*)?(?:no\.?\s*(?:hp|telp|wa|telepon|ponsel)\s*wali|kontak\s*wali|hp\s*wali|wa\s*wali)\s*[:=;]\s*(.+)$/i);
+      if (mWaliP && mWaliP[1]) {
+        const pMatch = mWaliP[1].match(/(?:\+62|08)\d{8,12}/);
+        waliPhone = pMatch ? pMatch[0] : mWaliP[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+      }
+  
+      const m = line.match(/^(?:\d+[\.\)]\s*)?(?:no\.?\s*(?:hp|telp|wa|telepon|ponsel)|kontak|telepon|wa)\s*[:=;]\s*(.+)$/i);
+      if (m && m[1] && !line.toLowerCase().includes('wali')) {
+        const pMatch = m[1].match(/(?:\+62|08)\d{8,12}/);
+        if (pMatch) res.phone = pMatch[0];
+      }
+    }
+    if (!res.phone) res.phone = waliPhone;
+    if (!res.phone) {
+      const anyPhone = chunk.match(/\b(?:08\d{8,12}|\+62\d{8,12})\b/);
+      if (anyPhone) res.phone = anyPhone[0];
+    }
+  
+    for (const line of cleanLines) {
+      const mAyah = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*ayah(?:\s*kandung)?|ayah)\s*[:=;]\s*(.+)$/i);
+      if (mAyah && mAyah[1]) res.namaAyah = mAyah[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+  
+      const mIbu = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*ibu(?:\s*kandung)?|ibu)\s*[:=;]\s*(.+)$/i);
+      if (mIbu && mIbu[1]) res.namaIbu = mIbu[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+  
+      const mWali = line.match(/^(?:\d+[\.\)]\s*)?(?:nama\s*wali|wali)\s*[:=;]\s*(.+)$/i);
+      if (mWali && mWali[1]) res.namaWali = mWali[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+  
+      const mProfAyah = line.match(/^(?:\d+[\.\)]\s*)?(?:profesi\s*ayah|pekerjaan\s*ayah)\s*[:=;]\s*(.+)$/i);
+      if (mProfAyah && mProfAyah[1]) res.profesiAyah = mProfAyah[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+  
+      const mProfIbu = line.match(/^(?:\d+[\.\)]\s*)?(?:profesi\s*ibu|pekerjaan\s*ibu)\s*[:=;]\s*(.+)$/i);
+      if (mProfIbu && mProfIbu[1]) res.profesiIbu = mProfIbu[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+    }
+  
+    if (!res.namaAyah && !res.namaIbu) {
+      const ortuCombinedMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:orang\s*tua|ortu)\s*[:=;]\s*([^\r\n\/]+)/i);
+      if (ortuCombinedMatch && ortuCombinedMatch[1]) {
+        const combined = ortuCombinedMatch[1].replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+        if (combined.includes('&')) {
+          const parts = combined.split('&');
+          res.namaAyah = parts[0].replace(/^(?:bpk\.?|bapak)\s*/i, '').trim();
+          res.namaIbu = parts[1].replace(/^(?:ibu|ibuk)\s*/i, '').trim();
+        } else if (combined.includes('/')) {
+          const parts = combined.split('/');
+          res.namaAyah = parts[0].trim();
+          res.namaIbu = parts[1].trim();
+        } else {
+          res.namaAyah = combined;
+        }
+      }
+    }
+  
+    if (!res.namaWali) {
+      res.namaWali = res.namaAyah || res.namaIbu || `Wali ${res.namaSiswa}`;
+    }
+  
+    for (const line of cleanLines) {
+      const mMondok = line.match(/^(?:\d+[\.\)]\s*)?(?:mondok\s*(?:atau\s*tidak\s*mondok|\/\s*bajak|\/\s*laju|\/\s*mbajak)?|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*(.+)$/i);
+      if (mMondok && mMondok[1]) {
+        let rawVal = mMondok[1].replace(/^[\*\s\:]+|[\*\s]+$/g, '').trim();
+        if (/^tidak\b/i.test(rawVal)) {
+          res.mondok = 'Tidak Mondok';
+        } else if (/^ya\b|^mondok\b/i.test(rawVal)) {
+          res.mondok = 'Mondok';
+        } else {
+          res.mondok = rawVal;
+        }
+        break;
+      }
+    }
+    if (!res.mondok) {
+      const mondokMatch = chunk.match(/(?:^|\n|\/)\s*[\*\-\u2022\u25AA]?\s*(?:\d+[\.\)]\s*)?(?:mondok\s*(?:atau\s*tidak\s*mondok|\/\s*bajak|\/\s*laju|\/\s*mbajak)?|status\s*(?:mondok|mukim|santri)|mondok|asrama)\s*[:=;]?\s*([^\r\n\/]+)/i);
+      if (mondokMatch && mondokMatch[1]) {
+        let rawVal = mondokMatch[1].replace(/^[\*\s\:]+|[\*\s]+$/g, '').trim();
+        if (/^tidak\b/i.test(rawVal)) {
+          res.mondok = 'Tidak Mondok';
+        } else if (/^ya\b|^mondok\b/i.test(rawVal)) {
+          res.mondok = 'Mondok';
+        } else {
+          res.mondok = rawVal;
+        }
+      } else if (/mondok\s*\((?:mukim|asrama)\)|mukim\s*(?:reguler|vip)/i.test(chunk)) {
+        res.mondok = 'Mukim';
+      } else if (/\b(laju|mbajak|non\s*mukim)\b/i.test(chunk)) {
+        res.mondok = 'Non Mukim';
+      }
+    }
+  
+    return res;
+  }
 
     // Engine Utama AI: Memproses input chat menjadi 2 akun per santri (Ortu + Siswa)
     function processAiChatToDualAccounts() {
@@ -6758,26 +6818,9 @@ Alamat: Dsn. Krajan, Paciran, Lamongan`
         if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
           e.preventDefault();
           slider.scrollLeft += (e.deltaX || e.deltaY);
-          return;
         }
-
-        // Cek apakah tabel bisa digulir secara vertikal
-        const maxScrollY = slider.scrollHeight - slider.clientHeight;
-        if (maxScrollY > 2) {
-          const atTop = slider.scrollTop <= 0 && e.deltaY < 0;
-          const atBottom = slider.scrollTop >= maxScrollY - 2 && e.deltaY > 0;
-          if (!atTop && !atBottom) {
-            // Biarkan tabel scroll vertikal internalnya
-            return;
-          }
-        }
-
-        // Jika tabel sudah mentok atas/bawah atau tidak punya scroll vertikal, alihkan scroll ke workspace utama
-        const main = document.getElementById('mainContentContainer');
-        if (main) {
-          main.scrollTop += e.deltaY;
-        }
-      }, { passive: false });
+        // Jika vertikal, biarkan event roda mouse meluncur secara native tanpa interupsi
+      }, { passive: true });
     }
 
     function renderPpdbGuruTable() {
@@ -13550,24 +13593,22 @@ Wassalamu'alaikum Wr. Wb.`;
       const container = document.getElementById('mainContentContainer');
       if (!container) return;
 
-      // 1. Wheel Listener Universal pada window agar pergerakan mouse wheel selalu menggulirkan mainContentContainer
+      // 1. Universal Window Wheel Assist (Native Compositor Protection):
+      // Jika kursor berada di dalam mainContentContainer, JANGAN SENTUH container.scrollTop!
+      // Biarkan engine C++ native compositor browser menggulirkan secara 100% mulus (60-120fps hardware accelerated).
+      // Listener ini HANYA bertugas mengalirkan wheel jika kursor berada di luar (misal di margin desktop, header, dock).
       window.addEventListener('wheel', function(e) {
-        // Modal popup yang sedang aktif
+        // Kursor berada di dalam container utama -> Native scroll bekerja mulus, skip manual JS scroll!
+        if (container.contains(e.target)) return;
+
+        // Modal popup aktif
         const activeModal = document.querySelector('.fixed.inset-0:not(.hidden)');
         if (activeModal && activeModal.contains(e.target)) return;
 
-        // Jangan interupsi textarea atau select khusus
-        if (e.target.closest('textarea, select')) return;
+        // Jangan interupsi input, textarea atau select
+        if (e.target.closest('textarea, select, input, [contenteditable="true"]')) return;
 
-        // Jika user sedang scroll box internal yang memiliki overflow-y (misal preview caption box)
-        const innerScroll = e.target.closest('.overflow-y-auto:not(#mainContentContainer), [class*="overflow-y-auto"]:not(#mainContentContainer)');
-        if (innerScroll && innerScroll.scrollHeight > innerScroll.clientHeight) {
-          const atTop = innerScroll.scrollTop <= 0 && e.deltaY < 0;
-          const atBottom = (innerScroll.scrollTop + innerScroll.clientHeight >= innerScroll.scrollHeight - 1) && e.deltaY > 0;
-          if (!atTop && !atBottom) return;
-        }
-
-        // Gulirkan mainContentContainer secara konsisten
+        // Alihkan scroll ke container utama secara konsisten jika di luar container
         if (Math.abs(e.deltaY) > 0) {
           container.scrollTop += e.deltaY;
         }
@@ -26879,6 +26920,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
