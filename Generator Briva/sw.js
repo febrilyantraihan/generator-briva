@@ -4,7 +4,7 @@
  * Fitur: Semantic Versioning, In-App Auto-Update & 100% Offline Capability
  */
 
-const APP_VERSION = '1.0.6.4';
+const APP_VERSION = '1.0.6.5';
 const CACHE_NAME = `partner-fatih-v${APP_VERSION}`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
