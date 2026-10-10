@@ -1,11 +1,13 @@
 {
-  "version": "1.0.6",
-  "build": 8,
-  "releaseDate": "2026-10-09",
-  "title": "Rilis v1.0.6 Build 8 (Ultra-Smooth 120Hz Hardware-Accelerated Scrolling & GPU Optimization)",
+  "version": "1.0.7",
+  "build": 10,
+  "releaseDate": "2026-10-10",
+  "title": "Rilis v1.0.7 Build 10 (Penyempurnaan Tampilan Mobile Ruang Ide, Bottom-Sheet Form, Sticky Action & Quick Preset)",
   "changelog": [
-    "Ultra-Smooth 120Hz/60Hz Hardware-Accelerated Compositor Scrolling tanpa interupsi main-thread",
-    "Optimasi GPU: eliminasi background-attachment fixed repaint penalty & kalibrasi blur liquid glass",
-    "Pembersihan label ganda tombol preset formulir PPDB Tab 02"
+    "Penyempurnaan tampilan mobile Ruang Ide (A55 / 360x800px)",
+    "Banner afirmasi anti-minder rapi dengan pemisahan header badge dan tombol ganti",
+    "Modal form catat ide bottom-sheet dengan sticky header & sticky footer (Batal & Simpan)",
+    "Fitur preset ide 1-klik (Tagihan BRIVA, CBT, Twibbon, Excel Otomasi)",
+    "Sintaks JavaScript bundle tervalidasi 0 syntax error"
   ]
 }
