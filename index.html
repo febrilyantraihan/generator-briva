@@ -13303,15 +13303,26 @@
 
               <!-- Right: Quick Action Buttons (Optimized for Mobile & Desktop) -->
               <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-                <button 
-                  type="button" 
-                  onclick="openIdeModal()" 
-                  class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-amber-500/25 active:scale-95"
-                  title="Catat ide atau peluang baru"
-                >
-                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                  <span>Catat Ide Baru</span>
-                </button>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                  <button 
+                    type="button" 
+                    onclick="openIdeModal()" 
+                    class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-amber-500/25 active:scale-95"
+                    title="Catat ide atau peluang baru"
+                  >
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Catat Ide Baru</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="syncIdeCloudManual()" 
+                    class="px-3 py-2.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 shrink-0"
+                    title="Sinkronkan data ide ke Cloud Supabase (Otomatis Laptop & HP sama)"
+                  >
+                    <i data-lucide="cloud" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+                    <span class="hidden xs:inline">Sinkron Cloud</span>
+                  </button>
+                </div>
                 <div class="grid grid-cols-2 sm:flex items-center gap-2">
                   <button 
                     type="button" 
@@ -13347,10 +13358,16 @@
                     <span id="ideQuoteBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 uppercase tracking-wide truncate">
                       Anti-Minder
                     </span>
-                    <span id="ideQuoteCloudBadge" class="inline-flex items-center gap-1 text-[9.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+                    <button 
+                      type="button"
+                      onclick="syncIdeCloudManual()"
+                      id="ideQuoteCloudBadge" 
+                      class="inline-flex items-center gap-1 text-[9.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 px-1.5 py-0.5 rounded-md border border-emerald-500/20 cursor-pointer active:scale-95 transition-all"
+                      title="Klik untuk menyinkronkan data ide langsung dengan Supabase Cloud (Laptop <-> HP)"
+                    >
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span id="ideQuoteCloudText">Cloud Aktif</span>
-                    </span>
+                    </button>
                   </div>
                 </div>
 
