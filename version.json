@@ -1,13 +1,12 @@
 {
   "version": "1.0.7",
-  "build": 10,
+  "build": 11,
   "releaseDate": "2026-10-10",
-  "title": "Rilis v1.0.7 Build 10 (Penyempurnaan Tampilan Mobile Ruang Ide, Bottom-Sheet Form, Sticky Action & Quick Preset)",
+  "title": "Rilis v1.0.7 Build 11 (Aktivasi Sinkronisasi Cloud Dua Arah Otomatis Real-time Supabase untuk Ruang Ide & Master Sync Antar-Perangkat)",
   "changelog": [
-    "Penyempurnaan tampilan mobile Ruang Ide (A55 / 360x800px)",
-    "Banner afirmasi anti-minder rapi dengan pemisahan header badge dan tombol ganti",
-    "Modal form catat ide bottom-sheet dengan sticky header & sticky footer (Batal & Simpan)",
-    "Fitur preset ide 1-klik (Tagihan BRIVA, CBT, Twibbon, Excel Otomasi)",
-    "Sintaks JavaScript bundle tervalidasi 0 syntax error"
+    "Aktivasi Multi-Device Cloud Auto-Sync (Supabase PostgreSQL) untuk Ruang Ide (Tab 14)",
+    "Penyelarasan otomatis saat input ide di laptop -> langsung muncul di HP secara real-time",
+    "Integrasi tombol Sinkron Cloud cepat dan auto-pull saat aplikasi dibuka atau jendela aktif",
+    "Penyatuan sinkronisasi Tab Ruang Ide ke dalam Master Sync satu klik di header aplikasi"
   ]
 }
