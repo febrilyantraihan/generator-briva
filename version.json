@@ -1,12 +1,11 @@
 {
   "version": "1.0.7",
-  "build": 11,
+  "build": 12,
   "releaseDate": "2026-10-10",
-  "title": "Rilis v1.0.7 Build 11 (Aktivasi Sinkronisasi Cloud Dua Arah Otomatis Real-time Supabase untuk Ruang Ide & Master Sync Antar-Perangkat)",
+  "title": "Rilis v1.0.7 Build 12 (Fitur Edit Checklist & Tugas Kegiatan Humas Anti-Lupa)",
   "changelog": [
-    "Aktivasi Multi-Device Cloud Auto-Sync (Supabase PostgreSQL) untuk Ruang Ide (Tab 14)",
-    "Penyelarasan otomatis saat input ide di laptop -> langsung muncul di HP secara real-time",
-    "Integrasi tombol Sinkron Cloud cepat dan auto-pull saat aplikasi dibuka atau jendela aktif",
-    "Penyatuan sinkronisasi Tab Ruang Ide ke dalam Master Sync satu klik di header aplikasi"
+    "Fitur Edit Checklist & Tugas Kegiatan Humas Anti-Lupa (Tab 10)",
+    "Tombol pensil edit interaktif dan modal edit teks lengkap/kategori/pamflet",
+    "Kemudahan memperbaiki catatan kegiatan, checklist, dan status langsung dari mobile & desktop"
   ]
 }
