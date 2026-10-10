@@ -15515,6 +15515,19 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         console.warn('Sync keuangan error:', e);
       }
 
+      // 4. Sinkronisasi Tab Ruang Ide dengan Supabase (Two-Way AutoSync)
+      try {
+        if (typeof pullIdeFromCloud === 'function') {
+          await pullIdeFromCloud(false);
+          summary.push('Ruang Ide: Ide & Peluang Cloud Tersinkron');
+        } else if (typeof syncIdeToCloud === 'function') {
+          await syncIdeToCloud(false);
+          summary.push('Ruang Ide: Data Cloud Tersimpan');
+        }
+      } catch (e) {
+        console.warn('Sync ide cloud error:', e);
+      }
+
       // 4. Periksa Pembaruan PWA Service Worker (App Update)
       try {
         if ('serviceWorker' in navigator) {
@@ -27057,6 +27070,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -37137,6 +37151,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
     } catch (e) {
       console.error('Gagal menyimpan data ide ke storage:', e);
     }
+    triggerCloudSyncIde();
   }
 
   // Helper Format Rupiah
@@ -37509,6 +37524,7 @@ Sekarang, buatkan 35 butir soal lengkap mengikuti format di atas mulai dari nomo
     // Jika user klik, trigger background sync online jika terhubung
     if (isUserClick && navigator.onLine) {
       syncAffirmationsOnline(false);
+    pullIdeFromCloud(false);
     }
   }
 
@@ -38045,6 +38061,157 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   }
 
   // Inisialisasi Modul
+  
+  // ============================================================================
+  // MULTI-DEVICE CLOUD SYNC ENGINE (SUPABASE POSTGRESQL REAL-TIME AUTO-SYNC)
+  // Menjaga sinkronisasi data ide otomatis antara Laptop & HP secara real-time
+  // ============================================================================
+  const CLOUD_SYNC_ID = 'sync_ide_state';
+
+  function getIdeSupabaseHeaders() {
+    let cfg = { url: DEFAULT_SB_URL, anonKey: DEFAULT_SB_KEY };
+    try {
+      const raw = localStorage.getItem('supabase_config_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.url && parsed.anonKey) cfg = parsed;
+      }
+    } catch (e) {}
+    return {
+      url: cfg.url,
+      headers: {
+        'apikey': cfg.anonKey,
+        'Authorization': 'Bearer ' + cfg.anonKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      }
+    };
+  }
+
+  let cloudSyncTimer = null;
+  function triggerCloudSyncIde() {
+    clearTimeout(cloudSyncTimer);
+    cloudSyncTimer = setTimeout(() => {
+      syncIdeToCloud(false);
+    }, 700);
+  }
+
+  async function syncIdeToCloud(isManual = false) {
+    const { url, headers } = getIdeSupabaseHeaders();
+    if (!url || !headers.apikey) return false;
+
+    const cloudText = document.getElementById('ideQuoteCloudText');
+    if (cloudText) cloudText.textContent = 'Menyimpan...';
+
+    const payload = [{
+      id: CLOUD_SYNC_ID,
+      no: 99997,
+      uraian: JSON.stringify({
+        ideList: ideList,
+        updatedAt: new Date().toISOString()
+      }),
+      pj: 'Ruang Ide AutoSync',
+      updated_at: new Date().toISOString()
+    }];
+
+    try {
+      const res = await fetch(`${url}/rest/v1/humas_programs?on_conflict=id`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+      localStorage.setItem('partner_fatih_ide_last_cloud_sync', timeStr);
+      if (cloudText) cloudText.textContent = 'Cloud Aktif (' + timeStr + ')';
+
+      if (isManual) {
+        if (typeof showToast === 'function') {
+          showToast('✅ Cloud Sync Berhasil', 'Seluruh ide & peluang tersimpan di Cloud! Terbuka sama di HP & Laptop.');
+        } else {
+          showIdeToast('✅ Ide berhasil disinkronkan ke Cloud!');
+        }
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Ruang Ide Cloud] Gagal sync ke cloud:', err);
+      if (cloudText) cloudText.textContent = 'Mode Offline';
+      if (isManual) {
+        if (typeof showToast === 'function') {
+          showToast('⚠️ Gagal Sync', 'Periksa koneksi internet Anda.');
+        } else {
+          showIdeToast('⚠️ Gagal sinkron ke Cloud, periksa koneksi.');
+        }
+      }
+      return false;
+    }
+  }
+
+  async function pullIdeFromCloud(isManual = false) {
+    const { url, headers } = getIdeSupabaseHeaders();
+    if (!url || !headers.apikey) return false;
+
+    const cloudText = document.getElementById('ideQuoteCloudText');
+    if (cloudText && isManual) cloudText.textContent = 'Memeriksa...';
+
+    try {
+      const res = await fetch(`${url}/rest/v1/humas_programs?id=eq.${CLOUD_SYNC_ID}&select=*`, {
+        method: 'GET',
+        headers: headers
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data && data.length > 0 && data[0].uraian) {
+        const cloudData = JSON.parse(data[0].uraian);
+        if (cloudData && Array.isArray(cloudData.ideList) && cloudData.ideList.length > 0) {
+          const currentStr = JSON.stringify(ideList);
+          const cloudStr = JSON.stringify(cloudData.ideList);
+
+          if (currentStr !== cloudStr) {
+            const isLocalOnlySeeds = ideList.every(item => item.id && item.id.startsWith('ide_seed_'));
+            if (isLocalOnlySeeds || cloudData.ideList.length >= ideList.length) {
+              ideList = cloudData.ideList;
+            } else {
+              const cloudIds = new Set(cloudData.ideList.map(i => i.id));
+              const localUnique = ideList.filter(i => !cloudIds.has(i.id));
+              ideList = [...cloudData.ideList, ...localUnique];
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(ideList));
+            renderIdeCards();
+          }
+
+          const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+          localStorage.setItem('partner_fatih_ide_last_cloud_sync', timeStr);
+          if (cloudText) cloudText.textContent = 'Cloud Aktif (' + timeStr + ')';
+
+          if (isManual) {
+            if (typeof showToast === 'function') {
+              showToast('✅ Data Cloud Diambil', 'Seluruh ide dari perangkat lain berhasil diselaraskan!');
+            } else {
+              showIdeToast('✅ Ide terbaru dari perangkat lain diterapkan!');
+            }
+          }
+        }
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Ruang Ide Cloud] Gagal pull data:', err);
+      if (cloudText) cloudText.textContent = 'Mode Offline';
+      return false;
+    }
+  }
+
+  async function syncIdeCloudManual() {
+    const cloudText = document.getElementById('ideQuoteCloudText');
+    if (cloudText) cloudText.textContent = 'Sinkronisasi...';
+    await pullIdeFromCloud(false);
+    await syncIdeToCloud(true);
+  }
+
   function initIdeTab() {
     loadIdeData();
     renderIdeCards();
@@ -38053,6 +38220,13 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   }
 
   // Auto trigger sync saat device terkoneksi ke internet
+  
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      pullIdeFromCloud(false);
+    }
+  });
+
   window.addEventListener('online', () => {
     syncAffirmationsOnline(true);
   });
@@ -38076,6 +38250,10 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   window.setIdePreset = setIdePreset;
   window.copyCurrentAffirmationText = copyCurrentAffirmationText;
   window.syncAffirmationsOnline = syncAffirmationsOnline;
+  window.syncIdeToCloud = syncIdeToCloud;
+  window.pullIdeFromCloud = pullIdeFromCloud;
+  window.syncIdeCloudManual = syncIdeCloudManual;
+
 
 })(window);
 
