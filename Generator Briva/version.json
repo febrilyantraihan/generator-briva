@@ -1,11 +1,11 @@
 {
-  "version": "1.0.7",
-  "build": 12,
-  "releaseDate": "2026-10-10",
-  "title": "Rilis v1.0.7 Build 12 (Fitur Edit Checklist & Tugas Kegiatan Humas Anti-Lupa)",
+  "version": "1.0.9",
+  "build": 15,
+  "releaseDate": "2026-10-14",
+  "title": "Rilis v1.0.9 Build 15 (Rekap Transaksi Junio & HD Dual Matrix)",
   "changelog": [
-    "Fitur Edit Checklist & Tugas Kegiatan Humas Anti-Lupa (Tab 10)",
-    "Tombol pensil edit interaktif dan modal edit teks lengkap/kategori/pamflet",
-    "Kemudahan memperbaiki catatan kegiatan, checklist, dan status langsung dari mobile & desktop"
+    "Integrasi resmi modul Rekap Transaksi Junio Smart (Tab 15)",
+    "Otomatisasi Excel 6-Sheet, PDF Legal Landscape Kop Hal 1, & Format Ringkasan WhatsApp",
+    "Tabel Rekapitulasi HD Image Dual Matrix 6-Kolom Kompak & Rata Tengah Presisi"
   ]
 }
