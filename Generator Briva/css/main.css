@@ -78,38 +78,82 @@
     .drawer-nav-item:active {
       transform: scale(0.98);
     }
+    /* Tanda Blok Aktif Drawer Menu (Ultra-Sleek & Elegant Master Design) */
     .drawer-nav-item.sidebar-active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(20, 184, 166, 0.07) 100%) !important;
-      border: 1px solid rgba(16, 185, 129, 0.45) !important;
-      box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.18), 0 0 0 1px rgba(16, 185, 129, 0.15) !important;
-      transform: translateX(2px) !important;
+      background: #ffffff !important;
+      border: 1px solid rgba(16, 185, 129, 0.35) !important;
+      box-shadow: 0 4px 18px -2px rgba(16, 185, 129, 0.14), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      transform: none !important;
     }
     html.dark .drawer-nav-item.sidebar-active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(20, 184, 166, 0.1) 100%) !important;
-      border-color: rgba(52, 211, 153, 0.45) !important;
-      box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.3), 0 0 0 1px rgba(52, 211, 153, 0.2) !important;
+      background: #151d2d !important;
+      border: 1px solid rgba(52, 211, 153, 0.35) !important;
+      box-shadow: 0 4px 22px -3px rgba(16, 185, 129, 0.22) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      transform: none !important;
+    }
+    /* Signature Inset Glowing Left Capsule Indicator */
+    .drawer-nav-item.sidebar-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 18%;
+      bottom: 18%;
+      width: 3.5px;
+      border-radius: 0 4px 4px 0;
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
     }
     .drawer-nav-item.sidebar-active .drawer-title {
-      color: #065f46 !important;
+      color: #0f172a !important;
       font-weight: 800 !important;
     }
     html.dark .drawer-nav-item.sidebar-active .drawer-title {
-      color: #6ee7b7 !important;
+      color: #f8fafc !important;
+      font-weight: 800 !important;
     }
     .drawer-nav-item.sidebar-active .drawer-sub {
-      color: #047857 !important;
-      font-weight: 600 !important;
+      color: #64748b !important;
+      font-weight: 500 !important;
     }
     html.dark .drawer-nav-item.sidebar-active .drawer-sub {
-      color: #a7f3d0 !important;
+      color: #94a3b8 !important;
+      font-weight: 500 !important;
     }
     .drawer-nav-item.sidebar-active .drawer-icon-box {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.35) !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
     }
     .drawer-nav-item.sidebar-active .drawer-chevron {
       color: #10b981 !important;
       transform: translateX(2px) !important;
+    }
+    /* Sembunyikan badge statis jika item sedang aktif agar tidak sesak / teks terpotong */
+    .drawer-nav-item.sidebar-active .drawer-right-side > span:not(.drawer-active-pill),
+    .drawer-nav-item.sidebar-active .flex.items-center.gap-1\.5.flex-shrink-0 > span:not(.drawer-active-pill):not(#humasDrawerH7Badge) {
+      display: none !important;
+    }
+    /* Active Pill Elegan */
+    .drawer-active-pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      padding: 2.5px 8px !important;
+      border-radius: 9999px !important;
+      font-size: 9.5px !important;
+      font-weight: 800 !important;
+      background: rgba(16, 185, 129, 0.1) !important;
+      color: #059669 !important;
+      border: 1px solid rgba(16, 185, 129, 0.28) !important;
+      box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08) !important;
+    }
+    html.dark .drawer-active-pill {
+      background: rgba(16, 185, 129, 0.18) !important;
+      color: #6ee7b7 !important;
+      border: 1px solid rgba(52, 211, 153, 0.35) !important;
     }
 
     /* Active Tab Highlight in Legacy Sidebar (Ontrack Style Minimalist White Pill) */
@@ -549,9 +593,9 @@
       border-color: rgba(255, 255, 255, 0.15) !important;
     }
     html.dark #appSidebar .drawer-nav-item.sidebar-active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(20, 184, 166, 0.1) 100%) !important;
-      border-color: rgba(52, 211, 153, 0.45) !important;
-      box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.3) !important;
+      background: #151d2d !important;
+      border: 1px solid rgba(52, 211, 153, 0.35) !important;
+      box-shadow: 0 4px 22px -3px rgba(16, 185, 129, 0.22) !important;
     }
 
     /* 4. WORKSPACE UTAMA & KARTU METRIK HERO */
@@ -2554,32 +2598,22 @@
     /* CRITICAL ANTI-FOUC & LUXURY NATIVE PRELOADER BASELINE          */
     /* ============================================================== */
     #appGlobalPreloader {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #0b0f19;
-      z-index: 999999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
-      will-change: opacity;
-      pointer-events: all;
-      animation: preloaderCurtainFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards !important;
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 99999 !important;
+      background: #0b0f19 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
     }
-    @keyframes preloaderCurtainFade {
-      0%, 65% {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-      }
-      100% {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
+    #appGlobalPreloader.preloader-hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
     @keyframes preloaderPulse {
       0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(16,185,129,0.3); }
