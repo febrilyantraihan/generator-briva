@@ -4,7 +4,7 @@
  * Fitur: Semantic Versioning, In-App Auto-Update & 100% Offline Capability
  */
 
-const APP_VERSION = '1.0.7';
+const APP_VERSION = '1.0.9';
 const CACHE_NAME = `partner-fatih-v${APP_VERSION}`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
@@ -21,9 +21,9 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './mascot.png',
   './css/main.css',
-  './css/main.css?v=1.0.7',
+  './css/main.css?v=1.0.9',
   './js/app.bundle.js',
-  './js/app.bundle.js?v=1.0.7',
+  './js/app.bundle.js?v=1.0.9',
   './js/vendor/tailwindcss.js',
   './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
@@ -74,6 +74,15 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET' || !request.url.startsWith('http')) {
     return;
   }
+
+  // --- LOCALHOST / 127.0.0.1 BYPASS: SELALU NETWORK-FIRST AGAR EDIT LANGSUNG MUNCUL ---
+  if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || request.url.includes('127.0.0.1') || request.url.includes('localhost')) {
+    event.respondWith(
+      fetch(request).catch(() => caches.match(request))
+    );
+    return;
+  }
+
 
   // --- A. NAVIGASI HALAMAN UTAMA (index.html): INSTANT CACHE-FIRST DENGAN BACKGROUND REVALIDATE ---
   if (request.mode === 'navigate') {
