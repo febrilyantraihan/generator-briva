@@ -1,11 +1,12 @@
 {
   "version": "1.0.9",
-  "build": 15,
-  "releaseDate": "2026-10-14",
-  "title": "Rilis v1.0.9 Build 15 (Rekap Transaksi Junio & HD Dual Matrix)",
+  "build": 16,
+  "releaseDate": "2026-10-15",
+  "title": "Rilis v1.0.9 Build 16 (Format Soal CBT 2026/2027 Resmi & Impor Word DOCX)",
   "changelog": [
-    "Integrasi resmi modul Rekap Transaksi Junio Smart (Tab 15)",
-    "Otomatisasi Excel 6-Sheet, PDF Legal Landscape Kop Hal 1, & Format Ringkasan WhatsApp",
-    "Tabel Rekapitulasi HD Image Dual Matrix 6-Kolom Kompak & Rata Tengah Presisi"
+    "Integrasi format master soal CBT 2026/2027 resmi (kompatibel server CBT sekolah)",
+    "Sinkronisasi metadata BlogTool, customXml/item1.xml, dan Account ID resmi",
+    "Fitur baru Impor Berkas Word (.docx) langsung ke editor soal",
+    "Standar responsivitas prima untuk PC Desktop & Mobile Samsung Galaxy A55"
   ]
 }
