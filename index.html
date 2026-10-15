@@ -13915,10 +13915,17 @@
                     <i data-lucide="sparkles" class="w-4 h-4 text-violet-600"></i>
                     <span>Tempelkan Soal dari Dokumen Lama atau AI (ChatGPT/Gemini)</span>
                   </span>
-                  <button type="button" id="cbtCopyPromptBtn" class="px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center gap-1">
-                    <i data-lucide="copy" class="w-3 h-3"></i>
-                    <span>Salin Template Prompt AI (35 Soal MTs 7)</span>
-                  </button>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" id="cbtUploadDocxBtn" onclick="document.getElementById('cbtDocxFileInput').click()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center gap-1" title="Unggah berkas Word .docx untuk diimpor ke butir soal">
+                      <i data-lucide="file-up" class="w-3 h-3"></i>
+                      <span>Impor Word (.docx)</span>
+                    </button>
+                    <input type="file" id="cbtDocxFileInput" accept=".docx" class="hidden" onchange="handleCbtDocxUpload(this)" />
+                    <button type="button" id="cbtCopyPromptBtn" class="px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-bold text-[11px] shadow-xs cursor-pointer flex items-center gap-1">
+                      <i data-lucide="copy" class="w-3 h-3"></i>
+                      <span>Salin Template Prompt AI (35 Soal MTs 7)</span>
+                    </button>
+                  </div>
                 </div>
                 <p class="text-[11px] opacity-90 leading-relaxed">
                   Sistem otomatis mengenali teks pertanyaan (<strong>bisa tanpa nomor atau dengan nomor</strong>), pilihan opsi A-E, dan baris kunci jawaban (cth: <code>Kunci: D</code>). Nomor soal otomatis diurutkan rapi secara berurutan.
@@ -13983,7 +13990,7 @@
                 <div class="text-center font-bold mb-3 space-y-0.5">
                   <div id="cbtPreviewKunciExam" class="text-xs">KUNCI JAWABAN SOAL SUMATIF TENGAH SEMESTER</div>
                   <div id="cbtPreviewKunciInst" class="text-xs">MTS RAUDLATUL MUTA'ALLIMIN</div>
-                  <div id="cbtPreviewKunciYear" class="text-[11px]">TAHUN PELAJARAN 2025/2026</div>
+                  <div id="cbtPreviewKunciYear" class="text-[11px]">TAHUN PELAJARAN 2026/2027</div>
                 </div>
                 <div class="text-[11px] font-bold mb-2">MATA PELAJARAN : <span id="cbtPreviewKunciSubject">PRAKARYA 7</span></div>
 
@@ -14128,7 +14135,7 @@
                 <div class="text-center font-bold mb-3 space-y-0.5 border-b-2 border-black pb-3">
                   <div id="cbtPreviewRemidiExam" class="text-xs sm:text-sm uppercase tracking-wider">SOAL REMEDIAL / PERBAIKAN SUMATIF</div>
                   <div id="cbtPreviewRemidiInst" class="text-xs sm:text-sm uppercase font-extrabold">MTS RAUDLATUL MUTA'ALLIMIN</div>
-                  <div id="cbtPreviewRemidiYear" class="text-[11px] uppercase">TAHUN PELAJARAN 2025/2026</div>
+                  <div id="cbtPreviewRemidiYear" class="text-[11px] uppercase">TAHUN PELAJARAN 2026/2027</div>
                 </div>
 
                 <!-- Info Mapel & Identitas -->
