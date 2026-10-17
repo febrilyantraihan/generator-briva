@@ -1,8 +1,8 @@
 {
   "version": "1.0.9",
-  "build": 17,
+  "build": 18,
   "releaseDate": "2026-10-18",
-  "title": "Rilis v1.0.9 Build 17 (Fathiya AI Berhijab, Konteks Multiturn, Kalender Tahunan & Tabel Pintasan Modul)",
+  "title": "Rilis v1.0.9 Build 18 (Fathiya AI Mobile Touch Calibration & Unified JS Engine)",
   "changelog": [
     "Fathiya AI Berhijab: Ikon resmi wanita muslimah berhijab anggun di header, chat, dan typing indicator",
     "Sadar Konteks Multiturn: Menjawab kelanjutan jadwal mengajar, presensi santri, dan status jurnal secara sinkron",
