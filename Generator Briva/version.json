@@ -1,12 +1,14 @@
 {
   "version": "1.0.9",
-  "build": 16,
-  "releaseDate": "2026-10-15",
-  "title": "Rilis v1.0.9 Build 16 (Format Soal CBT 2026/2027 Resmi & Impor Word DOCX)",
+  "build": 17,
+  "releaseDate": "2026-10-18",
+  "title": "Rilis v1.0.9 Build 17 (Fathiya AI Berhijab, Konteks Multiturn, Kalender Tahunan & Tabel Pintasan Modul)",
   "changelog": [
-    "Integrasi format master soal CBT 2026/2027 resmi (kompatibel server CBT sekolah)",
-    "Sinkronisasi metadata BlogTool, customXml/item1.xml, dan Account ID resmi",
-    "Fitur baru Impor Berkas Word (.docx) langsung ke editor soal",
-    "Standar responsivitas prima untuk PC Desktop & Mobile Samsung Galaxy A55"
+    "Fathiya AI Berhijab: Ikon resmi wanita muslimah berhijab anggun di header, chat, dan typing indicator",
+    "Sadar Konteks Multiturn: Menjawab kelanjutan jadwal mengajar, presensi santri, dan status jurnal secara sinkron",
+    "Penguasaan Kalender Tahunan: Terintegrasi 252 Master Data Agenda YTPAI 2026-2027 & 94 Hari Peringatan PHBN/PHBI",
+    "Ruang Sharing Hangat: Pendampingan reflektif menata emosi, lelah batin, dan script anti-minder dengan empati tinggi",
+    "Tabel Pintasan Aksi Cepat: Navigasi 1-klik langsung ke modul tujuan setelah berdiskusi dengan Fathiya AI",
+    "Status Siap Kontekstual: Deteksi tab aktif otomatis saat modal dibuka"
   ]
 }
