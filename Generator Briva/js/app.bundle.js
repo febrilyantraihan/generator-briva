@@ -501,10 +501,81 @@
     let isDrawerOpen = false;
     let currentGeneratedAccounts = [];
 
+    // --- MOBILE DRAWER ACCORDION GROUP CONTROLLER ---
+    function toggleNavGroup(groupId, forceOpen = null) {
+      const groups = ['briva', 'akademik', 'humas', 'utility'];
+      groups.forEach(g => {
+        const headerBtn = document.getElementById('group-btn-' + g);
+        const container = document.getElementById('group-items-' + g);
+        const chevron = document.getElementById('group-chevron-' + g);
+        if (!container) return;
+
+        const isTarget = (g === groupId);
+        let shouldOpen;
+        if (isTarget) {
+          shouldOpen = (forceOpen !== null) ? forceOpen : container.classList.contains('hidden');
+        } else {
+          // Accordion: menutup grup lain jika ada grup yang dibuka
+          shouldOpen = false;
+        }
+
+        if (shouldOpen) {
+          container.classList.remove('hidden');
+          if (headerBtn) {
+            headerBtn.classList.add('bg-slate-100', 'dark:bg-white/10');
+            headerBtn.setAttribute('aria-expanded', 'true');
+          }
+          if (chevron) {
+            chevron.classList.add('rotate-90', 'text-emerald-500');
+            chevron.classList.remove('text-slate-400');
+          }
+        } else {
+          container.classList.add('hidden');
+          if (headerBtn) {
+            headerBtn.classList.remove('bg-slate-100', 'dark:bg-white/10');
+            headerBtn.setAttribute('aria-expanded', 'false');
+          }
+          if (chevron) {
+            chevron.classList.remove('rotate-90', 'text-emerald-500');
+            chevron.classList.add('text-slate-400');
+          }
+        }
+      });
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    }
+    window.toggleNavGroup = toggleNavGroup;
+
     // --- DRAWER ACTIVE BLOCK SYNC (TANDA BLOK AKTIF) ---
     function syncDrawerActiveState(targetTabId) {
       if (!targetTabId) targetTabId = activeTab || 'humas';
-      const allTabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio'];
+
+      // Auto-expand grup yang menaungi tab aktif
+      const tabToGroupMap = {
+        rekap_junio: 'briva',
+        briva: 'briva',
+        panggil: 'briva',
+        katalog: 'briva',
+        konverter: 'briva',
+        jurnal: 'akademik',
+        cbt: 'akademik',
+        tahfidz: 'akademik',
+        akun: 'akademik',
+        humas: 'humas',
+        keuangan: 'humas',
+        ide: 'humas',
+        bisnis: 'humas',
+        pembersih: 'utility',
+        wa: 'utility',
+        panduan: 'utility'
+      };
+      const activeGroup = tabToGroupMap[targetTabId];
+      if (activeGroup) {
+        toggleNavGroup(activeGroup, true);
+      }
+
+      const allTabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio', 'bisnis'];
       allTabs.forEach(t => {
         const nav = document.getElementById('nav-' + t);
         if (!nav) return;
@@ -937,7 +1008,8 @@
         keuangan: { name: 'Keuangan Pintar', badge: 'AI & Dompet', dot: 'bg-emerald-500' },
         cbt: { name: 'Soal CBT & Kunci', badge: 'Word DOCX', dot: 'bg-violet-500' },
         ide: { name: 'Laboratorium Ide', badge: 'Inkubator', dot: 'bg-amber-500' },
-        rekap_junio: { name: 'Rekap Junio', badge: 'Excel 6-Sheet', dot: 'bg-emerald-500' }
+        rekap_junio: { name: 'Rekap Junio', badge: 'Excel 6-Sheet', dot: 'bg-emerald-500' },
+        bisnis: { name: 'Inkubator Bisnis', badge: 'Titip Jual', dot: 'bg-emerald-500' }
       };
       const curShort = tabMetaShort[tabId] || { name: 'Generator Briva', badge: 'YTPAI', dot: 'bg-blue-500' };
       const mobTitleEl = document.getElementById('mobileHeaderTitle');
@@ -947,7 +1019,7 @@
       if (mobBadgeEl) mobBadgeEl.textContent = curShort.badge;
       if (mobDotEl) mobDotEl.className = `w-2 h-2 rounded-full ${curShort.dot} animate-pulse flex-shrink-0`;
 
-      const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio'];
+      const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio', 'bisnis'];
       try { syncDrawerActiveState(tabId); } catch(e) {}
       tabs.forEach(t => {
         const el = document.getElementById('tab-' + t);
@@ -10210,17 +10282,19 @@ Tahun Pelajaran 2025/2026
     }
 
     function updateBrivaUndoRedoUI() {
-      const btnUndo = document.getElementById('btnBrivaUndo');
-      const btnRedo = document.getElementById('btnBrivaRedo');
+      const isUndoDisabled = brivaUndoStack.length <= 1;
+      const undoTitle = brivaUndoStack.length > 1 ? `Undo (${brivaUndoStack.length - 1} langkah tersimpan - Ctrl+Z)` : 'Tidak ada riwayat undo';
+      document.querySelectorAll('#btnBrivaUndo, .btn-briva-undo').forEach(btn => {
+        btn.disabled = isUndoDisabled;
+        btn.title = undoTitle;
+      });
 
-      if (btnUndo) {
-        btnUndo.disabled = brivaUndoStack.length <= 1;
-        btnUndo.title = brivaUndoStack.length > 1 ? `Undo (${brivaUndoStack.length - 1} langkah tersimpan - Ctrl+Z)` : 'Tidak ada riwayat undo';
-      }
-      if (btnRedo) {
-        btnRedo.disabled = brivaRedoStack.length === 0;
-        btnRedo.title = brivaRedoStack.length > 0 ? `Redo (${brivaRedoStack.length} langkah tersimpan - Ctrl+Y)` : 'Tidak ada riwayat redo';
-      }
+      const isRedoDisabled = brivaRedoStack.length === 0;
+      const redoTitle = brivaRedoStack.length > 0 ? `Redo (${brivaRedoStack.length} langkah tersimpan - Ctrl+Y)` : 'Tidak ada riwayat redo';
+      document.querySelectorAll('#btnBrivaRedo, .btn-briva-redo').forEach(btn => {
+        btn.disabled = isRedoDisabled;
+        btn.title = redoTitle;
+      });
     }
 
     // --- MODE SWITCHER: MASSAL (TEKS) VS SANTRI MANUAL (PER-BRIVA) ---
@@ -27510,6 +27584,24 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -39804,6 +39896,24 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -41724,6 +41834,60 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
