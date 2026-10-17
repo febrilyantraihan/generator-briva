@@ -20,6 +20,7 @@ const PRECACHE_ASSETS = [
   './icon-512.png',
   './apple-touch-icon.png',
   './mascot.png',
+  './fathiya_avatar.jpg',
   './css/main.css',
   './css/main.css?v=1.0.9',
   './js/app.bundle.js',
