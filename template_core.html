@@ -3798,12 +3798,12 @@
         <!-- Fathiya AI Assistant Button (Native Header Integration - Compact & Sleek) -->
         <button 
           id="fatihAiHeaderBtn" 
-          onclick="openFatihChat()" 
+          onclick="if(typeof openFatihChat === 'function'){ openFatihChat(); } else if(window.openFatihChat){ window.openFatihChat(); }" 
           title="Tanya Fathiya AI - Rekan Berpikir Bijak" 
           class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0 relative"
         >
-          <img src="fathiya_avatar.jpg" alt="Fathiya AI" class="w-6 h-6 rounded-full object-cover border border-emerald-400/80 shadow-xs" />
-          <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-white dark:ring-slate-900 animate-pulse"></span>
+          <img src="fathiya_avatar.jpg" alt="Fathiya AI" class="w-6 h-6 rounded-full object-cover border border-emerald-400/80 shadow-xs pointer-events-none" />
+          <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-white dark:ring-slate-900 animate-pulse pointer-events-none"></span>
         </button>
 
         <!-- Theme Toggle Button -->
@@ -32674,6 +32674,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -44987,6 +44988,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -46907,6 +46909,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
