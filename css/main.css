@@ -156,6 +156,20 @@
       border: 1px solid rgba(52, 211, 153, 0.35) !important;
     }
 
+    /* Accordion Drawer Group Styles */
+    .drawer-group {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .drawer-group-btn[aria-expanded="true"] {
+      background: rgba(241, 245, 249, 0.85);
+    }
+    html.dark .drawer-group-btn[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .drawer-group-chevron {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    }
+
     /* Active Tab Highlight in Legacy Sidebar (Ontrack Style Minimalist White Pill) */
     :not(.drawer-nav-item).sidebar-active {
       background-color: #ffffff !important;
