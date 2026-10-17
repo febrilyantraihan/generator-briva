@@ -5,7 +5,7 @@
  */
 
 const APP_VERSION = '1.0.9';
-const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b17`;
+const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b18`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -25,6 +25,8 @@ const PRECACHE_ASSETS = [
   './css/main.css?v=1.0.9',
   './js/app.bundle.js',
   './js/app.bundle.js?v=1.0.9',
+  './js/sahabat_fatih_ai.js',
+  './js/sahabat_fatih_ai.js?v=1.0.9',
   './js/vendor/tailwindcss.js',
   './js/vendor/lucide.min.js',
   './js/vendor/jszip.min.js',
