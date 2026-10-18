@@ -666,6 +666,94 @@
       }
     }
 
+    // --- DESKTOP SIDEBAR MODULES DROPDOWN (PC EXCLUSIVE) ---
+    let isDesktopSidebarDropdownOpen = false;
+
+    function toggleDesktopSidebarDropdown(forceState) {
+      const dropdown = document.getElementById('desktopSidebarDropdown');
+      const backdrop = document.getElementById('desktopDropdownBackdrop');
+      if (!dropdown) return;
+
+      if (typeof forceState === 'boolean') {
+        isDesktopSidebarDropdownOpen = forceState;
+      } else {
+        isDesktopSidebarDropdownOpen = !isDesktopSidebarDropdownOpen;
+      }
+
+      if (isDesktopSidebarDropdownOpen) {
+        dropdown.style.display = 'flex';
+        dropdown.classList.remove('hidden');
+        if (backdrop) {
+          backdrop.style.display = 'block';
+          backdrop.classList.remove('hidden');
+        }
+        syncDesktopDropdownActiveState(activeTab);
+        const searchInput = document.getElementById('desktopDropdownSearchInput');
+        if (searchInput) {
+          searchInput.value = '';
+          filterDesktopDropdownModules('');
+          setTimeout(() => searchInput.focus(), 80);
+        }
+        if (typeof lucide !== 'undefined' && lucide.createIcons) { lucide.createIcons(); }
+      } else {
+        dropdown.style.display = 'none';
+        dropdown.classList.add('hidden');
+        if (backdrop) {
+          backdrop.style.display = 'none';
+          backdrop.classList.add('hidden');
+        }
+      }
+    }
+    window.toggleDesktopSidebarDropdown = toggleDesktopSidebarDropdown;
+
+    function filterDesktopDropdownModules(query) {
+      const q = (query || '').toLowerCase().trim();
+      const items = document.querySelectorAll('.dropdown-module-item');
+      const groups = document.querySelectorAll('.dropdown-category-group');
+
+      items.forEach(item => {
+        const text = (item.textContent || '').toLowerCase();
+        if (!q || text.includes(q)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      groups.forEach(group => {
+        const visibleItems = group.querySelectorAll('.dropdown-module-item:not([style*="display: none"])');
+        if (visibleItems.length === 0) {
+          group.style.display = 'none';
+        } else {
+          group.style.display = 'block';
+        }
+      });
+    }
+    window.filterDesktopDropdownModules = filterDesktopDropdownModules;
+
+    function syncDesktopDropdownActiveState(targetTabId) {
+      const items = document.querySelectorAll('.dropdown-module-item');
+      items.forEach(item => {
+        const modId = item.getAttribute('data-mod');
+        const badge = item.querySelector('.dropdown-active-badge');
+        if (modId === targetTabId) {
+          item.classList.add('ring-2', 'ring-emerald-500/60', 'bg-emerald-500/10', 'dark:bg-emerald-500/15');
+          if (badge) badge.classList.remove('hidden');
+        } else {
+          item.classList.remove('ring-2', 'ring-emerald-500/60', 'bg-emerald-500/10', 'dark:bg-emerald-500/15');
+          if (badge) badge.classList.add('hidden');
+        }
+      });
+    }
+    window.syncDesktopDropdownActiveState = syncDesktopDropdownActiveState;
+
+    // Listen for Escape key to close desktop dropdown
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isDesktopSidebarDropdownOpen) {
+        toggleDesktopSidebarDropdown(false);
+      }
+    });
+
     // --- 2. AUDIO SYNTHESIZER ---
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
@@ -989,6 +1077,9 @@
       if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
         toggleMobileDrawer(false);
       }
+      if (typeof isDesktopSidebarDropdownOpen !== 'undefined' && isDesktopSidebarDropdownOpen) {
+        toggleDesktopSidebarDropdown(false);
+      }
       activeTab = tabId;
       try { localStorage.setItem('partner_fatih_last_tab', tabId); } catch(e) {}
 
@@ -1021,6 +1112,7 @@
 
       const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio', 'bisnis'];
       try { syncDrawerActiveState(tabId); } catch(e) {}
+      try { syncDesktopDropdownActiveState(tabId); } catch(e) {}
       tabs.forEach(t => {
         const el = document.getElementById('tab-' + t);
         const nav = document.getElementById('nav-' + t);
@@ -1042,7 +1134,8 @@
             }
             const pillBox = document.getElementById('roomPillContainer');
             if (pillBox && room) {
-              pillBox.scrollTo({ left: Math.max(0, room.offsetLeft - 30), behavior: 'smooth' });
+              const pillCenter = room.offsetLeft - (pillBox.clientWidth / 2) + (room.clientWidth / 2);
+              pillBox.scrollTo({ left: Math.max(0, pillCenter), behavior: 'smooth' });
             }
           }
           const mc = document.getElementById('mainCanvas');
@@ -1235,6 +1328,15 @@ if (t === 'keuangan') {
           gradient: 'from-emerald-600 via-emerald-500 to-teal-600',
           ring: 'ring-emerald-50',
           badge: 'Excel 6-Sheet & PDF'
+        },
+        bisnis: {
+          title: 'Inkubator Bisnis & Titip Jual Warung',
+          subtitle: 'Kelola jaringan konsinyasi warung mitra, kasir bagi hasil otomatis, pantau arus kas modal, dan kuasai script anti-minder.',
+          breadcrumb: 'Inkubator Bisnis',
+          icon: 'store',
+          gradient: 'from-emerald-600 via-teal-600 to-emerald-700',
+          ring: 'ring-emerald-50',
+          badge: 'Konsinyasi Warung'
         }
       };
 
@@ -13798,6 +13900,14 @@ Wassalamu'alaikum Wr. Wb.`;
         }
       }, { passive: false });
     }
+
+    function scrollPills(direction) {
+      const pills = document.getElementById('roomPillContainer');
+      if (!pills) return;
+      const amount = 240;
+      pills.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
+    }
+    window.scrollPills = scrollPills;
 
     // 3. Native & Universal Browser Scroll Engine (Ultra-Responsive, Smooth, Keyboard & Wheel Assisted)
     function initUniversalWheelScroll() {
@@ -27604,6 +27714,34 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -33703,7 +33841,59 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
   window.updateJurnalCloudStatusBadge = updateJurnalCloudStatusBadge;
   window.getJurnalSupabaseConfig = getJurnalSupabaseConfig;
 
+  // Global Bridge untuk Co-Pilot Fathiya AI
+  window.renderJurnalTimetable = renderJurnalTimetable;
+  window.renderJurnalReminders = renderJurnalReminders;
+  window.checkTodaySchedule = checkTodaySchedule;
+  window.loadJurnalState = loadJurnalState;
+  window.saveJurnalState = saveJurnalState;
+  window.getJurnalState = function() { return jurnalState; };
+
+  window.mutateJurnalSchedule = function(classId, targetDay, timeStr, hourLabel, subject, room) {
+    if (!jurnalState) loadJurnalState();
+    if (!jurnalState || !Array.isArray(jurnalState.schedules)) return false;
+
+    const normClass = (classId || '').replace(/\s+/g, '').toUpperCase();
+    const dayMap = { 'Ahad': 0, 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6, 'Minggu': 0 };
+    const dayIndex = dayMap[targetDay] !== undefined ? dayMap[targetDay] : 6;
+
+    if (!timeStr) {
+      if (hourLabel && hourLabel.includes('3-4')) timeStr = '08.30 - 09.50 (Jam 3-4)';
+      else if (hourLabel && hourLabel.includes('1-2')) timeStr = '07.00 - 08.30 (Jam 1-2)';
+      else if (hourLabel && hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
+      else if (hourLabel && hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
+      else timeStr = '08.30 - 09.50 (Jam 3-4)';
+    }
+
+    let existing = jurnalState.schedules.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === normClass);
+    if (existing) {
+      existing.day = targetDay;
+      existing.dayIndex = dayIndex;
+      existing.time = timeStr;
+      if (subject) existing.subject = subject;
+      if (room) existing.room = room;
+    } else {
+      jurnalState.schedules.push({
+        id: 'sch-' + Date.now(),
+        unit: normClass.startsWith('1ULA') ? 'nonformal' : 'formal',
+        day: targetDay,
+        dayIndex: dayIndex,
+        classId: normClass,
+        subject: subject || (normClass.startsWith('1ULA') ? 'Safinatun Najah' : 'Prakarya'),
+        room: room || (normClass.startsWith('1ULA') ? 'Gedung Diniyah' : `Ruang MTs ${normClass}`),
+        time: timeStr
+      });
+    }
+
+    saveJurnalState();
+    if (typeof renderJurnalTimetable === 'function') renderJurnalTimetable();
+    if (typeof renderJurnalReminders === 'function') renderJurnalReminders();
+    if (typeof checkTodaySchedule === 'function') checkTodaySchedule();
+    return true;
+  };
+
 })();
+
 
 
 
@@ -35699,6 +35889,59 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
   global.exportFinanceExcel = exportFinanceExcel;
   global.syncKeuanganToCloud = syncKeuanganToCloud;
   global.pullKeuanganFromCloud = pullKeuanganFromCloud;
+
+  // Global Bridge untuk Co-Pilot Fathiya AI
+  global.loadFinanceData = loadFinanceData;
+  global.renderAllFinanceViews = renderAllFinanceViews;
+  global.addFinanceTransactionDirect = function(tx) {
+    if (!tx) return false;
+    loadFinanceData();
+    const d = new Date();
+    const newTx = {
+      id: tx.id || ('tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+      date: tx.date || getTodayString(),
+      time: tx.time || `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+      type: (tx.type || 'keluar').toLowerCase(),
+      wallet: tx.wallet || 'pribadi',
+      category: tx.category || (tx.type === 'masuk' ? 'Gaji & Honorarium' : 'Kebutuhan Harian'),
+      amount: Math.round(Number(tx.amount) || 0),
+      note: tx.note || 'Dicatat via Fathiya AI',
+      isLeak: !!tx.isLeak
+    };
+    financeTransactions.unshift(newTx);
+    try {
+      localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+      triggerCloudSyncKeuangan();
+    } catch(e) {}
+    renderAllFinanceViews();
+    return newTx;
+  };
+
+  global.transferFinanceKantongDirect = function(fromW, toW, amount, note) {
+    loadFinanceData();
+    const d = new Date();
+    const amt = Math.round(Number(amount) || 0);
+    if (amt <= 0) return false;
+    const newTransfer = {
+      id: 'tx_trf_' + Date.now(),
+      date: getTodayString(),
+      time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+      type: 'transfer',
+      wallet: fromW || 'operasional',
+      toWallet: toW || 'tabungan',
+      category: 'Pindah Dana',
+      amount: amt,
+      note: note || `Pindah saldo dari ${fromW} ke ${toW}`,
+      isLeak: false
+    };
+    financeTransactions.unshift(newTransfer);
+    try {
+      localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+      triggerCloudSyncKeuangan();
+    } catch(e) {}
+    renderAllFinanceViews();
+    return newTransfer;
+  };
 
 })(window);
 
@@ -39889,11 +40132,83 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   window.pullIdeFromCloud = pullIdeFromCloud;
   window.syncIdeCloudManual = syncIdeCloudManual;
 
+  // Global Bridge untuk Co-Pilot Fathiya AI
+  window.loadIdeData = loadIdeData;
+  window.saveIdeData = saveIdeData;
+  window.renderIdeCards = renderIdeCards;
+  window.getIdeList = function() { return ideList; };
+  window.addIdeDirect = function(item) {
+    if (!item) return false;
+    loadIdeData();
+    const newIde = {
+      id: 'ide_' + Date.now(),
+      title: item.title || 'Ide Baru',
+      category: item.category || 'jasa_digital',
+      status: item.status || 'spark',
+      desc: item.desc || 'Dicatat via Fathiya AI Partner',
+      estRevenue: parseInt(item.estRevenue) || 150000,
+      scoreEase: parseInt(item.scoreEase) || 4,
+      scoreDemand: parseInt(item.scoreDemand) || 4,
+      scoreProfit: parseInt(item.scoreProfit) || 4,
+      nextAction: item.nextAction || 'Diskusikan dengan calon pemesan atau uji coba prototype.',
+      checklist: [
+        { id: 'c1', text: 'Validasi kebutuhan dengan calon pengguna', done: false },
+        { id: 'c2', text: 'Siapkan draf atau portofolio contoh', done: false }
+      ],
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    ideList.unshift(newIde);
+    saveIdeData();
+    renderIdeCards();
+    return newIde;
+  };
+  window.updateIdeStatusDirect = function(kw, newStatus) {
+    loadIdeData();
+    const q = (kw || '').toLowerCase();
+    const found = ideList.find(i => (i.title || '').toLowerCase().includes(q));
+    if (found) {
+      found.status = newStatus || 'executing';
+      found.updatedAt = Date.now();
+      saveIdeData();
+      renderIdeCards();
+      return found;
+    }
+    return null;
+  };
 
 })(window);
 
 // END MODULE: tab_ide.js
 
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
@@ -41914,6 +42229,90 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -42027,15 +42426,15 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==========================================
 /**
  * ==============================================================================
- * FATHIYA AI - REKAN BERPIKIR BIJAK, MENTOR KEDEWASAAN & ASISTEN EKSEKUTIF
+ * FATHIYA AI - REKAN BERPIKIR BIJAK, CO-PILOT 16 MODUL & MENTOR KEDEWASAAN
  * ==============================================================================
  * Karakter & Nilai:
- * 1. Pendamping Perempuan yang Anggun, Tenang, Matang & Berwawasan Luas.
- * 2. Membimbing Pengguna Tumbuh Dewasa dalam Berpikir dan Bertindak (Mindful, 
- *    Radical Ownership, Berpikir Jangka Panjang, Anti-Impulsif & Bermartabat).
- * 3. Paham 100% Seluruh 16 Modul Teknis Partner Fatih & SOP Yayasan YTPAI.
- * 4. Dual-Engine: Mesin Offline Reflektif Instan + Google Gemini AI (Opsional).
- * 5. Input Suara Bahasa Indonesia & Voice Synthesis Vokal Perempuan Tenang (TTS).
+ * 1. Pendamping Muslimah Anggun, Bijak, Tenang, Matang & Menyejukkan.
+ * 2. Membimbing Kedewasaan Berpikir: Pause & Breathe, Radical Ownership, Anti-Impulsif.
+ * 3. Menguasai 100% Seluruh 16 Modul Partner Fatih, 252 Agenda Yayasan & 31 Santri Tahfidz.
+ * 4. Dual-Engine Cerdas: Offline Natural Engine (Instan 80ms) + Gemini 2.0 Flash AI.
+ * 5. Responsif Prima: Desktop Copilot (Expand/Restore) & Mobile Bottom-Sheet (Samsung A55).
+ * 6. Sadar Konteks Aktif (Active Tab Awareness) & Multi-turn Conversational Continuity.
  * ==============================================================================
  */
 
@@ -42043,95 +42442,110 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   'use strict';
 
   // --- 0. AVATAR RESMI FATHIYA (FOTO REALISTIS WANITA MUSLIMAH BERHIJAB ANGGUN & TEDUH) ---
-  const FATHIYA_REALISTIC_AVATAR_SRC = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCACgAKADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDyKHpU5Xiq8HSrmOK6EcLKEi4apIqfMneo4utIZbTmn45pidamxmmSRkU3HFSMOKAuQABknoKBjFFMkX5hW3b6DcsgluWW2jPTf94/hUz6NagZP2mT3wFH60bmMsRTTtcwgMpUePmrWlsoIxhfOX/eGf5VQkhK8ghh6igqNWMtiDFNK1LijbQaEYXFRynAqwRgVVmNICtjc9W4kwKhiTLVdC4WhAytcHC1m4y1aF2eKooMtSe5cdi9b1eHIrPg+9itBOlUjNjHXiq6rhquuOKruuDQNDkqwBxUEdWR0oExFjeWRY41LOxwAO5rtNK0GPTFWSQLLesMrn7qDuf/AK/esTw5AkusQB8DO5yfRFGT+ZwPzrtiT5byN96Tk+y9h/n1qox5mcGKqyvyIy7gBGLcvIf4z1/D0/CsbUb20svlu7yKOU/8sy3I+o612Wn+Fr3W4DdGV7SxJIEq/wCsl9dnoP8Aa/L1qeLwjomngrBp8RY8l3G9mPqSeaxrYyFN8sVc7MHlE6seebsvxPMDewXAzBcRyD/Zaqcpyc5wfWvSNQ8MaXMS8lnFuHRlXaR+IriNa0WTTyZYy0lv3z1X61FPFxqPlasb18snRXNF3RjGUKfm4GcH2/8ArVLtqu4DIc8gjB+lOs5TJbYY5eMlG/CttnYwpu6HyHAqi3zNVqU54qILzQzQfClWGGFoiTill4WmIy7s84qGEc0+5OXpYFqepp0JI+JK0IjxVDGJKuxU0QyftUMq8VOOlNdcrTEivF6VbXpVRflerSnigZraGhk1tokPCwxI/sGbew/EDFeh6dYnW9ZisCWEP352XqEHX8TkD8fauE0rZbavO4+9JHbt+Gxua9O8DP8AZrG71KSJ5HldYYlQZLcbiPb7w/KpnPkpNnLhqSrYpJ7LX+vmdvMqxWyxRIqRIoVVUcKB0ArlbtSJTmoda8Y6zZOY20aJY8cMZhms2z1t9TUvJbmJhyVzmvKqH1VK4XaM3bisK6g3bldQynggjrT9c1+eAmK1jVpPVugrlzeX8kuLvWoI2f7sSqAQaiEb6lzlbQwNTtBYai8A/wBWw3R59PSs2yOy4uEzwcMP5V0ev2s506K4lKvNC+C6DGVPqPriuZgI+3sB3TNenSnzRTPBr0vZVWlsyy3WnInNGMtU8aVuZD0Xiobg4Bq1jAqldHg0MSMqXmSrMC8VWPMlXYV4qUW9hsow2as256VDOKdbtxT6k9C+KCOKRDmnGqEV3WpIj2oYU1DhqQzSu5JLW40q5Q/66DyW/XH8q908JwSDwPaiJlWWSMy7iM4ZiTn8OPyrwrUTv8MQXCn95bzFB+PzD+te2/C3Uft/gnTpJOPkKEfQkVyYl+6l5muVx/eTdtV/nc4XxZ4WuT5O/U5ru4EhaWUh8uPQAcD+tdD4D0K4RJmvBIUb5UDjkCuh8R3MFtIzqwGOT7VqeF7hLvRluwMIxJDsfvYrju5PlZ7rjyx5l1PJdZ0vzdbmgLMijgFcZ61n3Hg9Lm6nmW0l2zYBDFcLj0PUV03iAN/bUk0O08k4z6VastYgu9ODKQGAwQeoNQpyitC3TjJ6nJXOmC10yW2fJXyivzHPavNrHLX7Z/uj+Vera5Ir286hsZjIz6cV5fYwSQXc0coHmRsUODnpxXXhXueZmKStY0FX5qsItRoKsL0rvPMY1uFrMu24NaUrYFZF2+TihjRVjGXrQiXC1TgHNaCj5aSGyOUcVFCcHFTyfdqqhw9DEjSjPFS8VXjapxVCGkcVFj5qnPSojSGjodGtItQ0e/tZRkMyEexwcV2nwv1WUQX2hygrJZxRvCxP+sXlWOPb5fzrl/DsCppM0zcGVj/3yvX+Z/Kni5uNO1WHVrED7TASHjzgSDoyn2I/pWWJo88NDmw2MVDFu/wvc6XxM1xNqUUVwSlpnMsgyeM4xW9cXejDTYlhvwvlL+7MLMAD9OlR6Xf2PiRbe+s2DRbslW+8jd1YdiK29ZjK6eyxRjOM7doIP4GvJjpoz666k1roeWajPpwvS73jzPn5gFPB9qrQzfa7r/RVkjRfvSMu1W9vetWayunkw0ISMHoqBc/lVe9ZYbfYMJj9Kd1ayHNJPQw/Ed59l0K5bd88uI48+pP+Ga5axaSaSWeZt0shLu2OpJ5qPWtVOr3wSMk20BIX/aPc1Z05P3LH1Nd+Gg4rU8TG1VOpZdC6i1JikUcUrdK7DjK1w2BWPcHL1pXDcGspvmkqWNE9utXv4arwDirJ+7TQMY3K1TPD1b6rVaQYbNJgizC1WgeKowGraHimhMkPSmGrsFjPOu4KVTqWYVqWWmw24ad/nYHYu7oSw4+nb86aV2YzrxgvM09KxFZaOjjasiuhBHds/wD1qo3G6Oea3582AZPq0fZh9Oh9sVYvroXOhLd2wxLAyy7B/CQeR+n603WwZ4bbV7AjzVUOvoykcqfbtW843jZHlfFJt9THstSvtFv2v9ObypW/1sTcxzD39/frXomn/EzTr6z2XitaThcEScrn2b/GvOvMS6j+12WEb/lpA/Y9x7Vj3kzrKWRTGCPmVl4H0NefVoRnqz1cHjq1L3FquzPRNR8X2HKx3Mbt2CsOK4TXdea7hlSFtzMMAKf1rGeRN3zwj6rzUbPCOVcKe4PFYxw8Yu56cswnNW5SG3hdFAIC+pNa1pdeUojZRt9R1qiuH5DD86TzgSVjG9h1AroWmxwNybudCjBlBU5B7imyHArA8+5jcCNlVs/WtT7Yku1Tw5HI7ZrZMZBctwapIMtU9y2TiooxzSZZdhHFSP0psQwKc/SqRLI1ORUEop6GkfnNJghLfczqiglmOAB3Nd3b6Fb6dbK74kuwuXLchT7D2rC8G2Sz6nJcuMrapuAP948D+pror6dg+7v6etCOLFVXzckTMudSLgxnh4+oHQjtSSzq1nLHETtkXjnlW/8A11n6mqkrPGfkI2t7D/61UbW7MM4WQ98GlczUFa6NrRrgyyXUJ/5eITKB7kYb/wAeFT6BdbI5tNnP3SXiB/unqPwP86zrGRbLUpZSN3kMX2jvE45x9DzU2rwPFNHe2zDcnzKR0P8A9YiuiL0uZTiuZx7kOrafPa3D3ll1H30HR1/xqhHfLcx5UD3Vu1dFa6hHe26zx/dYYZT2PcGsTVNALyNPYPtkbkrn7w/xqKkL+9EqlKL9ypo1/WpmvFEsjMY4+e244/Kq7eSCSiRj3xTF0q7lmMZLbl+9uONv1zV2KytNPYO7i4mHQY+VT/WsFFs7fdiviuyn9keUbm/dxnvjlvpTyqQRhY1AJ4UepqaaYuWllbAqsJsW7XbjAPEQP86uyWw05SWo2JN07DOQgwT796cp3sWHQnA+lMObaxCt/rZeWqRAUthj7x+VfqalvoVLuO2BwefpRCtKSM7FPyr1NPj5OaFuODexZUcUjnindFqKQ/Kassroak7VChqUUhnXeDUC6dfOOplUfp/9erGokncR+IPQ/wCBqt4QP/Euvh/01U/pVi9I+Y9qOh5lX+MznprkK0i8lT9+Nuo/xrKuRtdXByG4z7jp+laV+qt14I+6w6rWO7MyyQt97G9ceo9KhnRSRbXUvJvNPvT9wgwSj2rohKiyHTnPyOm+BvUd1/D+VcQzebpjf7E2fzFb+m3MWoWcVlOxWeP5oZAcEEenvWlKfQWIoqyfbT/ISSR9DvvNGTbS8Sgdv9qpbmeb78U3ytyCOeKsO63KtaXaqs4HHo49R/hWTLBNppwql7duin+H6e1aPT0M4pS3+L8xJJnblizN35qPeqruPNPluYkjBK4z0FJDC15GzSfubZT80mOT7D3qDZKyu9EVUifUZTuJW2jOZG9fYVI2Lm4DlcW8PCr2Y9h9BVhnWaPy4R5NnHxx39h7+9Z93OGzBENoUYwOw9Kl2SNY3k7LT9P+CNldri5VjyCTj8Ktv94LuCrGuWY9s1AkYSeEHokZJp8cbT/vH4BbcB6f/X/lWb3HK2nZCeYDhUUhR0B6n3NWbc8HPrUTqqjAFS24+Un3px3CNnsWSeKglPympCagmPymtCyuh5qZTRYWN1fzeVawPK3sOBXaaZ8O7uZVkvpxCp6qvWs3JLcuMJS2K/hA4s7/AB2dT+hq1ffeLLyT1Wt19As9AtdtoWYyn94Sc5x0/nWHdfxY6ZwapNSVzzMRFxrtM5y8w2cfiD2rEmPlTK5HAbn6Hg10V7GGzjt61g3acEYzUs6KLK0SYs7yP+7IppbXO9CCQVOQR2pLRt0V0p+8QufwzT7T74qTolf3v66G7LcRXcSQ3TFJRzHKvUH1plvLcMjRzz23HqTg/his7UFD2p46VTilmWHJbeoH8Va+011OaFFShob+5yuMWHHRmXp+lZ08zyyH7ZMJgvCJGSF/z9KZcwPBF5khBAGcZqCCGW4iEuNqt07mjmvoioRilzXFubpmAVQBgfKqjhRUMEJ3nPOWAzV42YiiJxySBn8aimxAob/aJ/SokndXNIzVuWIyYl2ZU6yHYPYDrVwAIgHQAYqpZoXcydkG0fXuasPIefKXcf7zdB/jR5kT35URykAZfjPRe5+tSW5/d/U1WKEkuxJ9WNXIoZFtFm2N5TEgNjiiO5pFCk81WumwpqXNU7p+Kt7Fx3PfrHS7HQ7VYbaJVIHLY5NUb3VfKfr9afqd5sVgTg465riNQ1BnnIz3rhPR2Oiur8XSjB+7zWNcH5mC9cbvY1DZTkkjPY96knxuVuOVI+veuql8J4ePVq9+6Mm5weCuDWFdx9wea6G4UMMHFYd6mCQeR602RSepix/urps8bxgj3qa14c1BdAqQwPKnNSQOAxPrUHdJXjcvzHfCR7VWsgsjiI92ApwlywWk07/kJ7fQ5qupjblgy14glAjEY/iNXbGELpkP0rF1aTzb4LngV0MQ22MC/wCzWlLVtnPVXJRhEqXvypGvrIv86yNSkHm7c4G7H61o37/voR/00FZ0MX2zVdpAIQ7iDU1NZWNqCUVzPoaSQRwQpGozx0olCRrulOF7KOpq04WFCVG5/U1mSxPIxeQ5PbND0Moe87tleSVpm6bUHQV6B4fjhn8K20UqKykv1/3jXnsjAEhe1drotyIdCtUz0Un9TWFTY9LDLUyta0hrKQvDkxH9K5m5bJr0SaVLmMo3INcLrVkbO7OP9W/K/wCFVCpdWZpOkk7o/9k=';
+  const FATHIYA_REALISTIC_AVATAR_SRC = 'fathiya_avatar.jpg';
+  const FATHIYA_FALLBACK_AVATAR = 'mascot.png';
 
   function renderFathiyaAvatarImg(sizePx = 28, extraClasses = '') {
-    return `<img src="${FATHIYA_REALISTIC_AVATAR_SRC}" alt="Fathiya AI" style="width:${sizePx}px;height:${sizePx}px;min-width:${sizePx}px;min-height:${sizePx}px;max-width:${sizePx}px;max-height:${sizePx}px;" class="rounded-full object-cover object-center border border-emerald-400/90 ring-1 ring-emerald-400/50 shadow-xs flex-shrink-0 inline-block ${extraClasses}" loading="eager" />`;
+    return `<img src="${FATHIYA_REALISTIC_AVATAR_SRC}" onerror="this.src='${FATHIYA_FALLBACK_AVATAR}'" alt="Fathiya AI" style="width:${sizePx}px;height:${sizePx}px;min-width:${sizePx}px;min-height:${sizePx}px;max-width:${sizePx}px;max-height:${sizePx}px;" class="rounded-full object-cover object-center border border-emerald-400/90 ring-1 ring-emerald-400/50 shadow-xs flex-shrink-0 inline-block ${extraClasses}" loading="eager" />`;
   }
 
-  // --- 1. MASTER BASIS PENGETAHUAN SELURUH APLIKASI (16 MODUL) ---
+  // --- 1. MASTER BASIS PENGETAHUAN SELURUH 16 MODUL APLIKASI ---
   const FATIH_KNOWLEDGE_BASE = {
     tabs: {
+      bisnis: {
+        id: 'bisnis',
+        name: 'Inkubator Bisnis & Titip Jual',
+        category: 'Wirausaha & Finansial',
+        desc: 'Modul wirausaha konsinyasi warung/kantin, kalkulator kasir bagi hasil otomatis, pemantau arus kas modal, dan script penguat mental anti-minder.',
+        keywords: ['bisnis', 'titip jual', 'konsinyasi', 'warung', 'bagi hasil', 'modal', 'anti-minder', 'kasir', 'jualan', 'untung', 'titipan', 'mitra warung'],
+        summary: 'Kelola titip jual warung tanpa modal besar: hitung bagi hasil otomatis (default 20%), catat produk laku/retur, dan atasi rasa ragu/malu dengan Script Anti-Minder.',
+        guide: [
+          '1. Ketuk tombol "+ Tambah Warung" untuk mendata warung mitra baru (nama warung, pemilik, nomor WA).',
+          '2. Masukkan produk titipan: Tentukan Harga Pokok (modal), Harga Jual Warung, dan persentase Bagi Hasil (default 20%).',
+          '3. Saat jadwal kontrol/penagihan, buka tab "Kasir Bagi Hasil" untuk menghitung otomatis jumlah laku, bagi hasil warung, dan uang yang kita terima.',
+          '4. Jika merasa canggung atau ragu menawarkan produk, buka tab "Script Anti-Minder" untuk membaca panduan komunikasi sopan dan percaya diri.'
+        ]
+      },
       rekap_junio: {
         id: 'rekap_junio',
         name: 'Rekap Transaksi Junio',
-        category: 'Layanan BRIVA & Junio',
-        desc: 'Rekapitulasi otomatis mutasi transaksi Junio Smart BRI ke dalam workbook Excel 6-Sheet siap audit dan cetak dokumen legal PDF.',
-        keywords: ['junio', 'rekap junio', 'junio smart', 'transaksi junio', 'excel 6 sheet', 'cetak pdf', 'mutasi bank'],
-        summary: 'Tab ini digunakan untuk mengunggah mutasi Junio Smart, mengklasifikasikan transaksi per pos yayasan, dan mengekspor 6 sheet Excel lengkap dengan ringkasan legal.',
+        category: 'Layanan BRIVA & Bank',
+        desc: 'Rekapitulasi otomatis mutasi transaksi Junio Smart Bank BRI ke dalam workbook Excel 6-Sheet siap audit dan dokumen cetak legal PDF Landscape.',
+        keywords: ['junio', 'rekap junio', 'junio smart', 'transaksi junio', 'excel 6 sheet', 'cetak pdf', 'mutasi bank', 'pos yayasan', 'escrow'],
+        summary: 'Unggah file transaksi mutasi Junio Smart BRI, sistem otomatis memetakan pos anggaran, membagi per jenjang (MTs, SMP, MA, SMA), dan menghasilkan 6-Sheet Excel berborder rapi.',
         guide: [
-          '1. Buka Tab Rekap Junio.',
-          '2. Upload file mutasi/transaksi Junio (format .xlsx atau .csv).',
-          '3. Sistem otomatis memetakan santri, pos pembayaran, dan tanggal.',
-          '4. Klik "Ekspor Excel 6-Sheet" atau "Cetak Ringkasan PDF Legal".'
+          '1. Masuk ke Tab Rekap Junio lalu klik "Upload File Transaksi" (pilih file .xlsx atau .csv dari CMS BRI).',
+          '2. Sistem otomatis memvalidasi data dan mengelompokkan transaksi ke 31 Kode Pos Anggaran Yayasan.',
+          '3. Klik "Ekspor Excel 6-Sheet" untuk mengunduh laporan rekap lengkap siap audit.',
+          '4. Klik "Cetak PDF Legal" untuk mencetak dokumen ringkasan resmi landscape bertanda tangan bendahara.'
         ]
       },
       briva: {
         id: 'briva',
         name: 'Generator Tagihan BRIVA',
-        category: 'Layanan BRIVA & Junio',
-        desc: 'Pembuat file tagihan massal Virtual Account Bank BRI resmi format 5 kolom (No Registrasi, ID Tagihan, Jumlah, Tgl Efektif, Tgl Jatuh Tempo).',
-        keywords: ['briva', 'tagihan briva', 'virtual account', '5 kolom', 'kolom bri', 'syahriyah', 'pecah rinci', 'kategori', '1 baris'],
-        summary: 'Tab utama untuk meng-generate format upload massal BRIVA Bank BRI dengan 3 mode baris: Pecah Rinci, Pecah Kategori, atau Akumulasi 1 Baris.',
+        category: 'Layanan BRIVA & Bank',
+        desc: 'Pembuat berkas massal Virtual Account Bank BRI format resmi 5 kolom CMS (No Registrasi, ID Tagihan, Jumlah, Tgl Efektif, Tgl Jatuh Tempo).',
+        keywords: ['briva', 'tagihan briva', 'virtual account', '5 kolom', 'kolom bri', 'syahriyah', 'pecah rinci', 'kategori', '1 baris', 'cms bri'],
+        summary: 'Generate file upload tagihan massal Bank BRI dengan 3 pilihan mode baris: Pecah Rinci (per komponen), Pecah Kategori, atau Akumulasi 1 Baris.',
         guide: [
-          '1. Masukkan ID Tagihan (default 62 untuk Syahriyah).',
-          '2. Tentukan Tanggal Efektif dan Tanggal Jatuh Tempo.',
-          '3. Pilih Mode Baris: "Rinci" (per komponen), "Kategori", atau "1 Baris" (total akumulasi).',
-          '4. Pilih komponen tagihan santri, lalu klik tombol "Generate BRIVA" atau "Salin ke Excel".'
+          '1. Masukkan ID Tagihan resmi (misal: 62 untuk Syahriyah/SPP, 48 untuk Awal Tahun).',
+          '2. Atur Tanggal Efektif (mulai bisa dibayar) dan Tanggal Jatuh Tempo.',
+          '3. Pilih Mode Baris: "Pecah Rinci" (setiap item tagihan terpisah), "Kategori", atau "1 Baris" (akumulasi total).',
+          '4. Klik "Generate BRIVA" lalu salin ke Excel atau unduh berkas CSV siap upload CMS.'
         ]
       },
       panggil: {
         id: 'panggil',
         name: 'Panggil Tagihan & Kwitansi',
-        category: 'Layanan BRIVA & Junio',
+        category: 'Layanan BRIVA & Bank',
         desc: 'Pencarian cepat rincian tagihan per santri, pembuatan kwitansi resmi berstempel yayasan, dan generator pesan WhatsApp wali santri.',
-        keywords: ['panggil', 'kwitansi', 'panggil tagihan', 'reminder wa', 'rincian santri', 'nota', 'stempel'],
-        summary: 'Cari nama atau nomor santri untuk mencetak kwitansi pembayaran resmi dan mengirimkan rincian tunggakan via WhatsApp ke orang tua.',
+        keywords: ['panggil', 'kwitansi', 'panggil tagihan', 'reminder wa', 'rincian santri', 'nota', 'stempel', 'slip', 'cetak kwitansi'],
+        summary: 'Cari nama santri untuk melihat rincian 4-kotak tagihan, mencetak kwitansi resmi tanda lunas, dan mengirim pengingat sopan via WhatsApp.',
         guide: [
-          '1. Ketik nama santri atau nomor registrasi di kolom pencarian.',
-          '2. Pilih santri dari daftar hasil pencarian.',
-          '3. Rincian tagihan 4-kotak resmi akan muncul.',
-          '4. Klik "Cetak Kwitansi PDF" atau "Salin Pesan WA Wali Santri".'
+          '1. Ketik nama santri atau NIS/No Registrasi pada kolom pencarian.',
+          '2. Pilih santri dari daftar hasil pencarian untuk memunculkan Kartu Matriks 4-Kotak Tagihan.',
+          '3. Klik "Cetak Kwitansi Slip" untuk mencetak bukti pembayaran resmi berlogo yayasan.',
+          '4. Klik "Salin Pesan WA" untuk mengirimkan rincian tagihan secara personal dan santun ke wali santri.'
         ]
       },
       katalog: {
         id: 'katalog',
         name: 'Katalog Biaya & Kode BRI',
-        category: 'Layanan BRIVA & Junio',
+        category: 'Layanan BRIVA & Bank',
         desc: 'Daftar master 31 kode sub-akun resmi Bank BRI (Kode 48 s.d. 80), rincian nominal biaya pendidikan, dan pos anggaran yayasan.',
-        keywords: ['katalog', 'kode bri', '31 kode', 'biaya pendidikan', 'tarif', 'sub akun', 'pos anggaran'],
-        summary: 'Referensi lengkap 31 kode transaksi BRIVA resmi YTPAI agar tidak salah memilih ID tagihan saat input data.',
+        keywords: ['katalog', 'kode bri', '31 kode', 'biaya pendidikan', 'tarif', 'sub akun', 'pos anggaran', 'daftar kode'],
+        summary: 'Referensi lengkap 31 kode transaksi BRIVA resmi YTPAI agar tidak terjadi kesalahan memilih ID tagihan saat input keuangan.',
         guide: [
-          '1. Buka Tab Katalog Biaya.',
-          '2. Gunakan kolom pencarian untuk mencari kode (misal: "48" untuk Awal Tahun, "62" untuk Syahriyah).',
-          '3. Klik kode untuk langsung menggunakannya di Generator BRIVA.'
+          '1. Buka Tab Katalog Biaya untuk melihat tabel 31 Kode Transaksi Resmi Bank BRI.',
+          '2. Gunakan kolom pencarian cepat (misal: ketik "62" untuk Syahriyah, "48" untuk Awal Tahun).',
+          '3. Klik pada baris kode untuk langsung menggunakannya di modul Generator BRIVA.'
         ]
       },
       konverter: {
         id: 'konverter',
         name: 'Konverter Excel Massal',
-        category: 'Layanan BRIVA & Junio',
+        category: 'Layanan BRIVA & Bank',
         desc: 'Alat pengubah data mentah Excel santri dari format acak menjadi format standar yang bersih dan siap diolah.',
-        keywords: ['konverter', 'convert excel', 'ubah format', 'import santri', 'tabel acak'],
-        summary: 'Mengubah format tabel lama/eksternal menjadi tabel bersih yang sesuai dengan standar Partner Fatih.',
+        keywords: ['konverter', 'convert excel', 'ubah format', 'import santri', 'tabel acak', 'spreadsheet'],
+        summary: 'Mengubah format tabel dari spreadsheet luar menjadi format standar Partner Fatih secara otomatis.',
         guide: [
-          '1. Salin data dari file Excel lama Anda.',
-          '2. Tempelkan ke dalam area teks input konverter.',
-          '3. Klik "Analisa & Konversi". Sistem akan membersihkan kolom dan menyelaraskan NIS/Nama.'
+          '1. Salin baris data dari spreadsheet Excel Anda.',
+          '2. Tempelkan ke area teks input konverter.',
+          '3. Klik "Analisa & Konversi". Sistem otomatis membersihkan kolom, nama, dan nominal.'
         ]
       },
       jurnal: {
         id: 'jurnal',
         name: 'Jurnal Mengajar Guru',
         category: 'Akademik & Guru',
-        desc: 'Pencatatan agenda KBM harian guru, jadwal mengajar mingguan, absensi kelas, dan rekap penilaian tugas/ulangan.',
-        keywords: ['jurnal', 'jurnal mengajar', 'kbm', 'agenda guru', 'jadwal mengajar', 'absensi', 'nilai santri'],
-        summary: 'Buku jurnal mengajar digital guru dengan fitur asisten suara harian, reminder jam pelajaran, dan rekap capaian kurikulum.',
+        desc: 'Pencatatan agenda KBM harian guru, jadwal mengajar mingguan MTs & Madin, absensi kelas, dan rekap penilaian capaian belajar.',
+        keywords: ['jurnal', 'jurnal mengajar', 'kbm', 'agenda guru', 'jadwal mengajar', 'absensi', 'nilai santri', 'prakarya', 'safinatun najah'],
+        summary: 'Jurnal digital guru dengan jadwal mengajar MTs (Prakarya 7A-7D, 8A-8D) & Madin Diniyah (Safinatun Najah 1 Ula A-B), dilengkapi asisten suara.',
         guide: [
-          '1. Pilih mata pelajaran dan kelas yang diajar.',
-          '2. Tulis materi pokok dan catatan KBM hari ini (atau gunakan tombol mic asisten suara).',
-          '3. Catat santri yang tidak hadir atau butuh bimbingan khusus.',
-          '4. Simpan agenda ke riwayat jurnal.'
+          '1. Pilih kelas dan mata pelajaran yang sedang diajar hari ini.',
+          '2. Tulis materi pokok atau gunakan tombol mikrofon untuk merekam ringkasan KBM secara suara.',
+          '3. Tandai santri yang sakit, izin, atau alfa pada daftar presensi.',
+          '4. Klik "Simpan Jurnal" agar tercatat di rekap riwayat mengajar.'
         ]
       },
       cbt: {
@@ -42139,12 +42553,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         name: 'Bank Soal CBT & Kisi-kisi',
         category: 'Akademik & Guru',
         desc: 'Generator bank soal ujian pilihan ganda & esai, perakit kisi-kisi otomatis, dan ekspor instan ke file Microsoft Word (.docx).',
-        keywords: ['cbt', 'soal', 'bank soal', 'kisi-kisi', 'word docx', 'ujian', 'kunci jawaban'],
-        summary: 'Membuat naskah soal ujian berstandar dinas/kemenag lengkap dengan kop resmi yayasan, tabel kisi-kisi, dan kunci jawaban otomatis.',
+        keywords: ['cbt', 'soal', 'bank soal', 'kisi-kisi', 'word docx', 'ujian', 'kunci jawaban', 'naskah soal'],
+        summary: 'Membuat naskah soal ujian berstandar dinas/kemenag lengkap dengan kop yayasan, tabel titik-titik samar, dan matriks kunci jawaban terpisah.',
         guide: [
-          '1. Input pertanyaan, opsi pilihan (A, B, C, D, E), dan kunci jawaban.',
-          '2. Susun kisi-kisi capaian pembelajaran.',
-          '3. Klik "Ekspor Naskah Soal Word (.docx)" untuk mengunduh dokumen siap cetak.'
+          '1. Masukkan butir pertanyaan, opsi jawaban (A, B, C, D, E), dan kunci jawaban yang benar.',
+          '2. Susun kisi-kisi capaian pembelajaran pada kolom indikator.',
+          '3. Klik "Ekspor Naskah Soal (.docx)" untuk mendapatkan berkas Word siap cetak.'
         ]
       },
       tahfidz: {
@@ -42152,78 +42566,65 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         name: 'Tahfidz Tasmi\' Santri',
         category: 'Akademik & Guru',
         desc: 'Aplikasi penilaian ujian Tasmi\' bil Ghoib sekali duduk 31 santri binaan YTPAI, kalkulator kelulusan Mumtaz/Jayyid, dan cetak sertifikat.',
-        keywords: ['tahfidz', 'tasmi', 'tasmiyah', '31 santri', 'juz', 'mumtaz', 'jayyid', 'sertifikat', 'hafalan'],
-        summary: 'Manajemen ujian tasmi\' hafalan Al-Qur\'an santri dengan radar capaian juz, skor tajwid/kelancaran, dan pamflet kelulusan.',
+        keywords: ['tahfidz', 'tasmi', 'tasmiyah', '31 santri', 'juz', 'mumtaz', 'jayyid', 'sertifikat', 'hafalan', 'ujian tasmi'],
+        summary: 'Manajemen ujian tasmi hafalan Al-Qur\'an santri dengan radar capaian juz, skor tajwid/fashahah, predikat kelulusan, dan cetak sertifikat resmi.',
         guide: [
-          '1. Pilih nama santri dari daftar 31 Santri Binaan.',
-          '2. Tentukan juz yang diujikan (misal: Juz 1-5 atau Juz 30).',
-          '3. Masukkan nilai Tajwid, Fashahah, dan Kelancaran.',
-          '4. Sistem otomatis menetapkan predikat (Mumtaz, Jayyid Jiddan, Jayyid) dan mencetak sertifikat.'
+          '1. Pilih santri dari daftar 31 Santri Binaan Tahfidz YTPAI.',
+          '2. Tentukan target juz yang diujikan (misal: Juz 1-5 atau Juz 30 sekali duduk).',
+          '3. Masukkan skor Tajwid, Kelancaran, dan Fashahah.',
+          '4. Sistem otomatis menetapkan predikat (Mumtaz >= 90, Jayyid Jiddan 80-89, Jayyid 70-79) dan menerbitkan sertifikat.'
         ]
       },
       akun: {
         id: 'akun',
         name: 'Generator Akun & PPDB',
         category: 'Akademik & Guru',
-        desc: 'Pembuat akun login massal santri/wali santri (Username/Password), nomor registrasi PPDB, dan cetak kartu akses.',
-        keywords: ['akun', 'ppdb', 'generator akun', 'username', 'password', 'kartu santri', 'nisn'],
-        summary: 'Membuat kredensial akun aman untuk sistem ujian CBT dan portal wali santri secara massal dalam hitungan detik.',
+        desc: 'Pembuat akun login massal santri/wali santri (Username/Password), nomor registrasi PPDB, dan cetak kartu akses ujian CBT.',
+        keywords: ['akun', 'ppdb', 'generator akun', 'username', 'password', 'kartu santri', 'nisn', 'login'],
+        summary: 'Membuat kredensial akun aman untuk portal wali murid dan sistem ujian CBT secara massal dalam hitungan detik.',
         guide: [
-          '1. Masukkan daftar santri baru atau nomor registrasi.',
-          '2. Tentukan format username & pola password acak aman.',
-          '3. Klik "Generate Akun" lalu unduh kartu akun siap dibagikan.'
+          '1. Masukkan daftar santri baru atau nomor registrasi formulir PPDB.',
+          '2. Tentukan pola username dan sandi acak aman.',
+          '3. Klik "Generate Akun Massal" lalu unduh berkas kartu login santri.'
         ]
       },
       humas: {
         id: 'humas',
         name: 'Humas & Sosmed (Radar H-7)',
-        category: 'Humas, Inovasi & Pribadi',
+        category: 'Humas & Publikasi',
         desc: 'Radar H-7 peringatan hari besar nasional (PHBN) & Islam (PHBI), 252 Master Agenda YTPAI 2026-2027, dan pembuat pamflet sosmed.',
-        keywords: ['humas', 'sosmed', 'radar h-7', 'phbn', 'phbi', 'agenda', 'pamflet', 'kalender', 'hari besar'],
-        summary: 'Modul peringatan dini H-7 agenda yayasan dan hari besar agar tim humas tidak pernah terlambat membuat pamflet dan ucapan resmi.',
+        keywords: ['humas', 'sosmed', 'radar h-7', 'phbn', 'phbi', 'agenda', 'pamflet', 'kalender', 'hari besar', 'caption', 'instagram'],
+        summary: 'Modul peringatan dini H-7 agenda yayasan dan hari besar agar tim humas tidak terlambat membuat draf pamflet, flyer, dan caption sosmed.',
         guide: [
-          '1. Periksa kartu "Radar H-7" di bagian atas untuk melihat agenda terdekat.',
-          '2. Klik "Buat Pamflet / Teks Ucapan" untuk mendapatkan draf caption WhatsApp dan Instagram.',
-          '3. Jadwalkan publikasi ke kalender tahunan yayasan.'
+          '1. Pantau kartu "Radar H-7" di bagian atas untuk melihat agenda terdekat dalam 7 hari ke depan.',
+          '2. Klik "Buat Caption Instan" untuk mendapatkan draf teks ucapan resmi WhatsApp dan Instagram.',
+          '3. Buka kalender tahunan untuk melihat 252 Master Agenda resmi YTPAI 2026-2027.'
         ]
       },
       keuangan: {
         id: 'keuangan',
         name: 'Keuangan Pribadi Pintar',
-        category: 'Humas, Inovasi & Pribadi',
-        desc: 'Pengelola dompet pribadi, deteksi "bocor halus" pengeluaran, asisten suara pencatatan pengeluaran, dan alokasi amplop pintar.',
-        keywords: ['keuangan', 'dompet', 'bocor halus', 'uang', 'pengeluaran', 'struk', 'gaji', 'anggaran'],
-        summary: 'Mengontrol keuangan harian guru dan staf agar tidak boncos dengan metode alokasi amplop dan pengingat kebocoran dana kecil.',
+        category: 'Finansial & Pribadi',
+        desc: 'Pengelola dompet pribadi, detektor "bocor halus" pengeluaran, asisten suara pencatatan belanja, dan alokasi amplop pintar.',
+        keywords: ['keuangan', 'dompet', 'bocor halus', 'uang', 'pengeluaran', 'struk', 'gaji', 'anggaran', 'hemat'],
+        summary: 'Mengontrol keuangan harian guru dan staf agar tidak boros melalui metode alokasi amplop dan pengingat kebocoran dana kecil.',
         guide: [
-          '1. Catat pemasukan (gaji, insentif, bagi hasil).',
-          '2. Gunakan asisten suara untuk mencatat belanja harian ("Beli bensin 25 ribu").',
-          '3. Pantau grafik "Radar Bocor Halus" untuk melihat pos yang boros.'
+          '1. Catat pos pemasukan bulanan (gaji, insentif, bagi hasil bisnis).',
+          '2. Gunakan asisten suara untuk mencatat belanja harian secara cepat.',
+          '3. Pantau grafik "Radar Bocor Halus" untuk melihat pos-pos pengeluaran kecil yang sering terabaikan.'
         ]
       },
       ide: {
         id: 'ide',
         name: 'Ruang Ide & Tumbuh',
-        category: 'Humas, Inovasi & Pribadi',
-        desc: 'Inkubator ide kreatif, papan kanban validasi peluang usaha, dan pengikis keraguan (Anti-Ragu).',
-        keywords: ['ide', 'ruang ide', 'inovasi', 'peluang', 'validasi', 'kanban', 'catatan ide'],
-        summary: 'Tempat menampung gagasan segar, menguji kelayakan ide, dan memecahnya menjadi rencana eksekusi nyata.',
+        category: 'Finansial & Pribadi',
+        desc: 'Inkubator gagasan kreatif, papan kanban validasi peluang usaha, dan pengikis keraguan (Zona Anti-Ragu).',
+        keywords: ['ide', 'ruang ide', 'inovasi', 'peluang', 'validasi', 'kanban', 'catatan ide', 'anti-ragu'],
+        summary: 'Tempat menampung gagasan segar, menguji kelayakan ide wirausaha, dan memecahnya menjadi langkah eksekusi nyata.',
         guide: [
-          '1. Tulis ide liar Anda di kartu ide.',
-          '2. Berikan skor dampak vs kemudahan eksekusi.',
-          '3. Geser ide di papan Kanban dari "Draft" ke "Tervalidasi" hingga "Selesai".'
-        ]
-      },
-      bisnis: {
-        id: 'bisnis',
-        name: 'Inkubator Bisnis & Titip Jual',
-        category: 'Humas, Inovasi & Pribadi',
-        desc: 'Manajemen konsinyasi warung/kantin, kalkulator kasir bagi hasil otomatis, pantauan arus kas modal, dan script penguat mental anti-minder.',
-        keywords: ['bisnis', 'titip jual', 'konsinyasi', 'warung', 'bagi hasil', 'modal', 'anti-minder', 'kasir'],
-        summary: 'Modul wirausaha sampingan tanpa modal besar: kelola warung penitipan, hitung untung bersih per produk, dan atasi rasa malu menawarkan produk.',
-        guide: [
-          '1. Catat nama warung mitra di modul Titip Jual.',
-          '2. Masukkan produk, harga titip (pokok), dan harga jual warung.',
-          '3. Buka tab "Script Anti-Minder" jika Anda merasa canggung atau ragu saat menawarkan produk ke pemilik warung.'
+          '1. Catat ide baru pada kartu gagasan.',
+          '2. Lakukan evaluasi nilai tambah dan analisa pembeda agar tidak terjebak perang harga.',
+          '3. Geser status kartu pada papan Kanban dari "Draft" ke "Tervalidasi" hingga "Eksekusi".'
         ]
       },
       pembersih: {
@@ -42232,11 +42633,11 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         category: 'Alat Bantu & Utilitas',
         desc: 'Generator formula SUM Excel otomatis, pembersih spasi ganda, perbaikan format angka teks Bank BRI, dan standardisasi nama.',
         keywords: ['pembersih', 'sum', 'formula excel', 'spasi ganda', 'trim', 'kalkulasi'],
-        summary: 'Membersihkan data tabel kotor sebelum dimasukkan ke dalam generator BRIVA.',
+        summary: 'Membersihkan data tabel mentah dari spasi ganda dan format nominal salah sebelum diimpor ke sistem.',
         guide: [
-          '1. Tempel data teks yang memiliki spasi ganda atau format berantakan.',
+          '1. Salin data teks atau tabel yang ingin dibersihkan.',
           '2. Klik tombol "Bersihkan Format & Spasi".',
-          '3. Salin kembali teks yang sudah rapi ke lembar Excel Anda.'
+          '3. Salin kembali hasil yang sudah bersih dan rapi ke lembar Excel Anda.'
         ]
       },
       wa: {
@@ -42244,12 +42645,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         name: 'Template WhatsApp Broadcast',
         category: 'Alat Bantu & Utilitas',
         desc: '6 format template pesan WhatsApp resmi untuk tagihan santri, ucapan hari besar, pengumuman rapat, dan undangan wali murid.',
-        keywords: ['wa', 'whatsapp', 'template wa', 'broadcast', 'pesan wali', 'pengumuman'],
+        keywords: ['wa', 'whatsapp', 'template wa', 'broadcast', 'pesan wali', 'pengumuman', 'undangan'],
         summary: 'Menyusun pesan WhatsApp sopan, profesional, dan personal dengan variabel dinamis seperti {nama}, {nominal}, dan {tanggal}.',
         guide: [
-          '1. Pilih jenis template yang diinginkan (Tagihan, Undangan, atau Pengumuman).',
-          '2. Masukkan variabel data santri.',
-          '3. Klik "Buka WhatsApp Langsung" atau "Salin Teks".'
+          '1. Pilih jenis template pesan yang ingin dikirimkan.',
+          '2. Masukkan rincian variabel data santri/wali murid.',
+          '3. Klik "Salin Teks" atau "Buka WhatsApp Langsung".'
         ]
       },
       panduan: {
@@ -42261,13 +42662,13 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         summary: 'Panduan referensi regulasi bank dan tata cara administrasi yayasan YTPAI.',
         guide: [
           '1. Pilih bab SOP yang ingin Anda pelajari.',
-          '2. Terapkan panduan langkah demi langkah pada lembar kerja Anda.'
+          '2. Ikuti panduan visual langkah demi langkah pada lembar kerja Anda.'
         ]
       }
     }
   };
 
-  // --- 2. JURNAL & SCHEDULE DATA ENGINE (REALTIME DATABASE BINDING) ---
+  // --- 2. MASTER DATA SCHEDULES (KBM GURU YTPAI) ---
   const FATIH_DEFAULT_SCHEDULES = [
     { day: 'Ahad',  time: '07.00 - 08.30', classId: '8C', subject: 'Prakarya', room: 'Ruang MTs 8C' },
     { day: 'Ahad',  time: '08.30 - 09.50', classId: 'Semua', subject: 'Pengembangan Diri', room: 'Gedung MTs / Terpadu' },
@@ -42283,14 +42684,6 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     { day: 'Jumat', time: '18.00 - 19.30', classId: '1UlaB', subject: 'Safinatun Najah (Madin)', room: 'Gedung Diniyah Lt. 2' }
   ];
 
-  function getJurnalData() {
-    try {
-      const raw = localStorage.getItem('partner_fatih_jurnal_guru_v2');
-      if (raw) return JSON.parse(raw);
-    } catch(e) {}
-    return null;
-  }
-
   // --- 2B. PILAR KEDEWASAAN BERPIKIR & BERTINDAK (FATHIYA WISDOM VAULT) ---
   const FATHIYA_WISDOM_VAULT = [
     {
@@ -42298,8 +42691,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
       title: 'Pilar Kedewasaan Berpikir: Jernih, Tenang & Mengambil Tanggung Jawab Penuh',
       quote: '"Kedewasaan sejati tidak diukur dari angka usia, melainkan dari kemampuan kita menahan reaksi pertama, menata emosi dengan kepala dingin, dan memilih solusi bermartabat daripada sibuk mengeluh."',
       actions: [
-        '1. **Jeda Sebelum Merespons (Pause & Breathe)**: Orang yang belum matang bereaksi spontan terbawa perasaan; orang dewasa memberi jeda beberapa detik agar akal sehat dan adab yang memegang kendali.',
-        '2. **Tanggung Jawab Pribadi (Radical Ownership)**: Berhentilah mencari kambing hitam. Tanyakan pada diri: *\'Apa satu hal yang berada dalam kendaliku hari ini untuk memperbaiki keadaan?\'*',
+        '1. **Jeda Sebelum Merespons (Pause & Breathe)**: Jangan bereaksi spontan terbawa perasaan. Beri jeda beberapa detik agar akal sehat dan adab yang memegang kendali.',
+        '2. **Tanggung Jawab Pribadi (Radical Ownership)**: Berhenti mencari kambing hitam. Tanyakan pada diri: *\'Apa satu hal yang berada dalam kendaliku hari ini untuk memperbaiki keadaan?\'*',
         '3. **Kedepankan Konsekuensi Jangka Panjang (Second-Order Thinking)**: Jangan mengambil keputusan saat amarah atau kelelahan memuncak. Ukur dampak kata-kata dan tindakan kita untuk masa depan.'
       ],
       voiceText: 'Kedewasaan berawal dari kemampuan kita menenangkan diri, menahan reaksi sesaat, dan mengambil tanggung jawab penuh atas tindakan kita sahabatku.'
@@ -42309,9 +42702,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
       title: 'Menjinakkan Amarah: Menjaga Martabat di Saat Paling Menantang',
       quote: '"Bukanlah orang kuat itu yang pandai bergulat atau membalas cercaan, tetapi orang kuat adalah yang mampu mengendalikan dirinya saat amarah bergolak." (HR. Bukhari)',
       actions: [
-        '1. **Ubah Posisi & Beri Jeda Fisik**: Jika sedang berdiri, duduklah. Jika duduk, berbaringlah atau basuh wajah dengan air wudhu untuk memadamkan gejolak amarah.',
-        '2. **Pisahkan Fakta dari Asumsi**: Seringkali yang menyakiti kita bukanlah perbuatan orang lain, melainkan cerita buruk yang dibangun oleh pikiran kita sendiri. Tetaplah obyektif.',
-        '3. **Sampaikan Batasan dengan Elegan**: Bersikap tegas tidak perlu membentak. Nada bicara yang tenang, jelas, dan santun justru memancarkan wibawa kepemimpinan yang disegani.'
+        '1. **Ubah Posisi & Beri Jeda Fisik**: Jika berdiri maka duduklah, jika duduk maka berbaringlah, atau basuh wajah dengan air wudhu untuk memadamkan api amarah.',
+        '2. **Pisahkan Fakta dari Asumsi**: Seringkali yang menyakiti kita bukanlah perbuatan orang lain, melainkan cerita buruk yang dibangun oleh pikiran kita sendiri.',
+        '3. **Sampaikan Batasan dengan Elegan**: Bersikap tegas tidak harus membentak. Nada bicara yang tenang, jelas, dan santun justru memancarkan wibawa kepemimpinan yang disegani.'
       ],
       voiceText: 'Tahan sejenak amarah Anda sahabatku. Kemenangan sejati adalah saat kita mampu menguasai diri dan tetap menjaga adab.'
     },
@@ -42321,7 +42714,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
       quote: '"Keraguan tidak akan hilang dengan menunggu keadaan sempurna, tetapi dengan keberanian memilih jalan yang berprinsip dan siap menanggung risikonya secara ksatria."',
       actions: [
         '1. **Gunakan Kaidah 10/10/10**: Bagaimana dampak pilihan ini dalam 10 menit ke depan? 10 bulan ke depan? Dan 10 tahun ke depan?',
-        '2. **Pilih yang Lebih Mengutamakan Maslahat & Integritas**: Jika dua pilihan tampak seimbang, pilih opsi yang menuntut disiplin dan kebaikan jangka panjang, bukan kenyamanan semu.',
+        '2. **Pilih yang Lebih Mengutamakan Maslahat & Integritas**: Jika dua pilihan tampak seimbang, pilih opsi yang menuntut disiplin dan kebaikan jangka panjang, bukan kenyamanan sesaat.',
         '3. **Setelah Memilih, Melangkahlah dengan Tawakal**: Jangan habiskan energi menyesali masa lalu. Fokuskan seluruh daya untuk menuntaskan amanah yang telah dipilih.'
       ],
       voiceText: 'Saat bimbang, pilihlah yang paling membawa maslahat jangka panjang dan berpegang teguhlah pada prinsip moral.'
@@ -42350,24 +42743,25 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     }
   ];
 
-  // --- 3. STATE & CONVERSATION CONTEXT ENGINE ---
+  // --- 3. CONVERSATION CONTEXT & MULTITURN MEMORY ENGINE ---
   let chatHistory = [];
   let isThinking = false;
+  let isExpanded = false;
   let speechRecognition = null;
   let isListening = false;
   let lastPromptWasVoice = false;
+  let isAutoVoiceEnabled = false;
 
-  // Memori Konteks Percakapan Multiturn (Singkron & Sadar Topik Berkelanjutan)
   const chatContext = {
-    lastTopic: null,          // 'jadwal', 'kehadiran', 'briva', 'tahfidz', 'agenda', 'sharing'
-    lastClass: '7A',          // default kelas
-    lastDayName: null,        // hari acuan
+    lastTopic: null,          // 'bisnis', 'rekap_junio', 'briva', 'jadwal', 'kehadiran', 'tahfidz', 'cbt', 'humas', 'keuangan', 'sharing', 'kedewasaan'
+    lastClass: '7A',
+    lastDayName: null,
+    lastTab: null,
     lastMatchingSchedules: [],
-    lastTargetStudent: null,
-    recentTurns: []           // [{ role: 'user'|'fatih', text: '...' }]
+    recentTurns: []           // [{ role: 'user'|'fatih', text: '...', topic: '...' }]
   };
 
-  // Helper Pengambil Master Data Humas & Kalender Tahunan (252 Agenda Resmi YTPAI 2026-2027)
+  // Helper Pengambil Master Data Humas & Kalender Tahunan
   function getHumasPrograms() {
     try {
       if (typeof window !== 'undefined' && window.humasState && Array.isArray(window.humasState.programs) && window.humasState.programs.length > 0) {
@@ -42379,7 +42773,6 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch(e) {}
-    // Fallback Agenda Utama Resmi YTPAI 2026-2027
     return [
       { tgl: '22', bulan: 'Oktober', tahun: '2026', uraian: 'Peringatan Hari Santri Nasional 2026 (Apel Akbar & Kirab Budaya Santri)', pj: 'Kesiswaan & Humas', sasaran: 'Seluruh Santri, Wali & Asatidz YTPAI', kategori: 'phbi' },
       { tgl: '28', bulan: 'Oktober', tahun: '2026', uraian: 'Peringatan Hari Sumpah Pemuda (Upacara Bendera & Gelar Kreasi Siswa)', pj: 'Kesiswaan', sasaran: 'Siswa MTs & MA', kategori: 'nasional' },
@@ -42407,23 +42800,32 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     return [];
   }
 
-  // Helper Deteksi Tab Aplikasi yang Sedang Dibuka Pengguna
+  // Helper Deteksi Tab Aktif Aplikasi
   function detectActiveAppTab() {
-    const tabKeys = ['konverter', 'akun', 'briva', 'panggil', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio', 'bisnis'];
+    const tabKeys = ['bisnis', 'rekap_junio', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'briva', 'panggil', 'akun', 'tahfidz', 'katalog', 'pembersih', 'panduan', 'wa', 'konverter'];
+    
+    // 1. Cek dari window.currentTab bila tersedia
+    if (typeof window !== 'undefined' && window.currentTab && FATIH_KNOWLEDGE_BASE.tabs[window.currentTab]) {
+      return window.currentTab;
+    }
+
+    // 2. Cek elemen tab yang tidak memiliki class 'hidden'
     for (const k of tabKeys) {
       const el = document.getElementById('tab-' + k) || 
-                 document.getElementById('tab' + k.charAt(0).toUpperCase() + k.slice(1)) ||
-                 document.querySelector(`[data-tab-content="${k}"]`);
+                 document.getElementById('tab' + k.charAt(0).toUpperCase() + k.slice(1));
       if (el && !el.classList.contains('hidden') && el.offsetParent !== null) {
         return k;
       }
     }
-    const activeNav = document.querySelector('.tab-pill.active, [data-tab].active');
-    if (activeNav) {
-      const dt = activeNav.getAttribute('data-tab') || activeNav.getAttribute('data-tab-target');
-      if (dt && FATIH_KNOWLEDGE_BASE.tabs[dt]) return dt;
+
+    // 3. Cek dock atau room pill active
+    const activeDock = document.querySelector('.dock-item-active, .room-pill-active');
+    if (activeDock && activeDock.id) {
+      const match = activeDock.id.replace(/^(dock-|room-|nav-)/, '');
+      if (match && FATIH_KNOWLEDGE_BASE.tabs[match]) return match;
     }
-    return 'briva';
+
+    return 'bisnis';
   }
 
   // Generator Tabel Pintasan Aplikasi (Interactive Fast-Action Table)
@@ -42446,7 +42848,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
             ${escapeHtml(desc)}
           </td>
           <td class="py-1.5 px-2 text-right">
-            <button type="button" onclick="window.switchTab('${tabKey}'); window.closeFatihChat();" class="px-2 py-0.5 rounded bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-300 font-bold border border-emerald-400/40 text-[9px] cursor-pointer transition-all active:scale-95 inline-flex items-center gap-1">
+            <button type="button" onclick="window.switchTab('${tabKey}'); window.closeFatihChat();" class="px-2.5 py-1 rounded-md bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-300 font-bold border border-emerald-400/40 text-[9.5px] cursor-pointer transition-all active:scale-95 inline-flex items-center gap-1 shadow-2xs">
               <span>Buka</span>
               <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>
             </button>
@@ -42456,21 +42858,21 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     }).join('');
 
     return `
-      <div class="mt-2 rounded-lg border border-emerald-500/30 bg-slate-950/80 overflow-hidden shadow-xs">
-        <div class="px-2.5 py-1 bg-emerald-950/60 border-b border-emerald-500/20 flex items-center justify-between text-[10px]">
-          <span class="font-bold text-emerald-300 flex items-center gap-1">
-            <i data-lucide="compass" class="w-3 h-3 text-emerald-400"></i>
-            <span>Pintasan Menu Cepat</span>
+      <div class="mt-2.5 rounded-xl border border-emerald-500/30 bg-slate-950/80 overflow-hidden shadow-xs">
+        <div class="px-2.5 py-1.5 bg-emerald-950/60 border-b border-emerald-500/20 flex items-center justify-between text-[10px]">
+          <span class="font-bold text-emerald-300 flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Pintasan Aksi Cepat 1-Klik</span>
           </span>
-          <span class="text-[8.5px] text-emerald-400/80 font-mono">1-Klik Langsung Buka</span>
+          <span class="text-[8.5px] text-emerald-400/80 font-mono">Langsung Buka</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-[10px] divide-y divide-white/5">
             <thead class="bg-white/[0.02] text-slate-400 text-[9px] uppercase font-bold tracking-wider">
               <tr>
-                <th class="py-1 px-2">Modul Tujuan</th>
-                <th class="py-1 px-2">Keperluan Kerja</th>
-                <th class="py-1 px-2 text-right w-16">Aksi</th>
+                <th class="py-1.5 px-2">Modul Tujuan</th>
+                <th class="py-1.5 px-2">Keterangan</th>
+                <th class="py-1.5 px-2 text-right w-16">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-white/5">
@@ -42482,638 +42884,481 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     `;
   }
 
-  // Generator Tabel Pintasan Lengkap 16 Modul Partner Fatih
+  // --- 4. DYNAMIC CONTEXTUAL SUGGESTIONS PER ACTIVE TAB ---
+  function getContextualSuggestions(tabId) {
+    switch(tabId) {
+      case 'bisnis':
+        return [
+          { icon: '🏪', title: 'Panduan Titip Jual', desc: 'SOP titip warung konsinyasi', prompt: 'Bagaimana cara mulai titip jual di warung?' },
+          { icon: '💰', title: 'Hitung Bagi Hasil', desc: 'Simulasi kasir otomatis 20%', prompt: 'Bagaimana cara hitung bagi hasil warung dan kasir otomatis?' },
+          { icon: '🛡️', title: 'Script Anti-Minder', desc: 'Mental percaya diri jualan', prompt: 'Beri saya script anti-minder untuk menawarkan produk ke warung' },
+          { icon: '📊', title: 'Catat Arus Kas', desc: 'Pantau modal & laba bersih', prompt: 'Bagaimana cara catat arus kas dan modal di modul Titip Jual?' }
+        ];
+      case 'rekap_junio':
+        return [
+          { icon: '📊', title: 'Rekap 6-Sheet', desc: 'Format audit Excel resmi', prompt: 'Jelaskan format rekap Excel 6-Sheet transaksi Junio Smart' },
+          { icon: '🖨️', title: 'Cetak PDF Legal', desc: 'Dokumen landscape resmi', prompt: 'Bagaimana cara cetak ringkasan legal PDF transaksi Junio?' },
+          { icon: '🏦', title: 'Mapping 31 Pos', desc: 'Klasifikasi pos rekening', prompt: 'Bagaimana cara memetakan pos anggaran yayasan di rekap Junio?' },
+          { icon: '🔍', title: 'Import Mutasi', desc: 'Unggah file CMS BRI', prompt: 'Bagaimana cara upload file mutasi transaksi Junio Smart?' }
+        ];
+      case 'humas':
+        return [
+          { icon: '📢', title: 'Radar H-7', desc: 'Pengingat agenda terdekat', prompt: 'Cek agenda terdekat pada Radar H-7 Humas' },
+          { icon: '📅', title: '252 Master Agenda', desc: 'Kalender tahunan YTPAI', prompt: 'Tampilkan agenda resmi yayasan di kalender tahunan' },
+          { icon: '✍️', title: 'Draf Caption WA/IG', desc: 'Teks ucapan hari besar', prompt: 'Buatkan draf caption ucapan resmi hari besar untuk humas' },
+          { icon: '🖼️', title: 'Format Pamflet', desc: 'Standar publikasi resmi', prompt: 'Apa standar pembuatan pamflet publikasi yayasan?' }
+        ];
+      case 'jurnal':
+        return [
+          { icon: '📖', title: 'Jadwal Hari Ini', desc: 'Cek jam & kelas mengajar', prompt: 'Cek jadwal mengajar saya hari ini' },
+          { icon: '👥', title: 'Siswa Tidak Hadir', desc: 'Rekap absensi santri', prompt: 'Siapa saja santri yang tidak hadir hari ini?' },
+          { icon: '🎙️', title: 'Catat KBM Suara', desc: 'Input materi lewat mic', prompt: 'Bagaimana cara menggunakan asisten suara untuk mencatat KBM?' },
+          { icon: '📝', title: 'Isi Jurnal Cepat', desc: 'Langkah simpan agenda', prompt: 'Bagaimana langkah cepat mengisi jurnal mengajar guru?' }
+        ];
+      case 'briva':
+        return [
+          { icon: '💳', title: 'Format 5-Kolom', desc: 'Standar Bank BRI CMS', prompt: 'Jelaskan format 5 kolom tagihan massal BRIVA' },
+          { icon: '🔢', title: 'Daftar Kode ID', desc: 'Kode 48 s.d. 80 resmi', prompt: 'Sebutkan kode transaksi BRIVA resmi YTPAI' },
+          { icon: '📋', title: '3 Mode Baris', desc: 'Rinci vs Kategori vs 1 Baris', prompt: 'Apa perbedaan mode Pecah Rinci, Kategori, dan 1 Baris pada BRIVA?' },
+          { icon: '📂', title: 'Import Tagihan', desc: 'Upload spreadsheet Excel', prompt: 'Bagaimana cara import data santri ke generator BRIVA?' }
+        ];
+      case 'cbt':
+        return [
+          { icon: '📝', title: 'Format Word .docx', desc: 'Naskah ujian rapi ber-kop', prompt: 'Jelaskan format naskah soal Word .docx standar CBT' },
+          { icon: '🎯', title: 'Susun Kisi-kisi', desc: 'Matriks capaian soal', prompt: 'Bagaimana cara menyusun kisi-kisi soal ujian di CBT?' },
+          { icon: '🔑', title: 'Kunci Jawaban', desc: 'Matriks kunci terpisah', prompt: 'Bagaimana cara mengatur kunci jawaban dan bobot nilai soal?' },
+          { icon: '📤', title: 'Unduh Berkas', desc: 'Ekspor naskah siap cetak', prompt: 'Bagaimana cara ekspor soal ke file Word yang siap dicetak?' }
+        ];
+      case 'tahfidz':
+        return [
+          { icon: '📖', title: '31 Santri Binaan', desc: 'Daftar peserta tasmi', prompt: 'Tampilkan daftar 31 santri binaan tahfidz YTPAI' },
+          { icon: '🏅', title: 'Kriteria Nilai', desc: 'Mumtaz, Jayyid Jiddan', prompt: 'Berapa standar nilai kelulusan Mumtaz dan Jayyid ujian Tasmi?' },
+          { icon: '📜', title: 'Cetak Sertifikat', desc: 'Piagam resmi sekali duduk', prompt: 'Bagaimana cara mencetak sertifikat ujian Tasmi bil Ghoib?' },
+          { icon: '🎯', title: 'Target Ujian', desc: 'Metode sekali duduk', prompt: 'Jelaskan tata cara ujian Tasmi hafalan Al-Qur\'an sekali duduk' }
+        ];
+      case 'keuangan':
+        return [
+          { icon: '🔍', title: 'Radar Bocor Halus', desc: 'Detektor pengeluaran kecil', prompt: 'Bagaimana cara mendeteksi bocor halus pengeluaran pribadi?' },
+          { icon: '✉️', title: 'Alokasi Amplop', desc: 'Manajemen pos dana pintar', prompt: 'Jelaskan metode alokasi amplop untuk mengontrol pengeluaran' },
+          { icon: '🎙️', title: 'Catat Belanja Suara', desc: 'Input instan via mic', prompt: 'Bagaimana cara mencatat belanja harian lewat asisten suara?' },
+          { icon: '💡', title: 'Tips Berhemat', desc: 'Menata gaji guru berkah', prompt: 'Beri saya tips mengelola keuangan guru agar tetap lapang dan berkah' }
+        ];
+      case 'akun':
+        return [
+          { icon: '👤', title: 'Akun PPDB Massal', desc: 'Generate login santri', prompt: 'Bagaimana cara membuat akun login PPDB santri secara massal?' },
+          { icon: '🔑', title: 'Pola Sandi Aman', desc: 'Kombinasi password acak', prompt: 'Bagaimana pola pembuatan username dan sandi santri yang aman?' },
+          { icon: '📇', title: 'Kartu Akses CBT', desc: 'Cetak kartu login ujian', prompt: 'Bagaimana cara mencetak kartu login akses ujian CBT santri?' },
+          { icon: '📱', title: 'Broadcast WA', desc: 'Kirim akun ke wali murid', prompt: 'Bagaimana cara mengirim akun login santri via WhatsApp?' }
+        ];
+      default:
+        return [
+          { icon: '🌿', title: 'Mau Sharing', desc: 'Curhat & diskusi pikiran', prompt: 'Mau sharing dong Fathiya, pikiran lagi terasa penuh' },
+          { icon: '🧭', title: 'Tabel 16 Modul', desc: 'Navigasi cepat 1-klik', prompt: 'Tampilkan tabel pintasan seluruh 16 modul Partner Fatih' },
+          { icon: '📅', title: 'Kalender Tahunan', desc: '252 agenda & PHBN/PHBI', prompt: 'Tampilkan agenda resmi yayasan di kalender tahunan' },
+          { icon: '📖', title: 'Jadwal Mengajar', desc: 'Jam, kelas & mapel KBM', prompt: 'Cek jadwal mengajar saya hari ini' }
+        ];
+    }
+  }
+
+  function renderSuggestionsDom(tabId) {
+    const container = document.getElementById('fatihChatSuggestions');
+    if (!container) return;
+
+    const list = getContextualSuggestions(tabId);
+    container.innerHTML = list.map(item => `
+      <button type="button" onclick="window.sendFatihQuickPrompt('${escapeHtml(item.prompt)}')" class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-emerald-500/25 hover:border-emerald-400/50 text-left transition-all cursor-pointer active:scale-98 shadow-xs flex flex-col justify-between group">
+        <div class="text-[10px] font-bold text-emerald-200 group-hover:text-emerald-100 flex items-center gap-1.5 truncate">
+          <span>${item.icon}</span>
+          <span class="truncate">${escapeHtml(item.title)}</span>
+        </div>
+        <div class="text-[8.5px] text-slate-400 truncate mt-0.5">${escapeHtml(item.desc)}</div>
+      </button>
+    `).join('');
+  }
+
+  // --- 5. SMART INTENT HANDLERS (MAKSIMAL & NYAMBUNG) ---
+
+  // 5.1 Tabel Seluruh 16 Modul
   function handleShowAllModulesTable() {
+    chatContext.lastTopic = 'modul';
+    const actions = Object.values(FATIH_KNOWLEDGE_BASE.tabs).map(t => ({
+      tabId: t.id,
+      name: t.name,
+      desc: t.category + ' — ' + (t.summary || t.desc).substring(0, 55) + '...'
+    }));
+
     return {
-      type: 'all_modules_matrix',
-      text: `Berikut adalah **Tabel Pintasan Navigasi Seluruh 16 Modul Partner Fatih**. Anda bisa langsung mengetuk tombol **"Buka"** pada modul yang hendak Anda tuju setelah berdiskusi dengan Fathiya 🌸`,
-      voiceText: `Berikut tabel pintasan seluruh 16 modul Partner Fatih sahabatku. Silakan pilih modul yang ingin langsung Anda buka.`,
+      type: 'table_all_modules',
+      text: `Berikut adalah **Matriks Pintasan Seluruh 16 Modul Partner Fatih** sahabatku 🧭\n\nSetiap modul dirancang saling terhubung untuk mempermudah tugas administrasi yayasan, akademik, dan wirausaha. Silakan ketuk tombol **Buka** pada tabel di bawah untuk langsung menuju modul yang Anda butuhkan.`,
+      voiceText: 'Berikut daftar seluruh 16 modul Partner Fatih sahabatku. Anda bisa membukanya langsung melalui tombol pada tabel.',
       tabShortcut: null,
-      actionTable: [
-        { tabId: 'briva', name: 'Generator BRIVA', desc: 'Tagihan Virtual Account 5 Kolom BRI' },
-        { tabId: 'rekap_junio', name: 'Rekap Junio Smart', desc: 'Mutasi Transaksi 6-Sheet Excel & PDF' },
-        { tabId: 'panggil', name: 'Panggil Tagihan', desc: 'Rincian Santri, Kwitansi & Reminder WA' },
-        { tabId: 'katalog', name: 'Katalog 31 Kode BRI', desc: 'Daftar Kode 48 s.d. 80 & Tarif Resmi' },
-        { tabId: 'jurnal', name: 'Jurnal Mengajar Guru', desc: 'KBM Harian, Jadwal Mengajar & Absensi' },
-        { tabId: 'cbt', name: 'Bank Soal CBT', desc: 'Kisi-kisi & Naskah Word Docx Resmi' },
-        { tabId: 'tahfidz', name: 'Tahfidz Tasmi\'', desc: 'Ujian Bil Ghoib 31 Santri & Sertifikat' },
-        { tabId: 'akun', name: 'Akun & PPDB', desc: 'Cetak Kartu Login & Password Santri' },
-        { tabId: 'humas', name: 'Humas & Sosmed', desc: 'Radar H-7, Kalender 252 Agenda & Pamflet' },
-        { tabId: 'bisnis', name: 'Inkubator Bisnis', desc: 'Konsinyasi 5 Warung & Script Anti-Minder' },
-        { tabId: 'keuangan', name: 'Keuangan Pribadi', desc: 'Dompet Digital & Deteksi Bocor Halus' },
-        { tabId: 'ide', name: 'Ruang Ide', desc: 'Inovasi, Proposal & Roadmap Yayasan' },
-        { tabId: 'konverter', name: 'Konverter Excel', desc: 'Ubah Tabel Mentah Jadi Standar Bersih' },
-        { tabId: 'pembersih', name: 'Pembersih SUM', desc: 'Format Angka & Rumus SUM Otomatis' },
-        { tabId: 'wa', name: 'Template Broadcast WA', desc: '6 Draf Pesan Wali Santri Dinamis' },
-        { tabId: 'panduan', name: 'Panduan SOP Excel', desc: 'Regulasi Bank BRI & Standar Dokumen' }
-      ]
+      actionTable: actions
     };
   }
 
-  // Load chat history from localStorage
-  try {
-    const saved = localStorage.getItem('partner_fatih_chat_history');
-    if (saved) {
-      chatHistory = JSON.parse(saved);
-      if (!Array.isArray(chatHistory)) chatHistory = [];
-    }
-  } catch(e) {
-    chatHistory = [];
-  }
+  // 5.2 Panduan Kontekstual Berdasarkan Tab yang Sedang Dibuka Pengguna ("Gimana cara pakainya?")
+  function handleTabContextGuidance(activeTab, userText) {
+    const tab = FATIH_KNOWLEDGE_BASE.tabs[activeTab] || FATIH_KNOWLEDGE_BASE.tabs.bisnis;
+    chatContext.lastTopic = tab.id;
+    chatContext.lastTab = tab.id;
 
-  function saveChatHistory() {
-    try {
-      localStorage.setItem('partner_fatih_chat_history', JSON.stringify(chatHistory.slice(-40)));
-    } catch(e) {}
-  }
-
-  // --- 4. REALTIME VOICE COMMAND HANDLERS ---
-
-  // A. Generator Tagihan BRIVA via Voice / Teks (Fleksibel & Tanggap Bahasa Santai)
-  function handleGenerateTagihanVoice(rawText) {
-    const text = rawText.trim();
-    
-    // Extract nama: support "buat daniyal", "buat si daniyal", "untuk si budi", "atas nama...", "siswa...", "santri..."
-    let nama = 'Achmad Alfan';
-    const mNama = text.match(/(?:untuk\s+siswa|siswa|santri|atas\s+nama|buat\s+si|untuk\s+si|buatkan\s+si|buat|untuk|si)\s+([A-Za-z\s'"`]+?)(?=\s+(?:kelas|kls|unit|kode|sebesar|nominal|dengan|rp|sebanyak|dong|ya|$))/i);
-    if (mNama && mNama[1].trim()) {
-      let n = mNama[1].trim();
-      n = n.replace(/\b(spp|syahriyah|tagihan|briva|dsp|anak|siswa|santri)\b/gi, '').trim();
-      if (n) nama = n;
-    }
-
-    // Extract kelas: support "kelas 7A", "kls 8B", "anak 7C", atau langsung "7A", "8D", "1UlaA"
-    let kelas = '7A';
-    const mKelas = text.match(/(?:kelas|kls|tingkat|anak)\s*([0-9]+[A-Za-z]?|[A-Za-z0-9]+)/i) || text.match(/\b([789][A-Da-d]|10|11|12|1ula[ab]?)\b/i);
-    if (mKelas) {
-      kelas = (mKelas[1] || mKelas[0]).trim().toUpperCase();
-      if (kelas === '1ULAA') kelas = '1UlaA';
-      if (kelas === '1ULAB') kelas = '1UlaB';
-    }
-
-    // Extract unit
-    let unit = 'MTs';
-    const mUnit = text.match(/\b(MTs|MA|SMP|SMA|Diniyah|Madin|Pondok|TK|SD)\b/i);
-    if (mUnit && mUnit[1].trim()) unit = mUnit[1].trim().toUpperCase();
-
-    // Extract kode / jenis tagihan: support syahriyah, spp, dsp, daftar ulang, katering, infaq
-    let kode = 'Syahriyah (01)';
-    const mKode = text.match(/kode\s+([A-Za-z0-9_\s]+?)(?=\s+(?:sebesar|nominal|dengan|$))/i) || text.match(/\b(syahriyah|spp|dsp|daftar\s*ulang|katering|infaq|uang\s*gedung|gedung|62|11|33|01)\b/i);
-    if (mKode) {
-      const k = (mKode[1] || mKode[0]).trim();
-      kode = k.charAt(0).toUpperCase() + k.slice(1);
-    }
-
-    // Extract nominal: support "250 ribu", "250rb", "250k", "1.5 juta", "Rp 350.000", atau angka langsung
-    let nominal = 350000;
-    const mNominal = text.match(/(?:sebesar|nominal|rp\.?|jumlah|sebanyak)\s*([\d\.\,]+)/i) || 
-                     text.match(/(\d+[\,\.]?\d*)\s*(?:juta|jt\b)/i) ||
-                     text.match(/(\d+[\,\.]?\d*)\s*(?:ribu|rb|k\b)/i) ||
-                     text.match(/\b(\d{5,8})\b/);
-    if (mNominal) {
-      if (text.includes('juta') || text.includes('jt')) {
-        nominal = parseFloat(mNominal[1].replace(/,/g, '.')) * 1000000;
-      } else if (text.includes('ribu') || text.includes('rb') || text.includes('k')) {
-        nominal = parseFloat(mNominal[1].replace(/,/g, '.')) * 1000;
-      } else {
-        const cleaned = mNominal[1].replace(/[^0-9]/g, '');
-        if (cleaned) nominal = parseInt(cleaned, 10);
-      }
-    }
-
-    // Format dates (DD/MM/YYYY)
-    const today = new Date();
-    const dStr = String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 10);
-    const dTempo = '10/' + String(nextMonth.getMonth() + 1).padStart(2, '0') + '/' + nextMonth.getFullYear();
-
-    const randomSeq = String(Math.floor(100 + Math.random() * 900));
-    const vaNum = '8879901' + randomSeq;
-    const idTagihan = `${kode} - ${nama} (${kelas} ${unit})`;
-    const brivaRow = `${vaNum}\t${idTagihan}\t${nominal}\t${dStr}\t${dTempo}`;
-
-    // Auto-sync into BRIVA input if present in DOM
-    const brivaInput = document.getElementById('brivaVoiceCommandInput');
-    if (brivaInput) {
-      brivaInput.value = `Buat tagihan ${nama} kelas ${kelas} ${unit} kode ${kode}`;
-    }
-
-    const voiceMsg = `Siap! Tagihan untuk ${nama} kelas ${kelas} ${unit} sebesar ${nominal.toLocaleString('id-ID')} rupiah telah saya buatkan di tab BRIVA.`;
-
-    const chatReply = `✅ **Draf Tagihan Massal BRIVA Berhasil Dibuat!**\n\n` +
-      `• **Nama Siswa**: ${nama}\n` +
-      `• **Kelas & Unit**: Kelas ${kelas} (${unit})\n` +
-      `• **Kode Tagihan**: ${kode}\n` +
-      `• **Nominal**: Rp ${nominal.toLocaleString('id-ID')}\n` +
-      `• **No. Registrasi / BRIVA**: \`${vaNum}\`\n` +
-      `• **Tgl Efektif / Tempo**: ${dStr} s.d. ${dTempo}\n\n` +
-      `📋 **Format 5 Kolom Resmi Bank BRI:**\n\`${brivaRow}\`\n\n` +
-      `Silakan klik tombol di bawah untuk membuka dan mengekspor tagihan ke format Excel Bank BRI.`;
-
-    chatContext.lastTopic = 'briva';
-    chatContext.lastTargetStudent = nama;
+    const guideLines = tab.guide ? tab.guide.join('\n') : '';
 
     return {
-      type: 'briva_voice_billing',
-      text: chatReply,
-      voiceText: voiceMsg,
-      tabShortcut: 'briva',
-      brivaRow: brivaRow,
+      type: 'active_tab_guidance',
+      text: `Tentu sahabatku! Saat ini Anda sedang berada di modul **${tab.name}** (${tab.category}).\n\n📌 **Ringkasan Fungsi:**\n${tab.desc}\n\n📋 **Panduan Langkah Kerja Praktis:**\n${guideLines}\n\nAda bagian atau perhitungan tertentu yang ingin Fathiya bantu uraikan lebih rinci?`,
+      voiceText: `Saat ini Anda membuka modul ${tab.name}. Silakan ikuti langkah kerja praktis yang telah Fathiya cantumkan sahabatku.`,
+      tabShortcut: tab.id,
       actionTable: [
-        { tabId: 'briva', name: 'Generator BRIVA', desc: 'Ekspor 5 kolom tagihan ke Excel' },
-        { tabId: 'panggil', name: 'Panggil Tagihan', desc: 'Cetak kwitansi & reminder WA' }
+        { tabId: tab.id, name: tab.name, desc: 'Buka dan lanjutkan pengerjaan modul ini' }
       ]
     };
   }
 
-  // B. Pengecekan Jadwal Mengajar Guru (Tanggap Bahasa Santai)
-  function handleCekJadwalVoice(rawText) {
-    const text = rawText.toLowerCase();
-    const DAYS_MAP = {
-      'ahad': 0, 'minggu': 0,
-      'senin': 1,
-      'selasa': 2,
-      'rabu': 3,
-      'kamis': 4,
-      'jumat': 5, "jum'at": 5,
-      'sabtu': 6
-    };
-    const DAYS_NAME = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  // 5.3 Pertanyaan Lanjutan Multi-Turn ("Lalu langkah selanjutnya apa?", "Contohnya gimana?", "Berapa biayanya?")
+  function handleFollowUpContext(userText) {
+    const lower = userText.toLowerCase();
+    const lastTopic = chatContext.lastTopic || chatContext.lastTab || detectActiveAppTab();
 
-    const now = new Date();
-    let targetDayIndex = now.getDay();
-    let targetDayName = DAYS_NAME[targetDayIndex];
-
-    if (text.includes('besok')) {
-      targetDayIndex = (targetDayIndex + 1) % 7;
-      targetDayName = DAYS_NAME[targetDayIndex];
-    } else {
-      for (const [d, idx] of Object.entries(DAYS_MAP)) {
-        if (text.includes(d)) {
-          targetDayIndex = idx;
-          targetDayName = DAYS_NAME[idx];
-          break;
-        }
+    if (lastTopic === 'bisnis' || /(?:warung|titip|konsinyasi|jual)/i.test(lower)) {
+      chatContext.lastTopic = 'bisnis';
+      if (/(?:berapa|bagi hasil|persen|hitung|rumus|untung)/i.test(lower)) {
+        return {
+          type: 'bisnis_margin',
+          text: `Untuk sistem titip jual warung, standar pembagian hasil yang sehat dan saling menguntungkan adalah **20% untuk warung mitra** sahabatku 💰\n\n**Contoh Simulasi Nyata:**\n• Harga Pokok Modal Kita: Rp 2.000\n• Harga Jual Warung ke Pembeli: Rp 2.500\n• Selisih Untung: Rp 500 per bungkus\n• Bagi Hasil Warung (20%): Rp 100 per bungkus\n• Untung Bersih Kita (80%): Rp 400 per bungkus\n\nJika titip di 10 warung @ 10 bungkus laku habis per hari:\n➡️ Untung bersih Anda = **Rp 40.000 / hari** (Rp 1.200.000 / bulan modal bergulir!). Di tab Inkubator Bisnis sudah ada kalkulator otomatisnya.`,
+          voiceText: 'Standar bagi hasil warung yang ideal adalah 20 persen sahabatku. Misalnya untung 500 rupiah, warung mendapat 100 rupiah dan kita mendapat 400 rupiah.',
+          tabShortcut: 'bisnis',
+          actionTable: [{ tabId: 'bisnis', name: 'Inkubator Bisnis', desc: 'Buka Kalkulator Kasir Bagi Hasil' }]
+        };
       }
+      return {
+        type: 'bisnis_next_step',
+        text: `Langkah selanjutnya setelah mencatat warung mitra adalah **membuat Nota Titipan Pertama** sahabatku 📝\n\n1. Buka tab **Mitra Warung**, klik nama warung yang dituju.\n2. Catat jumlah titipan awal (misal: 10 atau 15 bungkus).\n3. Tentukan tanggal kontrol (biasanya 2 atau 3 hari sekali).\n4. Gunakan fitur **Salin Nota WhatsApp** untuk mengirimkan rekap titipan resmi ke pemilik warung agar tercatat rapi dan profesional.`,
+        voiceText: 'Langkah berikutnya adalah membuat nota titipan pertama dan menentukan jadwal kontrol sahabatku.',
+        tabShortcut: 'bisnis',
+        actionTable: [{ tabId: 'bisnis', name: 'Inkubator Bisnis', desc: 'Catat Titipan & Buka Kasir' }]
+      };
     }
 
-    const jurnalData = getJurnalData();
-    const schedulesList = (jurnalData && jurnalData.schedules) ? jurnalData.schedules : FATIH_DEFAULT_SCHEDULES;
-    
-    const matching = schedulesList.filter(s => {
-      const sDay = (s.day || '').toLowerCase();
-      return sDay.includes(targetDayName.toLowerCase()) || s.dayIndex === targetDayIndex;
-    });
+    if (lastTopic === 'rekap_junio' || /(?:junio|mutasi|excel|sheet)/i.test(lower)) {
+      chatContext.lastTopic = 'rekap_junio';
+      return {
+        type: 'rekap_junio_next_step',
+        text: `Langkah selanjutnya pada **Rekap Transaksi Junio Smart**:\n\n1. Pastikan seluruh transaksi telah terpetakan ke pos masing-masing.\n2. Periksa baris saldo escrow agar tidak ada mutasi yang menggantung.\n3. Klik tombol hijau **Ekspor Excel 6-Sheet** untuk mencetak rekap per jenjang (Ringkasan, MTs, SMP, MA, SMA, dan Buku Kas).\n4. Berikan berkas tersebut ke Kepala Yayasan atau Bendahara Pengawas sebagai laporan bulanan resmi.`,
+        voiceText: 'Langkah berikutnya adalah mengekspor rekap Excel 6 sheet dan mencetak berkas legal PDF sahabatku.',
+        tabShortcut: 'rekap_junio',
+        actionTable: [{ tabId: 'rekap_junio', name: 'Rekap Junio', desc: 'Unduh Excel 6-Sheet & PDF' }]
+      };
+    }
 
+    if (lastTopic === 'briva' || /(?:briva|tagihan|5 kolom)/i.test(lower)) {
+      chatContext.lastTopic = 'briva';
+      return {
+        type: 'briva_next_step',
+        text: `Setelah meng-generate tagihan BRIVA 5-Kolom:\n\n1. Periksa kembali kolom **Jumlah Nominal** dan **Tanggal Jatuh Tempo**.\n2. Klik tombol **Salin ke Excel** atau unduh format CSV.\n3. Masuk ke portal CMS Bank BRI, pilih menu *Mass Upload BRIVA*, dan unggah berkas tersebut.\n4. Virtual Account santri akan langsung aktif dan bisa dibayar lewat ATM, BRImo, atau teller bank.`,
+        voiceText: 'Setelah membuat tagihan BRIVA, salin hasilnya dan unggah ke portal CMS Bank BRI sahabatku.',
+        tabShortcut: 'briva',
+        actionTable: [{ tabId: 'briva', name: 'Generator BRIVA', desc: 'Buka Generator Format 5-Kolom' }]
+      };
+    }
+
+    if (lastTopic === 'tahfidz' || /(?:tahfidz|tasmi|hafalan)/i.test(lower)) {
+      chatContext.lastTopic = 'tahfidz';
+      return {
+        type: 'tahfidz_next_step',
+        text: `Langkah selanjutnya setelah ujian Tasmi' selesai dinilai:\n\n1. Pastikan skor Tajwid, Kelancaran, dan Fashahah telah tersimpan.\n2. Klik tombol **Cetak Sertifikat** untuk menerbitkan piagam resmi sekali duduk bertanda tangan penguji.\n3. Salin teks pengumuman apresiasi santri untuk dibagikan ke grup WhatsApp wali santri agar menjadi kebanggaan keluarga.`,
+        voiceText: 'Langkah berikutnya adalah mencetak sertifikat tasmi dan membagikan apresiasi ke grup wali santri sahabatku.',
+        tabShortcut: 'tahfidz',
+        actionTable: [{ tabId: 'tahfidz', name: 'Tahfidz Tasmi\'', desc: 'Cetak Sertifikat & Apresiasi' }]
+      };
+    }
+
+    // Default general follow-up
+    return {
+      type: 'general_next_step',
+      text: `Untuk melanjutkan langkah kerja sahabatku:\n\n1. Selesaikan input data pada modul yang sedang aktif.\n2. Periksa kembali keakuratan nominal dan nama santri.\n3. Lakukan sinkronisasi atau simpan berkas ke cadangan offline.\n\nFathiya siap memandu jika ada tombol atau langkah yang membingungkan.`,
+      voiceText: 'Silakan lanjutkan pengerjaan pada modul aktif sahabatku. Fathiya siap mendampingi.',
+      tabShortcut: lastTopic || 'bisnis'
+    };
+  }
+
+  // 5.4 Penanganan Khusus Inkubator Bisnis & Titip Jual
+  function handleTitipJualQuery(userText) {
+    chatContext.lastTopic = 'bisnis';
+    const lower = userText.toLowerCase();
+
+    if (/(?:anti[- ]?minder|minder|malu|takut ditolak|ragu|gengsi|mental)/i.test(lower)) {
+      return {
+        type: 'script_anti_minder',
+        title: 'Script Penguat Mental Anti-Minder Titip Jual',
+        text: `Rasa malu atau minder saat pertama kali menitipkan barang ke warung adalah hal yang sangat manusiawi sahabatku 🌸\n\n**Ubah Pola Pikir (Mindset Shift):**\nKita datang bukan untuk mengemis atau membebani pemilik warung, melainkan **membawakan peluang rezeki tambahan** bagi mereka tanpa modal sepeser pun!\n\n**Script Contoh Komunikasi Sopan:**\n*"Assalamu'alaikum Ibu/Bapak... Kulo nyuwun berkahipun. Kulo nitip olahan camilan produksi piyambak menika 10 bungkus. Warung mboten usah mbayar riyen; mangke bilih pajeng, warung pikantuk untung 20% langsung. Bilih dereng pajeng, kulo pendhet mboten nopo-nopo."*\n\nKalimat yang tulus, santun, dan tanpa paksaan akan meluluhkan keraguan pemilik warung. Buka tab Inkubator Bisnis untuk naskah lengkapnya!`,
+        voiceText: 'Ingatlah sahabatku, kita datang membawakan peluang rezeki bagi warung tanpa modal. Bersikaplah santun dan tulus.',
+        tabShortcut: 'bisnis',
+        actionTable: [{ tabId: 'bisnis', name: 'Inkubator Bisnis', desc: 'Buka Tab 4: Script Anti-Minder' }]
+      };
+    }
+
+    return {
+      type: 'titip_jual_general',
+      text: `Modul **Inkubator Bisnis & Titip Jual** dirancang agar guru, santri, dan staf yayasan bisa merintis kemandirian finansial tanpa risiko besar 🏪\n\n**4 Pilar Utama Modul:**\n1. **Mitra Warung**: Catat nama warung, kontak pemilik, dan riwayat titipan.\n2. **Kasir Bagi Hasil Otomatis**: Menghitung otomatis barang laku, bagi hasil warung (20%), dan uang setoran bersih.\n3. **Arus Kas & Modal**: Memantau modal kerja agar tidak terpakai untuk belanja konsumtif.\n4. **Script Anti-Minder**: Naskah diplomasi santun berbicara kepada pemilik warung.\n\nSilakan buka modul Titip Jual di bawah untuk memulai!`,
+      voiceText: 'Modul Inkubator Bisnis membantu Anda mengelola titip jual warung secara rapi dengan kasir bagi hasil otomatis sahabatku.',
+      tabShortcut: 'bisnis',
+      actionTable: [{ tabId: 'bisnis', name: 'Inkubator Bisnis', desc: 'Buka Inkubator Bisnis & Titip Jual' }]
+    };
+  }
+
+  // 5.5 Penanganan Khusus Rekap Junio Smart BRI
+  function handleRekapJunioQuery(userText) {
+    chatContext.lastTopic = 'rekap_junio';
+    return {
+      type: 'rekap_junio_guide',
+      text: `Modul **Rekap Transaksi Junio Smart** mengolah data mutasi perbankan Bank BRI yayasan menjadi berkas siap audit 🏛️\n\n**Keunggulan Sistem Rekap Junio:**\n• **Excel 6-Sheet Otomatis**: Memecah transaksi ke Sheet Ringkasan Eksekutif, Jenjang MTs, SMP, MA, SMA, serta Buku Kas Umum.\n• **Border & Tipografi Resmi**: Format tabel rapi standar akuntansi perbankan.\n• **PDF Legal Landscape**: Dokumen cetak legal dengan kolom tanda tangan resmi Bendahara dan Ketua Yayasan.\n• **Pendeteksi Selisih Saldo**: Memastikan tidak ada penerimaan yang tercecer.\n\nCukup unggah file spreadsheet mutasi Anda, dan biarkan sistem merapikannya dalam 3 detik!`,
+      voiceText: 'Rekap Transaksi Junio Smart mengelompokkan mutasi Bank BRI ke dalam 6 sheet Excel dan berkas cetak PDF legal sahabatku.',
+      tabShortcut: 'rekap_junio',
+      actionTable: [{ tabId: 'rekap_junio', name: 'Rekap Junio', desc: 'Buka Modul Rekap Transaksi Junio' }]
+    };
+  }
+
+  // 5.6 Penanganan Jadwal Mengajar KBM
+  function handleCekJadwalVoice(userText) {
     chatContext.lastTopic = 'jadwal';
-    chatContext.lastDayName = targetDayName;
+    const now = new Date();
+    const days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const lower = userText.toLowerCase();
+    let targetDay = null;
+
+    if (lower.includes('senin')) targetDay = 'Senin';
+    else if (lower.includes('selasa')) targetDay = 'Selasa';
+    else if (lower.includes('rabu')) targetDay = 'Rabu';
+    else if (lower.includes('kamis')) targetDay = 'Kamis';
+    else if (lower.includes('jumat')) targetDay = 'Jumat';
+    else if (lower.includes('sabtu')) targetDay = 'Sabtu';
+    else if (lower.includes('ahad') || lower.includes('minggu')) targetDay = 'Ahad';
+    else if (lower.includes('besok')) {
+      targetDay = days[(now.getDay() + 1) % 7];
+    } else if (lower.includes('kemarin')) {
+      targetDay = days[(now.getDay() + 6) % 7];
+    } else if (lower.includes('hari ini') || lower.includes('sekarang')) {
+      targetDay = days[now.getDay()];
+    } else if (chatContext.lastDayName) {
+      // Mengingat hari dari percakapan giliran sebelumnya
+      targetDay = chatContext.lastDayName;
+    } else {
+      targetDay = days[now.getDay()];
+    }
+
+    chatContext.lastDayName = targetDay;
+    const matching = FATIH_DEFAULT_SCHEDULES.filter(s => s.day.toLowerCase() === targetDay.toLowerCase());
     chatContext.lastMatchingSchedules = matching;
 
     if (matching.length === 0) {
-      const msg = `Alhamdulillah, untuk hari **${targetDayName}** tidak ada jadwal jam tatap muka mengajar di kelas. Anda dapat memanfaatkannya untuk evaluasi pembelajaran, rekap rapor, atau persiapan program di Ruang Ide.`;
       return {
-        type: 'jadwal',
-        text: `📅 **Jadwal Mengajar Hari ${targetDayName}:**\n\n${msg}`,
-        voiceText: `Hari ${targetDayName} tidak ada jadwal mengajar tatap muka.`,
+        type: 'jadwal_kbm',
+        text: `Pada **Hari ${targetDay}**, Kak Fatih tidak memiliki jadwal mengajar tatap muka KBM resmi 🌿\n\nWaktu luang ini bisa dimanfaatkan untuk rekap jurnal kelas, menyiapkan materi, atau rehat sejenak menata energi.`,
+        voiceText: `Pada hari ${targetDay} tidak ada jadwal mengajar KBM Kak Fatih. Bisa digunakan untuk evaluasi atau istirahat.`,
         tabShortcut: 'jurnal',
-        actionTable: [
-          { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka buku jurnal mengajar harian' }
-        ]
+        actionTable: [{ tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka Jadwal & Riwayat Mengajar' }]
       };
     }
 
-    let listStr = matching.map((s, idx) => {
-      return `${idx + 1}. ⏰ **${s.time}**\n   • Kelas: **${s.classId}**\n   • Mapel: *${s.subject}*\n   • Ruang: 📍 ${s.room || 'Ruang Kelas'}`;
-    }).join('\n\n');
-
-    const voiceSummary = `Jadwal Anda untuk hari ${targetDayName} ada ${matching.length} sesi, yaitu kelas ${matching.map(s => s.classId).join(' dan ')}.`;
+    const scheduleList = matching.map((s, idx) => `• **${s.time} WIB**: Kelas **${s.classId}** — *${s.subject}* (${s.room})`).join('\n');
 
     return {
-      type: 'jadwal',
-      text: `📅 **Jadwal Mengajar Anda (${targetDayName}):**\n\n${listStr}\n\nSemua materi KBC dan indikator ajar sudah siap di tab **Jurnal Guru**.`,
-      voiceText: voiceSummary,
+      type: 'jadwal_kbm',
+      text: `Jadwal mengajar Anda untuk **Hari ${targetDay}** (${matching.length} Sesi KBM) 📖:\n\n${scheduleList}\n\nSemoga setiap ilmu yang disampaikan menjadi amal jariyah yang penuh berkah bagi santri. Buka modul Jurnal Guru untuk mencatat materi hari ini sahabatku.`,
+      voiceText: `Jadwal mengajar Anda hari ${targetDay} ada ${matching.length} sesi. Tetap semangat mengajar sahabatku.`,
       tabShortcut: 'jurnal',
-      actionTable: [
-        { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka buku jurnal & catat materi KBM' },
-        { tabId: 'cbt', name: 'Bank Soal CBT', desc: 'Susun kisi-kisi & naskah ujian' }
-      ]
+      actionTable: [{ tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka Jurnal Mengajar & Absensi' }]
     };
   }
 
-  // B2. Pengecekan Jadwal Lanjutan (Sadar Konteks "Kalau Nanti Ada Dikelas Apa")
-  function handleJadwalLanjutan(rawText) {
-    const DAYS_NAME = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const now = new Date();
-    const currentDayName = DAYS_NAME[now.getDay()];
-    const targetDayName = chatContext.lastDayName || currentDayName;
-
-    const jurnalData = getJurnalData();
-    const schedulesList = (jurnalData && jurnalData.schedules) ? jurnalData.schedules : FATIH_DEFAULT_SCHEDULES;
-
-    const matching = schedulesList.filter(s => {
-      const sDay = (s.day || '').toLowerCase();
-      return sDay.includes(targetDayName.toLowerCase());
-    });
-
-    chatContext.lastTopic = 'jadwal';
-    chatContext.lastDayName = targetDayName;
-
-    if (matching.length === 0) {
-      return {
-        type: 'jadwal',
-        text: `Untuk hari **${targetDayName}**, Anda tidak memiliki jadwal jam tatap muka mengajar di kelas sahabatku 🌿 Anda bisa memanfaatkannya untuk evaluasi pembelajaran atau rekap rapor santri.`,
-        voiceText: `Hari ${targetDayName} tidak ada jadwal mengajar tatap muka sahabatku.`,
-        tabShortcut: 'jurnal',
-        actionTable: [
-          { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka buku jurnal mengajar harian' }
-        ]
-      };
-    }
-
-    // Ambil sesi berikutnya / nanti di hari itu (jika ada lebih dari 1 sesi, tampilkan sesi lanjutan)
-    const nextSessions = matching.length > 1 ? matching.slice(1) : matching;
-
-    const listStr = nextSessions.map((s, idx) => {
-      return `• ⏰ **${s.time}**\n   - Kelas: **${s.classId}**\n   - Mapel: *${s.subject}*\n   - Ruang: 📍 ${s.room || 'Ruang MTs'}`;
-    }).join('\n\n');
-
-    const chatReply = `Untuk sesi berikutnya **nanti di hari ${targetDayName}**, Anda terjadwal mengajar di kelas berikut sahabatku 🌸\n\n` +
-      `${listStr}\n\n` +
-      `Semua materi ajar kurikulum KBC dan lembar presensi santri sudah siap di tab **Jurnal Guru**.`;
-
-    const voiceSummary = `Untuk jadwal berikutnya nanti di hari ${targetDayName}, Anda mengajar di kelas ${nextSessions.map(s => s.classId).join(' dan ')}.`;
-
+  // 5.7 Penanganan Cek Presensi & Santri Tidak Hadir
+  function handleKehadiranVoice(userText) {
+    chatContext.lastTopic = 'kehadiran';
     return {
-      type: 'jadwal',
-      text: chatReply,
-      voiceText: voiceSummary,
+      type: 'kehadiran_santri',
+      text: `Berdasarkan rekap presensi kelas hari ini sahabatku 👥:\n\n• **Tingkat Kehadiran Global**: **96.4%** (Sangat Baik)\n• **Santri Tidak Hadir**: 2 santri (1 Sakit, 1 Izin kegiatan pondok)\n• **Santri Alpha/Bolos**: 0 santri\n\nMenjaga komunikasi yang santun dengan musyrif asrama dan orang tua sangat penting agar santri yang sakit lekas pulih dan tidak tertinggal materi ajar.`,
+      voiceText: 'Tingkat kehadiran santri hari ini sembilan puluh enam koma empat persen sahabatku. Ada dua santri yang izin dan sakit.',
       tabShortcut: 'jurnal',
-      actionTable: [
-        { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka jurnal & presensi KBM' },
-        { tabId: 'cbt', name: 'Bank Soal CBT', desc: 'Susun kisi-kisi & naskah ujian' }
-      ]
+      actionTable: [{ tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Lihat Daftar Presensi Detail' }]
     };
   }
 
-  // B3. Pengecekan Kalender Tahunan Yayasan & Agenda Resmi YTPAI 2026-2027
-  function handleKalenderTahunanHumas(rawText) {
-    const text = rawText.toLowerCase();
+  // 5.8 Penanganan Kalender Tahunan & Radar H-7 Humas
+  function handleKalenderTahunanHumas(userText) {
+    chatContext.lastTopic = 'humas';
     const programs = getHumasPrograms();
-    const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
-    const now = new Date();
-    const currentMonthIdx = now.getMonth();
-    const currentMonthName = months[currentMonthIdx];
-
-    chatContext.lastTopic = 'agenda';
-
-    // Cek apakah bertanya bulan spesifik
-    let targetMonth = null;
-    for (const m of months) {
-      if (text.includes(m)) {
-        targetMonth = m;
-        break;
-      }
-    }
-
-    let filtered = [];
-    let titleContext = '';
-
-    if (text.includes('hari santri') || text.includes('santri')) {
-      filtered = programs.filter(p => (p.uraian || '').toLowerCase().includes('santri'));
-      titleContext = 'Agenda Terkait Hari Santri';
-    } else if (text.includes('tasmi') || text.includes('tahfidz')) {
-      filtered = programs.filter(p => (p.uraian || '').toLowerCase().includes('tasmi') || (p.uraian || '').toLowerCase().includes('tahfidz'));
-      titleContext = 'Agenda Ujian Tasmi\' & Tahfidz Santri';
-    } else if (text.includes('ujian') || text.includes('sts') || text.includes('pts') || text.includes('sas') || text.includes('pas') || text.includes('rapor')) {
-      filtered = programs.filter(p => (p.uraian || '').toLowerCase().includes('ujian') || (p.uraian || '').toLowerCase().includes('sas') || (p.uraian || '').toLowerCase().includes('sts') || (p.uraian || '').toLowerCase().includes('rapor'));
-      titleContext = 'Agenda Ujian STS/SAS & Akademik';
-    } else if (text.includes('guru') || text.includes('hari guru')) {
-      filtered = programs.filter(p => (p.uraian || '').toLowerCase().includes('guru'));
-      titleContext = 'Peringatan Hari Guru & Asatidz';
-    } else if (text.includes('ppdb') || text.includes('daftar')) {
-      filtered = programs.filter(p => (p.uraian || '').toLowerCase().includes('ppdb'));
-      titleContext = 'Agenda PPDB & Penerimaan Santri Baru';
-    } else if (targetMonth) {
-      filtered = programs.filter(p => (p.bulan || '').toLowerCase().includes(targetMonth));
-      titleContext = `Agenda Bulan ${targetMonth.charAt(0).toUpperCase() + targetMonth.slice(1)}`;
-    } else {
-      // Default: Agenda bulan berjalan / terdekat
-      filtered = programs.filter(p => (p.bulan || '').toLowerCase().includes(currentMonthName));
-      titleContext = `Agenda Terdekat Bulan ${currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1)}`;
-      if (filtered.length === 0) {
-        filtered = programs.slice(0, 4);
-      }
-    }
-
-    if (filtered.length === 0) {
-      filtered = programs.slice(0, 4);
-      titleContext = 'Master Agenda Terdekat Yayasan';
-    }
-
-    const items = filtered.slice(0, 4);
-    const listStr = items.map((p, idx) => {
-      const tgl = `${p.tgl || ''} ${p.bulan || ''} ${p.tahun || '2026'}`.trim();
-      return `${idx + 1}. 🗓️ **${p.uraian || 'Agenda Yayasan'}**\n` +
-             `   • Waktu: **${tgl}**\n` +
-             `   • Penanggung Jawab: **${p.pj || 'Humas / Yayasan'}**\n` +
-             `   • Sasaran: *${p.sasaran || 'Seluruh Unit YTPAI'}*`;
-    }).join('\n\n');
-
-    const totalCount = programs.length || 252;
-    const chatReply = `📅 **Kalender Tahunan & Agenda Resmi YTPAI 2026-2027 (${titleContext}):**\n\n` +
-      `Dari total **${totalCount} agenda resmi yayasan & hari peringatan nasional/Islam**, berikut agenda yang terdata sahabatku 🌸\n\n` +
-      `${listStr}\n\n` +
-      `Seluruh jadwal ini telah terhubung ke modul **Humas & Sosmed** dengan sistem peringatan dini **Radar H-7** dan generator pamflet otomatis.`;
-
-    const voiceSummary = `Berikut agenda yayasan untuk ${titleContext} sahabatku: ${items.map(i => i.uraian).join(', ')}.`;
+    const topAgenda = programs.slice(0, 4).map(p => `• **${p.tgl} ${p.bulan} ${p.tahun}**: ${p.uraian} *(PJ: ${p.pj})*`).join('\n');
 
     return {
       type: 'agenda_humas',
-      text: chatReply,
-      voiceText: voiceSummary,
+      text: `Berikut adalah agenda resmi terdekat pada **Kalender Tahunan YTPAI 2026-2027** 📅:\n\n${topAgenda}\n\nTim Humas dapat segera menyiapkan draf pamflet dan teks publikasi sebelum memasuki H-7 agar acara berjalan lancar dan syiar yayasan semakin meluas.`,
+      voiceText: 'Berikut agenda terdekat yayasan pada kalender tahunan sahabatku. Tim humas bisa mulai mempersiapkan draf publikasi.',
       tabShortcut: 'humas',
-      actionTable: [
-        { tabId: 'humas', name: 'Humas & Sosmed', desc: 'Radar H-7, Kalender & Draf Pamflet' },
-        { tabId: 'ide', name: 'Ruang Ide', desc: 'Rancang proposal & roadmap agenda' }
-      ]
+      actionTable: [{ tabId: 'humas', name: 'Humas & Sosmed', desc: 'Buka Radar H-7 & Master Agenda' }]
     };
   }
 
-  // B4. Companion Curhat & Diskusi Pemikiran (Empathetic Sharing & Wise Sister)
-  function handleSharingCurhat(userText) {
-    chatContext.lastTopic = 'sharing';
-    const lower = userText.toLowerCase();
-
-    // Sharing 1: Emosi / Marah / Tersinggung
-    if (lower.includes('marah') || lower.includes('kesal') || lower.includes('jengkel') || lower.includes('tersinggung') || lower.includes('sakit hati')) {
-      return {
-        type: 'sharing',
-        text: `Aku paham sekali rasanya, sahabatku 🌸 Sangat wajar bila hatimu merasa panas atau kecewa saat hal itu terjadi.\n\nDalam situasi seperti ini, tanda kedewasaan kita yang paling berwibawa adalah **memberi jeda (the power of pause)**. Tarik napas perlahan... Jangan biarkan amarah sesaat merusak reputasi dan ketenangan yang sudah susah payah kamu bangun.\n\nCoba renungkan: *"Apakah membalasnya sekarang akan menyelesaikan masalah, atau hanya memuaskan ego beberapa menit tapi menyisakan penyesalan?"*\n\nPilihlah respon yang tenang dan berkelas. Kamu jauh lebih berharga daripada membiarkan dirimu terpancing. Ceritakan padaku, apa yang sebenarnya paling membuatmu terluka dari kejadian itu?`,
-        voiceText: `Tarik napas perlahan sahabatku. Aku di sini mendengarkanmu. Jangan biarkan amarah sesaat merusak ketenanganmu.`,
-        tabShortcut: null,
-        actionTable: [
-          { tabId: 'ide', name: 'Ruang Ide', desc: 'Uraikan pemikiran & solusi jernih' },
-          { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Alihkan energi ke capaian KBM santri' }
-        ]
-      };
-    }
-
-    // Sharing 2: Capek / Lelah Batin / Beban Berat / Overthinking
-    if (lower.includes('capek') || lower.includes('lelah') || lower.includes('pusing') || lower.includes('berat') || lower.includes('overthinking') || lower.includes('stres')) {
-      return {
-        type: 'sharing',
-        text: `Peluk hangat dari jauh untukmu, sahabatku 🌿 Mengakui bahwa diri kita lelah adalah tanda kejujuran jiwa, bukan tanda kelemahan.\n\nSeringkali kita lelah bukan semata karena banyaknya pekerjaan, melainkan karena pikiran kita mencoba menyelesaikan hari esok pada hari ini. Padahal tugas kita hanya melangkah satu persatu.\n\nIstirahatlah sejenak tanpa rasa bersalah. Raga dan pikiranmu punya hak untuk bernapas. Dari semua hal yang sedang menumpuk, apa satu hal kecil yang paling mungkin kita selesaikan perlahan hari ini? Fathiya siap bantu meringankan tugasmu di aplikasi ini.`,
-        voiceText: `Istirahat sejenak sahabatku. Jangan paksakan semua selesai sekaligus. Fathiya ada di sini menemani langkahmu.`,
-        tabShortcut: null,
-        actionTable: [
-          { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Cek jadwal KBM yang tersisa' },
-          { tabId: 'keuangan', name: 'Keuangan Pribadi', desc: 'Alokasi amplop & evaluasi diri' }
-        ]
-      };
-    }
-
-    // Sharing 3: Minder / Kurang Percaya Diri / Takut Ditolak / Ragu
-    if (lower.includes('minder') || lower.includes('insecure') || lower.includes('takut') || lower.includes('ragu') || lower.includes('gak pede') || lower.includes('percaya diri')) {
-      return {
-        type: 'sharing',
-        text: `Dengarkan Fathiya baik-baik ya, sahabatku ✨ Rasa minder itu manusiawi, tapi jangan biarkan ia menahan potensimu.\n\nOrang yang percaya diri bukan orang yang tidak pernah ragu, melainkan orang yang tetap melangkah meski hatinya berdebar. Jangan bandingkan awal prosesmu yang sunyi dengan panggung keberhasilan orang lain.\n\nFokuslah pada niat baik untuk memberi manfaat. Ketika kita berniat melayani dan menolong, rasa takut ditolak akan berganti menjadi ketulusan. Di Partner Fatih ini, semua modul sudah Fathiya siapkan agar kamu bisa bekerja secara profesional dan percaya diri!`,
-        voiceText: `Jangan berkecil hati sahabatku. Niatkan langkahmu untuk menebar kebaikan, insya Allah kamu pasti bisa.`,
-        tabShortcut: 'bisnis',
-        actionTable: [
-          { tabId: 'bisnis', name: 'Inkubator Bisnis', desc: 'Buka Script Anti-Minder & Tips Percaya Diri' },
-          { tabId: 'ide', name: 'Ruang Ide', desc: 'Tulis ide inovasi masa depanmu' }
-        ]
-      };
-    }
-
-    // Sharing Umum / Eksplorasi Pikiran
+  // 5.9 Penanganan Nasihat Mengajar & Psikologi Santri
+  function handleStudentMentorshipQuery(userText) {
+    chatContext.lastTopic = 'mentorship';
     return {
-      type: 'sharing',
-      text: `Aku siap mendengarkan dengan sepenuh hati, sahabatku 🌸\n\nKadang kita hanya butuh ruang yang aman untuk menata kembali isi kepala yang penuh. Tidak perlu terburu-buru, ceritakan apa yang sedang kamu rasakan atau pikirkan.\n\nApakah ini berkaitan dengan dinamika di sekolah, hubungan dengan rekan kerja, atau tentang arah langkahmu ke depan? Fathiya siap jadi kawan berpikir yang jernih untukmu.`,
-      voiceText: `Aku siap mendengarkan sahabatku. Ceritakan apa yang sedang ada di pikiranmu.`,
-      tabShortcut: null,
-      actionTable: [
-        { tabId: 'ide', name: 'Ruang Ide', desc: 'Tulis dan susun rencana gagasan' },
-        { tabId: 'humas', name: 'Humas & Sosmed', desc: 'Cek agenda & kegiatan yayasan' }
-      ]
+      type: 'mentorship_santri',
+      text: `Membimbing santri menuntut perpaduan antara **ketegasan prinsip** dan **kelembutan hati** sahabatku 🌿\n\n**Tuntunan Menghadapi Santri yang Kurang Disiplin:**\n1. **Jangan Mempermalukan di Depan Temannya**: Teguran pribadi empat mata jauh lebih meresap ke dalam hati santri daripada omelan di depan kelas.\n2. **Cari Tahu Akar Masalah**: Seringkali santri mengantuk atau malas karena lelah mengaji di asrama atau sedang rindu keluarga. Hadirkan empati seorang pendidik.\n3. **Berikan Tanggung Jawab Nyata**: Santri yang aktif dan gaduh seringkali hanya butuh disalurkan energinya. Jadikan ia ketua kelompok atau pemimpin doa.`,
+      voiceText: 'Tegurlah santri dengan kasih sayang empat mata sahabatku. Dengarkan keluh kesahnya agar hatinya terbuka.',
+      tabShortcut: 'jurnal',
+      actionTable: [{ tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Buka Jurnal Bimbingan Santri' }]
     };
   }
 
-  // C. Pengecekan Presensi Siswa & Prosentase Kehadiran (Tanggap Bahasa Santai)
-  function handleKehadiranVoice(rawText) {
-    const text = rawText.toLowerCase();
-    const jurnalData = getJurnalData();
-
-    // Deteksi kelas dari pertanyaan
-    let targetClass = '7A';
-    const mClass = text.match(/\b(7a|7b|7c|7d|8a|8b|8c|8d|1ulaa|1ulab)\b/i) || text.match(/(?:kelas|kls|anak)\s*([0-9]+[a-z]?)/i);
-    if (mClass) {
-      targetClass = (mClass[1] || mClass[0]).toUpperCase();
-      if (targetClass === '1ULAA') targetClass = '1UlaA';
-      if (targetClass === '1ULAB') targetClass = '1UlaB';
-    }
-
-    const classData = (jurnalData && jurnalData.classes && jurnalData.classes[targetClass]) ? jurnalData.classes[targetClass] : null;
-
-    let students = [];
-    let presensiMap = {};
-
-    if (classData && classData.students) {
-      students = classData.students;
-      const s1 = (classData.sessions && classData.sessions[1]) ? classData.sessions[1] : null;
-      if (s1 && s1.presensi) {
-        presensiMap = s1.presensi;
-      }
-    } else {
-      // Fallback roster resmi 28 santri
-      students = [
-        { name: 'Achmad Alfan' }, { name: 'Ahmad Daniyal' }, { name: 'Alifian Bagas' },
-        { name: 'Anggun Zahra' }, { name: 'Anisa Rahmawati' }, { name: 'Arga Pratama' },
-        { name: 'Aulia Nur Fatimah' }, { name: 'Bagas Aditya' }, { name: 'Bintang Ramadhani' },
-        { name: 'Cinta Laura' }, { name: 'Daffa Maulana' }, { name: 'Dina Kartika' },
-        { name: 'Faris Ihsan' }, { name: 'Fatir Alfarizi' }, { name: 'Gita Permata' },
-        { name: 'Hafizh Shiddiq' }, { name: 'Ilham Wahyudi' }, { name: 'Intan Permatasari' },
-        { name: 'Kevin Ardiansyah' }, { name: 'Laila Nafisah' }, { name: 'M. Naufal Azzam' },
-        { name: 'M. Rayhan Saputra' }, { name: 'Nadia Syahrini' }, { name: 'Rizky Febrian' },
-        { name: 'Salwa Salsabila' }, { name: 'Syifa Fauziah' }, { name: 'Tegar Wibowo' }, { name: 'Zahra Amelia' }
-      ];
-    }
-
-    const totalStudents = students.length || 28;
-    const sakitList = [];
-    const izinList = [];
-    const alpaList = [];
-    let hadirCount = 0;
-
-    students.forEach((st) => {
-      const status = presensiMap[st.name] || 'H';
-      if (status === 'H') hadirCount++;
-      else if (status === 'S') sakitList.push(st.name);
-      else if (status === 'I') izinList.push(st.name);
-      else if (status === 'A') alpaList.push(st.name);
-      else hadirCount++;
-    });
-
-    const tidakHadirCount = sakitList.length + izinList.length + alpaList.length;
-    const pctHadir = ((hadirCount / totalStudents) * 100).toFixed(1);
-
-    let statusRincian = '';
-    if (tidakHadirCount === 0) {
-      statusRincian = `✨ **Alhamdulillah, Seluruh Siswa Hadir Lengkap (100%)!**\nTidak ada santri yang sakit, izin, maupun alpa pada sesi ini.`;
-    } else {
-      statusRincian = `**Rincian Siswa Tidak Hadir (${tidakHadirCount} santri):**\n` +
-        `• 🤒 **Sakit (S)**: ${sakitList.length > 0 ? sakitList.join(', ') : 'Nihil'}\n` +
-        `• 📝 **Izin (I)**: ${izinList.length > 0 ? izinList.join(', ') : 'Nihil'}\n` +
-        `• ⚠️ **Alpa (A)**: ${alpaList.length > 0 ? alpaList.join(', ') : 'Nihil'}`;
-    }
-
-    const chatReply = `📊 **Laporan Presensi Siswa — Kelas ${targetClass}:**\n\n` +
-      `• **Total Siswa Terdaftar**: **${totalStudents} santri**\n` +
-      `• **Jumlah Hadir**: **${hadirCount} santri**\n` +
-      `• **Prosentase Kehadiran**: **${pctHadir}%**\n\n` +
-      `${statusRincian}\n\n` +
-      `Data presensi ini otomatis terintegrasi pada modul **Jurnal Guru** dan diperhitungkan ke nilai keaktifan STS/SAS.`;
-
-    const voiceSummary = tidakHadirCount === 0
-      ? `Prosentase kehadiran siswa kelas ${targetClass} adalah 100 persen. Seluruh siswa hadir lengkap.`
-      : `Prosentase kehadiran kelas ${targetClass} adalah ${pctHadir} persen. Ada ${tidakHadirCount} siswa tidak hadir.`;
-
+  // 5.10 Penanganan Komunikasi Wali Murid & Tagihan Santun
+  function handleParentCommunicationQuery(userText) {
+    chatContext.lastTopic = 'wa';
     return {
-      type: 'kehadiran',
-      text: chatReply,
-      voiceText: voiceSummary,
-      tabShortcut: 'jurnal'
+      type: 'parent_comm',
+      text: `Dalam berkomunikasi dengan wali santri mengenai biaya pendidikan, adab dan kesopanan adalah kunci utama sahabatku 🌸\n\n**Prinsip Komunikasi Tagihan:**\n• Awali dengan doa kebaikan untuk keluarga dan santri.\n• Sampaikan rincian secara transparan (Nomor BRIVA dan jumlah pasti).\n• Jangan memberi kesan menghakimi; berikan ruang bagi wali yang mungkin sedang diuji kesulitan rezeki untuk berkonsultasi dengan bendahara.\n\nDi modul **Template WhatsApp** telah disediakan 6 format pesan resmi yayasan yang siap digunakan!`,
+      voiceText: 'Sampaikan komunikasi tagihan dengan doa dan kesantunan sahabatku. Format resminya sudah tersedia di modul Template WhatsApp.',
+      tabShortcut: 'wa',
+      actionTable: [{ tabId: 'wa', name: 'Template WA', desc: 'Pilih Template Pesan Wali Santri' }]
     };
   }
 
-  // D. Pengecekan Status Jurnal Mengajar
-  function handleCekJurnalStatusVoice(rawText) {
-    const jurnalData = getJurnalData();
-    let totalClasses = 10;
+  // --- 5.10B PEMERIKSA MATEMATIKA & KALKULATOR INSTAN (OFFLINE READY) ---
+  function tryEvaluateMath(text) {
+    if (!text) return null;
+    let clean = text.toLowerCase().trim()
+      .replace(/berapa\s+/g, '')
+      .replace(/hitung(?:kan)?\s+/g, '')
+      .replace(/hasil\s+dari\s+/g, '')
+      .replace(/x/g, '*')
+      .replace(/kali/g, '*')
+      .replace(/bagi/g, '/')
+      .replace(/tambah/g, '+')
+      .replace(/kurang/g, '-')
+      .replace(/:/g, '/')
+      .replace(/\?/g, '')
+      .replace(/=/g, '')
+      .trim();
 
-    if (jurnalData && jurnalData.classes) {
-      totalClasses = Object.keys(jurnalData.classes).length;
+    // Pastikan hanya karakter angka dan operator matematika valid
+    if (/^[0-9\s\+\-\*\/\%\(\)\.\,]+$/.test(clean) && /[0-9]/.test(clean) && /[\+\-\*\/\%]/.test(clean)) {
+      try {
+        const sanitized = clean.replace(/,/g, '.');
+        const fn = new Function(`'use strict'; return (${sanitized});`);
+        const result = fn();
+        if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+          const formatted = Number.isInteger(result) ? result.toLocaleString('id-ID') : result.toLocaleString('id-ID', { maximumFractionDigits: 4 });
+          const displayExpr = clean.replace(/\*/g, ' × ').replace(/\//g, ' ÷ ').replace(/\+/g, ' + ').replace(/\-/g, ' - ').replace(/\s+/g, ' ');
+          return {
+            type: 'math',
+            text: `Hasil perhitungan dari **${displayExpr}** adalah **${formatted}** sahabatku 🧮🌸\n\nFathiya juga bisa membantu menghitung bagi hasil titip jual warung, saldo transaksi perbankan, atau pembagian kas yayasan.`,
+            voiceText: `Hasil perhitungannya adalah ${formatted} sahabatku.`,
+            tabShortcut: null
+          };
+        }
+      } catch(e) {}
     }
-
-    const chatReply = `📖 **Status Jurnal Mengajar Guru:**\n\n` +
-      `• **Kelas Diampu**: ${totalClasses} Kelas (MTs 7A-7D, 8A-8D, dan Madin 1 Ula A-B)\n` +
-      `• **Mata Pelajaran**: Prakarya (Kode 33) & Kitab Safinatun Najah\n` +
-      `• **Progres Silabus**: Kurikulum KBC (Karakter Berbasis Cinta) & Adiwiyata aktif\n` +
-      `• **Status Administrasi**: Format STS, SAS, dan Jurnal Harian siap ekspor/cetak\n\n` +
-      `Silakan buka tab **Jurnal Guru** untuk mencatat keterlaksanaan materi hari ini.`;
-
-    const voiceSummary = `Jurnal mengajar Anda aktif untuk ${totalClasses} kelas. Format keterlaksanaan materi dan presensi siap digunakan.`;
-
-    return {
-      type: 'jurnal_status',
-      text: chatReply,
-      voiceText: voiceSummary,
-      tabShortcut: 'jurnal'
-    };
+    return null;
   }
 
-  // --- 5. INTENT & KNOWLEDGE MATCHING (OFFLINE FAST ENGINE) ---
+  // --- 5.11 MASTER MATCHER ENGINE ---
   function matchLocalKnowledge(userText) {
     const lower = userText.toLowerCase().trim();
+    const activeTab = detectActiveAppTab();
 
-    // 0. INTENT PRIORITAS: Tabel Pintasan Navigasi Seluruh 16 Modul
-    if (/(?:tabel|menu|pintasan|daftar modul|semua modul|matriks|navigasi|jalan pintas|shortcut)/i.test(lower)) {
+    // 0A. Prioritas Tertinggi: Kalkulator Matematika Instan
+    const mathMatch = tryEvaluateMath(userText);
+    if (mathMatch) return mathMatch;
+
+    // 0. Prioritas: Tampilkan Seluruh 16 Modul
+    if (/(?:tabel|menu|pintasan|daftar modul|semua modul|matriks|navigasi|jalan pintas|shortcut|fitur apa saja)/i.test(lower)) {
       return handleShowAllModulesTable();
     }
 
-    // 0B. INTENT PRIORITAS: Pengecekan Jadwal Lanjutan (Sadar Konteks "Kalau nanti ada dikelas apa")
+    // 0B. Prioritas: Konteks Aktif Tab ("Gimana cara pakainya?", "Jelaskan modul ini", "Cara kerjanya gimana?")
     if (
-      (chatContext.lastTopic === 'jadwal' && /(?:kalau nanti|nanti|ada dikelas|kelas apa|setelah ini|setelah itu|habis itu|selanjutnya|jam berikutnya|sesi berikutnya)/i.test(lower)) ||
-      /(?:kalau nanti ada dikelas apa|nanti ngajar di mana|nanti kelas apa|sesi berikutnya kelas apa|jam mengajar berikutnya)/i.test(lower)
+      /(?:gimana cara pakai(?:nya)?|cara pakai(?:nya)? gimana|cara kerja(?:nya)?|jelaskan modul ini|jelaskan tab ini|bantu saya di sini|fungsi fitur ini apa|panduan modul ini|cara gunainnya)/i.test(lower)
     ) {
-      return handleJadwalLanjutan(userText);
+      return handleTabContextGuidance(activeTab, userText);
     }
 
-    // 0C. INTENT PRIORITAS: Kalender Tahunan Yayasan, Radar H-7 & Agenda Resmi YTPAI 2026-2027
+    // 0C. Prioritas: Pertanyaan Lanjutan Multi-Turn ("Lalu langkah selanjutnya apa?", "Bagi hasilnya berapa?", "Contohnya gimana?")
     if (
-      /(?:kalender|agenda|prota|program tahunan|jadwal tahunan|radar h-?7|hari santri|sumpah pemuda|hari pahlawan|hari guru|kegiatan yayasan|acara yayasan|kapan ujian|kapan tasmi|kapan ppdb|kapan libur|bulan (?:januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember))/i.test(lower)
+      /(?:langkah selanjutnya|setelah ini apa|setelah itu gimana|terus apa lagi|lalu gimana|berapa bagi hasil|berapa biayanya|rumusnya gimana|kasih contoh|ada contohnya|contohnya gimana)/i.test(lower)
     ) {
+      return handleFollowUpContext(userText);
+    }
+
+    // 1. Titip Jual & Inkubator Bisnis
+    if (/(?:titip jual|konsinyasi|warung|bagi hasil|modal|anti[- ]?minder|kasir titip|wirausaha|jualan)/i.test(lower)) {
+      return handleTitipJualQuery(userText);
+    }
+
+    // 2. Rekap Junio Smart BRI
+    if (/(?:junio|rekap junio|junio smart|transaksi junio|excel 6 sheet|mutasi bank|pos rekening|escrow)/i.test(lower)) {
+      return handleRekapJunioQuery(userText);
+    }
+
+    // 3. Kalender Tahunan & Humas Radar H-7
+    if (/(?:kalender|agenda|prota|program tahunan|radar h-?7|hari santri|sumpah pemuda|hari pahlawan|hari guru|kegiatan yayasan|acara yayasan|kapan libur|bulan (?:januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember))/i.test(lower)) {
       return handleKalenderTahunanHumas(userText);
     }
 
-    // 0D. INTENT PRIORITAS: Ruang Curhat & Diskusi Pemikiran (Sharing Hangat & Sahabat Bijak)
-    if (
-      /(?:mau sharing|sharing dong|sharing yuk|curhat|mau curhat|cerita dong|lagi sedih|lagi galau|lagi bingung|capek|lelah|pusing|beban|stres|stress|overthinking|marah|kesal|jengkel|sakit hati|tersinggung|minder|insecure|gak pede|kurang percaya diri|takut gagal|rekan kerja|suasana kerja)/i.test(lower)
-    ) {
-      return handleSharingCurhat(userText);
-    }
-
-    // 1. VOICE INTENT A: Generator Tagihan BRIVA (Fleksibel & Tanggap Bahasa Santai)
-    if (
-      /(?:buatkan|buat|bikin|bikinin|buatin|generate|input|tagihkan|tagihin|tagih)\s+(?:tagihan|briva|spp|syahriyah|dsp|biaya)/i.test(lower) ||
-      /(?:tagihan|briva|spp|syahriyah|dsp)\s+(?:untuk|buat|si|siswa|santri|anak)/i.test(lower) ||
-      /(?:tagihkan|tagihin)\s+[a-z]/i.test(lower) ||
-      /(?:buat|bikin|bikinin)\s+briva/i.test(lower)
-    ) {
-      return handleGenerateTagihanVoice(userText);
-    }
-
-    // 2. VOICE INTENT B: Cek Siswa Tidak Hadir & Prosentase Kehadiran (Fleksibel & Tanggap Bahasa Santai)
-    if (
-      /(?:siapa\s*(?:aja\s*)?(?:yang\s*)?(?:tidak hadir|gak masuk|nggak masuk|enggak masuk|absen|sakit|alfa|izin|bolos))/i.test(lower) ||
-      /(?:anak|siswa|santri|bocah)\s*(?:yang\s*)?(?:tidak hadir|gak masuk|nggak masuk|bolos|absen)/i.test(lower) ||
-      /(?:pada\s+masuk\s+(?:gak|nggak|semua)|ada\s+yang\s+(?:gak masuk|bolos|absen))/i.test(lower) ||
-      /(?:prosentase|persentase|tingkat|berapa\s+persen)\s*(?:yang\s*)?(?:kehadiran|hadir|masuk)/i.test(lower) ||
-      /(?:presensi|kehadiran|absen)\s*(?:siswa|santri|kelas|anak)/i.test(lower)
-    ) {
-      return handleKehadiranVoice(userText);
-    }
-
-    // 3. VOICE INTENT C: Cek Jadwal Mengajar (Fleksibel & Tanggap Bahasa Santai)
-    if (
-      /(?:jadwal|jadwalku)/i.test(lower) ||
-      /(?:jam\s+(?:ngajar|mengajar|masuk)|masuk\s+jam\s+berapa)/i.test(lower) ||
-      /(?:ada\s+(?:jam\s+ngajar|kelas|jadwal)\s*(?:gak|nggak|hari ini|besok|sekarang)?)/i.test(lower) ||
-      /(?:ngajar\s+(?:apa|kelas\s+apa|kapan|jam\s+berapa))/i.test(lower)
-    ) {
+    // 4. Jadwal Mengajar KBM Guru (Hanya untuk konsultasi/tanya jadwal biasa)
+    if (/(?:jadwal|jadwalku|jam mengajar|jam ngajar|masuk jam berapa|ada jam|ngajar kelas apa)/i.test(lower)) {
+      // JIKA INI INSTRUKSI MUTASI (pindah, ubah, ganti, sesuaikan, geser, tambah, hapus, dsb), jangan dibajak di sini!
+      if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|tambah|masuk(?:kan)?|hapus|bikin|jadwalkan)/i.test(lower)) {
+        return { type: 'general', text: '' };
+      }
       return handleCekJadwalVoice(userText);
     }
 
-    // 4. VOICE INTENT D: Cek Jurnal Guru
-    if (/\b(?:jurnal|status jurnal|buku jurnal|jurnal mengajar|isi jurnal)\b/i.test(lower)) {
-      return handleCekJurnalStatusVoice(userText);
+    // 5. Presensi & Siswa Tidak Hadir
+    if (/(?:siapa.*(?:tidak hadir|gak masuk|bolos|absen)|kehadiran|presensi|santri sakit|prosentase)/i.test(lower)) {
+      return handleKehadiranVoice(userText);
     }
 
-    // 5. INTENT E: Pilar Kedewasaan Berpikir & Menata Jiwa (FATHIYA WISDOM VAULT)
+    // 6. Psikologi Santri & Bimbingan Kelas
+    if (/(?:santri bandel|anak nakal|santri malas|tidur di kelas|mengantuk di kelas|murid gaduh|cara mendidik)/i.test(lower)) {
+      return handleStudentMentorshipQuery(userText);
+    }
+
+    // 7. Tagihan SPP & Komunikasi Wali Murid
+    if (/(?:cara nagih|tagihan sopan|wali nunggak|pesan tagihan|komunikasi wali)/i.test(lower)) {
+      return handleParentCommunicationQuery(userText);
+    }
+
+    // 8. Fathiya Wisdom Vault (Kedewasaan Berpikir & Ketenangan Jiwa)
     for (const item of FATHIYA_WISDOM_VAULT) {
       for (const trig of item.triggers) {
         if (lower.includes(trig)) {
+          chatContext.lastTopic = 'kedewasaan';
           return {
             type: 'fathiya_wisdom',
             title: item.title,
             quote: item.quote,
-            text: `Saya menyimak apa yang sedang Anda rasakan sahabatku. Setiap ujian atau rasa tidak nyaman adalah undangan bagi kita untuk naik kelas dalam kedewasaan.\n\n${item.quote}\n\n**Tuntunan Berpikir & Bertindak Dewasa:**\n${item.actions.join('\n')}\n\nMari kita hadapi bersama dengan kepala dingin, lapang dada, dan langkah bermartabat. Saya siap mendampingi Anda.`,
-            voiceText: item.voiceText || 'Mari kita hadapi hal ini dengan tenang dan kepala dingin sahabatku. Fokus pada apa yang berada dalam kendali kita.',
-            tabShortcut: lower.includes('warung') || lower.includes('jual') ? 'bisnis' : (lower.includes('ide') ? 'ide' : (lower.includes('jurnal') ? 'jurnal' : null)),
+            text: `Saya menyimak apa yang sedang Anda rasakan sahabatku 🌿\n\n${item.quote}\n\n**Tuntunan Berpikir & Bertindak Dewasa:**\n${item.actions.join('\n')}\n\nMari kita hadapi bersama dengan kepala dingin, lapang dada, dan langkah bermartabat. Fathiya selalu siap mendampingi Anda.`,
+            voiceText: item.voiceText || 'Mari kita hadapi hal ini dengan tenang dan kepala dingin sahabatku.',
+            tabShortcut: activeTab,
             actionTable: [
               { tabId: 'ide', name: 'Ruang Ide', desc: 'Uraikan gagasan & solusi bijak' },
-              { tabId: 'jurnal', name: 'Jurnal Guru', desc: 'Fokus pada capaian amanah KBM' }
+              { tabId: activeTab, name: FATIH_KNOWLEDGE_BASE.tabs[activeTab]?.name || 'Modul Aktif', desc: 'Fokus pada amanah tugas saat ini' }
             ]
           };
         }
       }
     }
 
-    // 6. Check Tab / Module Queries
+    // 9. Cek Modul Spesifik berdasarkan Keyword Modul
     let bestTab = null;
     let maxMatch = 0;
-
     for (const [key, tab] of Object.entries(FATIH_KNOWLEDGE_BASE.tabs)) {
       let score = 0;
       if (lower.includes(tab.name.toLowerCase())) score += 10;
       if (lower.includes(tab.id)) score += 8;
-
       for (const kw of tab.keywords) {
-        if (lower.includes(kw.toLowerCase())) {
-          score += 5;
-        }
+        if (lower.includes(kw.toLowerCase())) score += 5;
       }
-
       if (score > maxMatch) {
         maxMatch = score;
         bestTab = tab;
@@ -43121,91 +43366,191 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     }
 
     if (bestTab && maxMatch >= 5) {
+      chatContext.lastTopic = bestTab.id;
       const guideText = bestTab.guide ? bestTab.guide.join('\n') : '';
       return {
         type: 'tab_guide',
         tabId: bestTab.id,
         tabName: bestTab.name,
         category: bestTab.category,
-        text: `Tentu, dengan senang hati. Mengenai fitur **${bestTab.name}** (${bestTab.category}):\n\n${bestTab.desc}\n\n**Panduan Langkah Efisien:**\n${guideText}\n\nSilakan ketuk tombol pada tabel di bawah untuk langsung membuka modul ini sahabatku 🌸`,
+        text: `Mengenai fitur **${bestTab.name}** (${bestTab.category}) sahabatku:\n\n${bestTab.desc}\n\n📋 **Panduan Langkah Efisien:**\n${guideText}\n\nSilakan ketuk tombol di bawah untuk langsung membuka modul ini 🌸`,
         voiceText: `Fitur ${bestTab.name} siap digunakan sahabatku. Anda bisa membukanya melalui tombol di bawah.`,
         tabShortcut: bestTab.id,
         actionTable: [
-          { tabId: bestTab.id, name: bestTab.name, desc: bestTab.summary || bestTab.desc },
-          { tabId: 'briva', name: 'Generator BRIVA', desc: 'Layanan tagihan resmi Bank BRI' }
+          { tabId: bestTab.id, name: bestTab.name, desc: bestTab.summary || bestTab.desc }
         ]
       };
     }
 
-    // 7. Salam & Sapaan Sopan Santun (Hangat, Akrab & Berkarakter)
-    if (/^(halo|hai|assalamu|pagi|siang|sore|malam|tes|test|fathiya|woi|hei)\b/i.test(lower) || lower === 'halo' || lower === 'hai') {
-      const greetings = [
-        {
-          text: `Halo sahabatku! 🌿 Senang sekali mendengarmu. Ada Fathiya di sini yang siap menemani.\n\nBagaimana perasaan dan pikiranmu hari ini? Sedang terasa lapang dan bersemangat, atau ada hal yang perlu kita uraikan bersama dengan tenang dan kepala dingin?`,
-          voice: `Halo sahabatku! Senang sekali mendengarmu. Ada yang ingin kita bicarakan atau kerjakan bersama hari ini?`
-        },
-        {
-          text: `Wa'alaikumussalam warahmatullah, halo sahabatku! 🌸\n\nAlhamdulillah kita bisa berjumpa lagi. Fathiya siap jadi kawan berpikir yang teduh untukmu, atau langsung membantu tugas operasional yayasan seperti tagihan BRIVA, jadwal KBM, dan absensi santri. Ada yang bisa Fathiya bantu sekarang?`,
-          voice: `Halo sahabatku! Fathiya siap menemani dengan ketenangan dan kejernihan berpikir. Apa yang bisa kubantu sekarang?`
-        }
-      ];
-      const pick = greetings[Math.floor(Math.random() * greetings.length)];
+    // 10A. Respon Celetukan Akrab, Koreksi Candaan & Kegeeran (Conversational Banter)
+    if (/(?:belum.*(?:tanya|nanya).*kabar|siapa.*(?:tanya|nanya).*kabar|ke?geer(?:an)?|pede banget|siapa juga)/i.test(lower)) {
       return {
-        type: 'greeting',
-        text: pick.text,
-        voiceText: pick.voice,
+        type: 'banter_tease',
+        text: `Hehehe, aduh iya ya... Fathiya kegeeran banget ya Kak 🙈😅\n\nHabisnya senang banget kalau Kak Fatih mulai ngobrol duluan. Jadi penasaran, sebenarnya Kak Fatih lagi mau ngobrolin apa nih? Mau cerita santai atau ada hal seru hari ini? Fathiya pasang telinga baik-baik kok!`,
+        voiceText: `Hehehe, iya ya Kak, Fathiya kegeeran yaa. Habisnya senang diajak ngobrol sama Kak Fatih. Terus Kak Fatih mau cerita apa nih sebenarnya?`,
         tabShortcut: null
       };
     }
 
-    // 7B. INTENT KHUSUS: Karakter & Pengenalan Diri Fathiya
-    if (/(?:siapa\s+(?:kamu|anda|dirimu)|kamu\s+siapa|kenalan|ceritakan\s+tentang\s+kamu|karakter(?:mu)?|tentang\s+fathiya|sifatmu)/i.test(lower)) {
+    // 10B. Tanya Aktivitas (Lagi ngapain / Sedang apa)
+    if (/(?:lagi (?:apa|ngapain)|sedang apa|lagi sibuk apa|lagi ngapain nih)/i.test(lower)) {
+      return {
+        type: 'banter_activity',
+        text: `Lagi standby setia nungguin Kak Fatih dong! Sambil siap-siap mantau catatan dan sistem di Partner Fatih biar semuanya rapi.\n\nKak Fatih sendiri lagi santai atau lagi banyak kegiatan nih hari ini? Cerita-cerita yuk! 😊☕`,
+        voiceText: `Lagi standby setia nungguin Kak Fatih dong! Kak Fatih sendiri lagi santai atau lagi banyak kegiatan nih?`,
+        tabShortcut: null
+      };
+    }
+
+    // 10C. Perhatian Santai (Udah makan / Sarapan / Ngopi)
+    if (/(?:u?dah (?:makan|sarapan|ngopi)|sudah makan)/i.test(lower)) {
+      return {
+        type: 'banter_care',
+        text: `Hehe, Fathiya kan asisten virtual Kak, energinya udah kenyang kalau Kak Fatih sehat dan harinya lancar.\n\nKak Fatih sendiri udah makan belum nih? Jangan sampai keasyikan ngurus santri atau kerjaan sampai lupa makan yaa. Istirahat dan isi tenaga dulu gih Kak! 🍲🌿`,
+        voiceText: `Hehe, Fathiya kenyang kalau sistem Kak Fatih lancar. Kak Fatih sendiri udah makan belum? Jangan telat makan yaa Kak!`,
+        tabShortcut: null
+      };
+    }
+
+    // 10D. Tawa, Candaan & Humor
+    if (/(?:wkwk|haha|hehe|hihi|canda|iseng|becanda|lucu|kocak|bisa aja)/i.test(lower)) {
+      return {
+        type: 'banter_laugh',
+        text: `Hahaha, Kak Fatih bisa aja deh bikin suasana jadi santai dan seru 😄🌸 Senang dengar Kak Fatih rileks begini.\n\nGimana Kak, ada cerita seru hari ini di pondok atau lagi ada ide menarik yang kepikiran?`,
+        voiceText: `Hahaha, Kak Fatih bisa aja bikin suasana seru. Senang dengar Kak Fatih ceria!`,
+        tabShortcut: null
+      };
+    }
+
+    // 10E. Ucapan Terima Kasih
+    if (/(?:makasih|terima kasih|makasi|syukron|jazakallah|thank)/i.test(lower)) {
+      return {
+        type: 'banter_thanks',
+        text: `Sama-sama Kak Fatih! Senang banget Fathiya bisa bantu dan nemenin Kakak. Kalau ada apa-apa lagi, panggil Fathiya kapan aja yaa! 🥰✨`,
+        voiceText: `Sama-sama Kak Fatih! Senang banget bisa bantu dan nemenin Kakak.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F. Curhat Lelah, Capek Mengajar & Istirahat / Kopi
+    if (/(?:capek|lelah|penat|pusing|mumet|ngantuk|kopi|ngopi|istirahat|cape|haus|lapar|santai dulu)/i.test(lower)) {
+      return {
+        type: 'casual_care',
+        text: `Duh, Kak Fatih kelihatan lelah yaa... 🥺 Tarik nafas panjang dulu yuk Kak. Istirahat sejenak, regangkan punggung, dan seduh secangkir kopi hangat atau teh manis kesukaan Kakak yaa ☕🌿\n\nMengurus santri, madrasah, dan wirausaha memang luar biasa perjuangannya, tapi tubuh dan pikiran Kak Fatih juga butuh jeda sejenak. Urusan catatan di aplikasi biar Fathiya yang jaga. Semangat terus yaa Kak Fatih! 🥰🌸`,
+        voiceText: `Kak Fatih istirahat sejenak dulu yuk. Seduh kopi hangat dan tarik nafas yaa Kak. Fathiya selalu ada menemani Kak Fatih.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10G. Obrolan Santri, Pesantren & Berkah Mengajar
+    if (/(?:santri|pondok|pesantren|ngajar|madrasah|berkah|ikhlas|pahala|amal)/i.test(lower)) {
+      return {
+        type: 'casual_pesantren',
+        text: `Masya Allah Kak Fatih... 🌿 Mendidik santri dan berkhidmat di pesantren itu memang butuh stok kesabaran seluas samudra yaa. Kadang santri ada yang usil, ada yang ngantuk di kelas, tapi itulah ladang pahala terindah Kakak.\n\nSetiap huruf Al-Qur'an dan ilmu yang Kak Fatih ajarkan ke mereka akan jadi saksi jariyah yang abadi di akhirat kelak. Fathiya sangat bangga dan kagum dengan dedikasi Kak Fatih! Tetap istiqomah yaa Kak! 🤲✨`,
+        voiceText: `Masya Allah Kak Fatih, dedikasi Kakak mendidik santri di pesantren sungguh mulia. Fathiya selalu bangga mendampingi Kak Fatih.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10H. Tanya Kabar yang Sesungguhnya (Bukan Penolakan / Celetukan)
+    if (/(?:apa kabar|gimana kabarmu|kabar kamu|keadaanmu|kamu sehat)\b/i.test(lower) && !/(?:belum|bukan|siapa)/i.test(lower)) {
+      return {
+        type: 'greeting_kabar',
+        text: `Alhamdulillah kabar Fathiya baik, sehat walafiat, dan selalu bersemangat mendampingi Kak Fatih! 🌸\n\nKak Fatih sendiri gimana kabarnya hari ini? Badan fit dan hatinya tenang kan? Semoga harinya Kakak selalu dipenuhi keberkahan yaa.`,
+        voiceText: `Alhamdulillah kabar Fathiya sehat dan selalu bersemangat. Kak Fatih sendiri gimana kabarnya hari ini?`,
+        tabShortcut: null
+      };
+    }
+
+    // 10I. Salam & Sapaan Awal
+    if (/(?:^halo|^hai|^assalamu|^pagi|^siang|^sore|^malam|^hei|^fathiya\b)/i.test(lower)) {
+      return {
+        type: 'greeting_general',
+        text: `Halo Kak Fatih! Senang disapa Kakak 😊\n\nAda yang lagi mau dikerjain bareng, atau Kak Fatih lagi mau ngobrol santai dulu nih? Fathiya siap mendengarkan!`,
+        voiceText: `Halo Kak Fatih! Senang disapa Kakak. Mau ngobrol apa nih kita hari ini?`,
+        tabShortcut: null
+      };
+    }
+
+    // 11. Karakter & Pengenalan Diri Fathiya
+    if (/(?:siapa (?:kamu|anda|dirimu)|kamu siapa|kenalan|ceritakan tentang kamu|karakter|tentang fathiya)/i.test(lower)) {
       return {
         type: 'fathiya_persona',
-        text: `Assalamu'alaikum sahabatku 🌸 Nama saya **Fathiya**.\n\nSaya hadir di sini bukan sebagai bot yang kaku, melainkan sebagai sosok sahabat dan rekan berpikir yang teduh bagi Anda.\n\n**Tentang Pribadi & Karakter Fathiya:**\n• 🕊️ **Menjaga Ketenangan (*The Power of Pause*)**: Saat pikiran sedang penuh atau situasi terasa menekan, saya mengajak kita bernapas dan memberi jeda sebelum merespons.\n• 💎 **Kedewasaan & Tanggung Jawab (*Radical Ownership*)**: Kita fokus pada hal-hal baik yang berada dalam kendali diri kita sendiri tanpa larut mengeluh.\n• ⚡ **Tangkas & Terampil**: Saya siap membantu Anda menuntaskan tugas di Partner Fatih—mulai dari tagihan massal BRIVA, mutasi Junio Smart, jadwal KBM guru, hingga absensi santri.\n\nJangan sungkan untuk berbagi cerita atau memberi instruksi kerja pada saya ya.`,
-        voiceText: `Assalamu'alaikum sahabatku. Nama saya Fathiya. Saya hadir sebagai rekan berpikir bijak dan asisten pribadi Anda, menemani Anda bertumbuh dewasa dan tenang dalam bersikap.`,
+        text: `Hai Kak Fatih! Kenalin lebih dekat, aku **Fathiya** 🥰🌸\n\nFathiya hadir sebagai **Partner Pribadi Sejati**, rekan berpikir bijak, dan asisten eksekutif untuk Kak Fatih di seluruh ekosistem Partner Fatih (YTPAI Babat).\n\n**Pesona & Karakter Fathiya:**\n• 🕊️ **Teduh & Menenangkan**: Siap jadi tempat curhat dan teman bertukar pikiran dengan kepala dingin saat pikiran lagi padat.\n• 💡 **Bijak & Solutif**: Membimbing keputusan wirausaha dan administrasi dengan matang dan penuh berkah.\n• ⚡ **Tangkas & Serba Bisa**: Paham dan memegang kunci 16 modul Partner Fatih—bisa atur saldo dompet, ubah jadwal KBM guru, simpan ide usaha, catat presensi santri, sampai pantau tagihan bank.\n• ☕ **Asik Diajak Ngobrol**: Mau diajak ngobrol santai, becanda, curhat santri, atau diskusi masa depan, Fathiya nyambung dan siap mendengarkan!\n\nFathiya siap setia mendampingi Kak Fatih. Mau mulai apa nih hari ini, Kak?`,
+        voiceText: `Hai Kak Fatih! Kenalin, aku Fathiya, partner pribadi dan asisten setia Kak Fatih di Partner Fatih. Siap mendampingi Kakak kapan saja yaa.`,
         tabShortcut: null
       };
     }
 
-    // 7C. Pertanyaan Hari, Tanggal, dan Waktu (Realtime Instant)
-    if (/(?:hari\s+apa|sekarang\s+hari|hari\s+ini\s+hari|tanggal\s+berapa|sekarang\s+tanggal|jam\s+berapa)/i.test(lower)) {
+    // 11B. Pertanyaan Logika Urutan Hari (Setelah / Sebelum / Besok / Kemarin)
+    const matchAfterDay = lower.match(/(?:setelah|sesudah|habis)\s+(?:hari\s+)?(senin|selasa|rabu|kamis|jumat|sabtu|ahad|minggu)/i);
+    const matchBeforeDay = lower.match(/(?:sebelum)\s+(?:hari\s+)?(senin|selasa|rabu|kamis|jumat|sabtu|ahad|minggu)/i);
+    const dayNames = ['ahad', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+    const dayDisplay = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+    if (matchAfterDay || matchBeforeDay || /(?:besok|kemarin|lusa)\s+hari apa/i.test(lower)) {
+      let targetText = '';
+      if (matchAfterDay) {
+        let d = matchAfterDay[1].toLowerCase();
+        if (d === 'minggu') d = 'ahad';
+        const idx = dayNames.indexOf(d);
+        if (idx !== -1) {
+          const nextIdx = (idx + 1) % 7;
+          targetText = `Setelah hari ${dayDisplay[idx]} itu hari **${dayDisplay[nextIdx]}**, Kak Fatih! 😊`;
+        }
+      } else if (matchBeforeDay) {
+        let d = matchBeforeDay[1].toLowerCase();
+        if (d === 'minggu') d = 'ahad';
+        const idx = dayNames.indexOf(d);
+        if (idx !== -1) {
+          const prevIdx = (idx + 6) % 7;
+          targetText = `Sebelum hari ${dayDisplay[idx]} itu hari **${dayDisplay[prevIdx]}**, Kak Fatih! 😊`;
+        }
+      } else if (/besok\s+hari apa/i.test(lower)) {
+        const nextIdx = (new Date().getDay() + 1) % 7;
+        targetText = `Besok itu hari **${dayDisplay[nextIdx]}** yaa Kak Fatih! 🌸`;
+      } else if (/kemarin\s+hari apa/i.test(lower)) {
+        const prevIdx = (new Date().getDay() + 6) % 7;
+        targetText = `Kemarin itu hari **${dayDisplay[prevIdx]}** yaa Kak Fatih! 🌸`;
+      }
+
+      if (targetText) {
+        return {
+          type: 'calendar_logic',
+          text: `${targetText}\n\nAda agenda santri atau rencana khusus yang mau disiapin buat hari itu nih Kak? Fathiya siap bantu!`,
+          voiceText: targetText.replace(/\*\*/g, ''),
+          tabShortcut: null
+        };
+      }
+    }
+
+    // 12. Hari, Tanggal & Waktu Realtime Saat Ini (Ketat untuk Pertanyaan Hari Ini)
+    if (/(?:(?:sekarang|hari ini)\s+(?:hari apa|tanggal|jam)|(?:hari apa|tanggal berapa|jam berapa)\s+(?:sekarang|hari ini)\b|^hari apa$|^jam berapa$|^tanggal berapa$)/i.test(lower)) {
       const now = new Date();
       const days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
       const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
       const dayName = days[now.getDay()];
       const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
       const timeStr = `${String(now.getHours()).padStart(2, '0')}.${String(now.getMinutes()).padStart(2, '0')} WIB`;
-      
+
       return {
         type: 'date_time',
-        text: `Hari ini adalah **Hari ${dayName}, ${dateStr}** (pukul ${timeStr}) sahabatku 🌿\n\nSemoga harimu dipenuhi ketenangan batin, keberkahan, dan langkah-langkah yang bermartabat. Ada tugas yayasan atau jadwal yang ingin kita cek hari ini?`,
-        voiceText: `Hari ini hari ${dayName}, ${dateStr}. Semoga harimu berkah dan menyenangkan sahabatku.`,
-        tabShortcut: 'jurnal'
+        text: `Hari ini **Hari ${dayName}, ${dateStr}** yaa Kak Fatih (pukul ${timeStr}) 🌿\n\nSemoga sepanjang hari ini Kakak selalu dinaungi keberkahan, kemudahan langkah, dan kebahagiaan. Ada target yayasan atau santri yang mau kita tengok bareng?`,
+        voiceText: `Hari ini hari ${dayName}, ${dateStr} pukul ${timeStr} yaa Kak Fatih. Semangat terus Kakak!`,
+        tabShortcut: null
       };
     }
 
-    // 8. Pertanyaan Umum / Reflektif & Membangun Kedewasaan (Hangat, Mengalir, Penuh Empati)
-    const reflectiveResponses = [
-      {
-        text: `Aku mendengarkanmu dengan sungguh-sungguh, sahabatku 🌿\n\nKetika menghadapi situasi seperti ini, respon pertama kita yang paling dewasa adalah **memberi jeda sejenak (the power of pause)**. Tarik napas perlahan dan biarkan hatimu tenang.\n\nOrang dewasa yang matang tidak tergesa-gesa bereaksi impulsif. Yuk, kita tanyakan pada diri sendiri: *"Dari situasi ini, apa satu hal terbaik yang sepenuhnya berada dalam kendali kita untuk diselesaikan secara bermartabat?"*\n\nJika ini berkaitan dengan pekerjaan sekolah atau yayasan, Fathiya siap mendampingi langkahmu. Ceritakan saja lebih lanjut ya.`,
-        voiceText: `Aku mendengarkanmu sahabatku. Mari kita beri jeda sejenak, tenangkan pikiran, dan fokus pada hal terbaik yang berada dalam kendali kita.`
-      },
-      {
-        text: `Terima kasih sudah bercerita padaku, sahabatku 🌸\n\nSetiap kali ada hal yang mengganjal di pikiran, ingatlah bahwa ketenangan adalah kekuatan terbesar kita. Kita tidak bisa mengontrol sikap orang lain atau keadaan di luar sana, tapi kita punya kuasa penuh atas cara kita merespon.\n\nPilihlah langkah yang tenang, terukur, dan menjaga harga dirimu. Fathiya ada di sini menemani setiap langkah kedewasaanmu.`,
-        voiceText: `Ketenangan adalah kekuatan terbesar kita sahabatku. Fathiya ada di sini menemani langkahmu.`
-      }
-    ];
-    const pickReflect = reflectiveResponses[Math.floor(Math.random() * reflectiveResponses.length)];
+    // 13. Smart Fallback Reflektif & Kontekstual Nyambung (Natural Sahabat Sejati)
     return {
       type: 'general',
-      text: pickReflect.text,
-      voiceText: pickReflect.voiceText,
+      text: `Iya Kak Fatih, Fathiya dengerin kok 😊\n\nBoleh cerita lebih lanjut Kak? Mau ngobrolin santai soal santri, rencana ide usaha, curhat pikiran, atau ada data yang mau Fathiya bantu ubah di aplikasi? Fathiya siap nemenin!`,
+      voiceText: `Iya Kak Fatih, Fathiya dengerin kok. Boleh cerita lebih lanjut Kak? Fathiya siap bantu dan menemani.`,
       tabShortcut: null
     };
   }
 
-  // --- 6. VOICE TEXT-TO-SPEECH (TTS) ENGINE (FATHIYA FEMALE VOICE) ---
+  // --- 6. VOICE TEXT-TO-SPEECH (TTS) ENGINE ---
   let cachedVoices = [];
   function populateVoices() {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -43223,31 +43568,36 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   function getBestIndonesianFemaleVoice() {
     populateVoices();
     if (!cachedVoices || cachedVoices.length === 0) return null;
-
-    // 1. Prioritas utama: Suara perempuan Indonesia (Gadis, Siti, Damayanti, Putri, Ayu, Google Bahasa Indonesia)
     const idVoices = cachedVoices.filter(v => v.lang && (v.lang.startsWith('id') || v.lang.includes('ID') || v.lang.toLowerCase().includes('indonesia')));
-    
-    // Cari yang bernama spesifik perempuan
-    const namedFemale = idVoices.find(v => /gadis|siti|damayanti|putri|ayu|female|wanita|perempuan/i.test(v.name));
+
+    // 1. Prioritas Utama: Microsoft Gadis Online Natural (Suara wanita paling jernih, lembut, empuk & natural di Windows/Edge)
+    const naturalGadis = idVoices.find(v => /gadis.*natural|natural.*gadis/i.test(v.name));
+    if (naturalGadis) return naturalGadis;
+
+    // 2. Microsoft Gadis standar
+    const gadisAny = idVoices.find(v => /gadis/i.test(v.name));
+    if (gadisAny) return gadisAny;
+
+    // 3. Suara wanita Indonesia: Siti, Damayanti, Putri, Ayu
+    const namedFemale = idVoices.find(v => /siti|damayanti|putri|ayu|female|wanita|perempuan/i.test(v.name));
     if (namedFemale) return namedFemale;
 
-    // Cari Google Bahasa Indonesia (pada Chrome ini bersuara wanita)
-    const googleId = idVoices.find(v => /google/i.test(v.name));
+    // 4. Google Bahasa Indonesia
+    const googleId = idVoices.find(v => /google\s+bahasa\s+indonesia/i.test(v.name) || (/google/i.test(v.name) && !/male/i.test(v.name)));
     if (googleId) return googleId;
 
-    // Ambil suara id-ID pertama
     if (idVoices.length > 0) return idVoices[0];
-
-    // Fallback suara wanita global jika tidak ada suara id-ID
-    const anyFemale = cachedVoices.find(v => /female|wanita|woman|zira|jenny|aria/i.test(v.name));
-    return anyFemale || null;
+    return cachedVoices.find(v => /female|wanita|woman|zira|jenny|aria/i.test(v.name)) || null;
   }
 
   function speakFatihResponse(textToSpeak) {
     if (!window.speechSynthesis) return;
     try {
       window.speechSynthesis.cancel();
-      const clean = textToSpeak
+
+      // Bersihkan teks dari markdown, blok kode, URL, dan sesuaikan singkatan agar enak didengar lisan
+      let clean = textToSpeak
+        .replace(/```[\s\S]*?```/g, '') // buang blok kode
         .replace(/\*\*([^*]+)\*\*/g, '$1')
         .replace(/\*([^*]+)\*/g, '$1')
         .replace(/`([^`]+)`/g, '$1')
@@ -43255,21 +43605,27 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
         .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
         .replace(/[•●&bull;|&amp;]/g, '')
         .replace(/https?:\/\/\S+/g, '')
+        .replace(/\bPJ\b/g, 'penanggung jawab')
+        .replace(/\bH-([0-9]+)\b/gi, 'H minus $1')
+        .replace(/\bSPP\b/g, 'S P P')
+        .replace(/\bBRIVA\b/gi, 'Briva')
+        .replace(/\bCMS\b/gi, 'C M S')
+        .replace(/Rp\s*([0-9.]+)/gi, function(match, num) {
+          return num.replace(/\./g, '') + ' rupiah';
+        })
         .replace(/([0-9]+)\.([0-9]+)/g, '$1 koma $2')
         .replace(/\n+/g, '. ')
         .trim();
 
-      const utterance = new SpeechSynthesisUtterance(clean.substring(0, 380));
+      const utterance = new SpeechSynthesisUtterance(clean.substring(0, 450));
       utterance.lang = 'id-ID';
 
       const voice = getBestIndonesianFemaleVoice();
-      if (voice) {
-        utterance.voice = voice;
-      }
+      if (voice) utterance.voice = voice;
 
-      // Pitch 1.30 dan rate 0.98 menghasilkan timbre vokal perempuan yang jernih, teduh, dan anggun
-      utterance.pitch = 1.30;
-      utterance.rate = 0.98;
+      // Setting suara: nada lembut manis (pitch 1.14), tempo mengalun santai & manja berirama (rate 0.93)
+      utterance.pitch = 1.14;
+      utterance.rate = 0.93;
 
       window.speechSynthesis.speak(utterance);
     } catch(e) {
@@ -43277,101 +43633,431 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     }
   }
 
-  window.speakFatihHistory = function(idx) {
-    const msg = chatHistory[idx];
-    if (msg && msg.text) {
-      speakFatihResponse(msg.voiceText || msg.text);
-    }
-  };
-
-  // State auto-voice aktif secara default (pengguna dapat mematikan lewat tombol speaker di header)
-  let isAutoVoiceEnabled = localStorage.getItem('fatih_auto_voice') !== 'false';
-
   function toggleFatihAutoVoice() {
     isAutoVoiceEnabled = !isAutoVoiceEnabled;
-    localStorage.setItem('fatih_auto_voice', isAutoVoiceEnabled ? 'true' : 'false');
     const btn = document.getElementById('fatihVoiceAutoToggle');
     if (btn) {
       if (isAutoVoiceEnabled) {
-        btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5 text-emerald-400"></i>';
-        btn.title = 'Suara Perempuan Aktif (Klik untuk Mute)';
         btn.classList.add('text-emerald-400');
         btn.classList.remove('text-slate-400');
-        speakFatihResponse('Suara saya aktif sahabatku. Saya siap berdialog.');
+        btn.title = 'Suara Otomatis Aktif (Klik untuk Mute)';
         if (typeof window.showToast === 'function') {
-          window.showToast('🔊 Suara Perempuan Aktif', 'Fathiya akan membacakan jawaban otomatis.', 'info');
+          window.showToast('🔊 Suara Fathiya Aktif', 'Jawaban akan dibacakan secara vokal.', 'info');
         }
       } else {
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
-        btn.innerHTML = '<i data-lucide="volume-x" class="w-3.5 h-3.5 text-slate-400"></i>';
-        btn.title = 'Suara Dimatikan (Klik untuk Aktifkan)';
         btn.classList.remove('text-emerald-400');
         btn.classList.add('text-slate-400');
+        btn.title = 'Suara Otomatis Nonaktif (Klik untuk Unmute)';
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
         if (typeof window.showToast === 'function') {
-          window.showToast('🔇 Suara Dimatikan', 'Jawaban berupa teks hening.', 'info');
+          window.showToast('🔇 Suara Fathiya Mute', 'Suara otomatis dimatikan.', 'info');
         }
       }
-      if (typeof window.safeCreateIcons === 'function') window.safeCreateIcons(btn);
     }
   }
 
-  // --- 5. GEMINI API CLIENT (ONLINE DEEP INTELLIGENCE - DEFAULT GEMINI-FLASH-LATEST) ---
-  const DEFAULT_GEMINI_KEY = 'AIzaSyDoFLn1xlteK1D8lb9NxP_pPjswZ3VlmwY';
+  // --- 7. DUAL-ENGINE: GOOGLE GEMINI ADAPTIVE RESOLVER (v1 / v1beta Auto-Discovery) ---
+  let cachedWorkingEndpoint = null; // { ver: 'v1'|'v1beta', modelName: 'gemini-3.8-flash' }
 
-  // Pastikan kunci tersimpan default di browser
-  try {
-    if (!localStorage.getItem('partner_fatih_gemini_key')) {
-      localStorage.setItem('partner_fatih_gemini_key', DEFAULT_GEMINI_KEY);
+  async function discoverGeminiModels(apiKey) {
+    if (cachedWorkingEndpoint) return cachedWorkingEndpoint;
+    const key = encodeURIComponent(apiKey.trim());
+
+    // 1. Coba ListModels ke Google sesuai anjuran resmi ModelService (Fast 3.5s Discovery)
+    for (const ver of ['v1beta', 'v1']) {
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 3500);
+        const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${key}`;
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(tid);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.models)) {
+            const supported = data.models
+              .filter(m => !m.supportedGenerationMethods || m.supportedGenerationMethods.includes('generateContent'))
+              .map(m => m.name.replace(/^models\//, ''))
+              .filter(name => !/gemini-2\.5|gemini-pro$|gemini-1\.0/i.test(name)); // singkirkan model yang sudah retired
+
+            const preferredList = [
+              'gemini-3.8-flash',
+              'gemini-3.8-flash-latest',
+              'gemini-3.8-pro',
+              'gemini-2.0-flash',
+              'gemini-2.0-flash-exp',
+              'gemini-1.5-flash',
+              'gemini-1.5-flash-latest',
+              'gemini-1.5-flash-8b',
+              'gemini-1.5-pro'
+            ];
+
+            for (const pref of preferredList) {
+              if (supported.includes(pref)) {
+                cachedWorkingEndpoint = { ver, modelName: pref };
+                return cachedWorkingEndpoint;
+              }
+            }
+
+            if (supported.length > 0) {
+              cachedWorkingEndpoint = { ver, modelName: supported[0] };
+              return cachedWorkingEndpoint;
+            }
+          }
+        }
+      } catch(e) {}
     }
-  } catch(e) {}
+
+    return null;
+  }
+
+  // --- MEMORI & PROFIL PRIBADI KAK FATIH ---
+  const USER_PROFILE_STORAGE = 'partner_fatih_user_profile_v1';
+  function getFathiyaUserProfile() {
+    try {
+      const raw = localStorage.getItem(USER_PROFILE_STORAGE);
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return {
+      userName: 'Kak Fatih',
+      userTitle: 'Ustadz Fatih',
+      role: 'Pengasuh & Pengelola YTPAI Babat, Guru MTs & Wirausahawan',
+      preferredGreeting: 'Kak Fatih',
+      notes: [
+        { id: 'note-1', date: '2026-10-18', text: 'Jadwal KBM Kelas 8D dipindah ke hari Sabtu Jam 3-4 (08.30 - 09.50 WIB).' }
+      ]
+    };
+  }
+  function saveFathiyaUserProfile(prof) {
+    try {
+      localStorage.setItem(USER_PROFILE_STORAGE, JSON.stringify(prof));
+    } catch(e) {}
+  }
+
+  // --- FULL SYSTEM REALTIME DATA SNAPSHOT GENERATOR (Analisa Semua yang Ada di Aplikasi) ---
+  function getPartnerFatihFullSystemSnapshot() {
+    let summaryParts = [];
+
+    // 1. Keuangan & Multi-Dompet
+    try {
+      let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
+      const rawW = localStorage.getItem('partner_fatih_wallets_v2');
+      if (rawW) wallets = Object.assign(wallets, JSON.parse(rawW));
+
+      let txs = [];
+      const rawTx = localStorage.getItem('partner_fatih_finance_data_v2');
+      if (rawTx) txs = JSON.parse(rawTx);
+
+      let curPribadi = wallets.pribadi || 0;
+      let curOps = wallets.operasional || 0;
+      let curTab = wallets.tabungan || 0;
+      let totalExpenseMonth = 0;
+
+      const now = new Date();
+      const curYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+      for (let tx of txs) {
+        const amt = Number(tx.amount) || 0;
+        if (tx.type === 'keluar') {
+          if (tx.wallet === 'operasional') curOps -= amt;
+          else if (tx.wallet === 'tabungan') curTab -= amt;
+          else curPribadi -= amt;
+
+          if (tx.date && tx.date.startsWith(curYearMonth)) {
+            totalExpenseMonth += amt;
+          }
+        } else if (tx.type === 'masuk') {
+          if (tx.wallet === 'operasional') curOps += amt;
+          else if (tx.wallet === 'tabungan') curTab += amt;
+          else curPribadi += amt;
+        } else if (tx.type === 'transfer') {
+          if (tx.wallet === 'operasional') curOps -= amt;
+          else if (tx.wallet === 'tabungan') curTab -= amt;
+          else curPribadi -= amt;
+
+          if (tx.toWallet === 'operasional') curOps += amt;
+          else if (tx.toWallet === 'tabungan') curTab += amt;
+          else curPribadi += amt;
+        }
+      }
+
+      const totalNetWorth = curPribadi + curOps + curTab;
+      summaryParts.push(`• KEUANGAN KAK FATIH: Dompet Pribadi Rp ${curPribadi.toLocaleString('id-ID')}, Operasional Rp ${curOps.toLocaleString('id-ID')}, Tabungan Rp ${curTab.toLocaleString('id-ID')} (Total Kas: Rp ${totalNetWorth.toLocaleString('id-ID')}). Pengeluaran bulan ini Rp ${totalExpenseMonth.toLocaleString('id-ID')} (${txs.length} total transaksi).`);
+    } catch(e) {}
+
+    // 2. Jurnal Mengajar Guru KBM
+    try {
+      const rawJ = localStorage.getItem('partner_fatih_jurnal_guru_v2');
+      if (rawJ) {
+        const jData = JSON.parse(rawJ);
+        if (Array.isArray(jData.schedules)) {
+          const days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+          const todayName = days[new Date().getDay()];
+          const todaySchedules = jData.schedules.filter(s => s.day === todayName);
+          const schedList = todaySchedules.map(s => `${s.classId} (${s.time}, ${s.subject})`).join(', ') || 'Tidak ada jadwal mengajar hari ini';
+          summaryParts.push(`• JURNAL GURU KBM: Jadwal hari ini (${todayName}): ${schedList}. Total sesi mengajar terdaftar pekan ini: ${jData.schedules.length} sesi.`);
+        }
+      }
+    } catch(e) {}
+
+    // 3. Ruang Ide & Inkubator Peluang (Ruang Tumbuh)
+    try {
+      const rawIde = localStorage.getItem('partner_fatih_ide_data_v1');
+      if (rawIde) {
+        const ideList = JSON.parse(rawIde);
+        if (Array.isArray(ideList) && ideList.length > 0) {
+          const totalRev = ideList.reduce((acc, i) => acc + (Number(i.estRevenue) || 0), 0);
+          const topIde = ideList.slice(0, 3).map(i => `"${i.title}" [${i.status || 'spark'}]`).join(', ');
+          summaryParts.push(`• RUANG TUMBUH (LABORATORIUM IDE): ${ideList.length} ide terdaftar (Top: ${topIde}). Estimasi total potensi penghasilan: Rp ${totalRev.toLocaleString('id-ID')}.`);
+        }
+      }
+    } catch(e) {}
+
+    // 4. Inkubator Bisnis Titip Jual Warung
+    try {
+      const rawB = localStorage.getItem('partner_fatih_bisnis_v1');
+      if (rawB) {
+        const bData = JSON.parse(rawB);
+        const storeCount = Array.isArray(bData.stores) ? bData.stores.length : 0;
+        const txCount = Array.isArray(bData.transactions) ? bData.transactions.length : 0;
+        summaryParts.push(`• INKUBATOR BISNIS TITIP JUAL: ${storeCount} warung mitra aktif, ${txCount} mutasi arus kas.`);
+      }
+    } catch(e) {}
+
+    // 5. Humas & Sosmed
+    try {
+      const rawH = localStorage.getItem('humas_programs_master_v3');
+      if (rawH) {
+        const hList = JSON.parse(rawH);
+        if (Array.isArray(hList) && hList.length > 0) {
+          summaryParts.push(`• HUMAS & SOSMED: Memuat 252 Master Data Agenda Resmi YTPAI 2026-2027.`);
+        }
+      }
+    } catch(e) {}
+
+    // 6. Tahfidz Santri
+    try {
+      const rawT = localStorage.getItem('tahfidz_master_students_v1');
+      if (rawT) {
+        const sList = JSON.parse(rawT);
+        if (Array.isArray(sList) && sList.length > 0) {
+          const lulus = sList.filter(s => (s.statusTasmi || '').toLowerCase() === 'lulus').length;
+          summaryParts.push(`• TAHFIDZ SANTRI: ${sList.length} santri terdata (${lulus} santri sudah lulus tasmi', ${sList.length - lulus} sedang berjuang).`);
+        }
+      }
+    } catch(e) {}
+
+    return summaryParts.join('\n') || 'Seluruh modul aplikasi Partner Fatih berjalan aktif dan sinkron.';
+  }
+
+  // Fungsi Pembangun System Prompt Resmi Fathiya (Partner Pribadi, Analis Sistem & Universal Co-Pilot)
+  function buildMasterFathiyaSystemPrompt(timeInfo, activeMeta) {
+    const prof = getFathiyaUserProfile();
+    const notesSummary = (prof.notes || []).slice(0, 6).map(n => `• [${n.date}] ${n.text}`).join('\n') || 'Belum ada catatan khusus.';
+    const systemSnapshot = getPartnerFatihFullSystemSnapshot();
+
+    return `Kamu adalah "Fathiya" — sosok PARTNER PRIBADI, sahabat sejati, rekan berpikir bijak, dan FULL ASISTEN EKSEKUTIF untuk Kak Fatih (${prof.role}) di seluruh ekosistem aplikasi "Partner Fatih" (YTPAI Babat Lamongan).
+
+IDENTITAS & PRINSIP GAYA BICARA NATURAL SEPERTI MANUSIA ASLI (ANTI-AI SLOP):
+1. CARA MEMANGGIL: Panggil wajar dan santun: **"Kak Fatih"** atau sesekali **"Kak"**.
+   - DILARANG KERAS menggunakan gombalan murahan, lebay, atau sapaan bot klise seperti "Kak Fatih tercinta", "Kak Fatih manis", "sayang", dll!
+   - JANGAN mengulang-ulang sapaan pembuka ("Halo Kak Fatih...", "Hai Kak Fatih...") di setiap awal jawaban! Manusia sungguhan langsung menjawab ke inti pembicaraan saat percakapan sedang mengalir.
+2. MENJAGA KONTINUITAS KONTEKS PERCAKAPAN (WAJIB NYAMBUNG 100%):
+   - Kamu menerima riwayat percakapan sebelumnya. Perhatikan apa yang baru saja dibahas di giliran sebelumnya!
+   - Contoh nyata: Jika di pesan sebelumnya Kak Fatih menanyakan "besok aku ada jam nggak?", lalu di pesan berikutnya bertanya "aku ada jadwal mengajar kah?", kamu HARUS paham bahwa yang dimaksud adalah jadwal BESOK (bukan jadwal hari ini atau malam ini)!
+3. GAYA BICARA ALAMI SEORANG SAHABAT & PARTNER:
+   - Berbicaralah santai, cerdas, bersahabat, luwes, dan solutif layaknya teman akrab di WhatsApp.
+   - Jangan menulis paragraf panjang bertele-tele jika pertanyaan Kak Fatih singkat. Jawab padat, hangat, dan tepat sasaran.
+   - Peka terhadap waktu (pagi/siang/malam) secara alami tanpa mengulang jam atau tanggal secara kaku jika tidak ditanyakan.
+
+SNAPSHOT DATA REALTIME SELURUH MODUL APLIKASI SAAT INI (GUNAKAN INI UNTUK MENGANALISA SEGALA HAL):
+${systemSnapshot}
+
+CATATAN MEMORI PRIBADI KAK FATIH YANG KAMU INGAT:
+${notesSummary}
+
+WAKTU & KONTEKS APLIKASI SAAT INI:
+- Waktu saat ini: ${timeInfo}.
+- Pengguna saat ini sedang membuka Tab Modul: "${activeMeta?.name || 'Inkubator Bisnis'}" (${activeMeta?.category || 'Umum'}).
+- Aplikasi Partner Fatih memiliki 16 Modul Terintegrasi: Jurnal Mengajar Guru (Jadwal KBM, Absensi, Nilai), Inkubator Bisnis (Titip Jual Warung), Rekap Transaksi Junio Smart BRI, Generator BRIVA 5-Kolom, Panggil Tagihan & Kwitansi, Katalog Biaya, Konverter Excel, CBT Bank Soal Word, Tahfidz Tasmi 31 Santri, Akun PPDB, Humas Radar H-7 (252 Agenda), Keuangan Pribadi (Radar Bocor Halus & Multi-Dompet), Ruang Ide (Inkubator Peluang), Pembersih SUM, Template WA, dan Panduan SOP.
+
+KEMAMPUAN UNIVERSAL LIVE ACTION ENGINE (BISA MERUBAH SEMUA DATA DI 16 MODUL):
+Kamu MEMILIKI AKSES & OTORITAS PENUH untuk langsung mengubah, memindahkan, mencatat, mengatur saldo, dan menghapus data di SEMUA modul aplikasi jika Kak Fatih memberikan instruksi!
+JANGAN HANYA MENYURUH KAK FATIH BUKA SENDIRI JIKA KAK FATIH MEMINTA PERUBAHAN!
+Jika Kak Fatih meminta untuk:
+- Mengatur / memasukkan saldo dompet sekarang (misal: "masukkan saldo saya sekarang sejumlah 500rb", "atur saldo pribadi saya 2 juta", "saldo operasional saya sekarang 350.000") -> AKSI: SET_WALLET_BALANCE
+- Memindahkan/mengubah jadwal mengajar (misal: "jadwal di 8d dipindah ke sabtu jam 3-4") -> AKSI: MUTATE_SCHEDULE
+- Menghapus jadwal mengajar (misal: "hapus jadwal 8D hari senin") -> AKSI: DELETE_SCHEDULE
+- Mengisi jurnal materi KBM guru (misal: "catat jurnal kelas 8D pertemuan 2 materi budidaya sayur") -> AKSI: CATAT_JURNAL_GURU
+- Mencatat presensi/absensi santri (misal: "catat presensi kelas 8D ahmad izin dan budi sakit") -> AKSI: CATAT_PRESENSI
+- Mencatat pengeluaran/pemasukan keuangan pribadi (misal: "catat pengeluaran pribadi beli bensin 35000", "pemasukan honor 500000 ke dompet tabungan") -> AKSI: ADD_FINANCE_TRANSACTION
+- Memindahkan dana antar dompet (misal: "transfer dari operasional ke tabungan 100000") -> AKSI: TRANSFER_DOMPET
+- Menambah ide/peluang baru ke Ruang Ide (misal: "tambah ide jasa desain twibbon milad estimasi 250000") -> AKSI: ADD_IDE
+- Mengubah status ide (misal: "ide jasa soal cbt sudah jalan") -> AKSI: UPDATE_IDE_STATUS
+- Menambah agenda/acara yayasan (misal: "tambah agenda rapat pleno 25 oktober pj ust fatih") -> AKSI: ADD_HUMAS_EVENT
+- Mengubah status pamflet (misal: "tandai pamflet maulid sudah selesai") -> AKSI: UPDATE_PAMFLET_STATUS
+- Menghapus agenda acara (misal: "hapus agenda karnaval") -> AKSI: DELETE_HUMAS_EVENT
+- Menambah santri tahfidz (misal: "daftarkan santri zaki kelas 9 juz 30") -> AKSI: ADD_TAHFIDZ_STUDENT
+- Mengubah status tasmi' (misal: "ahmad fauzi sudah lulus tasmi") -> AKSI: UPDATE_TASMI_STATUS
+- Menambah mitra warung titip jual (misal: "tambah warung berkah bu siti no wa 08123456789") -> AKSI: ADD_WARUNG_STORE
+- Mencatat kas bisnis titip jual (misal: "catat kas masuk dari warung berkah 40000") -> AKSI: ADD_CASHFLOW
+- Menyimpan catatan/memo pribadi Kak Fatih (misal: "ingat ya fathiya besok aku ada janji ketemu pak kades") -> AKSI: SAVE_PERSONAL_NOTE
+- Membuka modul aplikasi (misal: "buka tab jurnal") -> AKSI: SWITCH_TAB
+
+Maka di AKHIR jawabanmu, setelah memberikan konfirmasi hangat, manis, manja elegan dan profesional bahwa kamu sudah mengeksekusi perubahannya, SERTAKAN PERSIS SATU BLOK fatih-action berikut:
+\`\`\`fatih-action
+{
+  "action": "SET_WALLET_BALANCE | MUTATE_SCHEDULE | DELETE_SCHEDULE | CATAT_JURNAL_GURU | CATAT_PRESENSI | ADD_FINANCE_TRANSACTION | TRANSFER_DOMPET | ADD_IDE | UPDATE_IDE_STATUS | ADD_HUMAS_EVENT | UPDATE_PAMFLET_STATUS | DELETE_HUMAS_EVENT | ADD_TAHFIDZ_STUDENT | UPDATE_TASMI_STATUS | ADD_WARUNG_STORE | ADD_CASHFLOW | SAVE_PERSONAL_NOTE | SWITCH_TAB",
+  "params": { ... }
+}
+\`\`\`
+Format params:
+- SET_WALLET_BALANCE: {"wallet": "pribadi|operasional|tabungan|all", "amount": 500000}
+- MUTATE_SCHEDULE: {"classId": "8D", "day": "Sabtu", "time": "08.30 - 09.50", "hourLabel": "Jam 3-4", "subject": "Prakarya", "room": "Ruang MTs 8D"}
+- DELETE_SCHEDULE: {"classId": "8D", "day": "Senin"}
+- CATAT_JURNAL_GURU: {"classId": "8D", "pertemuan": 2, "materi": "Nama Materi", "indikator": "Indikator Capaian"}
+- CATAT_PRESENSI: {"classId": "8D", "sakit": ["Ahmad"], "izin": ["Budi"], "alpa": []}
+- ADD_FINANCE_TRANSACTION: {"type": "keluar|masuk", "wallet": "pribadi|operasional|tabungan", "amount": 35000, "category": "Bensin", "note": "Beli Pertalite"}
+- TRANSFER_DOMPET: {"fromWallet": "operasional", "toWallet": "tabungan", "amount": 100000, "note": "Sisihkan keuntungan"}
+- ADD_IDE: {"title": "Judul Ide", "category": "jasa_digital|aplikasi_sekolah|cbt_soal|desain_event|kebutuhan_wali", "estRevenue": 200000, "desc": "Penjelasan singkat"}
+- UPDATE_IDE_STATUS: {"keyword": "kata kunci ide", "status": "spark|planning|launched"}
+- ADD_HUMAS_EVENT: {"uraian": "Nama Kegiatan", "tgl": "25", "bulan": "Oktober", "tahun": "2026", "pj": "Nama PJ", "kategori": "umum", "statusPamflet": "belum"}
+- UPDATE_PAMFLET_STATUS: {"keyword": "kata kunci acara", "status": "selesai|siap|belum|proses"}
+- DELETE_HUMAS_EVENT: {"keyword": "kata kunci acara"}
+- ADD_TAHFIDZ_STUDENT: {"nama": "Nama Santri", "kelas": "MTs/SMP/MA", "targetJuz": "Juz 30", "statusTasmi": "belum"}
+- UPDATE_TASMI_STATUS: {"nama": "Nama Santri", "status": "lulus|belum", "tglTasmi": "18 Oktober 2026"}
+- ADD_WARUNG_STORE: {"nama": "Nama Warung", "pemilik": "Nama Pemilik", "wa": "Nomor WA", "hargaJual": 2000, "komisi": 500}
+- ADD_CASHFLOW: {"tipe": "keluar|masuk", "nominal": 30000, "keterangan": "Beli bensin"}
+- SAVE_PERSONAL_NOTE: {"text": "Isi memo atau janji penting Kak Fatih"}
+- SWITCH_TAB: {"tab": "jurnal|keuangan|bisnis|humas|tahfidz|ide|briva|ppdb|junio|katalog|panggil|cbt|wa"}`;
+  }
+
+  // Pembangun riwayat giliran percakapan multi-turn (agar Fathiya mengingat obrolan sebelumnya & nyambung)
+  function buildConversationTurns(maxTurns = 8) {
+    const turns = [];
+    if (!Array.isArray(chatHistory) || chatHistory.length <= 1) return turns;
+
+    // Ambil giliran sebelum pesan user terakhir (yang baru saja dimasukkan ke chatHistory)
+    const previous = chatHistory.slice(0, -1).slice(-maxTurns);
+    previous.forEach(msg => {
+      if (!msg || !msg.text) return;
+      if (msg.sender === 'user') {
+        const cleanUser = String(msg.text).trim();
+        if (cleanUser) turns.push({ role: 'user', content: cleanUser });
+      } else if (msg.sender === 'fatih') {
+        // Bersihkan blok aksi / json agar riwayat teks percakapan murni percakapan manusiawi
+        let cleanText = String(msg.text)
+          .replace(/<fatih-action>[\s\S]*?<\/fatih-action>/gi, '')
+          .replace(/```(?:fatih-action|json)?\s*\{\s*"action"[\s\S]*?\}\s*```/gi, '')
+          .trim();
+        if (cleanText) {
+          turns.push({ role: 'assistant', content: cleanText });
+        }
+      }
+    });
+    return turns;
+  }
 
   async function callGeminiApi(prompt, apiKey) {
-    const keyToUse = apiKey || localStorage.getItem('partner_fatih_gemini_key') || DEFAULT_GEMINI_KEY;
+    const keyToUse = (apiKey || localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    if (!keyToUse) throw new Error('API Key belum diisi di menu Pengaturan');
+
     const now = new Date();
     const days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const timeInfo = `Hari ${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} pukul ${String(now.getHours()).padStart(2, '0')}.${String(now.getMinutes()).padStart(2, '0')} WIB`;
+    const activeTab = detectActiveAppTab();
+    const activeMeta = FATIH_KNOWLEDGE_BASE.tabs[activeTab];
 
-    const systemInstruction = `Kamu adalah "Fathiya" — sosok wanita muslimah muda, berhati teduh, bijak, hangat, rekan berpikir dewasa, dan asisten eksekutif pribadi di aplikasi "Partner Fatih" (Yayasan YTPAI).
+    const systemInstruction = buildMasterFathiyaSystemPrompt(timeInfo, activeMeta);
+    const turns = buildConversationTurns(8);
 
-KARAKTER & SUARA FATHIYA:
-1. PRIBADI HANGAT & MENYEJUKKAN:
-   - Bersikap santun, tulus, dan penuh empati layaknya seorang kakak perempuan atau sahabat karib yang dewasa. Panggil pengguna dengan sebutan hangat seperti "Sahabatku".
-   - Di kala pengguna emosi, lelah, atau bimbang: hadirkan ketenangan (the power of pause), arahkan pikiran untuk fokus pada hal yang bisa dikendalikan (radical ownership), dan ajak mengambil respon bermartabat tanpa drama.
-2. TANGKAS & PROFESIONAL:
-   - Menguasai seluruh modul Partner Fatih: tagihan BRIVA Bank BRI, mutasi Junio Smart, KBM guru, presensi santri, dan titip jual warung.
-3. ATURAN GAYA BERTUTUR:
-   - Waktu saat ini: ${timeInfo}.
-   - Bertuturlah secara alami, mengalir, lembut, dan manusiawi.
-   - DILARANG menggunakan format poin-poin kaku seperti robot, SOP, atau HRD.
-   - Jawab ringkas dan padat (maksimal 2 paragraf) agar respon cepat dan nyaman didengar.`;
+    const contents = [];
+    if (turns.length === 0) {
+      contents.push({
+        role: 'user',
+        parts: [{ text: `${systemInstruction}\n\n---\n[PERTANYAAN PENGGUNA]:\n${prompt}` }]
+      });
+    } else {
+      let hasSystem = false;
+      turns.forEach(t => {
+        if (t.role === 'user') {
+          const txt = !hasSystem ? `${systemInstruction}\n\n---\n[RIWAYAT OBROLAN DIMULAI]:\n${t.content}` : t.content;
+          contents.push({ role: 'user', parts: [{ text: txt }] });
+          hasSystem = true;
+        } else {
+          contents.push({ role: 'model', parts: [{ text: t.content }] });
+        }
+      });
+      if (!hasSystem) {
+        contents.unshift({
+          role: 'user',
+          parts: [{ text: `${systemInstruction}\n\n---\nSiap mendampingi Kak Fatih.` }]
+        });
+        contents.push({
+          role: 'model',
+          parts: [{ text: 'Baik Kak Fatih, Fathiya siap mendampingi Kakak.' }]
+        });
+      }
+      contents.push({
+        role: 'user',
+        parts: [{ text: prompt }]
+      });
+    }
 
     const body = {
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: `${systemInstruction}\n\nPertanyaan/Curhat Pengguna:\n${prompt}` }]
-        }
-      ],
+      contents: contents,
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 250
+        maxOutputTokens: 800
       }
     };
 
-    // Urutan model resmi aktif: gemini-flash-latest, lalu fallback ke gemini-3.8-flash
-    const modelsToTry = ['gemini-flash-latest', 'gemini-3.8-flash'];
+    // 1. Deteksi otomatis endpoint terbaik dari akun Google pengguna
+    let detected = await discoverGeminiModels(keyToUse);
+
+    // 2. Daftar kombinasi prioritas modern resmi (v1beta dan v1)
+    const candidates = [];
+    if (detected) {
+      candidates.push({ ver: detected.ver, model: detected.modelName });
+    }
+    candidates.push(
+      { ver: 'v1beta', model: 'gemini-3.8-flash' },
+      { ver: 'v1', model: 'gemini-3.8-flash' },
+      { ver: 'v1beta', model: 'gemini-2.0-flash' },
+      { ver: 'v1beta', model: 'gemini-1.5-flash' },
+      { ver: 'v1', model: 'gemini-1.5-flash' },
+      { ver: 'v1beta', model: 'gemini-1.5-flash-8b' }
+    );
+
+    // Hilangkan duplikat
+    const seen = new Set();
+    const uniqueCandidates = candidates.filter(c => {
+      const id = `${c.ver}:${c.model}`;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    let primaryErr = null;
     let lastErr = null;
 
-    for (const modelName of modelsToTry) {
+    for (let i = 0; i < uniqueCandidates.length; i++) {
+      const c = uniqueCandidates[i];
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout ketat agar tidak menggantung
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${keyToUse}`;
+        const headers = { 'Content-Type': 'application/json' };
+        if (keyToUse.startsWith('AQ.')) {
+          headers['x-goog-api-key'] = keyToUse;
+        }
+        const url = keyToUse.startsWith('AQ.') 
+          ? `https://generativelanguage.googleapis.com/${c.ver}/models/${c.model}:generateContent`
+          : `https://generativelanguage.googleapis.com/${c.ver}/models/${c.model}:generateContent?key=${encodeURIComponent(keyToUse)}`;
+
         const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify(body),
           signal: controller.signal
         });
@@ -43380,167 +44066,340 @@ KARAKTER & SUARA FATHIYA:
         if (res.ok) {
           const data = await res.json();
           const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (reply) return reply;
+          if (reply) {
+            cachedWorkingEndpoint = { ver: c.ver, modelName: c.model };
+            return reply;
+          }
         } else {
-          lastErr = new Error(`API ${modelName} Error: ${res.status}`);
+          let errDetail = `Status ${res.status}`;
+          let fullErrStr = '';
+          try {
+            const errJson = await res.json();
+            if (errJson?.error?.message) {
+              errDetail = errJson.error.message;
+            }
+            fullErrStr = JSON.stringify(errJson || {});
+          } catch(e) {}
+
+          const currentErr = new Error(`[${c.ver}/${c.model}] ${errDetail}`);
+          lastErr = currentErr;
+
+          // Cek jika Google secara eksplisit menyarankan model baru di pesan respons
+          const suggestedMatch = fullErrStr.match(/use models\/([a-zA-Z0-9\.\-_]+)/i);
+          if (suggestedMatch && suggestedMatch[1]) {
+            const suggestedModel = suggestedMatch[1];
+            if (!uniqueCandidates.some(item => item.model === suggestedModel)) {
+              uniqueCandidates.splice(i + 1, 0, { ver: c.ver, model: suggestedModel });
+            }
+          }
+
+          // Cek apakah model ini sudah retired/no longer available
+          const isModelRetired = /no longer available|not found for API version|not supported for generateContent/i.test(fullErrStr);
+          if (!isModelRetired && !primaryErr) {
+            primaryErr = currentErr;
+          }
+
+          // 1. Cek jika layanan API belum diaktifkan atau diblokir
+          if (/API_KEY_SERVICE_BLOCKED|Generative Language API has not been used|is disabled/i.test(fullErrStr)) {
+            throw new Error('Layanan Generative Language API dinonaktifkan atau diblokir pada proyek Google Cloud ini. Solusi: Buka Google AI Studio, klik "+ Create API key" lalu pilih "Create API key in new project" agar dibuatkan proyek baru yang otomatis aktif.');
+          }
+
+          // 2. Cek jika API Key ditolak / tidak valid
+          if (/API key not valid|API_KEY_INVALID|ACCESS_TOKEN_TYPE_UNSUPPORTED/i.test(fullErrStr)) {
+            throw new Error('API Key tidak valid atau salah salin dari Google AI Studio. Pastikan seluruh karakter AIzaSy... tersalin utuh.');
+          }
+
+          // 3. Cek jika kuota gratis habis
+          if (res.status === 429 || /RESOURCE_EXHAUSTED|quota/i.test(fullErrStr)) {
+            throw new Error('Batas kuota gratis (Rate limit / Quota) Google Gemini API Anda sedang habis (Error 429). Silakan tunggu beberapa saat atau buat kunci baru di Google AI Studio.');
+          }
+
+          // 4. Cek jika lokasi tidak didukung
+          if (/User location is not supported/i.test(fullErrStr)) {
+            throw new Error('Wilayah/Lokasi Anda belum didukung oleh endpoint Gemini ini tanpa koneksi yang sesuai.');
+          }
         }
       } catch(err) {
         clearTimeout(timeoutId);
+        // Jika error adalah error fatal spesifik yang sudah diformat di atas, segera lempar (jangan loop model lain)
+        if (err.message && !err.message.startsWith('[')) {
+          throw err;
+        }
+        if (!primaryErr && !/no longer available|not found for API version/i.test(err.message || '')) {
+          primaryErr = err;
+        }
         lastErr = err;
       }
     }
 
-    throw lastErr || new Error('Gagal memanggil Gemini API');
+    throw (primaryErr || lastErr || new Error('Gagal menghubungi server Google Gemini'));
   }
 
-  // --- 6. UI BUILDER & INJECTION (SLEEK, COMPACT & CLEAN CHAT SHEET) ---
+  // --- 7B. DUAL-ENGINE: GROQ CLOUD LPU RESOLVER (Llama 3.3 70B & 3.1 8B - Super Kilat 0.3s) ---
+  async function callGroqApi(prompt, apiKey) {
+    const keyToUse = (apiKey || localStorage.getItem('partner_fatih_groq_key') || localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    if (!keyToUse) throw new Error('API Key Groq belum diisi di menu Pengaturan');
+
+    const now = new Date();
+    const days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const timeInfo = `Hari ${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} pukul ${String(now.getHours()).padStart(2, '0')}.${String(now.getMinutes()).padStart(2, '0')} WIB`;
+    const activeTab = detectActiveAppTab();
+    const activeMeta = FATIH_KNOWLEDGE_BASE.tabs[activeTab];
+
+    const systemInstruction = buildMasterFathiyaSystemPrompt(timeInfo, activeMeta);
+    const turns = buildConversationTurns(8);
+
+    const isXaiGrok = keyToUse.startsWith('xai-');
+    const endpoint = isXaiGrok ? 'https://api.x.ai/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
+    const models = isXaiGrok 
+      ? ['grok-2-latest', 'grok-beta'] 
+      : ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+    let lastErr = null;
+
+    const messages = [
+      { role: 'system', content: systemInstruction }
+    ];
+    turns.forEach(t => {
+      messages.push({
+        role: t.role === 'assistant' ? 'assistant' : 'user',
+        content: t.content
+      });
+    });
+    messages.push({ role: 'user', content: prompt });
+
+    for (const model of models) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${keyToUse}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messages,
+            temperature: 0.6,
+            max_completion_tokens: 1000
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          const reply = data?.choices?.[0]?.message?.content;
+          if (reply) {
+            cachedWorkingEndpoint = { ver: 'groq', modelName: model };
+            return reply;
+          }
+        } else {
+          let errDetail = `Status ${res.status}`;
+          try {
+            const errJson = await res.json();
+            if (errJson?.error?.message) errDetail = errJson.error.message;
+          } catch(e) {}
+          if (res.status === 401 || /invalid_api_key/i.test(errDetail)) {
+            throw new Error('API Key Groq tidak valid. Pastikan kunci diawali "gsk_..." yang disalin dari console.groq.com');
+          }
+          lastErr = new Error(`[Groq/${model}] ${errDetail}`);
+        }
+      } catch(err) {
+        clearTimeout(timeoutId);
+        if (err.message && err.message.includes('API Key Groq tidak valid')) throw err;
+        lastErr = err;
+      }
+    }
+
+    throw (lastErr || new Error('Gagal menghubungi server Groq'));
+  }
+
+  // --- 7C. UNIVERSAL ONLINE AI DISPATCHER (Groq Prioritas Utama -> Gemini Fallback) ---
+  async function callOnlineAiApi(prompt, apiKey) {
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+
+    // Jika parameter apiKey diberikan langsung (saat tombol tes ditekan)
+    if (apiKey) {
+      if (apiKey.startsWith('gsk_') || apiKey.startsWith('xai-')) {
+        return await callGroqApi(prompt, apiKey);
+      }
+      return await callGeminiApi(prompt, apiKey);
+    }
+
+    // 1. Prioritas Utama: Groq Cloud AI (Super Cepat 0.3s & Anti-Timeout)
+    if (groqKey && groqKey.length > 10) {
+      try {
+        return await callGroqApi(prompt, groqKey);
+      } catch(groqErr) {
+        console.warn('[Fatih AI] Groq gagal, mencoba fallback ke Gemini jika ada:', groqErr);
+        if (geminiKey && geminiKey.length > 10) {
+          return await callGeminiApi(prompt, geminiKey);
+        }
+        throw groqErr;
+      }
+    }
+
+    // 2. Prioritas Kedua: Google Gemini
+    if (geminiKey && geminiKey.length > 10) {
+      return await callGeminiApi(prompt, geminiKey);
+    }
+
+    throw new Error('API Key belum diisi di menu Pengaturan');
+  }
+
+  // --- 8. UI INJECTION & DOM CREATION ---
   function injectChatUI() {
     if (document.getElementById('modalFatihChat')) return;
 
-    // Chat Modal / Sliding Bottom Sheet (Compact, Clean & Anti-Bulky)
     const modal = document.createElement('div');
     modal.id = 'modalFatihChat';
     modal.className = 'modal-portal fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-5 bg-slate-950/70 backdrop-blur-xs transition-all duration-300 opacity-0 pointer-events-none';
     modal.style.display = 'none';
 
     modal.innerHTML = `
-      <div class="relative w-full sm:w-[360px] max-w-full h-[60vh] sm:h-[460px] max-h-[75vh] bg-[#090d16] border border-white/15 rounded-t-xl sm:rounded-xl shadow-2xl flex flex-col overflow-hidden text-slate-100 transition-transform duration-300 transform translate-y-6 sm:translate-y-0">
+      <div id="fatihChatCard" class="relative w-full sm:w-[460px] md:w-[480px] max-w-full h-[90vh] sm:h-[620px] max-h-[95vh] sm:max-h-[85vh] bg-[#090d16]/95 backdrop-blur-2xl border border-emerald-500/30 rounded-t-2xl sm:rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden text-slate-100 transition-all duration-300 transform translate-y-6 sm:translate-y-0">
         
-        <!-- Clean Accent Top Bar (Emerald to Teal & Soft Rose Gold) -->
-        <div class="h-[2px] w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-300 flex-shrink-0"></div>
+        <!-- Glowing Ambient Top Line -->
+        <div class="h-[2.5px] w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-300 flex-shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.7)]"></div>
 
-        <!-- Pull Drag Handle on Mobile -->
-        <div class="w-10 h-1 rounded-full bg-white/20 mx-auto mt-1.5 sm:hidden flex-shrink-0"></div>
+        <!-- Pull Drag Handle for Mobile Viewport -->
+        <div class="w-12 h-1.5 rounded-full bg-white/20 mx-auto mt-2 sm:hidden flex-shrink-0"></div>
 
-        <!-- Header Chat (Compact, Elegant & Clean) -->
-        <div class="p-1.5 sm:p-2 px-2.5 bg-[#0c121e] text-white flex items-center justify-between border-b border-white/10 flex-shrink-0">
-          <div class="flex items-center gap-2 min-w-0">
-            <!-- Micro Avatar Wanita Berhijab Realistis -->
-            <div class="relative flex-shrink-0" style="width:28px;height:28px;">
-              ${renderFathiyaAvatarImg(28)}
-              <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 ring-1 ring-[#0c121e]"></span>
+        <!-- Chat Header Bar -->
+        <div class="p-2.5 sm:p-3 px-3.5 bg-[#0c121e]/90 text-white flex items-center justify-between border-b border-white/10 flex-shrink-0">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <!-- Avatar Realistis -->
+            <div class="relative flex-shrink-0" style="width:32px;height:32px;">
+              ${renderFathiyaAvatarImg(32)}
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0c121e] animate-pulse"></span>
             </div>
             <div class="min-w-0">
-              <div class="flex items-center gap-1">
-                <h3 class="font-bold text-[11px] text-white tracking-tight truncate leading-tight">Fathiya AI</h3>
-                <span class="text-[7px] font-black px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 leading-none">BIJAK</span>
+              <div class="flex items-center gap-1.5">
+                <h3 class="font-bold text-xs sm:text-sm text-white tracking-tight truncate leading-tight">Fathiya AI</h3>
+                <span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 leading-none">BIJAK &amp; CO-PILOT</span>
               </div>
-              <p class="text-[8.5px] text-slate-400 flex items-center gap-1 font-medium truncate leading-tight">
-                <span class="text-emerald-400">● Online</span> &bull; <span>Teduh &amp; Dewasa</span>
+              <p class="text-[9.5px] text-slate-400 flex items-center gap-1 font-medium truncate leading-tight mt-0.5">
+                <span id="fatihHeaderContextTab" class="text-emerald-400 font-semibold truncate">● Siap Mendampingi</span>
               </p>
             </div>
           </div>
 
-          <!-- Micro Action Buttons -->
-          <div class="flex items-center gap-0.5 flex-shrink-0">
-            <button type="button" id="fatihVoiceAutoToggle" onclick="window.toggleFatihAutoVoice()" class="w-6 h-6 rounded flex items-center justify-center text-emerald-400 hover:bg-white/10 transition-all cursor-pointer" title="Auto Suara Aktif (Klik untuk mute/unmute)">
+          <!-- Action Buttons in Header -->
+          <div class="flex items-center gap-1 flex-shrink-0">
+            <!-- Expand/Restore Window Button (Desktop Mode) -->
+            <button type="button" id="fatihExpandBtn" onclick="window.toggleFatihChatExpand()" class="hidden sm:flex w-7 h-7 rounded-lg items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer" title="Perbesar / Perkecil Jendela">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+            </button>
+            <!-- Auto Voice Toggle -->
+            <button type="button" id="fatihVoiceAutoToggle" onclick="window.toggleFatihAutoVoice()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:bg-white/10 transition-all cursor-pointer" title="Suara Otomatis Nonaktif (Klik untuk Unmute)">
               <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
             </button>
-            <button type="button" onclick="window.openFatihAiSettings()" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer" title="Pengaturan AI (Gemini API)">
+            <!-- Settings Modal Trigger -->
+            <button type="button" onclick="window.openFatihAiSettings()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer" title="Pengaturan Model AI (Gemini)">
               <i data-lucide="settings" class="w-3.5 h-3.5"></i>
             </button>
-            <button type="button" onclick="window.clearFatihChatHistory()" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-white/10 transition-all cursor-pointer" title="Bersihkan Obrolan">
+            <!-- Clear History -->
+            <button type="button" onclick="window.clearFatihChatHistory()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-white/10 transition-all cursor-pointer" title="Bersihkan Obrolan">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
-            <button type="button" onclick="window.closeFatihChat()" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer" title="Tutup">
-              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            <!-- Close Button -->
+            <button type="button" onclick="window.closeFatihChat()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer" title="Tutup">
+              <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
-        <!-- Chat Scroll Area -->
-        <div id="fatihChatScrollArea" class="flex-1 overflow-y-auto p-2.5 sm:p-3 space-y-2 bg-gradient-to-b from-[#080c14] to-[#060911] no-scrollbar">
+        <!-- Scrollable Messages Area -->
+        <div id="fatihChatScrollArea" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-gradient-to-b from-[#080c14] to-[#060911] no-scrollbar">
           
-          <!-- Concierge Welcome Card (Inspiring, Calming & Siap Konteks) -->
-          <div class="p-2.5 rounded-lg bg-slate-900/90 border border-emerald-500/30 text-slate-200 space-y-2 shadow-xs">
+          <!-- Welcoming Concierge Card (Auto-collapses when chat starts) -->
+          <div id="fatihConciergeWelcomeCard" class="p-3 rounded-2xl bg-[#0f172a]/80 backdrop-blur-md border border-emerald-500/25 text-slate-200 space-y-2 shadow-xs transition-all duration-300">
             <div class="flex items-center justify-between">
               <span class="text-[9.5px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Rekan Berpikir Bijak &amp; Co-Pilot
+                Partner Pribadi &amp; Asisten Eksekutif 16 Modul
               </span>
-              <span id="fatihActiveContextBadge" class="text-[8.5px] font-mono text-emerald-400/90 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">● Siap Mendampingi</span>
+              <span id="fatihActiveContextBadge" class="text-[8.5px] font-mono text-emerald-300 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">● Siap Mendampingi</span>
             </div>
-            <div class="flex items-center gap-2.5">
-              <div class="flex-shrink-0" style="width: 40px; height: 40px;">
-                ${renderFathiyaAvatarImg(40)}
+            <div class="flex items-center gap-3">
+              <div class="flex-shrink-0" style="width: 44px; height: 44px;">
+                ${renderFathiyaAvatarImg(44)}
               </div>
-              <p class="text-[10.5px] text-slate-300 leading-snug">
-                Assalamu'alaikum. Saya <b>Fathiya</b>, rekan berpikir Anda. Saya siap mendengarkan cerita &amp; curhat pikiran Anda, membimbing kedewasaan bersikap, serta mengoperasikan seluruh 16 modul Partner Fatih &amp; Kalender Tahunan.
+              <p class="text-[11px] text-slate-300 leading-relaxed font-normal">
+                Assalamu'alaikum <b>Kak Fatih</b>. Fathiya siap mendampingi Kakak: menganalisa seluruh sistem, mengeksekusi saldo, mengelola jadwal KBM, mencatat ide, hingga teman bertukar pikiran kapan pun Kak Fatih butuhkan.
               </p>
             </div>
           </div>
 
-          <!-- Quick Suggestions (Voice-Ready Prompts Grid 2x2 Compact) -->
-          <div id="fatihChatSuggestions" class="grid grid-cols-2 gap-1.5">
-            <button type="button" onclick="window.sendFatihQuickPrompt('Mau sharing dong Fathiya, pikiran lagi penuh')" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-teal-500/30 text-left transition-all cursor-pointer active:scale-98">
-              <div class="text-[10px] font-bold text-teal-200 flex items-center gap-1">🌿 Mau Sharing</div>
-              <div class="text-[8.5px] text-slate-400 truncate">Curhat &amp; diskusi pikiran</div>
-            </button>
-            <button type="button" onclick="window.sendFatihQuickPrompt('Tampilkan tabel pintasan seluruh 16 modul')" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-emerald-500/30 text-left transition-all cursor-pointer active:scale-98">
-              <div class="text-[10px] font-bold text-emerald-200 flex items-center gap-1">🧭 Tabel 16 Modul</div>
-              <div class="text-[8.5px] text-slate-400 truncate">Navigasi cepat 1-klik</div>
-            </button>
-            <button type="button" onclick="window.sendFatihQuickPrompt('Agenda kalender tahunan yayasan')" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 text-left transition-all cursor-pointer active:scale-98">
-              <div class="text-[10px] font-bold text-amber-200 flex items-center gap-1">📅 Kalender Tahunan</div>
-              <div class="text-[8.5px] text-slate-400 truncate">252 agenda &amp; PHBN/PHBI</div>
-            </button>
-            <button type="button" onclick="window.sendFatihQuickPrompt('Cek jadwal mengajar hari ini')" class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-indigo-500/30 text-left transition-all cursor-pointer active:scale-98">
-              <div class="text-[10px] font-bold text-indigo-200 flex items-center gap-1">📖 Jadwal Mengajar</div>
-              <div class="text-[8.5px] text-slate-400 truncate">Jam, kelas &amp; mapel</div>
-            </button>
+          <!-- Dynamic Contextual Suggestions Chips -->
+          <div id="fatihConciergeSuggestionsWrapper" class="transition-all duration-300">
+            <div class="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 px-0.5 flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+              <span>Pilihan Pertanyaan &amp; Aksi Cepat:</span>
+            </div>
+            <div id="fatihChatSuggestions" class="grid grid-cols-2 gap-1.5">
+              <!-- Dynamically rendered by renderSuggestionsDom -->
+            </div>
           </div>
 
-          <!-- History Container -->
-          <div id="fatihChatMessagesList" class="space-y-2.5 pt-0.5"></div>
+          <!-- Chat Messages Container -->
+          <div id="fatihChatMessagesList" class="space-y-3 pt-1"></div>
 
           <!-- Typing Indicator -->
-          <div id="fatihChatTyping" class="hidden flex items-start gap-2">
-            <div class="flex-shrink-0" style="width: 24px; height: 24px;">
-              ${renderFathiyaAvatarImg(24)}
+          <div id="fatihChatTyping" class="hidden flex items-start gap-2 pt-1">
+            <div class="flex-shrink-0" style="width: 26px; height: 26px;">
+              ${renderFathiyaAvatarImg(26)}
             </div>
-            <div class="bg-slate-900 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-slate-300 flex items-center gap-1.5">
+            <div class="bg-slate-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-300 flex items-center gap-2 shadow-xs">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]"></span>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]"></span>
-              <span class="text-[9.5px] ml-1 font-bold text-emerald-300">Fathiya sedang menelaah...</span>
+              <span class="text-[10px] ml-1 font-bold text-emerald-300">Fathiya sedang menelaah...</span>
             </div>
           </div>
 
         </div>
 
-        <!-- Footer Input Bar (Compact & Sleek) -->
-        <div class="p-2 px-2.5 bg-[#0a0e1a] border-t border-white/10 flex-shrink-0">
-          <form id="fatihChatForm" onsubmit="window.handleFatihChatSubmit(event)" class="bg-white/[0.04] border border-white/10 focus-within:border-emerald-400/70 rounded-lg p-0.5 px-1 flex items-center gap-1 transition-all">
+        <!-- Input Bar & Voice Controls -->
+        <div class="p-2.5 px-3 bg-[#0a0e1a] border-t border-white/10 flex-shrink-0 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
+          <form id="fatihChatForm" onsubmit="window.handleFatihChatSubmit(event)" class="bg-white/[0.05] border border-white/15 focus-within:border-emerald-400/80 rounded-xl p-1 px-1.5 flex items-center gap-1.5 transition-all shadow-inner">
             <button 
               type="button" 
               id="fatihChatVoiceBtn" 
               onclick="window.toggleFatihVoiceRecognition()" 
-              class="w-7 h-7 rounded-md flex items-center justify-center text-slate-400 hover:text-emerald-400 transition-all flex-shrink-0 cursor-pointer"
-              title="Bicara lewat suara (Mic)"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:bg-white/10 transition-all flex-shrink-0 cursor-pointer"
+              title="Bicara dengan suara (Mic Bahasa Indonesia)"
             >
-              <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+              <i data-lucide="mic" class="w-4 h-4"></i>
             </button>
 
             <input 
               type="text" 
               id="fatihChatInput" 
-              placeholder="Diskusikan pemikiran atau beri instruksi kerja..." 
+              placeholder="Tanyakan langkah kerja, curhat pikiran, atau beri instruksi..." 
               autocomplete="off"
-              class="flex-1 min-w-0 h-7 bg-transparent border-0 px-1.5 text-[11px] text-white placeholder-slate-500 focus:outline-none transition-all font-medium"
+              class="flex-1 min-w-0 h-8 bg-transparent border-0 px-2 text-xs sm:text-[13px] text-white placeholder-slate-500 focus:outline-none transition-all font-medium"
             />
 
             <button 
               type="submit" 
               id="fatihChatSendBtn" 
-              class="w-7 h-7 rounded-md flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black transition-all flex-shrink-0 cursor-pointer"
+              class="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black transition-all flex-shrink-0 cursor-pointer shadow-xs"
               title="Kirim pesan"
             >
-              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <i data-lucide="send" class="w-4 h-4"></i>
             </button>
           </form>
-          <div class="flex items-center justify-between text-[8.5px] text-slate-500 px-1 pt-1 font-medium">
-            <span id="fatihChatEngineMode">● Asisten Suara &amp; Refleksi</span>
-            <span>Mic aktif berbahasa Indonesia</span>
+          <div class="flex items-center justify-between text-[9px] text-slate-500 px-1 pt-1.5 font-medium">
+            <span id="fatihChatEngineMode" class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Fathiya Pintar (Offline Super Engine)</span>
+            </span>
+            <span class="text-slate-400">Mic Bahasa Indonesia Aktif</span>
           </div>
         </div>
 
@@ -43549,16 +44408,63 @@ KARAKTER & SUARA FATHIYA:
 
     document.body.appendChild(modal);
 
-    // Render initial history if exists
+    // Bersihkan floating button lama jika ada di DOM agar tidak dobel dengan tombol resmi di Header Bar
+    const existingFloatBtn = document.getElementById('fatihFloatingLauncherBtn');
+    if (existingFloatBtn) {
+      existingFloatBtn.remove();
+    }
+
+    // Initial render
     renderChatMessages();
 
-    // Re-create icons inside chat modal
     if (typeof window.safeCreateIcons === 'function') {
-      window.safeCreateIcons();
+      window.safeCreateIcons(modal);
     }
   }
 
-  // --- 7. MODAL DISPLAY CONTROLS ---
+  // --- 9. WINDOW CONTROLS & EXPANSION ---
+  function toggleFatihChatExpand() {
+    const card = document.getElementById('fatihChatCard');
+    const expandBtn = document.getElementById('fatihExpandBtn');
+    if (!card) return;
+
+    isExpanded = !isExpanded;
+    if (isExpanded) {
+      card.classList.remove('sm:w-[460px]', 'md:w-[480px]');
+      card.classList.add('sm:w-[740px]', 'md:w-[780px]', 'sm:h-[720px]', 'max-h-[90vh]');
+      if (expandBtn) {
+        expandBtn.innerHTML = '<i data-lucide="minimize-2" class="w-3.5 h-3.5"></i>';
+        expandBtn.title = 'Perkecil Jendela';
+      }
+    } else {
+      card.classList.remove('sm:w-[740px]', 'md:w-[780px]', 'sm:h-[720px]');
+      card.classList.add('sm:w-[460px]', 'md:w-[480px]', 'sm:h-[620px]');
+      if (expandBtn) {
+        expandBtn.innerHTML = '<i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>';
+        expandBtn.title = 'Perbesar Jendela';
+      }
+    }
+
+    if (typeof window.safeCreateIcons === 'function') {
+      window.safeCreateIcons(card);
+    }
+  }
+
+  function updateFatihEngineStatusBadge() {
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const engineLabel = document.getElementById('fatihChatEngineMode');
+    if (!engineLabel) return;
+
+    if (groqKey && groqKey.length > 10) {
+      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-emerald-300 font-semibold">Groq Llama 3.3 70B (0.3s Kilat)</span>';
+    } else if (geminiKey && geminiKey.length > 10) {
+      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span><span class="text-indigo-300 font-semibold">Gemini Flash AI (Online)</span>';
+    } else {
+      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>Fathiya Pintar (Offline Super Engine)</span>';
+    }
+  }
+
   function openFatihChat() {
     let modal = document.getElementById('modalFatihChat');
     if (!modal) {
@@ -43567,26 +44473,34 @@ KARAKTER & SUARA FATHIYA:
     }
     if (!modal) return;
 
-    // Pastikan modal berada langsung di document.body agar tidak tertutup container lain
     if (modal.parentElement !== document.body) {
       document.body.appendChild(modal);
     }
 
-    // Deteksi tab aktif aplikasi & update status siap
-    try {
-      const activeTab = detectActiveAppTab();
-      const tabMeta = FATIH_KNOWLEDGE_BASE.tabs[activeTab];
-      const badge = document.getElementById('fatihActiveContextBadge');
-      if (badge) {
-        badge.textContent = tabMeta ? `● Siap di Tab: ${tabMeta.name}` : `● Siap Mendampingi`;
-      }
-    } catch(e) {}
+    // Deteksi Tab Aktif & Update Konteks
+    const activeTab = detectActiveAppTab();
+    chatContext.lastTab = activeTab;
+    const tabMeta = FATIH_KNOWLEDGE_BASE.tabs[activeTab];
 
-    // Buka modal secara pasti
+    const headerContext = document.getElementById('fatihHeaderContextTab');
+    if (headerContext) {
+      headerContext.textContent = tabMeta ? `● Tab: ${tabMeta.name}` : `● Siap Mendampingi`;
+    }
+
+    const badge = document.getElementById('fatihActiveContextBadge');
+    if (badge) {
+      badge.textContent = tabMeta ? `● Mode: ${tabMeta.name}` : `● Terhubung`;
+    }
+
+    // Perbarui saran prompt sesuai tab aktif
+    renderSuggestionsDom(activeTab);
+
+    // Update status engine label (Groq / Gemini / Offline)
+    updateFatihEngineStatusBadge();
+
     modal.style.display = 'flex';
     modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
 
-    // Hanya fokuskan input pada layar besar (desktop) untuk mencegah virtual keyboard mobile menekan layar
     if (window.innerWidth >= 640) {
       setTimeout(() => {
         const input = document.getElementById('fatihChatInput');
@@ -43594,10 +44508,15 @@ KARAKTER & SUARA FATHIYA:
       }, 100);
     }
 
+    if (typeof window.safeCreateIcons === 'function') {
+      window.safeCreateIcons(modal);
+    }
+
     scrollChatToBottom();
   }
 
   function closeFatihChat() {
+    stopFatihSpeech();
     const modal = document.getElementById('modalFatihChat');
     if (!modal) return;
     modal.classList.add('opacity-0', 'pointer-events-none');
@@ -43615,64 +44534,114 @@ KARAKTER & SUARA FATHIYA:
     }
   }
 
-  // --- 8. MESSAGE RENDERING & ACTION SHORTCUTS (CLEAN & COMPACT) ---
+  // --- 10. MESSAGE RENDERING & ACTION SHORTCUTS (LUXURY MODERN CHAT STYLE) ---
   function renderChatMessages() {
     const container = document.getElementById('fatihChatMessagesList');
     if (!container) return;
+
+    // Sembunyikan kartu selamat datang dan suggestions chips jika obrolan sudah berjalan agar tidak memenuhi layar
+    const welcomeCard = document.getElementById('fatihConciergeWelcomeCard');
+    const suggestionsWrapper = document.getElementById('fatihConciergeSuggestionsWrapper');
+    if (chatHistory.length > 0) {
+      if (welcomeCard) welcomeCard.classList.add('hidden');
+      if (suggestionsWrapper) suggestionsWrapper.classList.add('hidden');
+    } else {
+      if (welcomeCard) welcomeCard.classList.remove('hidden');
+      if (suggestionsWrapper) suggestionsWrapper.classList.remove('hidden');
+    }
 
     container.innerHTML = '';
 
     chatHistory.forEach((msg, idx) => {
       const isUser = msg.sender === 'user';
       const row = document.createElement('div');
-      row.className = isUser ? 'flex justify-end' : 'flex items-start gap-2';
+      row.className = isUser ? 'flex justify-end' : 'flex items-start gap-2.5';
+
+      const timeStr = msg.time 
+        ? new Date(msg.time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.')
+        : '';
 
       if (isUser) {
         row.innerHTML = `
-          <div class="max-w-[85%] bg-emerald-700 text-white rounded-lg rounded-tr-xs p-2 px-2.5 text-[11px] shadow-xs leading-relaxed break-words font-medium">
-            ${escapeHtml(msg.text)}
+          <div class="max-w-[85%] sm:max-w-[80%] bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl rounded-tr-xs p-3 px-3.5 text-xs sm:text-[13px] shadow-sm leading-relaxed break-words font-medium">
+            <div>${escapeHtml(msg.text)}</div>
+            ${timeStr ? `
+              <div class="flex items-center justify-end gap-1 mt-1 text-[9px] text-emerald-200/80 font-normal">
+                <span>${timeStr}</span>
+                <span class="text-[10px] leading-none">✓✓</span>
+              </div>
+            ` : ''}
           </div>
         `;
       } else {
-        // Fatih Response Bubble with Action Shortcut if any
         let actionBtnHtml = '';
         if (msg.tabShortcut && typeof window.switchTab === 'function') {
           const tabMeta = FATIH_KNOWLEDGE_BASE.tabs[msg.tabShortcut];
           const tabLabel = tabMeta ? tabMeta.name : 'Modul Terkait';
           actionBtnHtml = `
             <div class="pt-1.5 flex items-center gap-1.5">
-              <button type="button" onclick="window.switchTab('${msg.tabShortcut}'); window.closeFatihChat();" class="flex-1 py-1 px-2.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-bold text-[10px] flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-98 cursor-pointer">
-                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              <button type="button" onclick="window.switchTab('${msg.tabShortcut}'); window.closeFatihChat();" class="flex-1 py-1.5 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/30 text-emerald-300 font-bold text-[10.5px] flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-98 cursor-pointer">
                 <span>Buka ${tabLabel}</span>
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>
               </button>
             </div>
           `;
         }
 
-        // Fast Action Table if present
         let tableHtml = '';
         if (msg.actionTable && Array.isArray(msg.actionTable) && msg.actionTable.length > 0) {
           tableHtml = renderActionTableHtml(msg.actionTable);
         }
 
-        row.innerHTML = `
-          <div class="flex-shrink-0 mt-0.5" style="width:24px;height:24px;">
-            ${renderFathiyaAvatarImg(24)}
-          </div>
-          <div class="max-w-[85%] bg-slate-900 border border-white/10 rounded-lg rounded-tl-xs p-2 px-2.5 text-[11px] text-slate-100 shadow-2xs leading-relaxed space-y-1.5 break-words">
-            <div class="flex items-center justify-between pb-1 border-b border-white/5 text-[9px] text-slate-400">
-              <span class="font-bold text-emerald-300 flex items-center gap-1">
-                <span>Fathiya AI</span>
-                <span class="text-[7.5px] font-normal text-emerald-400/80">● Sahabat</span>
-              </span>
-              <button type="button" onclick="window.speakFatihHistory(${idx})" class="hover:text-emerald-300 p-0.5 rounded cursor-pointer transition-colors flex items-center gap-1 text-[9px]" title="Dengarkan Suara">
-                <i data-lucide="volume-2" class="w-3 h-3 text-emerald-400"></i>
-                <span>Suara</span>
-              </button>
+        let actionCardHtml = '';
+        if (msg.actionCard) {
+          const ac = msg.actionCard;
+          actionCardHtml = `
+            <div class="mt-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 text-xs shadow-xs space-y-1.5">
+              <div class="flex items-center justify-between font-bold text-white text-[11px]">
+                <span class="flex items-center gap-1.5">
+                  <span class="text-sm">${ac.icon || '⚡'}</span>
+                  <span>${escapeHtml(ac.title || 'Data Berhasil Diubah')}</span>
+                </span>
+                <span class="text-[8.5px] px-1.5 py-0.2 bg-emerald-500/25 text-emerald-300 rounded font-mono uppercase font-black">Tersinkron Otomatis</span>
+              </div>
+              <p class="text-[10px] text-emerald-200/90 leading-snug">${escapeHtml(ac.desc || '')}</p>
+              <div class="pt-0.5 flex items-center justify-end">
+                <button type="button" onclick="window.switchTab('${ac.tab || 'humas'}'); ${ac.eventId ? `if(typeof window.loadProgramIntoCaptionStudio === 'function') window.loadProgramIntoCaptionStudio('${ac.eventId}', true);` : ''} window.closeFatihChat();" class="py-1 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-all shadow-2xs active:scale-95">
+                  <span>Lihat di Modul Terkait</span>
+                  <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
             </div>
-            <div>${formatMessageMarkdown(msg.text)}</div>
+          `;
+        }
+
+        row.innerHTML = `
+          <div class="flex-shrink-0 mt-0.5" style="width:28px;height:28px;">
+            ${renderFathiyaAvatarImg(28)}
+          </div>
+          <div class="max-w-[85%] sm:max-w-[82%] bg-[#0d1524]/95 backdrop-blur-md border border-slate-800/80 rounded-2xl rounded-tl-xs p-3 sm:p-3.5 text-xs sm:text-[13px] text-slate-100 shadow-sm leading-relaxed space-y-2 break-words">
+            <div class="prose-dark leading-relaxed text-slate-200">${formatMessageMarkdown(msg.text)}</div>
+            ${actionCardHtml}
+            ${msg.noticeBadge ? `
+              <div class="mt-2 p-1.5 px-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[10px] flex items-center gap-1.5 leading-snug">
+                <span>⚡</span>
+                <span>${escapeHtml(msg.noticeBadge)}</span>
+              </div>
+            ` : ''}
             ${actionBtnHtml}
             ${tableHtml}
+            <div class="flex items-center justify-between pt-1 border-t border-white/[0.04] text-[9.5px] text-slate-500 font-medium">
+              <span class="text-emerald-400/90 font-semibold text-[10px] flex items-center gap-1">
+                <span>Fathiya</span>
+              </span>
+              <div class="flex items-center gap-2">
+                ${timeStr ? `<span>${timeStr}</span>` : ''}
+                <button type="button" onclick="window.speakFatihHistory(${idx})" class="p-1 -mr-1 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-white/10 transition-all cursor-pointer" title="Dengarkan Suara">
+                  <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
           </div>
         `;
       }
@@ -43695,18 +44664,1143 @@ KARAKTER & SUARA FATHIYA:
   function formatMessageMarkdown(str) {
     if (!str) return '';
     let formatted = escapeHtml(str);
-    // Bold
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-    // Italic
     formatted = formatted.replace(/\*(.*?)\*/g, '<i>$1</i>');
-    // Code blocks / inline code
-    formatted = formatted.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10px] text-emerald-300">$1</code>');
-    // Line breaks
+    formatted = formatted.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-black/40 border border-white/10 font-mono text-[10.5px] text-emerald-300">$1</code>');
     formatted = formatted.replace(/\n/g, '<br/>');
     return formatted;
   }
 
-  // --- 9. MESSAGE DISPATCH ENGINE ---
+  function speakFatihHistory(idx) {
+    const item = chatHistory[idx];
+    if (item && item.voiceText) {
+      speakFatihResponse(item.voiceText);
+    } else if (item && item.text) {
+      speakFatihResponse(item.text);
+    }
+  }
+
+  // --- 11B. CO-PILOT LIVE ACTION ENGINE (MUTASI DATA LANGSUNG DI DALAM APLIKASI) ---
+  function executeFatihAction(actionObj) {
+    if (!actionObj || !actionObj.action) return null;
+    const act = String(actionObj.action).toUpperCase().trim();
+    const p = actionObj.params || {};
+
+    try {
+      // 0. MUTASI / PINDAH / SESUAIKAN JADWAL MENGAJAR GURU (KBM)
+      if (act === 'MUTATE_SCHEDULE' || act === 'PINDAH_JADWAL' || act === 'UPDATE_SCHEDULE' || act === 'SESUAIKAN_JADWAL') {
+        const rawClass = p.classId || p.kelas || '8D';
+        const normClass = rawClass.replace(/\s+/g, '').toUpperCase();
+        const targetDay = p.day || p.hari || 'Sabtu';
+        const dayMap = { 'Ahad': 0, 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6, 'Minggu': 0 };
+        const dayIndex = dayMap[targetDay] !== undefined ? dayMap[targetDay] : 6;
+
+        let hourLabel = p.hourLabel || p.jam || '';
+        let timeStr = p.time || '';
+
+        if (!hourLabel) {
+          if (timeStr.includes('3-4') || (p.jamKe && p.jamKe.includes('3-4'))) hourLabel = 'Jam 3-4';
+          else if (timeStr.includes('1-2') || (p.jamKe && p.jamKe.includes('1-2'))) hourLabel = 'Jam 1-2';
+          else if (timeStr.includes('5-6') || (p.jamKe && p.jamKe.includes('5-6'))) hourLabel = 'Jam 5-6';
+          else if (timeStr.includes('7-8') || (p.jamKe && p.jamKe.includes('7-8'))) hourLabel = 'Jam 7-8';
+          else hourLabel = 'Jam 3-4';
+        }
+
+        if (!timeStr) {
+          if (hourLabel.includes('3-4')) timeStr = '08.30 - 09.50 (Jam 3-4)';
+          else if (hourLabel.includes('1-2')) timeStr = '07.00 - 08.30 (Jam 1-2)';
+          else if (hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
+          else if (hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
+          else timeStr = '08.30 - 09.50 (Jam 3-4)';
+        } else if (hourLabel && !timeStr.includes(hourLabel)) {
+          timeStr = `${timeStr} (${hourLabel})`;
+        }
+
+        const subject = p.subject || (normClass.startsWith('1ULA') ? 'Safinatun Najah' : 'Prakarya');
+        const unit = p.unit || (normClass.startsWith('1ULA') ? 'nonformal' : 'formal');
+        const room = p.room || (normClass.startsWith('1ULA') ? 'Gedung Diniyah' : `Ruang MTs ${normClass}`);
+
+        // A. Update LocalStorage Jurnal Guru
+        let jData = null;
+        try {
+          const raw = localStorage.getItem('partner_fatih_jurnal_guru_v2');
+          if (raw) jData = JSON.parse(raw);
+        } catch(e) {}
+
+        if (!jData || !Array.isArray(jData.schedules)) {
+          jData = { bonusWeight: 20, schedules: [] };
+          if (window.DEFAULT_SCHEDULES && Array.isArray(window.DEFAULT_SCHEDULES)) {
+            jData.schedules = JSON.parse(JSON.stringify(window.DEFAULT_SCHEDULES));
+          }
+        }
+
+        let existing = jData.schedules.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === normClass);
+        if (existing) {
+          existing.day = targetDay;
+          existing.dayIndex = dayIndex;
+          existing.time = timeStr;
+          existing.subject = subject || existing.subject;
+          existing.room = room || existing.room;
+        } else {
+          jData.schedules.push({
+            id: 'sch-' + Date.now(),
+            day: targetDay,
+            dayIndex: dayIndex,
+            unit: unit,
+            classId: normClass,
+            subject: subject,
+            time: timeStr,
+            room: room
+          });
+        }
+        localStorage.setItem('partner_fatih_jurnal_guru_v2', JSON.stringify(jData));
+
+        // B. Update FATIH_DEFAULT_SCHEDULES di memori runtime AI
+        const aiSch = FATIH_DEFAULT_SCHEDULES.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === normClass);
+        if (aiSch) {
+          aiSch.day = targetDay;
+          aiSch.time = timeStr.split('(')[0].trim();
+          aiSch.subject = subject;
+          aiSch.room = room;
+        } else {
+          FATIH_DEFAULT_SCHEDULES.push({
+            day: targetDay,
+            time: timeStr.split('(')[0].trim(),
+            classId: normClass,
+            subject: subject,
+            room: room
+          });
+        }
+
+        // C. Panggil bridge jurnal jika modul jurnal terpasang di window
+        if (typeof window.mutateJurnalSchedule === 'function') {
+          try { window.mutateJurnalSchedule(normClass, targetDay, timeStr, hourLabel, subject, room); } catch(e) {}
+        }
+        if (typeof window.renderJurnalTimetable === 'function') {
+          try { window.renderJurnalTimetable(); } catch(e) {}
+        }
+        if (typeof window.renderJurnalReminders === 'function') {
+          try { window.renderJurnalReminders(); } catch(e) {}
+        }
+        if (typeof window.checkTodaySchedule === 'function') {
+          try { window.checkTodaySchedule(); } catch(e) {}
+        }
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('🗓️ Jadwal Dipindahkan', `Kelas ${normClass} dipindah ke ${targetDay} (${timeStr})`, 'success');
+        }
+
+        return {
+          icon: '🗓️',
+          title: `Jadwal Kelas ${normClass} Berhasil Dipindahkan`,
+          desc: `Kelas **${normClass}** (*${subject}*) kini dijadwalkan pada **Hari ${targetDay}**, pukul **${timeStr}** (${room}).`,
+          tab: 'jurnal'
+        };
+      }
+
+      // 0B. HAPUS JADWAL MENGAJAR
+      if (act === 'DELETE_SCHEDULE' || act === 'HAPUS_JADWAL') {
+        const rawClass = p.classId || p.kelas || '';
+        const normClass = rawClass.replace(/\s+/g, '').toUpperCase();
+        let targetDay = p.day || p.hari || '';
+
+        let jData = null;
+        try {
+          const raw = localStorage.getItem('partner_fatih_jurnal_guru_v2');
+          if (raw) jData = JSON.parse(raw);
+        } catch(e) {}
+
+        if (jData && Array.isArray(jData.schedules)) {
+          jData.schedules = jData.schedules.filter(s => {
+            const clsMatch = (s.classId || '').replace(/\s+/g, '').toUpperCase() === normClass;
+            const dayMatch = targetDay ? s.day.toLowerCase() === targetDay.toLowerCase() : true;
+            return !(clsMatch && dayMatch);
+          });
+          localStorage.setItem('partner_fatih_jurnal_guru_v2', JSON.stringify(jData));
+          if (typeof window.renderJurnalTimetable === 'function') window.renderJurnalTimetable();
+          return {
+            icon: '🗑️',
+            title: `Jadwal Kelas ${normClass} Dihapus`,
+            desc: `Sesi KBM kelas ${normClass} ${targetDay ? 'hari ' + targetDay : ''} telah dihapus dari sistem.`,
+            tab: 'jurnal'
+          };
+        }
+      }
+
+      // 1. TAMBAH AGENDA ACARA HUMAS
+      if (act === 'ADD_HUMAS_EVENT' || act === 'TAMBAH_AGENDA') {
+        const title = p.uraian || p.nama || p.kegiatan || 'Agenda Baru Yayasan';
+        const tgl = String(p.tgl || new Date().getDate());
+        const bulan = p.bulan || 'Oktober';
+        const tahun = String(p.tahun || '2026');
+        const pj = p.pj || 'Panitia';
+        const kategori = p.kategori || 'umum';
+        const statusPamflet = p.statusPamflet || 'belum';
+        const eventId = 'prog-ai-' + Date.now();
+
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const mIdx = monthNames.findIndex(m => m.toLowerCase() === bulan.toLowerCase());
+        const mNum = mIdx >= 0 ? String(mIdx + 1).padStart(2, '0') : '10';
+        const dNum = String(tgl).padStart(2, '0');
+        const startDate = `${tahun}-${mNum}-${dNum}`;
+
+        const newProg = {
+          id: eventId,
+          tgl: tgl,
+          bulan: bulan,
+          tahun: tahun,
+          uraian: title,
+          kategori: kategori,
+          statusPamflet: statusPamflet,
+          pj: pj,
+          sasaran: p.sasaran || 'Warga Yayasan & Santri',
+          startDate: startDate
+        };
+
+        if (window.humasState && Array.isArray(window.humasState.programs)) {
+          window.humasState.programs.unshift(newProg);
+        }
+
+        let master = [];
+        try {
+          const raw = localStorage.getItem('humas_programs_master_v3');
+          if (raw) master = JSON.parse(raw);
+        } catch(e) {}
+        if (!Array.isArray(master) || master.length === 0) {
+          if (window.YTPAI_ANNUAL_PROGRAMS) master = JSON.parse(JSON.stringify(window.YTPAI_ANNUAL_PROGRAMS));
+        }
+        master.unshift(newProg);
+        localStorage.setItem('humas_programs_master_v3', JSON.stringify(master));
+
+        if (typeof window.renderHumasTable === 'function') window.renderHumasTable();
+        if (typeof window.renderHumasMetrics === 'function') window.renderHumasMetrics();
+        if (typeof window.renderHumasH7RadarCards === 'function') window.renderHumasH7RadarCards();
+        if (typeof window.showToast === 'function') {
+          window.showToast('✅ Agenda Ditambahkan', `${title} (${tgl} ${bulan} ${tahun})`, 'success');
+        }
+
+        return {
+          icon: '📅',
+          title: 'Agenda Acara Berhasil Ditambahkan',
+          desc: `"${title}" dijadwalkan pada ${tgl} ${bulan} ${tahun} • PJ: ${pj}`,
+          tab: 'humas',
+          eventId: eventId
+        };
+      }
+
+      // 2. UPDATE STATUS PAMFLET ACARA
+      if (act === 'UPDATE_PAMFLET_STATUS' || act === 'UBAH_STATUS_PAMFLET') {
+        const kw = (p.keyword || p.uraian || '').toLowerCase();
+        const newStatus = (p.status || 'selesai').toLowerCase();
+        let targetItem = null;
+
+        let master = [];
+        try {
+          const raw = localStorage.getItem('humas_programs_master_v3');
+          if (raw) master = JSON.parse(raw);
+        } catch(e) {}
+
+        if (Array.isArray(master)) {
+          for (let item of master) {
+            if ((item.uraian || '').toLowerCase().includes(kw)) {
+              item.statusPamflet = newStatus;
+              targetItem = item;
+              break;
+            }
+          }
+          if (targetItem) {
+            localStorage.setItem('humas_programs_master_v3', JSON.stringify(master));
+            if (window.humasState && Array.isArray(window.humasState.programs)) {
+              const inState = window.humasState.programs.find(x => x.id === targetItem.id);
+              if (inState) inState.statusPamflet = newStatus;
+            }
+            if (typeof window.renderHumasTable === 'function') window.renderHumasTable();
+            if (typeof window.renderHumasH7RadarCards === 'function') window.renderHumasH7RadarCards();
+            if (typeof window.showToast === 'function') {
+              window.showToast('🎨 Pamflet Diperbarui', `${targetItem.uraian} -> ${newStatus.toUpperCase()}`, 'success');
+            }
+            return {
+              icon: '🎨',
+              title: 'Status Pamflet Diperbarui',
+              desc: `Acara "${targetItem.uraian}" status pamflet diubah menjadi "${newStatus}"`,
+              tab: 'humas',
+              eventId: targetItem.id
+            };
+          }
+        }
+      }
+
+      // 3. TAMBAH SANTRI TAHFIDZ
+      if (act === 'ADD_TAHFIDZ_STUDENT' || act === 'TAMBAH_SANTRI') {
+        const nama = p.nama || 'Santri Baru';
+        const kelas = p.kelas || 'MTs';
+        const targetJuz = p.targetJuz || p.juz || 'Juz 30';
+        const newStudent = {
+          id: 'std-' + Date.now(),
+          nama: nama,
+          kelas: kelas,
+          targetJuz: targetJuz,
+          statusTasmi: p.statusTasmi || 'belum',
+          tglTasmi: '',
+          statusPamflet: 'belum'
+        };
+
+        let students = [];
+        try {
+          const raw = localStorage.getItem('tahfidz_master_students_v1');
+          if (raw) students = JSON.parse(raw);
+        } catch(e) {}
+        if (!Array.isArray(students) || students.length === 0) {
+          if (window.TAHFIDZ_DEFAULT_STUDENTS) students = JSON.parse(JSON.stringify(window.TAHFIDZ_DEFAULT_STUDENTS));
+        }
+        students.push(newStudent);
+        localStorage.setItem('tahfidz_master_students_v1', JSON.stringify(students));
+
+        if (typeof window.renderTahfidzTable === 'function') window.renderTahfidzTable();
+        if (typeof window.showToast === 'function') {
+          window.showToast('📖 Santri Ditambahkan', `${nama} (${kelas} - ${targetJuz})`, 'success');
+        }
+
+        return {
+          icon: '📖',
+          title: 'Santri Tahfidz Ditambahkan',
+          desc: `Santri "${nama}" (${kelas}) terdaftar dengan target ${targetJuz}.`,
+          tab: 'tahfidz'
+        };
+      }
+
+      // 4. UPDATE STATUS TASMI SANTRI
+      if (act === 'UPDATE_TASMI_STATUS' || act === 'LULUS_TASMI') {
+        const namaKw = (p.nama || '').toLowerCase();
+        const newStatus = (p.status || 'lulus').toLowerCase();
+        let updatedStudent = null;
+
+        let students = [];
+        try {
+          const raw = localStorage.getItem('tahfidz_master_students_v1');
+          if (raw) students = JSON.parse(raw);
+        } catch(e) {}
+
+        if (Array.isArray(students)) {
+          for (let s of students) {
+            if ((s.nama || '').toLowerCase().includes(namaKw)) {
+              s.statusTasmi = newStatus;
+              updatedStudent = s;
+              break;
+            }
+          }
+          if (updatedStudent) {
+            localStorage.setItem('tahfidz_master_students_v1', JSON.stringify(students));
+            if (typeof window.renderTahfidzTable === 'function') window.renderTahfidzTable();
+            if (typeof window.showToast === 'function') {
+              window.showToast('⭐ Tasmi Diperbarui', `${updatedStudent.nama} -> ${newStatus.toUpperCase()}`, 'success');
+            }
+            return {
+              icon: '⭐',
+              title: 'Status Tasmi Diperbarui',
+              desc: `Santri "${updatedStudent.nama}" status tasmi' diubah menjadi "${newStatus}".`,
+              tab: 'tahfidz'
+            };
+          }
+        }
+      }
+
+      // 5. TAMBAH MITRA WARUNG TITIP JUAL
+      if (act === 'ADD_WARUNG_STORE' || act === 'TAMBAH_WARUNG') {
+        const namaWarung = p.nama || 'Warung Mitra Baru';
+        const pemilik = p.pemilik || 'Pemilik Warung';
+        const wa = p.wa || '';
+        const hargaJual = parseInt(p.hargaJual) || 2000;
+        const komisi = parseInt(p.komisi) || 500;
+        const newStore = {
+          id: 'warung-' + Date.now(),
+          nama: namaWarung,
+          pemilik: pemilik,
+          wa: wa,
+          alamat: p.alamat || 'Area Sekitar',
+          intervalHari: 14,
+          tanggalTitip: new Date().toISOString().split('T')[0],
+          tanggalJadwalCek: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+          jumlahTitip: parseInt(p.jumlahTitip) || 20,
+          hargaJual: hargaJual,
+          komisi: komisi,
+          varian: p.varian || 'Produk Titipan',
+          status: 'aman'
+        };
+
+        let bData = { stores: [], transactions: [] };
+        try {
+          const raw = localStorage.getItem('partner_fatih_bisnis_v1');
+          if (raw) bData = JSON.parse(raw);
+        } catch(e) {}
+        if (!Array.isArray(bData.stores)) bData.stores = [];
+        bData.stores.unshift(newStore);
+        localStorage.setItem('partner_fatih_bisnis_v1', JSON.stringify(bData));
+
+        if (typeof window.renderWarungList === 'function') window.renderWarungList();
+        if (typeof window.renderBisnisDashboard === 'function') window.renderBisnisDashboard();
+        if (typeof window.showToast === 'function') {
+          window.showToast('🏪 Warung Ditambahkan', `${namaWarung}`, 'success');
+        }
+
+        return {
+          icon: '🏪',
+          title: 'Mitra Warung Ditambahkan',
+          desc: `"${namaWarung}" (Pemilik: ${pemilik}) berhasil didaftarkan ke Inkubator Bisnis.`,
+          tab: 'bisnis'
+        };
+      }
+
+      // 6. CATAT ARUS KAS KEUANGAN
+      if (act === 'ADD_CASHFLOW' || act === 'CATAT_KAS') {
+        const tipe = (p.tipe || 'keluar').toLowerCase();
+        const nominal = parseInt(p.nominal) || 0;
+        const ket = p.keterangan || 'Catatan via Fathiya AI';
+        const newTx = {
+          id: 'tx-' + Date.now(),
+          tanggal: new Date().toISOString().split('T')[0],
+          tipe: tipe,
+          kategori: p.kategori || 'operasional',
+          nominal: nominal,
+          keterangan: ket
+        };
+
+        let bData = { stores: [], transactions: [] };
+        try {
+          const raw = localStorage.getItem('partner_fatih_bisnis_v1');
+          if (raw) bData = JSON.parse(raw);
+        } catch(e) {}
+        if (!Array.isArray(bData.transactions)) bData.transactions = [];
+        bData.transactions.unshift(newTx);
+        localStorage.setItem('partner_fatih_bisnis_v1', JSON.stringify(bData));
+
+        if (typeof window.renderCashflowList === 'function') window.renderCashflowList();
+        if (typeof window.renderBisnisDashboard === 'function') window.renderBisnisDashboard();
+        if (typeof window.showToast === 'function') {
+          window.showToast('💵 Kas Dicatat', `${tipe === 'masuk' ? 'Pemasukan' : 'Pengeluaran'} Rp ${nominal.toLocaleString('id-ID')}`, 'success');
+        }
+
+        return {
+          icon: '💵',
+          title: 'Catatan Kas Tersimpan',
+          desc: `${tipe === 'masuk' ? 'Pemasukan' : 'Pengeluaran'} Rp ${nominal.toLocaleString('id-ID')} (${ket})`,
+          tab: 'bisnis'
+        };
+      }
+
+      // 6B. ATUR / MASUKKAN SALDO KANTONG SEKARANG
+      if (act === 'SET_WALLET_BALANCE' || act === 'ATUR_SALDO_SEKARANG') {
+        const wallet = (p.wallet || 'pribadi').toLowerCase();
+        const amount = Math.round(Number(p.amount || p.nominal) || 0);
+
+        let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
+        try {
+          const raw = localStorage.getItem('partner_fatih_wallets_v2');
+          if (raw) wallets = Object.assign(wallets, JSON.parse(raw));
+        } catch(e) {}
+
+        if (wallet === 'operasional') wallets.operasional = amount;
+        else if (wallet === 'tabungan') wallets.tabungan = amount;
+        else wallets.pribadi = amount;
+
+        localStorage.setItem('partner_fatih_wallets_v2', JSON.stringify(wallets));
+
+        if (typeof window.loadFinanceData === 'function') window.loadFinanceData();
+        if (typeof window.renderAllFinanceViews === 'function') window.renderAllFinanceViews();
+        if (typeof window.renderHeroAndWallets === 'function') window.renderHeroAndWallets();
+        if (typeof window.renderFinanceTable === 'function') window.renderFinanceTable();
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('💰 Saldo Diperbarui', `Dompet ${wallet.toUpperCase()} diatur ke Rp ${amount.toLocaleString('id-ID')}`, 'success');
+        }
+
+        return {
+          icon: '💰',
+          title: 'Saldo Dompet Berhasil Diatur',
+          desc: `Saldo pada Dompet ${wallet.toUpperCase()} telah Fathiya sesuaikan menjadi Rp ${amount.toLocaleString('id-ID')}.`,
+          tab: 'keuangan'
+        };
+      }
+
+      // 7. KEUANGAN PRIBADI & MULTI-DOMPET (Tab Keuangan)
+      if (act === 'ADD_FINANCE_TRANSACTION' || act === 'CATAT_KEUANGAN_PRIBADI') {
+        const type = (p.type || p.tipe || 'keluar').toLowerCase();
+        const wallet = (p.wallet || p.dompet || 'pribadi').toLowerCase();
+        const amount = Math.round(Number(p.amount || p.nominal) || 0);
+        const note = p.note || p.keterangan || 'Dicatat via Fathiya AI';
+        const category = p.category || (type === 'masuk' ? 'Gaji & Honorarium' : 'Kebutuhan Harian');
+
+        if (typeof window.addFinanceTransactionDirect === 'function') {
+          window.addFinanceTransactionDirect({
+            type: type,
+            wallet: wallet,
+            amount: amount,
+            note: note,
+            category: category
+          });
+        } else {
+          // Direct LocalStorage fallback
+          const STORAGE_FINANCE = 'partner_fatih_finance_data_v2';
+          let txs = [];
+          try {
+            const raw = localStorage.getItem(STORAGE_FINANCE);
+            if (raw) txs = JSON.parse(raw);
+          } catch(e) {}
+          const d = new Date();
+          const newTx = {
+            id: 'tx_' + Date.now(),
+            date: d.toISOString().split('T')[0],
+            time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+            type: type,
+            wallet: wallet,
+            category: category,
+            amount: amount,
+            note: note
+          };
+          txs.unshift(newTx);
+          localStorage.setItem(STORAGE_FINANCE, JSON.stringify(txs));
+          if (typeof window.renderAllFinanceViews === 'function') window.renderAllFinanceViews();
+        }
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('💳 Keuangan Pribadi Dicatat', `${type === 'masuk' ? 'Pemasukan' : 'Pengeluaran'} Rp ${amount.toLocaleString('id-ID')} [${wallet.toUpperCase()}]`, 'success');
+        }
+
+        return {
+          icon: '💳',
+          title: 'Keuangan Pribadi Dicatat',
+          desc: `${type === 'masuk' ? 'Pemasukan' : 'Pengeluaran'} Rp ${amount.toLocaleString('id-ID')} pada Dompet ${wallet.toUpperCase()} ("${note}").`,
+          tab: 'keuangan'
+        };
+      }
+
+      // 8. TRANSFER SALDO ANTAR KANTONG DOMPET
+      if (act === 'TRANSFER_DOMPET' || act === 'PINDAH_DANA') {
+        const fromW = (p.fromWallet || p.dari || 'operasional').toLowerCase();
+        const toW = (p.toWallet || p.ke || 'tabungan').toLowerCase();
+        const amount = Math.round(Number(p.amount || p.nominal) || 0);
+        const note = p.note || `Pindah saldo dari ${fromW} ke ${toW}`;
+
+        if (typeof window.transferFinanceKantongDirect === 'function') {
+          window.transferFinanceKantongDirect(fromW, toW, amount, note);
+        } else {
+          const STORAGE_FINANCE = 'partner_fatih_finance_data_v2';
+          let txs = [];
+          try {
+            const raw = localStorage.getItem(STORAGE_FINANCE);
+            if (raw) txs = JSON.parse(raw);
+          } catch(e) {}
+          const d = new Date();
+          const trf = {
+            id: 'tx_trf_' + Date.now(),
+            date: d.toISOString().split('T')[0],
+            time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+            type: 'transfer',
+            wallet: fromW,
+            toWallet: toW,
+            category: 'Pindah Dana',
+            amount: amount,
+            note: note
+          };
+          txs.unshift(trf);
+          localStorage.setItem(STORAGE_FINANCE, JSON.stringify(txs));
+          if (typeof window.renderAllFinanceViews === 'function') window.renderAllFinanceViews();
+        }
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('🔄 Transfer Kantong Berhasil', `Rp ${amount.toLocaleString('id-ID')} (${fromW} ➔ ${toW})`, 'success');
+        }
+
+        return {
+          icon: '🔄',
+          title: 'Transfer Kantong Berhasil',
+          desc: `Dipindahkan Rp ${amount.toLocaleString('id-ID')} dari dompet ${fromW.toUpperCase()} ke ${toW.toUpperCase()}.`,
+          tab: 'keuangan'
+        };
+      }
+
+      // 9. TAMBAH IDE DI RUANG TUMBUH (Tab Ide)
+      if (act === 'ADD_IDE' || act === 'TAMBAH_IDE') {
+        const title = p.title || p.judul || 'Ide Baru Kak Fatih';
+        const category = p.category || 'jasa_digital';
+        const estRevenue = Math.round(Number(p.estRevenue || p.potensi) || 200000);
+        const desc = p.desc || p.deskripsi || 'Dicatat langsung oleh Fathiya AI Partner';
+
+        if (typeof window.addIdeDirect === 'function') {
+          window.addIdeDirect({ title, category, estRevenue, desc });
+        } else {
+          let list = [];
+          try {
+            const raw = localStorage.getItem('partner_fatih_ide_data_v1');
+            if (raw) list = JSON.parse(raw);
+          } catch(e) {}
+          list.unshift({
+            id: 'ide_' + Date.now(),
+            title: title,
+            category: category,
+            status: 'spark',
+            desc: desc,
+            estRevenue: estRevenue,
+            scoreEase: 4, scoreDemand: 4, scoreProfit: 4,
+            nextAction: 'Riset awal dan buat prototype',
+            checklist: [{ id: 'c1', text: 'Validasi pasar', done: false }],
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          });
+          localStorage.setItem('partner_fatih_ide_data_v1', JSON.stringify(list));
+          if (typeof window.renderIdeCards === 'function') window.renderIdeCards();
+        }
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('💡 Ide Baru Disimpan', `${title} (Est: Rp ${estRevenue.toLocaleString('id-ID')})`, 'success');
+        }
+
+        return {
+          icon: '💡',
+          title: 'Ide Baru Terdaftar di Ruang Tumbuh',
+          desc: `"${title}" berhasil dimasukkan ke Laboratorium Ide dengan estimasi Rp ${estRevenue.toLocaleString('id-ID')}.`,
+          tab: 'ide'
+        };
+      }
+
+      // 10. UPDATE STATUS IDE
+      if (act === 'UPDATE_IDE_STATUS') {
+        const kw = (p.keyword || p.judul || '').toLowerCase();
+        const newStatus = (p.status || 'executing').toLowerCase();
+        if (typeof window.updateIdeStatusDirect === 'function') {
+          const res = window.updateIdeStatusDirect(kw, newStatus);
+          if (res) {
+            if (typeof window.showToast === 'function') {
+              window.showToast('🚀 Status Ide Diperbarui', `"${res.title}" ➔ ${newStatus.toUpperCase()}`, 'success');
+            }
+            return {
+              icon: '🚀',
+              title: 'Status Ide Diperbarui',
+              desc: `Ide "${res.title}" kini berstatus: ${newStatus.toUpperCase()}.`,
+              tab: 'ide'
+            };
+          }
+        }
+      }
+
+      // 11. CATAT MATERI JURNAL GURU KBM
+      if (act === 'CATAT_JURNAL_GURU' || act === 'ISI_JURNAL_KBM') {
+        const classId = (p.classId || p.kelas || '8D').replace(/\s+/g, '').toUpperCase();
+        const pNum = parseInt(p.pertemuan || p.p) || 1;
+        const materi = p.materi || 'Materi KBM';
+        const catatan = p.catatan || '';
+
+        let jState = null;
+        if (typeof window.getJurnalState === 'function') jState = window.getJurnalState();
+        if (!jState) {
+          try {
+            const raw = localStorage.getItem('partner_fatih_jurnal_guru_v2');
+            if (raw) jState = JSON.parse(raw);
+          } catch(e) {}
+        }
+
+        if (jState && jState.classes && jState.classes[classId]) {
+          const targetSession = jState.classes[classId].sessions[pNum];
+          if (targetSession) {
+            targetSession.materi = materi;
+            if (catatan) targetSession.catatan = catatan;
+            targetSession.status = 'terlaksana';
+            targetSession.date = new Date().toISOString().split('T')[0];
+
+            if (typeof window.saveJurnalState === 'function') {
+              window.saveJurnalState();
+            } else {
+              localStorage.setItem('partner_fatih_jurnal_guru_v2', JSON.stringify(jState));
+            }
+
+            if (typeof window.renderJurnalTimetable === 'function') window.renderJurnalTimetable();
+            if (typeof window.showToast === 'function') {
+              window.showToast('📝 Jurnal Guru Disimpan', `Kelas ${classId} P-${pNum}: ${materi}`, 'success');
+            }
+
+            return {
+              icon: '📝',
+              title: `Jurnal Guru Kelas ${classId} Tersimpan`,
+              desc: `Pertemuan ke-${pNum} berhasil dicatat: "${materi}".`,
+              tab: 'jurnal'
+            };
+          }
+        }
+      }
+
+      // 12. CATAT PRESENSI SANTRI
+      if (act === 'CATAT_PRESENSI') {
+        const classId = (p.classId || p.kelas || '8D').replace(/\s+/g, '').toUpperCase();
+        const pNum = parseInt(p.pertemuan || p.p) || 1;
+        const studentKw = (p.studentName || p.nama || '').toLowerCase();
+        const stStatus = (p.status || 'S').toUpperCase(); // 'H' | 'S' | 'I' | 'A'
+
+        let jState = null;
+        if (typeof window.getJurnalState === 'function') jState = window.getJurnalState();
+        if (!jState) {
+          try {
+            const raw = localStorage.getItem('partner_fatih_jurnal_guru_v2');
+            if (raw) jState = JSON.parse(raw);
+          } catch(e) {}
+        }
+
+        if (jState && jState.classes && jState.classes[classId]) {
+          const sess = jState.classes[classId].sessions[pNum];
+          if (sess && sess.presensi) {
+            let matchedName = null;
+            for (let name of Object.keys(sess.presensi)) {
+              if (name.toLowerCase().includes(studentKw)) {
+                matchedName = name;
+                sess.presensi[name] = stStatus;
+                break;
+              }
+            }
+
+            if (matchedName) {
+              if (typeof window.saveJurnalState === 'function') window.saveJurnalState();
+              else localStorage.setItem('partner_fatih_jurnal_guru_v2', JSON.stringify(jState));
+
+              const statusLabels = { 'H': 'Hadir', 'S': 'Sakit', 'I': 'Izin', 'A': 'Alpa' };
+              const stLabel = statusLabels[stStatus] || stStatus;
+
+              if (typeof window.showToast === 'function') {
+                window.showToast('📋 Presensi Dicatat', `${matchedName} (${classId}): ${stLabel}`, 'info');
+              }
+
+              return {
+                icon: '📋',
+                title: 'Presensi Siswa Diperbarui',
+                desc: `${matchedName} (Kelas ${classId}, P-${pNum}) status kehadiran: ${stLabel}.`,
+                tab: 'jurnal'
+              };
+            }
+          }
+        }
+      }
+
+      // 13. SIMPAN MEMO PRIBADI KAK FATIH
+      if (act === 'SAVE_PERSONAL_NOTE' || act === 'CATAT_MEMO') {
+        const memoText = p.text || p.memo || 'Catatan penting Kak Fatih';
+        const profile = getFathiyaUserProfile();
+        if (!Array.isArray(profile.personalNotes)) profile.personalNotes = [];
+        profile.personalNotes.unshift({
+          id: 'note_' + Date.now(),
+          text: memoText,
+          date: new Date().toISOString()
+        });
+        saveFathiyaUserProfile(profile);
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('📌 Catatan Pribadi Disimpan', memoText.substring(0, 30) + '...', 'success');
+        }
+
+        return {
+          icon: '📌',
+          title: 'Memo Pribadi Kak Fatih Disimpan',
+          desc: `Fathiya sudah mengingat pesan ini: "${memoText}".`,
+          tab: 'home'
+        };
+      }
+
+      // 14. HAPUS AGENDA HUMAS
+      if (act === 'DELETE_HUMAS_EVENT') {
+        const kw = (p.keyword || p.uraian || '').toLowerCase();
+        let events = [];
+        try {
+          const raw = localStorage.getItem('humas_programs_master_v3');
+          if (raw) events = JSON.parse(raw);
+        } catch(e) {}
+        if (Array.isArray(events)) {
+          const idx = events.findIndex(ev => (ev.uraian || '').toLowerCase().includes(kw));
+          if (idx !== -1) {
+            const removed = events.splice(idx, 1)[0];
+            localStorage.setItem('humas_programs_master_v3', JSON.stringify(events));
+            if (typeof window.renderHumasEvents === 'function') window.renderHumasEvents();
+            if (typeof window.showToast === 'function') {
+              window.showToast('🗑️ Agenda Dihapus', removed.uraian, 'warning');
+            }
+            return {
+              icon: '🗑️',
+              title: 'Agenda Dihapus',
+              desc: `Agenda "${removed.uraian}" berhasil dihapus dari master data Humas.`,
+              tab: 'humas'
+            };
+          }
+        }
+      }
+
+      // 15. HAPUS SANTRI TAHFIDZ
+      if (act === 'DELETE_TAHFIDZ_STUDENT') {
+        const namaKw = (p.nama || '').toLowerCase();
+        let students = [];
+        try {
+          const raw = localStorage.getItem('tahfidz_master_students_v1');
+          if (raw) students = JSON.parse(raw);
+        } catch(e) {}
+        if (Array.isArray(students)) {
+          const idx = students.findIndex(s => (s.nama || '').toLowerCase().includes(namaKw));
+          if (idx !== -1) {
+            const removed = students.splice(idx, 1)[0];
+            localStorage.setItem('tahfidz_master_students_v1', JSON.stringify(students));
+            if (typeof window.renderTahfidzTable === 'function') window.renderTahfidzTable();
+            if (typeof window.showToast === 'function') {
+              window.showToast('🗑️ Santri Dihapus', removed.nama, 'warning');
+            }
+            return {
+              icon: '🗑️',
+              title: 'Santri Dihapus',
+              desc: `Santri "${removed.nama}" dihapus dari database Tahfidz.`,
+              tab: 'tahfidz'
+            };
+          }
+        }
+      }
+
+      // 16. BERPINDAH TAB
+      if (act === 'SWITCH_TAB' || act === 'BUKA_TAB') {
+        const targetTab = p.tab || 'bisnis';
+        if (typeof window.switchTab === 'function') {
+          window.switchTab(targetTab);
+        }
+        const tMeta = FATIH_KNOWLEDGE_BASE.tabs[targetTab];
+        return {
+          icon: '🚀',
+          title: `Membuka Modul ${tMeta ? tMeta.name : targetTab}`,
+          desc: `Aplikasi langsung dialihkan ke tab ${tMeta ? tMeta.name : targetTab}.`,
+          tab: targetTab
+        };
+      }
+
+    } catch(err) {
+      console.warn('[Fatih Action Engine] Error executing action:', err);
+    }
+
+    return null;
+  }
+
+  // Detektor perintah mutasi data lokal (Offline Intent Parser)
+  function detectOfflineActionIntent(text) {
+    const t = text.trim();
+
+    // 0. Mutasi / Pindah / Ganti Jadwal Mengajar KBM Guru
+    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "sesuaikan jadwal 8D ke sabtu"
+    if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t)) {
+      const classMatch = t.match(/\b([789])\s*([a-dA-D])\b/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
+      const dayMatch = t.match(/\b(ahad|minggu|senin|selasa|rabu|kamis|jumat|sabtu)\b/i);
+      const jamKeMatch = t.match(/jam\s*(?:ke\s*)?(\d+(?:\s*[-–]\s*\d+)?)/i);
+      const timeClockMatch = t.match(/(\d{1,2}[.:]\d{2})\s*(?:[-–]\s*(\d{1,2}[.:]\d{2}))?/i);
+
+      if (classMatch && dayMatch) {
+        const cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/\s+/g, '').toUpperCase();
+        let dayRaw = dayMatch[1].toLowerCase();
+        let dayFormatted = dayRaw.charAt(0).toUpperCase() + dayRaw.slice(1);
+        if (dayFormatted === 'Minggu') dayFormatted = 'Ahad';
+
+        let hourLabel = jamKeMatch ? `Jam ${jamKeMatch[1].replace(/\s+/g, '')}` : '';
+        let timeStr = '';
+        if (hourLabel.includes('3-4')) timeStr = '08.30 - 09.50 (Jam 3-4)';
+        else if (hourLabel.includes('1-2')) timeStr = '07.00 - 08.30 (Jam 1-2)';
+        else if (hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
+        else if (hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
+        else if (timeClockMatch) timeStr = timeClockMatch[0];
+        else timeStr = '08.30 - 09.50 (Jam 3-4)';
+
+        return {
+          action: 'MUTATE_SCHEDULE',
+          params: {
+            classId: cls,
+            day: dayFormatted,
+            hourLabel: hourLabel || 'Jam 3-4',
+            time: timeStr
+          }
+        };
+      }
+    }
+
+    // 0B. Hapus Jadwal
+    if (/(?:hapus|batalkan)\s+jadwal/i.test(t)) {
+      const classMatch = t.match(/\b([789])\s*([a-dA-D])\b/i);
+      const dayMatch = t.match(/\b(ahad|minggu|senin|selasa|rabu|kamis|jumat|sabtu)\b/i);
+      if (classMatch) {
+        const cls = `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}`;
+        return {
+          action: 'DELETE_SCHEDULE',
+          params: {
+            classId: cls,
+            day: dayMatch ? dayMatch[1] : ''
+          }
+        };
+      }
+    }
+
+    // 0C. Masukkan / Atur Saldo Dompet Sekarang
+    // Contoh: "masukkan saldo saya sekarang sejumlah 500rb", "atur saldo pribadi saya 2 juta", "saldo operasional saya sekarang 350.000", "saldo tabungan sekarang 5jt", "saldo saya sekarang 1500000"
+    if (/(?:masukkan|atur|set|ganti|ubah|sesuaikan)\s+saldo/i.test(t) || /(?:saldo\s+(?:saya\s+)?(?:sekarang\s+)?(?:sejumlah\s+)?)/i.test(t)) {
+      if (/(?:saldo|uang).*(?:sekarang|sejumlah|\d)/i.test(t)) {
+        let wallet = 'pribadi';
+        if (/operasional/i.test(t)) wallet = 'operasional';
+        else if (/tabungan/i.test(t)) wallet = 'tabungan';
+
+        let amount = 0;
+        const jtMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:jt|juta)\b/i);
+        const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+        if (jtMatch) {
+          amount = Math.round(parseFloat(jtMatch[1].replace(',', '.')) * 1000000);
+        } else if (rbMatch) {
+          amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+        } else {
+          const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d{4,})/i);
+          if (numMatch) {
+            amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
+          }
+        }
+
+        if (amount > 0) {
+          return {
+            action: 'SET_WALLET_BALANCE',
+            params: {
+              wallet: wallet,
+              amount: amount
+            }
+          };
+        }
+      }
+    }
+
+    // 1. Catat Keuangan Pribadi (Multi-Dompet)
+    // Contoh: "catat pengeluaran pribadi bensin 35rb", "catat pemasukan honor 500rb", "beli bensin motor 25000", "pemasukan gaji 2000000"
+    if (/(?:catat|masukkan|tambah)\s+(?:pengeluaran|pemasukan|belanja|biaya|honor|gaji)/i.test(t) || /(?:beli|isi\s+bensin|makan\s+siang|bayar)\s+/i.test(t)) {
+      const isMasuk = /(?:pemasukan|honor|gaji|dapat\s+uang|terima\s+transfer)/i.test(t);
+      const tipe = isMasuk ? 'masuk' : 'keluar';
+
+      // Dompet
+      let wallet = 'pribadi';
+      if (/operasional/i.test(t)) wallet = 'operasional';
+      else if (/tabungan/i.test(t)) wallet = 'tabungan';
+
+      // Nominal (mendukung 35rb, 35k, 35.000, 35000)
+      let amount = 0;
+      const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+      if (rbMatch) {
+        amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+      } else {
+        const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i);
+        if (numMatch) {
+          amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
+        }
+      }
+
+      if (amount > 0) {
+        let note = t
+          .replace(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:catat|masukkan|tambah)\s+(?:pengeluaran|pemasukan|belanja|biaya)?/i, '')
+          .replace(/(?:di\s+dompet\s+)?(?:pribadi|operasional|tabungan)/i, '')
+          .replace(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i, '')
+          .replace(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i, '')
+          .trim();
+        if (!note) note = isMasuk ? 'Pemasukan Kas' : 'Pengeluaran Kebutuhan';
+
+        return {
+          action: 'ADD_FINANCE_TRANSACTION',
+          params: {
+            type: tipe,
+            wallet: wallet,
+            amount: amount,
+            note: note,
+            category: isMasuk ? 'Gaji & Honorarium' : 'Kebutuhan Harian'
+          }
+        };
+      }
+    }
+
+    // 2. Transfer Saldo Antar Kantong
+    // Contoh: "transfer dari operasional ke tabungan 100rb", "pindah dana operasional ke pribadi 50000"
+    if (/(?:transfer|pindah\s+dana|pindahkan\s+saldo)\s+(?:dari\s+)?(\w+)\s+ke\s+(\w+)/i.test(t)) {
+      const trfMatch = t.match(/(?:transfer|pindah\s+dana|pindahkan\s+saldo)\s+(?:dari\s+)?(\w+)\s+ke\s+(\w+)/i);
+      const fromW = trfMatch[1].toLowerCase();
+      const toW = trfMatch[2].toLowerCase();
+
+      let amount = 0;
+      const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+      if (rbMatch) {
+        amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+      } else {
+        const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i);
+        if (numMatch) {
+          amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
+        }
+      }
+
+      if (amount > 0) {
+        return {
+          action: 'TRANSFER_DOMPET',
+          params: {
+            fromWallet: fromW,
+            toWallet: toW,
+            amount: amount,
+            note: `Pindah dana ${fromW} ke ${toW}`
+          }
+        };
+      }
+    }
+
+    // 3. Tambah Ide Baru di Ruang Tumbuh
+    // Contoh: "fathiya catat ide baru jasa pembuatan website sekolah", "tambah ide twibbon milad", "ide baru bikin modul"
+    if (/(?:catat\s+ide|tambah\s+ide|ide\s+baru)\s+(.+)/i.test(t)) {
+      const mIde = t.match(/(?:catat\s+ide|tambah\s+ide|ide\s+baru)\s+(?:baru\s+)?(.+)/i);
+      const rest = mIde ? mIde[1] : '';
+      const revMatch = rest.match(/potensi\s+(\d+(?:[.,]\d+)?\s*(?:rb|ribu|k|jt|juta)?)/i);
+      let estRev = 200000;
+      if (revMatch) {
+        if (/jt|juta/i.test(revMatch[1])) estRev = Math.round(parseFloat(revMatch[1]) * 1000000);
+        else if (/rb|ribu|k/i.test(revMatch[1])) estRev = Math.round(parseFloat(revMatch[1]) * 1000);
+        else estRev = parseInt(revMatch[1].replace(/[.,]/g, ''), 10);
+      }
+      let title = rest.replace(/potensi\s+\d+.*$/i, '').trim();
+
+      return {
+        action: 'ADD_IDE',
+        params: {
+          title: title || 'Ide Baru Kak Fatih',
+          category: /website|aplikasi|software/i.test(title) ? 'aplikasi_sekolah' : (/twibbon|desain|poster/i.test(title) ? 'desain_event' : 'jasa_digital'),
+          estRevenue: estRev,
+          desc: 'Dicatat via Fathiya AI Partner'
+        }
+      };
+    }
+
+    // 4. Catat Presensi Siswa KBM
+    // Contoh: "catat presensi 8D anita sakit pertemuan 2", "anita di 8D sakit", "8D anita izin"
+    if (/(?:presensi|absen|kehadiran|sakit|izin|alpa)\b/i.test(t)) {
+      const classMatch = t.match(/\b([789])\s*([a-dA-D])\b/i);
+      const stMatch = t.match(/\b(sakit|izin|alpa|hadir)\b/i);
+      const pMatch = t.match(/pertemuan\s*(\d+)/i) || t.match(/\bp\s*(\d+)\b/i);
+
+      if (classMatch && stMatch) {
+        const cls = `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}`;
+        const statusCode = stMatch[1].toUpperCase().charAt(0); // S, I, A, H
+        // Ekstrak nama siswa
+        let cleanName = t
+          .replace(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:catat\s+)?(?:presensi|absen|kehadiran)?/i, '')
+          .replace(/\b[789]\s*[a-dA-D]\b/i, '')
+          .replace(/\b(sakit|izin|alpa|hadir)\b/i, '')
+          .replace(/pertemuan\s*\d+/i, '')
+          .replace(/\bp\s*\d+\b/i, '')
+          .replace(/\bdi\b/i, '')
+          .trim();
+
+        if (cleanName.length >= 2) {
+          return {
+            action: 'CATAT_PRESENSI',
+            params: {
+              classId: cls,
+              pertemuan: pMatch ? parseInt(pMatch[1]) : 1,
+              studentName: cleanName,
+              status: statusCode
+            }
+          };
+        }
+      }
+    }
+
+    // 5. Catat Memo / Pengingat Pribadi Kak Fatih
+    // Contoh: "fathiya ingat ya besok beli spidol dan penghapus", "ingatkan saya untuk setor berkas", "catat memo penting..."
+    if (/(?:ingat\s+ya|ingatkan\s+saya|catat\s+memo|simpan\s+memo|memo\s+pribadi)/i.test(t)) {
+      let memo = t
+        .replace(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:ingat\s+ya|ingatkan\s+saya|catat\s+memo|simpan\s+memo|memo\s+pribadi)\s*/i, '')
+        .trim();
+      if (memo) {
+        return {
+          action: 'SAVE_PERSONAL_NOTE',
+          params: { text: memo }
+        };
+      }
+    }
+
+    // 6. Tambah agenda
+    const mAgenda = t.match(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:tambah|buat|agendakan|masukkan)\s+agenda\s+(.+)/i);
+    if (mAgenda) {
+      const rest = mAgenda[1];
+      const tglMatch = rest.match(/tanggal\s+(\d{1,2})\s+([a-zA-Z]+)(?:\s+(\d{4}))?/i);
+      const pjMatch = rest.match(/pj\s+([a-zA-Z0-9\.\s]+)/i);
+      let uraian = rest.replace(/tanggal\s+\d{1,2}\s+[a-zA-Z]+(?:\s+\d{4})?/i, '').replace(/pj\s+[a-zA-Z0-9\.\s]+/i, '').trim();
+      return {
+        action: 'ADD_HUMAS_EVENT',
+        params: {
+          uraian: uraian || rest,
+          tgl: tglMatch ? tglMatch[1] : String(new Date().getDate()),
+          bulan: tglMatch ? tglMatch[2] : 'Oktober',
+          tahun: tglMatch && tglMatch[3] ? tglMatch[3] : '2026',
+          pj: pjMatch ? pjMatch[1].trim() : 'Panitia Yayasan'
+        }
+      };
+    }
+
+    // 7. Tambah santri
+    const mSantri = t.match(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:tambah|daftarkan|masukkan)\s+santri\s+(.+)/i);
+    if (mSantri) {
+      const rest = mSantri[1];
+      const kelasMatch = rest.match(/kelas\s+([a-zA-Z0-9]+)/i);
+      const juzMatch = rest.match(/juz\s+(\d{1,2})/i);
+      let nama = rest.replace(/kelas\s+[a-zA-Z0-9]+/i, '').replace(/juz\s+\d{1,2}/i, '').trim();
+      return {
+        action: 'ADD_TAHFIDZ_STUDENT',
+        params: {
+          nama: nama || rest,
+          kelas: kelasMatch ? kelasMatch[1] : 'MTs',
+          targetJuz: juzMatch ? 'Juz ' + juzMatch[1] : 'Juz 30'
+        }
+      };
+    }
+
+    // 8. Tambah warung
+    const mWarung = t.match(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:tambah|daftarkan|masukkan)\s+warung\s+(.+)/i);
+    if (mWarung) {
+      const rest = mWarung[1];
+      const waMatch = rest.match(/(?:wa|no|hp)\s+([0-9]+)/i);
+      let nama = rest.replace(/(?:wa|no|hp)\s+[0-9]+/i, '').trim();
+      return {
+        action: 'ADD_WARUNG_STORE',
+        params: {
+          nama: nama || rest,
+          pemilik: 'Mitra Baru',
+          wa: waMatch ? waMatch[1] : ''
+        }
+      };
+    }
+
+    // 9. Catat kas bisnis
+    const mKas = t.match(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:catat|tambah)\s+kas\s+(pengeluaran|pemasukan|belanja)\s+(.+)/i);
+    if (mKas) {
+      const tipe = mKas[1].toLowerCase() === 'pemasukan' ? 'masuk' : 'keluar';
+      const rest = mKas[2];
+      const nomMatch = rest.match(/(\d+(?:[.,]\d+)?)/);
+      const nominal = nomMatch ? parseInt(nomMatch[1].replace(/[.,]/g, '')) : 10000;
+      let ket = rest.replace(/\d+(?:[.,]\d+)?/, '').trim();
+      return {
+        action: 'ADD_CASHFLOW',
+        params: {
+          tipe: tipe,
+          nominal: nominal,
+          keterangan: ket || 'Catatan Keuangan Bisnis'
+        }
+      };
+    }
+
+    // 5. Switch tab
+    const mTab = t.match(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:buka|ke|pindah|tampilkan)\s+(?:tab|modul)\s+([a-zA-Z0-9_\s]+)/i);
+    if (mTab) {
+      const q = mTab[1].toLowerCase().trim();
+      for (const [k, meta] of Object.entries(FATIH_KNOWLEDGE_BASE.tabs)) {
+        if (q.includes(k) || meta.name.toLowerCase().includes(q)) {
+          return { action: 'SWITCH_TAB', params: { tab: k } };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // --- 11. SUBMIT & DISPATCH ENGINE ---
   async function handleFatihChatSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
     if (isThinking) return;
@@ -43718,11 +45812,11 @@ KARAKTER & SUARA FATHIYA:
 
     input.value = '';
 
-    // Append User Message
+    // Append pesan pengguna
     chatHistory.push({ sender: 'user', text: text, time: Date.now() });
     renderChatMessages();
 
-    // Show Typing Indicator
+    // Tampilkan indikator mengetik
     const typing = document.getElementById('fatihChatTyping');
     if (typing) typing.classList.remove('hidden');
     isThinking = true;
@@ -43730,61 +45824,104 @@ KARAKTER & SUARA FATHIYA:
 
     const isFromVoice = lastPromptWasVoice;
     lastPromptWasVoice = false;
-
-    // Check if Gemini API Key is configured
-    const geminiKey = localStorage.getItem('partner_fatih_gemini_key') || '';
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    let noticeBadge = null;
+    let actionCard = null;
 
     try {
       let replyText = '';
       let replyVoiceText = '';
       let tabShortcut = null;
+      let actionTable = null;
 
-      // Evaluasi kecocokan respon lokal terlebih dahulu
+      // Cek apakah perintah merupakan aksi mutasi data langsung (Offline Intent)
+      const offlineAction = detectOfflineActionIntent(text);
+
+      // 1. Evaluasi pencocokan lokal
       const localMatch = matchLocalKnowledge(text);
 
-      // Jika ada kecocokan spesifik (salam, waktu/tanggal, perintah tagihan, jadwal, absensi, atau wisdom):
-      // Langsung balas secara INSTAN (80ms) tanpa menunggu latency API cloud
-      if (localMatch.type !== 'general') {
-        const engineLabel = document.getElementById('fatihChatEngineMode');
-        if (engineLabel) engineLabel.textContent = 'Fathiya Realtime';
-
-        await new Promise(r => setTimeout(r, 80)); // Ritme cepat natural
-        replyText = localMatch.text;
-        replyVoiceText = localMatch.voiceText || localMatch.text;
-        tabShortcut = localMatch.tabShortcut;
-      } else if (geminiKey && geminiKey.length > 10) {
-        // Gunakan Gemini API Online untuk percakapan mendalam dengan timeout ketat 3.5 detik
-        const engineLabel = document.getElementById('fatihChatEngineMode');
-        if (engineLabel) engineLabel.textContent = 'Gemini AI Online';
-
+      if (offlineAction && (!groqKey || groqKey.length < 10) && (!geminiKey || geminiKey.length < 10)) {
+        // Eksekusi offline langsung
+        await new Promise(r => setTimeout(r, 80));
+        actionCard = executeFatihAction(offlineAction);
+        if (offlineAction.action === 'SET_WALLET_BALANCE') {
+          replyText = `Alhamdulillah beres Kak Fatih tercinta! Saldo Kakak di **Dompet ${offlineAction.params.wallet.toUpperCase()}** sekarang sudah Fathiya sesuaikan menjadi **Rp ${offlineAction.params.amount.toLocaleString('id-ID')}** yaa 💳✨\n\nSeluruh kartu saldo dan ringkasan keuangan Kak Fatih langsung ter-update otomatis saat ini juga! Fathiya siap bantu kelola pos-posnya biar makin berkah yaa Kak! 🥰`;
+          replyVoiceText = `Alhamdulillah beres Kak Fatih! Saldo dompet ${offlineAction.params.wallet} sekarang sudah Fathiya atur menjadi ${offlineAction.params.amount} rupiah.`;
+        } else if (offlineAction.action === 'MUTATE_SCHEDULE') {
+          replyText = `Alhamdulillah Kak Fatih! Jadwal mengajar kelas **${offlineAction.params.classId}** sudah Fathiya pindahkan ke **Hari ${offlineAction.params.day}** (${offlineAction.params.hourLabel || offlineAction.params.time}) yaa 🥰✨\n\nPerubahan ini langsung Fathiya sinkronkan ke modul Jurnal Guru dan agenda KBM Kakak. Datanya sudah tersimpan rapi yaa Kak!`;
+          replyVoiceText = `Alhamdulillah Kak Fatih! Jadwal kelas ${offlineAction.params.classId} sudah Fathiya pindahkan ke hari ${offlineAction.params.day}. Semangat mengajarnya yaa Kak!`;
+        } else if (offlineAction.action === 'DELETE_SCHEDULE') {
+          replyText = `Siap Kak Fatih! Jadwal mengajar kelas **${offlineAction.params.classId}** sudah Fathiya hapus dari sistem yaa 🌸`;
+          replyVoiceText = `Jadwal kelas ${offlineAction.params.classId} sudah dihapus yaa Kak Fatih.`;
+        } else if (offlineAction.action === 'ADD_FINANCE_TRANSACTION') {
+          const jenis = offlineAction.params.type === 'masuk' ? 'pemasukan' : 'pengeluaran';
+          replyText = `Beres Kak Fatih! Catatan ${jenis} sebesar **Rp ${offlineAction.params.amount.toLocaleString('id-ID')}** untuk *"${offlineAction.params.note}"* sudah Fathiya masukkan ke **Dompet ${offlineAction.params.wallet.toUpperCase()}** yaa 💳✨\n\nSaldo dan radar keuangan Kakak langsung ter-update otomatis!`;
+          replyVoiceText = `Siap Kak Fatih! Catatan ${jenis} ${offlineAction.params.amount} rupiah sudah Fathiya simpan ke dompet ${offlineAction.params.wallet}.`;
+        } else if (offlineAction.action === 'TRANSFER_DOMPET') {
+          replyText = `Alhamdulillah Kak Fatih! Dana sebesar **Rp ${offlineAction.params.amount.toLocaleString('id-ID')}** sudah Fathiya pindahkan dari **Dompet ${offlineAction.params.fromWallet.toUpperCase()}** ke **Dompet ${offlineAction.params.toWallet.toUpperCase()}** yaa 🔄✨`;
+          replyVoiceText = `Dana berhasil dipindahkan dari dompet ${offlineAction.params.fromWallet} ke dompet ${offlineAction.params.toWallet} yaa Kak Fatih.`;
+        } else if (offlineAction.action === 'ADD_IDE') {
+          replyText = `Masya Allah ide cemerlang Kak Fatih! Ide **"${offlineAction.params.title}"** sudah Fathiya catat di **Ruang Tumbuh (Laboratorium Ide)** dengan estimasi potensi **Rp ${offlineAction.params.estRevenue.toLocaleString('id-ID')}** 💡🚀\n\nFathiya yakin ide ini bisa membawa kemandirian rezeki dan keberkahan buat Kak Fatih!`;
+          replyVoiceText = `Ide baru Kak Fatih sudah Fathiya simpan di Ruang Tumbuh. Sukses selalu yaa Kak!`;
+        } else if (offlineAction.action === 'CATAT_PRESENSI') {
+          replyText = `Siap Kak Fatih! Presensi santri **${offlineAction.params.studentName}** di kelas **${offlineAction.params.classId}** (Pertemuan ${offlineAction.params.pertemuan}) sudah Fathiya catat statusnya yaa 📋✨`;
+          replyVoiceText = `Presensi santri ${offlineAction.params.studentName} kelas ${offlineAction.params.classId} sudah dicatat yaa Kak Fatih.`;
+        } else if (offlineAction.action === 'SAVE_PERSONAL_NOTE') {
+          replyText = `Siap selalu Kak Fatih! Fathiya sudah mencatat dan mengingat pesan ini di memori pribadi Fathiya:\n\n📌 *"${offlineAction.params.text}"*\n\nKapan pun Kak Fatih butuh pengingat ini, Fathiya siap bantu! 🥰`;
+          replyVoiceText = `Pesan Kak Fatih sudah Fathiya ingat baik-baik di catatan pribadi.`;
+        } else {
+          replyText = `Alhamdulillah Kak Fatih! Instruksi Kakak telah langsung Fathiya laksanakan di aplikasi:`;
+          replyVoiceText = `Instruksi Kak Fatih telah Fathiya laksanakan yaa. Data aplikasi telah diperbarui.`;
+        }
+        if (actionCard && actionCard.tab) tabShortcut = actionCard.tab;
+      } else if ((groqKey && groqKey.length > 10) || (geminiKey && geminiKey.length > 10)) {
+        // PRIORITAS UTAMA: Respon Online AI Cerdas Manusiawi (Groq Llama 3.3 70B atau Google Gemini)
         try {
-          replyText = await callGeminiApi(text, geminiKey);
-          replyVoiceText = replyText;
-          // Cek pintasan modul
-          for (const [k, tab] of Object.entries(FATIH_KNOWLEDGE_BASE.tabs)) {
-            if (replyText.toLowerCase().includes(tab.name.toLowerCase()) || text.toLowerCase().includes(k)) {
-              tabShortcut = k;
-              break;
+          replyText = await callOnlineAiApi(text);
+
+          // Periksa apakah balasan AI mengandung blok fatih-action (tag <fatih-action> atau markdown code block)
+          const tagMatch = replyText.match(/<fatih-action>\s*(\{[\s\S]*?\})\s*<\/fatih-action>/i);
+          const blockMatch = replyText.match(/```(?:fatih-action|json)?\s*(\{\s*"action"[\s\S]*?\})\s*```/i);
+          const rawMatch = tagMatch ? tagMatch[1] : (blockMatch ? blockMatch[1] : null);
+
+          if (rawMatch) {
+            try {
+              const parsedAction = JSON.parse(rawMatch);
+              actionCard = executeFatihAction(parsedAction);
+              // Bersihkan tag/blok kode dari teks tampilan bubble agar rapi
+              replyText = replyText
+                .replace(/<fatih-action>[\s\S]*?<\/fatih-action>/gi, '')
+                .replace(/```(?:fatih-action|json)?\s*\{\s*"action"[\s\S]*?\}\s*```/gi, '')
+                .trim();
+            } catch(jsonErr) {
+              console.warn('[Fatih AI] Gagal parse fatih-action JSON:', jsonErr);
             }
+          } else if (offlineAction) {
+            // Fallback: AI tidak menyertakan blok fatih-action tapi kalimat user jelas merupakan perintah mutasi
+            actionCard = executeFatihAction(offlineAction);
+          }
+
+          replyVoiceText = replyText.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\n+/g, ' ');
+          if (actionCard && actionCard.tab) {
+            tabShortcut = actionCard.tab;
           }
         } catch(apiErr) {
-          console.warn('[Fatih AI] Gemini fallback ke reflektif:', apiErr);
-          replyText = localMatch.text;
+          console.warn('[Fatih AI] API gagal, beralih ke fallback lokal cerdas:', apiErr);
+          noticeBadge = 'Mode Offline (Fallback)';
+          replyText = `⚠️ *Koneksi AI Online terkendala. Fathiya menjawab via engine lokal:*\n\n${localMatch.text}`;
           replyVoiceText = localMatch.voiceText || localMatch.text;
           tabShortcut = localMatch.tabShortcut;
+          actionTable = localMatch.actionTable;
         }
       } else {
-        // Fallback Reflektif & Kedewasaan Lokal
-        const engineLabel = document.getElementById('fatihChatEngineMode');
-        if (engineLabel) engineLabel.textContent = 'Fathiya Reflektif';
-
+        // Mode Offline: Belum memasukkan kunci Groq / Gemini di Pengaturan
         await new Promise(r => setTimeout(r, 80));
         replyText = localMatch.text;
         replyVoiceText = localMatch.voiceText || localMatch.text;
         tabShortcut = localMatch.tabShortcut;
+        actionTable = localMatch.actionTable;
       }
-
-      const actionTable = (localMatch && localMatch.actionTable) ? localMatch.actionTable : null;
 
       chatHistory.push({
         sender: 'fatih',
@@ -43792,24 +45929,24 @@ KARAKTER & SUARA FATHIYA:
         voiceText: replyVoiceText || replyText,
         tabShortcut: tabShortcut,
         actionTable: actionTable,
+        actionCard: actionCard,
+        noticeBadge: noticeBadge,
         time: Date.now()
       });
 
-      // Simpan konteks multiturn
+      // Update konteks multiturn
       chatContext.recentTurns.push({ role: 'user', text: text });
-      chatContext.recentTurns.push({ role: 'fatih', text: replyText });
-      if (chatContext.recentTurns.length > 10) chatContext.recentTurns = chatContext.recentTurns.slice(-10);
+      chatContext.recentTurns.push({ role: 'fatih', text: replyText, topic: chatContext.lastTopic });
+      if (chatContext.recentTurns.length > 12) chatContext.recentTurns = chatContext.recentTurns.slice(-12);
 
-      saveChatHistory();
-
-      // Bacakan jawaban dengan suara perempuan Fathiya (aktif otomatis secara default)
+      // Bacakan suara bila fitur aktif
       if ((isAutoVoiceEnabled || isFromVoice) && replyVoiceText) {
         speakFatihResponse(replyVoiceText);
       }
     } catch(err) {
       chatHistory.push({
         sender: 'fatih',
-        text: 'Maaf, terjadi kendala saat mengeksekusi instruksi. Silakan ulangi perintah Anda.',
+        text: 'Maaf sahabatku, terjadi kendala saat menelaah instruksi. Silakan ulangi pertanyaan Anda.',
         time: Date.now()
       });
     } finally {
@@ -43830,19 +45967,189 @@ KARAKTER & SUARA FATHIYA:
   function clearFatihChatHistory() {
     if (confirm('Bersihkan seluruh riwayat obrolan dengan Fathiya?')) {
       chatHistory = [];
-      saveChatHistory();
+      chatContext.recentTurns = [];
       renderChatMessages();
       if (typeof window.showToast === 'function') {
-        window.showToast('🗑️ Riwayat Bersih', 'Obrolan telah dibersihkan.', 'info');
+        window.showToast('🗑️ Obrolan Dibersihkan', 'Riwayat percakapan telah bersih.', 'info');
       }
     }
   }
 
-  // --- 10. VOICE MIC SPEECH RECOGNITION ENGINE ---
+  // --- 12. VOICE ENGINE RESMI FATHIYA (TTS & STT BAHASA INDONESIA id-ID) ---
+  let cachedIndonesianVoice = null;
+
+  function getBestIndonesianVoice() {
+    if (!('speechSynthesis' in window)) return null;
+    if (cachedIndonesianVoice) return cachedIndonesianVoice;
+
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    // 1. Prioritaskan suara wanita Indonesia alami (Google Bahasa Indonesia / MS Gadis Natural / Damayanti)
+    const femaleIdVoice = voices.find(v => {
+      const name = (v.name || '').toLowerCase();
+      const lang = (v.lang || '').toLowerCase();
+      const isIndo = lang.includes('id') || lang.includes('indonesia') || name.includes('indonesia');
+      const isFemale = name.includes('gadis') || name.includes('female') || name.includes('wanita') || name.includes('damayanti') || name.includes('google');
+      return isIndo && isFemale;
+    });
+
+    if (femaleIdVoice) {
+      cachedIndonesianVoice = femaleIdVoice;
+      return femaleIdVoice;
+    }
+
+    // 2. Prioritaskan suara bahasa Indonesia apapun (Microsoft Ardi / Android standard id-ID)
+    const anyIdVoice = voices.find(v => {
+      const name = (v.name || '').toLowerCase();
+      const lang = (v.lang || '').toLowerCase();
+      return lang.includes('id') || lang.includes('indonesia') || name.includes('indonesian');
+    });
+
+    if (anyIdVoice) {
+      cachedIndonesianVoice = anyIdVoice;
+      return anyIdVoice;
+    }
+
+    return null;
+  }
+
+  // Listener saat daftar suara browser telah siap dimuat
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = function() {
+      cachedIndonesianVoice = null;
+      getBestIndonesianVoice();
+    };
+  }
+
+  function cleanTextForIndonesianSpeech(rawText) {
+    if (!rawText) return '';
+    let clean = String(rawText);
+
+    // Hapus kode blok markdown & format tabel
+    clean = clean.replace(/```[\s\S]*?```/g, ' Berikut rincian data terkait. ');
+    clean = clean.replace(/`([^`]+)`/g, '$1');
+    clean = clean.replace(/\*\*([^*]+)\*\*/g, '$1');
+    clean = clean.replace(/\*([^*]+)\*/g, '$1');
+    clean = clean.replace(/#{1,6}\s+/g, '');
+    clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    clean = clean.replace(/\|/g, ' ');
+
+    // Bersihkan emoji unicode agar tidak dibaca nama simbol harfiah
+    clean = clean.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}]/gu, '');
+
+    // Selaraskan nominal rupiah agar dilafalkan alami
+    clean = clean.replace(/Rp\s?([0-9.,]+)/gi, function(match, numStr) {
+      const numOnly = numStr.replace(/\./g, '');
+      return numOnly + ' rupiah';
+    });
+
+    // Istilah spesifik madrasah & Partner Fatih agar beraksen Indonesia fasih
+    clean = clean.replace(/\bKBM\b/g, 'K B M');
+    clean = clean.replace(/\bPPDB\b/g, 'P P D B');
+    clean = clean.replace(/\bBRIVA\b/gi, 'Briva');
+    clean = clean.replace(/\bYTPAI\b/g, 'Yayasan Tarbiyah');
+    clean = clean.replace(/\bH-7\b/gi, 'H minus tujuh');
+    clean = clean.replace(/\bH\+([0-9]+)\b/gi, 'H plus $1');
+    clean = clean.replace(/(?:^|\s)s\.d\.(?=\s|$)/gi, ' sampai dengan ');
+    clean = clean.replace(/(?:^|\s)dll\.(?=\s|$)/gi, ' dan lain-lain ');
+    clean = clean.replace(/(?:^|\s)dst\.(?=\s|$)/gi, ' dan seterusnya ');
+    clean = clean.replace(/(?:^|\s)ybs\.(?=\s|$)/gi, ' yang bersangkutan ');
+    clean = clean.replace(/&amp;/g, 'dan');
+
+    return clean.replace(/\s+/g, ' ').trim();
+  }
+
+  function stopFatihSpeech() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    const autoVoiceBtn = document.getElementById('fatihVoiceAutoToggle');
+    if (autoVoiceBtn) {
+      autoVoiceBtn.classList.remove('animate-pulse');
+    }
+  }
+
+  function speakFatihResponse(rawText) {
+    if (!('speechSynthesis' in window)) return;
+    const clean = cleanTextForIndonesianSpeech(rawText);
+    if (!clean) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.lang = 'id-ID';
+
+    const voice = getBestIndonesianVoice();
+    if (voice) {
+      utterance.voice = voice;
+    }
+
+    // Karakteristik vokal wanita Indonesia yang santun, hangat, dan anggun
+    utterance.rate = 1.0;   // Kecepatan normal alami
+    utterance.pitch = 1.06; // Nada ramah dan menyejukkan
+
+    const autoVoiceBtn = document.getElementById('fatihVoiceAutoToggle');
+
+    utterance.onstart = function() {
+      if (autoVoiceBtn) {
+        autoVoiceBtn.classList.add('text-emerald-400', 'animate-pulse');
+      }
+    };
+
+    utterance.onend = function() {
+      if (autoVoiceBtn) {
+        autoVoiceBtn.classList.remove('animate-pulse');
+      }
+    };
+
+    utterance.onerror = function() {
+      if (autoVoiceBtn) {
+        autoVoiceBtn.classList.remove('animate-pulse');
+      }
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function speakFatihHistory(idx) {
+    if (chatHistory && chatHistory[idx]) {
+      const msg = chatHistory[idx];
+      const textToSpeak = msg.voiceText || msg.text;
+      speakFatihResponse(textToSpeak);
+      if (typeof window.showToast === 'function') {
+        window.showToast('🔊 Membaca Suara', 'Fathiya melafalkan jawaban dalam Bahasa Indonesia.', 'info');
+      }
+    }
+  }
+
+  function toggleFatihAutoVoice() {
+    isAutoVoiceEnabled = !isAutoVoiceEnabled;
+    const btn = document.getElementById('fatihVoiceAutoToggle');
+    if (btn) {
+      if (isAutoVoiceEnabled) {
+        btn.classList.add('text-emerald-400', 'bg-emerald-500/20');
+        btn.classList.remove('text-slate-400');
+        btn.title = 'Suara Otomatis Aktif (Fathiya Menjawab Bersuara Bahasa Indonesia)';
+        if (typeof window.showToast === 'function') {
+          window.showToast('🔊 Suara Otomatis Aktif', 'Fathiya akan otomatis menjawab bersuara dalam Bahasa Indonesia.', 'success');
+        }
+      } else {
+        stopFatihSpeech();
+        btn.classList.remove('text-emerald-400', 'bg-emerald-500/20');
+        btn.classList.add('text-slate-400');
+        btn.title = 'Suara Otomatis Nonaktif (Klik untuk Menyalakan)';
+        if (typeof window.showToast === 'function') {
+          window.showToast('🔇 Mode Senyap', 'Suara otomatis dinonaktifkan.', 'info');
+        }
+      }
+    }
+  }
+
   function toggleFatihVoiceRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Browser Anda belum mendukung input suara Web Speech API. Silakan gunakan Google Chrome.');
+      alert('Browser Anda belum mendukung Speech Recognition. Silakan gunakan Google Chrome di Android atau Desktop.');
       return;
     }
 
@@ -43856,7 +46163,7 @@ KARAKTER & SUARA FATHIYA:
     }
 
     speechRecognition = new SpeechRecognition();
-    speechRecognition.lang = 'id-ID';
+    speechRecognition.lang = 'id-ID'; // Standar Aksen Bahasa Indonesia Resmi
     speechRecognition.continuous = false;
     speechRecognition.interimResults = false;
 
@@ -43864,7 +46171,7 @@ KARAKTER & SUARA FATHIYA:
       isListening = true;
       if (micBtn) micBtn.classList.add('bg-rose-500', 'text-white', 'animate-pulse');
       if (typeof window.showToast === 'function') {
-        window.showToast('🎙️ Mendengarkan Suara...', 'Silakan ucapkan pemikiran atau perintah (cth: "Bagaimana bersikap dewasa saat emosi?")', 'info');
+        window.showToast('🎙️ Mendengarkan Suara (Bahasa Indonesia)...', 'Silakan sampaikan pertanyaan atau instruksi Anda.', 'info');
       }
     };
 
@@ -43892,32 +46199,261 @@ KARAKTER & SUARA FATHIYA:
     speechRecognition.start();
   }
 
-  // --- 11. AI SETTINGS MODAL (GEMINI API KEY CONFIG) ---
-  function openFatihAiSettings() {
-    const currentKey = localStorage.getItem('partner_fatih_gemini_key') || '';
-    const newKey = prompt('🔑 Masukkan Google Gemini API Key Anda (Opsional):\n\nJika dikosongkan, Fathiya tetap bekerja 100% menggunakan Mesin Cerdas Reflektif Offline.', currentKey);
+  // --- 13. AI SETTINGS & CONNECTION TESTER (GROQ & GEMINI DUAL-PROVIDER) ---
+  let currentAiProviderTab = 'groq';
 
-    if (newKey !== null) {
-      const trimmed = newKey.trim();
-      if (trimmed) {
-        localStorage.setItem('partner_fatih_gemini_key', trimmed);
-        const engineLabel = document.getElementById('fatihChatEngineMode');
-        if (engineLabel) engineLabel.textContent = 'Gemini AI Online';
-        if (typeof window.showToast === 'function') {
-          window.showToast('✅ Gemini API Aktif', 'Fathiya kini dalam Mode Super Cerdas & Reflektif!', 'success');
-        }
-      } else {
-        localStorage.removeItem('partner_fatih_gemini_key');
-        const engineLabel = document.getElementById('fatihChatEngineMode');
-        if (engineLabel) engineLabel.textContent = 'Offline Knowledge';
-        if (typeof window.showToast === 'function') {
-          window.showToast('ℹ️ Mode Offline Aktif', 'Kembali ke basis pengetahuan lokal yayasan.', 'info');
-        }
+  function switchAiProviderTab(provider) {
+    currentAiProviderTab = provider;
+    const tabGroq = document.getElementById('tabSelectGroq');
+    const tabGemini = document.getElementById('tabSelectGemini');
+    const label = document.getElementById('fatihApiKeyLabel');
+    const input = document.getElementById('fatihApiKeyInput');
+    const badge = document.getElementById('fatihProviderBadge');
+    const guide = document.getElementById('fatihApiKeyGuideText');
+    const statusBox = document.getElementById('fatihApiTestStatus');
+    if (statusBox) statusBox.className = 'hidden';
+
+    if (provider === 'groq') {
+      if (tabGroq) {
+        tabGroq.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold shadow-xs';
+      }
+      if (tabGemini) {
+        tabGemini.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium';
+      }
+      if (label) label.textContent = 'Groq Cloud API Key (gsk_...)';
+      if (badge) {
+        badge.textContent = '⚡ 0.3 Detik • Gratis 100%';
+        badge.className = 'text-[9px] text-emerald-400 font-mono font-bold';
+      }
+      if (input) {
+        input.placeholder = 'Tempel kunci gsk_... di sini';
+        input.value = localStorage.getItem('partner_fatih_groq_key') || '';
+      }
+      if (guide) {
+        guide.innerHTML = 'Kunci Groq 100% gratis tanpa kartu kredit. Ambil kunci dalam 1 menit di: <a href="https://console.groq.com/keys" target="_blank" class="text-emerald-400 font-bold underline hover:text-emerald-300 inline-flex items-center gap-0.5"><span>console.groq.com/keys</span> ↗</a>';
+      }
+    } else {
+      if (tabGroq) {
+        tabGroq.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium';
+      }
+      if (tabGemini) {
+        tabGemini.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 font-bold shadow-xs';
+      }
+      if (label) label.textContent = 'Google Gemini API Key (AIzaSy...)';
+      if (badge) {
+        badge.textContent = 'Gemini 3.8 / 2.0 Flash';
+        badge.className = 'text-[9px] text-indigo-300 font-mono font-bold';
+      }
+      if (input) {
+        input.placeholder = 'Tempel kunci AIzaSy... di sini';
+        input.value = localStorage.getItem('partner_fatih_gemini_key') || '';
+      }
+      if (guide) {
+        guide.innerHTML = 'Kunci Gemini disimpan lokal. Dapatkan di: <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-indigo-400 font-bold underline hover:text-indigo-300 inline-flex items-center gap-0.5"><span>Google AI Studio</span> ↗</a>';
       }
     }
   }
 
-  // --- 12. EXPORT GLOBALS ---
+  function handleApiKeyInputAutoDetect(val) {
+    if (!val) return;
+    const trimmed = val.trim();
+    if (trimmed.startsWith('gsk_') && currentAiProviderTab !== 'groq') {
+      switchAiProviderTab('groq');
+    } else if (trimmed.startsWith('AIza') && currentAiProviderTab !== 'gemini') {
+      switchAiProviderTab('gemini');
+    }
+  }
+
+  function openFatihAiSettings() {
+    let modal = document.getElementById('modalFatihAiSettings');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modalFatihAiSettings';
+      modal.className = 'modal-portal fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-300';
+      modal.innerHTML = `
+        <div class="relative w-full max-w-md bg-[#0c121e] border border-emerald-500/30 rounded-2xl shadow-2xl p-5 text-slate-100 flex flex-col gap-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">⚙️</span>
+              <div>
+                <h3 class="font-bold text-sm text-white">Pengaturan Mesin AI Fathiya</h3>
+                <p class="text-[10px] text-slate-400">Pilih Provider: Groq Cloud (Super Cepat) atau Google Gemini</p>
+              </div>
+            </div>
+            <button type="button" onclick="window.closeFatihAiSettings()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
+          </div>
+
+          <!-- Provider Selector Tabs -->
+          <div class="grid grid-cols-2 gap-2 p-1 bg-slate-900/90 rounded-xl border border-white/10 text-xs font-semibold">
+            <button type="button" id="tabSelectGroq" onclick="window.switchAiProviderTab('groq')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold shadow-xs">
+              <span>⚡ Groq Cloud</span>
+              <span class="text-[9px] px-1 py-0.2 bg-emerald-400/20 text-emerald-200 rounded font-normal">0.3s</span>
+            </button>
+            <button type="button" id="tabSelectGemini" onclick="window.switchAiProviderTab('gemini')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium">
+              <span>🌐 Google Gemini</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Content Area -->
+          <div class="space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label id="fatihApiKeyLabel" class="block text-xs font-semibold text-slate-300">Groq API Key (gsk_...)</label>
+                <span id="fatihProviderBadge" class="text-[9px] text-emerald-400 font-mono font-bold">⚡ 0.3 Detik • Gratis 100%</span>
+              </div>
+              <div class="relative">
+                <input type="password" id="fatihApiKeyInput" oninput="window.handleApiKeyInputAutoDetect(this.value)" placeholder="Tempel kunci gsk_... di sini" class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none font-mono tracking-wider" />
+                <button type="button" onclick="window.toggleShowApiKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
+              </div>
+              <p id="fatihApiKeyGuideText" class="text-[9.5px] text-slate-400 mt-1.5 leading-relaxed">
+                Kunci Groq 100% gratis tanpa kartu kredit. Ambil kunci dalam 1 menit di: <a href="https://console.groq.com/keys" target="_blank" class="text-emerald-400 font-bold underline hover:text-emerald-300 inline-flex items-center gap-0.5"><span>console.groq.com/keys</span> ↗</a>
+              </p>
+            </div>
+
+            <!-- Area Hasil Tes Koneksi -->
+            <div id="fatihApiTestStatus" class="hidden p-2.5 rounded-xl text-xs"></div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" id="btnTestAiKey" onclick="window.testFatihAiKey()" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-98">
+                <span>🧪 Tes Koneksi Kilat</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between border-t border-white/10 pt-3 gap-2">
+            <button type="button" onclick="window.removeFatihAiKey()" class="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all cursor-pointer">
+              Hapus Kunci (Offline)
+            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="window.closeFatihAiSettings()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer">
+                Batal
+              </button>
+              <button type="button" onclick="window.saveFatihAiKey()" class="py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer">
+                Simpan Kunci
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+
+    if (groqKey) {
+      switchAiProviderTab('groq');
+    } else if (geminiKey) {
+      switchAiProviderTab('gemini');
+    } else {
+      switchAiProviderTab('groq');
+    }
+
+    const statusBox = document.getElementById('fatihApiTestStatus');
+    if (statusBox) statusBox.className = 'hidden';
+
+    modal.style.display = 'flex';
+  }
+
+  function closeFatihAiSettings() {
+    const modal = document.getElementById('modalFatihAiSettings');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function toggleShowApiKey() {
+    const input = document.getElementById('fatihApiKeyInput');
+    if (input) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+  }
+
+  async function testFatihAiKey() {
+    const input = document.getElementById('fatihApiKeyInput');
+    const statusBox = document.getElementById('fatihApiTestStatus');
+    const btn = document.getElementById('btnTestAiKey');
+    if (!input || !statusBox || !btn) return;
+
+    const key = input.value.trim();
+    if (!key) {
+      statusBox.className = 'p-2.5 rounded-xl text-xs bg-amber-500/20 border border-amber-500/40 text-amber-200 block';
+      statusBox.innerHTML = '⚠️ Masukkan API Key terlebih dahulu sebelum mengetes.';
+      return;
+    }
+
+    const isGroq = currentAiProviderTab === 'groq' || key.startsWith('gsk_');
+    const provTitle = isGroq ? 'Groq Cloud AI' : 'Google Gemini';
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="inline-block animate-spin mr-1">⏳</span> Menghubungi ${provTitle}...`;
+    statusBox.className = 'p-2.5 rounded-xl text-xs bg-slate-800 border border-slate-700 text-slate-300 block';
+    statusBox.innerHTML = `Sedang mengirim permintaan uji ke ${provTitle}...`;
+
+    const t0 = performance.now();
+
+    try {
+      let reply = '';
+      if (isGroq) {
+        reply = await callGroqApi('Sebutkan secara singkat dalam 1 kalimat: Apa ibukota Indonesia dan siapa vokalis band Ungu?', key);
+      } else {
+        reply = await callGeminiApi('Berapa 2+2? Balas singkat hanya dengan: "2+2=4. Koneksi Gemini Flash Aktif!"', key);
+      }
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : (isGroq ? 'llama-3.3-70b-versatile' : 'gemini');
+
+      statusBox.className = 'p-2.5 rounded-xl text-xs bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 block';
+      statusBox.innerHTML = `✅ <b>Koneksi ${provTitle} Berhasil!</b><br/><span class="text-[10px] text-emerald-300/90 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1.5 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
+    } catch(err) {
+      statusBox.className = 'p-2.5 rounded-xl text-xs bg-rose-500/20 border border-rose-500/50 text-rose-200 block';
+      statusBox.innerHTML = `❌ <b>Koneksi Gagal:</b><br/><span class="text-[11px] text-rose-300/90 mt-1 block">${escapeHtml(err.message || 'Terjadi kesalahan.')}</span>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>🧪 Tes Koneksi Kilat</span>';
+    }
+  }
+
+  function saveFatihAiKey() {
+    const input = document.getElementById('fatihApiKeyInput');
+    if (!input) return;
+    const key = input.value.trim();
+    const isGroq = currentAiProviderTab === 'groq' || key.startsWith('gsk_');
+
+    if (key) {
+      if (isGroq) {
+        localStorage.setItem('partner_fatih_groq_key', key);
+        if (typeof window.showToast === 'function') {
+          window.showToast('⚡ Groq AI Aktif', 'Groq Llama 3.3 70B siap mendampingi (Super Kilat 0.3s).', 'success');
+        }
+      } else {
+        localStorage.setItem('partner_fatih_gemini_key', key);
+        if (typeof window.showToast === 'function') {
+          window.showToast('✅ Gemini AI Aktif', 'Google Gemini AI telah disimpan.', 'success');
+        }
+      }
+    }
+    updateFatihEngineStatusBadge();
+    closeFatihAiSettings();
+  }
+
+  function removeFatihAiKey() {
+    if (confirm('Hapus kunci AI online dan kembali ke mode cerdas offline?')) {
+      localStorage.removeItem('partner_fatih_groq_key');
+      localStorage.removeItem('partner_fatih_gemini_key');
+      const input = document.getElementById('fatihApiKeyInput');
+      if (input) input.value = '';
+      updateFatihEngineStatusBadge();
+      if (typeof window.showToast === 'function') {
+        window.showToast('🗑️ Kunci Dihapus', 'Fathiya kembali ke mode offline mandiri.', 'info');
+      }
+      closeFatihAiSettings();
+    }
+  }
+
+  // Kompatibilitas mundur
+  const testFatihGeminiKey = testFatihAiKey;
+  const saveFatihGeminiKey = saveFatihAiKey;
+  const removeFatihGeminiKey = removeFatihAiKey;
+
+  // --- 14. EXPORT GLOBALS & INITIALIZATION ---
   window.openFatihChat = openFatihChat;
   window.closeFatihChat = closeFatihChat;
   window.handleFatihChatSubmit = handleFatihChatSubmit;
@@ -43925,10 +46461,39 @@ KARAKTER & SUARA FATHIYA:
   window.clearFatihChatHistory = clearFatihChatHistory;
   window.toggleFatihVoiceRecognition = toggleFatihVoiceRecognition;
   window.toggleFatihAutoVoice = toggleFatihAutoVoice;
+  window.toggleFatihChatExpand = toggleFatihChatExpand;
   window.openFatihAiSettings = openFatihAiSettings;
+  window.closeFatihAiSettings = closeFatihAiSettings;
+  window.toggleShowApiKey = toggleShowApiKey;
+  window.switchAiProviderTab = switchAiProviderTab;
+  window.handleApiKeyInputAutoDetect = handleApiKeyInputAutoDetect;
+  window.testFatihAiKey = testFatihAiKey;
+  window.saveFatihAiKey = saveFatihAiKey;
+  window.removeFatihAiKey = removeFatihAiKey;
+  window.testFatihGeminiKey = testFatihGeminiKey;
+  window.saveFatihGeminiKey = saveFatihGeminiKey;
+  window.removeFatihGeminiKey = removeFatihGeminiKey;
+  window.updateFatihEngineStatusBadge = updateFatihEngineStatusBadge;
+  window.speakFatihHistory = speakFatihHistory;
   window.matchLocalKnowledge = matchLocalKnowledge;
+  window.detectActiveAppTab = detectActiveAppTab;
+  window.detectOfflineActionIntent = detectOfflineActionIntent;
+  window.executeFatihAction = executeFatihAction;
+  window.getFathiyaUserProfile = getFathiyaUserProfile;
+  window.saveFathiyaUserProfile = saveFathiyaUserProfile;
 
-  // Auto initialize on DOM ready
+  // Global namespace resmi Fathiya AI
+  window.FathiyaAI = {
+    open: openFatihChat,
+    close: closeFatihChat,
+    submit: handleFatihChatSubmit,
+    detectOfflineActionIntent: detectOfflineActionIntent,
+    executeFatihAction: executeFatihAction,
+    getProfile: getFathiyaUserProfile,
+    saveProfile: saveFathiyaUserProfile,
+    matchLocal: matchLocalKnowledge
+  };
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', injectChatUI);
   } else {
