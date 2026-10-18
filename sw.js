@@ -5,7 +5,7 @@
  */
 
 const APP_VERSION = '1.0.9';
-const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b18`;
+const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b21`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -21,6 +21,9 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png',
   './mascot.png',
   './fathiya_avatar.jpg',
+  './fathiya_avatar.jpg?v=21',
+  './fathiya_avatar.png',
+  './fathiya_avatar.png?v=21',
   './css/main.css',
   './css/main.css?v=1.0.9',
   './js/app.bundle.js',
