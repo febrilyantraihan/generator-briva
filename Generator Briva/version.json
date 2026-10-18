@@ -1,14 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 19,
-  "releaseDate": "2026-10-18",
-  "title": "Rilis v1.0.9 Build 19 (Fathiya AI Multi-Turn Memory & Clean Luxury Chat UI)",
+  "build": 21,
+  "releaseDate": "2026-10-19",
+  "title": "Rilis v1.0.9 Build 21 (Fresh Fathiya HD Realistic Avatar & Natural Super Engine Empathy)",
   "changelog": [
-    "Memori Percakapan Multi-Turn: Fathiya mengingat 8 percakapan terakhir dan mempertahankan kontinuitas konteks hari/topik",
-    "Clean Luxury Chat UI (Bebas AI Slop): Menghapus header kaku Fathiya AI dan tombol suara di atas bubble, mengadopsi gaya modern WhatsApp/Claude",
-    "Integrasi Suara & Timestamp Terpadu: Penanda waktu rapi dengan tombol speaker minimalis di sudut bawah balon pesan",
-    "Auto-Collapse Kartu Sambutan: Kartu concierge otomatis tersembunyi saat obrolan mengalir agar layar fokus",
-    "Persona Alami & Sopan: Anti-sapaan gombal klise, percakapan mengalir to-the-point dan cerdas",
-    "Dual-Engine Support: Prioritas Groq Llama 3.3 70B (0.3s) dan Google Gemini Flash"
+    "Ikon & Avatar Fathiya Baru: Menggunakan foto realistis Fathiya HD (JPEG 95% & PNG) dengan auto cache-busting v21",
+    "Mesin Empati Alami Super: Tanggap keluhan fisik/kesehatan (sakit perut, pusing, meriang, lelah) secara hangat, tulus, dan manusiawi",
+    "Sentuhan Personal & Curhat: Menanggapi obrolan batin, galau, pertanyaan personal, hingga doa dengan keanggunan sahabat muslimah sejati",
+    "Pintasan Cerdas Groq AI: Label mesin offline kini interaktif menghubungkan pengguna ke Llama 3.3 70B gratis super kilat 0.3s",
+    "PWA Cache Auto-Refresh: Pembaruan aset otomatis membersihkan cache lama di browser pengguna"
   ]
 }
