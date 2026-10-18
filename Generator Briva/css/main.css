@@ -2719,3 +2719,28 @@
       max-width: 1rem !important;
       max-height: 1rem !important;
     }
+
+    /* Sidebar Dock Clusters (Kelompok Modul Rail Kiri) */
+    .sidebar-cluster {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .sidebar-cluster:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .sidebar-cluster[data-category="briva"]:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 12px -2px rgba(56, 189, 248, 0.2);
+    }
+    .sidebar-cluster[data-category="edu"]:hover {
+      border-color: rgba(52, 211, 153, 0.45);
+      box-shadow: 0 0 12px -2px rgba(52, 211, 153, 0.2);
+    }
+    .sidebar-cluster[data-category="humas"]:hover {
+      border-color: rgba(251, 113, 133, 0.45);
+      box-shadow: 0 0 12px -2px rgba(251, 113, 133, 0.2);
+    }
+    .sidebar-cluster[data-category="biz"]:hover {
+      border-color: rgba(192, 132, 252, 0.45);
+      box-shadow: 0 0 12px -2px rgba(192, 132, 252, 0.2);
+    }
