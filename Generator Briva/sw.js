@@ -188,11 +188,21 @@ self.addEventListener('message', event => {
 // 5. NOTIFICATION CLICK LISTENER (Mobile & Desktop App Notification)
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const urlToOpen = (event.notification.data && event.notification.data.url) || './';
+  const notifData = event.notification.data || {};
+  const urlToOpen = notifData.url || (event.notification.data && event.notification.data.url) || './index.html';
+  
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
       for (let client of windowClients) {
         if ((client.url.includes('index.html') || client.url.endsWith('/')) && 'focus' in client) {
+          try {
+            client.postMessage({
+              type: 'APP_NOTIFICATION_CLICK',
+              data: notifData
+            });
+          } catch (e) {
+            console.warn('[SW] Gagal postMessage ke client:', e);
+          }
           return client.focus();
         }
       }
