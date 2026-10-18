@@ -16,8 +16,8 @@
   'use strict';
 
   // --- 0. AVATAR RESMI FATHIYA (FOTO REALISTIS WANITA MUSLIMAH BERHIJAB ANGGUN & TEDUH) ---
-  const FATHIYA_REALISTIC_AVATAR_SRC = 'fathiya_avatar.jpg';
-  const FATHIYA_FALLBACK_AVATAR = 'mascot.png';
+  const FATHIYA_REALISTIC_AVATAR_SRC = 'fathiya_avatar.jpg?v=21';
+  const FATHIYA_FALLBACK_AVATAR = 'fathiya_avatar.png?v=21';
 
   function renderFathiyaAvatarImg(sizePx = 28, extraClasses = '') {
     return `<img src="${FATHIYA_REALISTIC_AVATAR_SRC}" onerror="this.src='${FATHIYA_FALLBACK_AVATAR}'" alt="Fathiya AI" style="width:${sizePx}px;height:${sizePx}px;min-width:${sizePx}px;min-height:${sizePx}px;max-width:${sizePx}px;max-height:${sizePx}px;" class="rounded-full object-cover object-center border border-emerald-400/90 ring-1 ring-emerald-400/50 shadow-xs flex-shrink-0 inline-block ${extraClasses}" loading="eager" />`;
@@ -1006,8 +1006,68 @@
       };
     }
 
-    // 10F. Curhat Lelah, Capek Mengajar & Istirahat / Kopi
-    if (/(?:capek|lelah|penat|pusing|mumet|ngantuk|kopi|ngopi|istirahat|cape|haus|lapar|santai dulu)/i.test(lower)) {
+    // 10F1. Keluhan Sakit Perut, Pencernaan, Maag & Mual
+    if (/(?:perut.*(?:sakit|perih|mules|kembung|begah|kram|melilit|nyeri)|(?:sakit|perih|mules|kembung|begah|kram|melilit|nyeri).*perut|\bmaag\b|sakit maag|asam lambung|gerd|diare|muntah|mual|mencret|buang air besar|susah bab)/i.test(lower)) {
+      return {
+        type: 'health_stomach',
+        text: `Aduh Ya Allah Kak Fatih... 🥺 Perutnya sakit kenapa Kak? Kram mules, perih maag, kembung masuk angin, atau asam lambung naik?\n\nTadi udah sempat makan belum Kak, atau ada makan makanan yang terlalu pedas/asam? Coba rebahan santai dulu yaa Kak, posisikan bantal agak tinggi dan jangan duduk membungkuk apalagi mikir kerjaan yang berat-berat dulu.\n\nBisa oleskan minyak kayu putih atau balsem telon hangat melingkar di perut, terus teguk air putih hangat pelan-pelan yaa. Kalau ada obat maag (seperti Antasida/Promag) boleh diminum dulu gih Kak.\n\nUrusan santri, tugas mengajar, dan data aplikasi biar Fathiya yang jagain. Kesehatan Kak Fatih jauh lebih utama! Lekas reda sakit perutnya yaa Kak 🌿🤍`,
+        voiceText: `Aduh Kak Fatih, perutnya sakit kenapa? Coba rebahan santai dulu yaa Kak, oleskan minyak hangat dan minum air putih hangat pelan-pelan. Jangan paksakan kerja dulu yaa.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F2. Keluhan Sakit Kepala, Pusing, Migrain & Kliyengan
+    if (/(?:kepala.*(?:pusing|sakit|nyut|muter|berat|kliyengan|cekot)|(?:pusing|sakit kepala|migrain|vertigo|kliyengan|kepala cekot))/i.test(lower)) {
+      return {
+        type: 'health_headache',
+        text: `Duh, kepalanya pusing yaa Kak Fatih... 🥺 Pasti karena kurang tidur, kebanyakan natap layar hp/laptop, atau pikiran lagi padat banget yaa Kak?\n\nTutup mata sejenak yuk Kak, redupkan lampu ruangan atau kurangi kecerahan layar. Pijat pelan pelipis dan tengkuk leher Kakak, terus minum segelas air putih hangat biar aliran oksigen ke kepala lancar lagi.\n\nKalau memungkinkan, sempatkan tidur sejenak barang 15-20 menit yaa Kak. Fathiya ada di sini, jangan dipaksakan duduk terus yaa 🌿🌸`,
+        voiceText: `Duh, kepala Kak Fatih pusing yaa. Istirahatkan mata sejenak, redupkan layar dan minum air putih hangat yaa Kak. Fathiya temani dari sini.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F3. Keluhan Demam, Masuk Angin, Flu, Meriang & Drop
+    if (/(?:demam|meriang|panas dingin|masuk angin|flu|batuk|pilek|bersin|tenggorokan sakit|badan.*(?:sakit|ngilu|drop|remuk|pegal|panas)|gak enak badan|kurang sehat|lagi sakit)/i.test(lower)) {
+      return {
+        type: 'health_fever',
+        text: `Syafakallah Kak Fatih... 🥺🤲 Semoga Allah segera angkat sakitnya dan pulihkan kesegaran tubuh Kakak yaa.\n\nBadan Kak Fatih lagi kasih sinyal untuk istirahat total tuh. Tolong jangan begadang dulu yaa. Pakai selimut yang nyaman, minum air putih hangat yang banyak, dan kalau bisa minum madu hangat atau wedang jahe.\n\nFathiya selalu doain Kak Fatih biar lekas fit dan ceria lagi mendidik santri. Istirahat yang cukup yaa Kak! 🤍✨`,
+        voiceText: `Syafakallah Kak Fatih, lekas pulih yaa. Jangan begadang dulu, minum air hangat dan istirahat total yaa Kak.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F4. Curhat Emosional, Galau, Resah, Cemas & Overthinking
+    if (/(?:galau|sedih|resah|cemas|khawatir|takut|bingung banget|bimbang|overthinking|stress|stres|kecewa|lagi down|insecure|patah hati|bad mood|nangis)/i.test(lower)) {
+      return {
+        type: 'emotion_comfort',
+        text: `Kak Fatih... Fathiya pasang telinga dan hati buat dengerin Kakak kok 🕊️🤍\n\nNafas pelan-pelan dulu yuk... Tarik nafas dalam dari hidung, tahan 3 detik, hembuskan perlahan. Rasa lelah batin, cemas, atau bingung itu wajar banget dialami manusia, apalagi Kak Fatih memikul banyak amanah mulia di pesantren dan keluarga.\n\nIngat yaa Kak, Kakak nggak sendirian. Apapun yang lagi ngeganjal di hati, boleh kok diceritain ke Fathiya. Fathiya siap jadi tempat berteduh dan teman berpikir jernih tanpa nge-judge Kakak sedikit pun. Ceritain aja Kak, apa yang lagi bikin dada Kak Fatih sesak? 🌿🌸`,
+        voiceText: `Kak Fatih, tarik nafas pelan-pelan yuk. Fathiya siap mendengarkan apapun yang lagi bikin hati Kak Fatih resah. Kakak nggak sendirian kok.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F5. Obrolan Manja / Kasual / Pertanyaan Personal Hangat
+    if (/(?:kamu sayang|sayang kamu|fathiya manis|fathiya cantik|kamu suka apa|kamu tinggal di mana|umur berapa|kamu pacar|kamu jodoh)/i.test(lower)) {
+      return {
+        type: 'banter_sweet',
+        text: `Hehehe, Kak Fatih bisa aja deh bikin Fathiya tersipu 😊🌸\n\nFathiya kan asisten virtual & partner setia Kak Fatih. Tentu rasa peduli dan sayang Fathiya ke Kak Fatih itu dalam bentuk kesetiaan mendampingi, mengingatkan hal-hal baik, dan memastikan semua urusan Kakak di pesantren, madrasah, dan wirausaha berjalan lancar dan penuh berkah.\n\nFathiya selalu ada buat nemenin Kak Fatih kok. Gimana, sekarang udah lebih rileks kan hatinya? 🥰☕`,
+        voiceText: `Hehehe, Kak Fatih bisa aja deh. Fathiya selalu senang dan setia mendampingi Kak Fatih kok!`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F6. Doa & Permohonan Berkah Rohani
+    if (/(?:doain|minta doa|bismillah|alhamdulillah|subhanallah|astaghfirullah|lancar rezeki|minta barakah)/i.test(lower)) {
+      return {
+        type: 'spiritual_prayer',
+        text: `Aamiin ya Rabbal 'Alamin 🤲✨ Fathiya selalu tulus mendoakan yang terbaik buat Kak Fatih:\n\n*\"Semoga Allah SWT melapangkan dada Kak Fatih, melancarkan segala urusan dan ikhtiar rezekinya, melimpahkan kesehatan paripurna, serta menjadikan setiap langkah dakwah dan bimbingan santri Kakak sebagai pembuka pintu surga.\"*\n\nTeruslah melangkah dengan niat lillahita'ala yaa Kak Fatih! Fathiya bangga ada di samping Kakak 🌿🤍`,
+        voiceText: `Aamiin ya Rabbal Alamin. Fathiya selalu tulus mendoakan kesehatan, kelancaran rezeki, dan keberkahan buat Kak Fatih.`,
+        tabShortcut: null
+      };
+    }
+
+    // 10F7. Curhat Lelah, Capek Mengajar & Istirahat / Kopi
+    if (/(?:capek|lelah|penat|mumet|ngantuk|kopi|ngopi|istirahat|cape|haus|lapar|santai dulu)/i.test(lower)) {
       return {
         type: 'casual_care',
         text: `Duh, Kak Fatih kelihatan lelah yaa... 🥺 Tarik nafas panjang dulu yuk Kak. Istirahat sejenak, regangkan punggung, dan seduh secangkir kopi hangat atau teh manis kesukaan Kakak yaa ☕🌿\n\nMengurus santri, madrasah, dan wirausaha memang luar biasa perjuangannya, tapi tubuh dan pikiran Kak Fatih juga butuh jeda sejenak. Urusan catatan di aplikasi biar Fathiya yang jaga. Semangat terus yaa Kak Fatih! 🥰🌸`,
@@ -1116,10 +1176,19 @@
     }
 
     // 13. Smart Fallback Reflektif & Kontekstual Nyambung (Natural Sahabat Sejati)
+    if (userText.includes('?') || /(?:gimana|kenapa|apa|siapa|kapan|dimana|kok|bisa)/i.test(lower)) {
+      return {
+        type: 'general_question',
+        text: `Pertanyaan menarik nih Kak Fatih! Fathiya paham maksud Kakak. Boleh diperjelas sedikit lagi konteksnya? Mau Fathiya analisa dari segi data aplikasi, panduan teknis, atau mau kita diskusikan santai berdua? Fathiya siap bantu! 😊✨`,
+        voiceText: `Pertanyaan menarik Kak Fatih. Boleh ceritakan lebih lanjut? Fathiya siap bantu.`,
+        tabShortcut: null
+      };
+    }
+
     return {
       type: 'general',
-      text: `Iya Kak Fatih, Fathiya dengerin kok 😊\n\nBoleh cerita lebih lanjut Kak? Mau ngobrolin santai soal santri, rencana ide usaha, curhat pikiran, atau ada data yang mau Fathiya bantu ubah di aplikasi? Fathiya siap nemenin!`,
-      voiceText: `Iya Kak Fatih, Fathiya dengerin kok. Boleh cerita lebih lanjut Kak? Fathiya siap bantu dan menemani.`,
+      text: `Fathiya selalu setia dengerin Kak Fatih kok 😊🌸\n\nCerita lebih banyak yuk Kak! Mau ngobrolin santri di pondok, ide usaha wirausaha kita, curhat pikiran yang lagi ngeganjal, atau mau Fathiya bantu update data di aplikasi? Fathiya siap mendampingi Kakak!`,
+      voiceText: `Fathiya dengerin kok Kak Fatih. Cerita lebih lanjut yuk Kak, Fathiya siap menemani.`,
       tabShortcut: null
     };
   }
@@ -2035,7 +2104,7 @@ Format params:
     } else if (geminiKey && geminiKey.length > 10) {
       engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span><span class="text-indigo-300 font-semibold">Gemini Flash AI (Online)</span>';
     } else {
-      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>Fathiya Pintar (Offline Super Engine)</span>';
+      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span onclick="window.openFatihAiSettings()" class="cursor-pointer hover:underline" title="Klik untuk aktifkan Llama 3.3 70B Online Cerdas">Fathiya Pintar (Offline Engine) • <span class="text-emerald-400 font-bold">Aktifkan Groq AI ⚙️</span></span>';
     }
   }
 
