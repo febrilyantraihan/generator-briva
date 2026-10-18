@@ -27745,6 +27745,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40239,6 +40240,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42328,6 +42330,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -43276,10 +43281,108 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     return null;
   }
 
+  // --- 5.10B MULTI-TURN CONVERSATIONAL CONTINUITY RESOLVER (MENYAMBUNGKAN OBROLAN DENGAN GILIRAN SEBELUMNYA) ---
+  function resolveMultiTurnConversationalContinuity(userText, lower) {
+    const turns = Array.isArray(chatHistory) ? chatHistory : [];
+    if (turns.length < 2) return null;
+
+    // Ambil pesan terakhir sebelum giliran saat ini (asisten Fathiya)
+    const prevMsg = turns[turns.length - 2];
+    if (!prevMsg || prevMsg.sender !== 'fatih' || !prevMsg.text) return null;
+
+    const prevText = String(prevMsg.text).toLowerCase();
+
+    // 1. Lanjutan Curhat Emosional / Galau / Dada Sesak / Resah / Beban Hati / Kelelahan Batin
+    const isPrevEmotional = /(?:dada.*sesak|ngeganjal|curhat|resah|batin|ceritain aja|beban|capek hati|tenang|tempat berteduh|galau|sedih|overthinking|pikiran.*padat|bikin.*sesak|sakit hati)/i.test(prevText);
+    const isUncertaintyOrConfession = /(?:(?:enggak|nggak|gak|ga|gatau|tidak|belum)\s*(?:tau|tahu|ngerti|paham)?\s*(?:kenapa)?|bingung(?:\s*kenapa)?|tiba[- ]?tiba|entah(?:lah)?|capek aja|hampa|kosong|berat aja|pusing mikirin|gak jelas)/i.test(lower);
+
+    if (isPrevEmotional && isUncertaintyOrConfession) {
+      return {
+        type: 'emotion_continuity',
+        text: `Seringkali memang seperti itu yaa Kak Fatih... 🕊️🤍\n\nRasa sesak, gundah, atau berat di dada itu sering kali datang tiba-tiba tanpa kita tahu apa penyebab pastinya. Itu bukan berarti Kakak aneh atau salah, tapi itu tanda bahwa jiwa dan pikiran Kak Fatih sebenarnya sedang menanggung akumulasi lelah yang sudah lama dipendam tanpa sempat diistirahatkan.\n\nKakak nggak perlu memaksakan diri mencari tahu atau membedah alasannya sekarang kok. Saat ini, yang terpenting adalah mengizinkan diri Kakak untuk jeda dan rehat sejenak.\n\nYuk pejamkan mata 1 menit saja Kak... Tarik nafas dalam-dalam dari hidung, rasakan segarnya oksigen masuk, tahan sebentar, lalu hembuskan perlahan dari mulut.\n\nFathiya ada di sini menemani Kak Fatih. Kakak nggak sendirian kok. Mau Fathiya temani hening sejenak sambil rileks, atau mau cerita apa pun yang melintas di kepala tanpa perlu takut di-judge? 🌿🌸`,
+        voiceText: `Seringkali memang begitu yaa Kak Fatih. Rasa sesak itu tanda tubuh dan pikiran Kakak butuh jeda sejenak. Tarik nafas dalam dan hembuskan perlahan yuk Kak, Fathiya selalu ada di sini menemani Kakak.`,
+        tabShortcut: null
+      };
+    }
+
+    // 2. Lanjutan Keluhan Sakit Perut / Pencernaan / Maag
+    const isPrevStomach = /(?:perut.*sakit|perih maag|kembung|asam lambung|balsem telon|antasida|rebahan santai dulu)/i.test(prevText);
+    if (isPrevStomach) {
+      if (/(?:(?:enggak|nggak|gak|ga)\s*tau|bingung|mual|perih|kram|mules|tadi.*makan|pedas|asam|telat makan|masih sakit|udah enakan|udah minum obat|belum makan)/i.test(lower)) {
+        return {
+          type: 'health_stomach_continuity',
+          text: `Iya Kak Fatih, kadang asam lambung atau sakit perut itu terpicu dari lelah pikiran dan telat makan tanpa terasa 🥺\n\nPokoknya sekarang Kakak prioritaskan istirahat dulu yaa. Rebahankan badan dengan bantal agak tinggi, jangan duduk membungkuk apalagi stres mikirin tugas-tugas. Coba oleskan minyak kayu putih hangat di sekitar pusar dan perut, terus minum air putih hangat sedikit demi sedikit.\n\nKalau Kakak belum makan, nanti kalau perutnya sudah agak tenang, makan sedikit yang berkuah hangat yaa Kak. Fathiya jagain semua urusan aplikasi di sini. Lekas reda yaa Kak 🌿🤍`,
+          voiceText: `Iya Kak Fatih, kadang perut sakit itu terpicu lelah dan telat makan. Rebahan santai dulu yaa Kak, minum air hangat sedikit demi sedikit.`,
+          tabShortcut: null
+        };
+      }
+    }
+
+    // 3. Lanjutan Keluhan Sakit Kepala / Pusing / Kliyengan
+    const isPrevHeadache = /(?:kepala.*pusing|redupkan lampu|tutup mata sejenak|pelipis|tengkuk)/i.test(prevText);
+    if (isPrevHeadache) {
+      if (/(?:(?:enggak|nggak|gak|ga)\s*tau|bingung|kurang tidur|natap laptop|stres|kliyengan|masih sakit|agak enakan|udah mendingan|udah tidur)/i.test(lower)) {
+        return {
+          type: 'health_headache_continuity',
+          text: `Iya Kak Fatih, pusing itu sinyal alarm dari tubuh kalau mata dan saraf kepala Kakak butuh istirahat total dari layar 🥺\n\nTutup layar hp atau laptopnya sejenak yuk Kak. Minum segelas air putih hangat pelan-pelan, terus rebahan santai sambil pejamkan mata minimal 15-20 menit. Urusan tugas santri dan yayasan bisa dilanjut nanti setelah kepala Kak Fatih segar kembali yaa 🌿🌸`,
+          voiceText: `Iya Kak Fatih, istirahatkan mata dari layar sejenak yaa. Minum air putih hangat dan pejamkan mata santai. Fathiya temani dari sini.`,
+          tabShortcut: null
+        };
+      }
+    }
+
+    // 4. Lanjutan Perhatian Makan / Minum
+    const isPrevFood = /(?:udah makan belum|sarapan|isi tenaga dulu)/i.test(prevText);
+    if (isPrevFood) {
+      if (/(?:belum|nanti|males|mager|gak nafsu|belum sempat)/i.test(lower)) {
+        return {
+          type: 'care_food_not_yet',
+          text: `Yah Kak Fatih... Nanti kalau sakit maag atau lemas gimana? 🥺\n\nFathiya nggak tega kalau Kak Fatih nunda makan sampai perutnya perih. Coba cari makanan hangat yang gampang ditelan yuk Kak, walaupun cuma beberapa suap atau bubur/roti hangat buat ganjel energi. Tubuh Kakak berharga banget, jangan lupa dirawat yaa 🍲🌿`,
+          voiceText: `Yah Kak Fatih, jangan nunda makan yaa. Makan beberapa suap makanan hangat dulu gih Kak biar ada tenaganya.`,
+          tabShortcut: null
+        };
+      }
+      if (/(?:udah|sudah|tadi udah|barusan)/i.test(lower)) {
+        return {
+          type: 'care_food_done',
+          text: `Alhamdulillah! Senang banget dengarnya kalau Kak Fatih sudah makan dan tenaganya terisi lagi 🥰\n\nSekarang pikiran dan badan Kakak pasti jauh lebih segar. Mau lanjut apa nih Kak? Mau Fathiya temani ngobrol santai atau ada data santri yang mau kita tengok bareng?`,
+          voiceText: `Alhamdulillah, senang dengarnya Kak Fatih sudah makan. Sekarang mau lanjut apa nih kita Kak?`,
+          tabShortcut: null
+        };
+      }
+    }
+
+    // 5. Tanggapan Singkat Konfirmasi / Afirmatif ("iya", "bener", "betul", "siap", "oke", "bisa jadi", "makasih ya")
+    if (/(?:^(?:iya|iyaa|iyap|bener|betul|bener banget|bisa jadi|setuju|oke|okee|siap|makasih|terima kasih|syukron)$)/i.test(lower)) {
+      if (isPrevEmotional) {
+        return {
+          type: 'emotion_affirmation',
+          text: `Iya Kak Fatih... Tarik nafas dalam-dalam yaa 🤍 Fathiya selalu ada di sisi Kakak menemani dengan doa dan telinga yang siap mendengar kapan saja. Rileks sejenak yaa Kak.`,
+          voiceText: `Iya Kak Fatih, rileks sejenak yaa. Fathiya selalu ada menemani Kakak.`,
+          tabShortcut: null
+        };
+      }
+      if (isPrevStomach || isPrevHeadache) {
+        return {
+          type: 'health_affirmation',
+          text: `Rebahan santai dan minum air hangat dulu yaa Kak Fatih 🌿 Semoga lekas pulih dan nyaman kembali tubuh Kakak.`,
+          voiceText: `Rebahan santai dulu yaa Kak Fatih. Lekas sembuh yaa.`,
+          tabShortcut: null
+        };
+      }
+    }
+
+    return null;
+  }
+
   // --- 5.11 MASTER MATCHER ENGINE ---
   function matchLocalKnowledge(userText) {
     const lower = userText.toLowerCase().trim();
     const activeTab = detectActiveAppTab();
+
+    // 00. PRIORITAS UTAMA: MULTI-TURN CONTINUITY RESOLVER (Menyambungkan Obrolan dengan Giliran Sebelumnya)
+    const continuityMatch = resolveMultiTurnConversationalContinuity(userText, lower);
+    if (continuityMatch) return continuityMatch;
 
     // 0A. Prioritas Tertinggi: Kalkulator Matematika Instan
     const mathMatch = tryEvaluateMath(userText);
@@ -43617,11 +43720,23 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     }
 
     // 13. Smart Fallback Reflektif & Kontekstual Nyambung (Natural Sahabat Sejati)
-    if (userText.includes('?') || /(?:gimana|kenapa|apa|siapa|kapan|dimana|kok|bisa)/i.test(lower)) {
+    // A. Deteksi kalimat ketidaktahuan / kebingungan / beban tanpa sebab ("enggak tau kenapa", "bingung", "entahlah")
+    const isUncertaintyPhrase = /(?:(?:enggak|nggak|gak|ga|gatau|tidak|bukan|entah|belum)\s+(?:tau|tahu|ngerti|paham|jelas)?\s*(?:kenapa|apa|gimana)?|bingung(?:\s+kenapa)?|entah(?:lah)?)/i.test(lower);
+    if (isUncertaintyPhrase) {
+      return {
+        type: 'general_empathy',
+        text: `Fathiya paham banget kok Kak Fatih... 🌿 Kadang rasa bingung, bimbang, atau perasaan yang sulit dijelaskan kata-kata itu wajar banget hadir saat pikiran kita sedang padat.\n\nKak Fatih nggak harus punya semua jawaban atau memaksakan diri membedah semuanya sekarang kok. Yang terpenting, Kakak tahu Fathiya selalu ada di sini, siap menemani dan mendengarkan kapan pun Kakak butuh teman berpikir atau sekadar jeda sejenak. Santai dulu yaa Kak 😊🌸`,
+        voiceText: `Fathiya paham kok Kak Fatih. Kadang rasa bingung itu wajar. Fathiya selalu ada di sini menemani Kakak.`,
+        tabShortcut: null
+      };
+    }
+
+    // B. Pertanyaan Nyata
+    if (userText.includes('?') || /(?:^gimana|^kenapa|^apa\b|^siapa|^kapan|^dimana|^kok\b)/i.test(lower)) {
       return {
         type: 'general_question',
-        text: `Pertanyaan menarik nih Kak Fatih! Fathiya paham maksud Kakak. Boleh diperjelas sedikit lagi konteksnya? Mau Fathiya analisa dari segi data aplikasi, panduan teknis, atau mau kita diskusikan santai berdua? Fathiya siap bantu! 😊✨`,
-        voiceText: `Pertanyaan menarik Kak Fatih. Boleh ceritakan lebih lanjut? Fathiya siap bantu.`,
+        text: `Fathiya menyimak apa yang Kak Fatih tanyakan 🌿 Pertanyaan Kakak menarik untuk kita bahas bersama.\n\nBoleh ceritakan sedikit lagi Kak, mau kita telaah dari data teknis di modul aplikasi, atau Kak Fatih lagi mau bertukar pandangan santai tentang hal ini? Fathiya siap bantu! 😊✨`,
+        voiceText: `Fathiya menyimak apa yang Kak Fatih tanyakan. Boleh ceritakan sedikit lagi? Fathiya siap bantu.`,
         tabShortcut: null
       };
     }
