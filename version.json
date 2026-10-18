@@ -1,14 +1,14 @@
 {
   "version": "1.0.9",
-  "build": 18,
+  "build": 19,
   "releaseDate": "2026-10-18",
-  "title": "Rilis v1.0.9 Build 18 (Fathiya AI Mobile Touch Calibration & Unified JS Engine)",
+  "title": "Rilis v1.0.9 Build 19 (Fathiya AI Multi-Turn Memory & Clean Luxury Chat UI)",
   "changelog": [
-    "Fathiya AI Berhijab: Ikon resmi wanita muslimah berhijab anggun di header, chat, dan typing indicator",
-    "Sadar Konteks Multiturn: Menjawab kelanjutan jadwal mengajar, presensi santri, dan status jurnal secara sinkron",
-    "Penguasaan Kalender Tahunan: Terintegrasi 252 Master Data Agenda YTPAI 2026-2027 & 94 Hari Peringatan PHBN/PHBI",
-    "Ruang Sharing Hangat: Pendampingan reflektif menata emosi, lelah batin, dan script anti-minder dengan empati tinggi",
-    "Tabel Pintasan Aksi Cepat: Navigasi 1-klik langsung ke modul tujuan setelah berdiskusi dengan Fathiya AI",
-    "Status Siap Kontekstual: Deteksi tab aktif otomatis saat modal dibuka"
+    "Memori Percakapan Multi-Turn: Fathiya mengingat 8 percakapan terakhir dan mempertahankan kontinuitas konteks hari/topik",
+    "Clean Luxury Chat UI (Bebas AI Slop): Menghapus header kaku Fathiya AI dan tombol suara di atas bubble, mengadopsi gaya modern WhatsApp/Claude",
+    "Integrasi Suara & Timestamp Terpadu: Penanda waktu rapi dengan tombol speaker minimalis di sudut bawah balon pesan",
+    "Auto-Collapse Kartu Sambutan: Kartu concierge otomatis tersembunyi saat obrolan mengalir agar layar fokus",
+    "Persona Alami & Sopan: Anti-sapaan gombal klise, percakapan mengalir to-the-point dan cerdas",
+    "Dual-Engine Support: Prioritas Groq Llama 3.3 70B (0.3s) dan Google Gemini Flash"
   ]
 }
