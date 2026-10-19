@@ -1907,7 +1907,7 @@ Format params:
     const endpoint = isXaiGrok ? 'https://api.x.ai/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
     const models = isXaiGrok 
       ? ['grok-2-latest', 'grok-beta'] 
-      : ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+      : ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
     let lastErr = null;
 
     const messages = [
@@ -2210,11 +2210,12 @@ Format params:
     if (!engineLabel) return;
 
     if (groqKey && groqKey.length > 10) {
-      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-emerald-300 font-semibold">Groq Llama 3.3 70B (0.3s Kilat)</span>';
+      const activeModel = cachedWorkingEndpoint?.ver === 'groq' ? cachedWorkingEndpoint.modelName : 'Groq AI (Kilat 0.3s)';
+      engineLabel.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-emerald-300 font-semibold">${activeModel}</span>`;
     } else if (geminiKey && geminiKey.length > 10) {
       engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span><span class="text-indigo-300 font-semibold">Gemini Flash AI (Online)</span>';
     } else {
-      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span onclick="window.openFatihAiSettings()" class="cursor-pointer hover:underline" title="Klik untuk aktifkan Llama 3.3 70B Online Cerdas">Fathiya Pintar (Offline Engine) • <span class="text-emerald-400 font-bold">Aktifkan Groq AI ⚙️</span></span>';
+      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span onclick="window.openFatihAiSettings()" class="cursor-pointer hover:underline" title="Klik untuk aktifkan Groq AI Super Cepat">Fathiya Pintar (Offline Engine) • <span class="text-emerald-400 font-bold">Aktifkan Groq AI ⚙️</span></span>';
     }
   }
 
@@ -4151,7 +4152,7 @@ Format params:
         reply = await callGeminiApi('Berapa 2+2? Balas singkat hanya dengan: "2+2=4. Koneksi Gemini Flash Aktif!"', key);
       }
       const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-      const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : (isGroq ? 'llama-3.3-70b-versatile' : 'gemini');
+      const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : (isGroq ? 'qwen/qwen3.8-27b' : 'gemini');
 
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 block';
       statusBox.innerHTML = `✅ <b>Koneksi ${provTitle} Berhasil!</b><br/><span class="text-[10px] text-emerald-300/90 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1.5 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
@@ -4174,7 +4175,7 @@ Format params:
       if (isGroq) {
         localStorage.setItem('partner_fatih_groq_key', key);
         if (typeof window.showToast === 'function') {
-          window.showToast('⚡ Groq AI Aktif', 'Groq Llama 3.3 70B siap mendampingi (Super Kilat 0.3s).', 'success');
+          window.showToast('⚡ Groq AI Aktif', 'Groq AI Cloud siap mendampingi (Super Kilat 0.3s).', 'success');
         }
       } else {
         localStorage.setItem('partner_fatih_gemini_key', key);
