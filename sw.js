@@ -5,7 +5,7 @@
  */
 
 const APP_VERSION = '1.0.9';
-const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b27`;
+const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b28`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -130,7 +130,38 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // --- B. ASET STATIS (CSS, JS, VENDOR, GAMBAR): CACHE-FIRST DENGAN BACKGROUND REVALIDATE ---
+  // --- B. ASET KODE INTI APLIKASI (JS & VERSION): NETWORK-FIRST DENGAN FALLBACK CACHE ---
+  const url = new URL(request.url);
+  const isCoreScript = /app\.bundle\.js|sahabat_fatih_ai\.js|version\.json/i.test(url.pathname);
+
+  if (isCoreScript) {
+    event.respondWith(
+      (async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s network timeout
+          const networkResponse = await fetch(request, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (networkResponse && networkResponse.status === 200) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, networkResponse.clone());
+            return networkResponse;
+          }
+        } catch(e) {
+          // Network gagal atau timeout -> fallback offline cache
+        }
+
+        const cached = (await caches.match(request)) || (await caches.match(request, { ignoreSearch: true }));
+        if (cached) return cached;
+
+        return new Response('', { status: 408, statusText: 'Offline Asset Unavailable' });
+      })()
+    );
+    return;
+  }
+
+  // --- C. ASET STATIS LAINNYA (VENDOR, CSS, GAMBAR): CACHE-FIRST DENGAN BACKGROUND REVALIDATE ---
   event.respondWith(
     (async () => {
       // 1. Cek exact match di cache
