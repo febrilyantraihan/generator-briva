@@ -1,12 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 26,
+  "build": 27,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 26 (Dynamic Schedule Mutation & Mobile Cross-Device Key Sync)",
+  "title": "Rilis v1.0.9 Build 27 (Dual-Engine AI Active & Auto-Alternating Groq/Gemini)",
   "changelog": [
-    "Mutasi Jadwal KBM Realtime: Jadwal mengajar di kartu Dashboard & sub-tab Kelas kini dinamis terhubung langsung dengan mesin jadwal",
-    "Sinkronisasi Kunci AI ke HP: Fitur 1-klik kirim link WhatsApp & QR Code untuk mengaktifkan Groq/Gemini di HP Samsung Galaxy A55 secara instan",
-    "Solusi Koneksi Gemini: Optimalisasi timeout & perbaikan model resmi (2.5-flash / 2.0-flash / 1.5-flash) anti abort error",
-    "PWA Cache Auto-Refresh: Pembaruan aset otomatis membersihkan cache lama di browser pengguna"
+    "Dual-Engine AI Aktif Bersamaan: Menyimpan dan mengaktifkan kunci Groq Cloud dan Google Gemini secara simultan tanpa saling menimpa",
+    "Mode Bergantian Otomatis (Hybrid Cerdas): Fathiya memprioritaskan kecepatan kilat Groq (0.3s) dan otomatis bergantian ke Gemini jika limit atau gagal",
+    "Deteksi Model Dinamis Groq: Auto-discover active models langsung dari API Groq untuk mencegah error 404 model does not exist",
+    "1-Klik Bergantian di Ruang Chat: Badge status interaktif di bawah obrolan untuk beralih mode mesin secara instan",
+    "Sinkronisasi Ganda ke HP: Tautan WhatsApp & QR Code kini menyinkronkan kedua kunci sekaligus ke HP Samsung Galaxy A55"
   ]
 }
