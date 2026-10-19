@@ -1,12 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 30,
+  "build": 31,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 30 (Karakter Suara Remaja Fathiya Ceria & Asik Ngobrol)",
+  "title": "Rilis v1.0.9 Build 31 (Sinkronisasi Otomatis Multi-Device & Kunci AI Siap Pakai)",
   "changelog": [
-    "Karakter Vokal Remaja Ceria: Nada suara dinaikkan ke frekuensi muda (pitch: 1.22x, rate: 1.05x) sehingga terdengar renyah, segar, manis, dan tidak berat/dewasa",
-    "Intonasi Asik Diajak Ngobrol: Penyesuaian ritme percakapan dan pembersih tanda baca agar Fathiya bertutur lincah layaknya sahabat remaja sebaya",
-    "3 Pilihan Gaya Suara di Pengaturan: Remaja Ceria (Default), Remaja Manis (Cute), dan Rileks Akrab dengan tombol preview instan",
-    "Pembaruan Persona System Prompt: Mengarahkan Fathiya berbicara santai, hidup, hangat, dan seru tanpa kesan formal ibu-ibu tua"
+    "Kunci Groq Resmi Otomatis Siap Pakai: Buka di HP, PC, atau browser mana pun langsung aktif tanpa perlu ketik kunci manual",
+    "Anti-Hilang Data & Kunci: Dilengkapi proteksi persistent fallback, aman meski data browser di HP dibersihkan",
+    "Pembaruan Instan Tanpa Selisih (Network-First): Halaman utama selalu mengambil versi terbaru dari server secara otomatis saat online",
+    "Deteksi Otomatis Build Baru: HP dan PC akan mendeteksi setiap pembaruan sistem dan menyelaraskan seluruh tampilan secara otomatis",
+    "Karakter Suara Remaja Ceria: Vokal Fathiya bernada tinggi renyah (pitch 1.22x) dan intonasi asik diajak ngobrol"
   ]
 }
