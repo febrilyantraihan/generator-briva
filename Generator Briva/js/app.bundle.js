@@ -27748,6 +27748,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40245,6 +40246,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42343,6 +42345,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -43760,110 +43765,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   }
 
   // --- 6. VOICE TEXT-TO-SPEECH (TTS) ENGINE ---
-  let cachedVoices = [];
-  function populateVoices() {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      cachedVoices = window.speechSynthesis.getVoices() || [];
-    }
-  }
+  // Arsitektur Voice Engine Fathiya (TTS & STT Bahasa Indonesia) terpadu di Bagian 12
+  // dengan tuning vokal alami (0.94x tempo rileks, 0.98x nada hangat, & phonetic preprocessor)
 
-  if (typeof window !== 'undefined' && window.speechSynthesis) {
-    populateVoices();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = populateVoices;
-    }
-  }
-
-  function getBestIndonesianFemaleVoice() {
-    populateVoices();
-    if (!cachedVoices || cachedVoices.length === 0) return null;
-    const idVoices = cachedVoices.filter(v => v.lang && (v.lang.startsWith('id') || v.lang.includes('ID') || v.lang.toLowerCase().includes('indonesia')));
-
-    // 1. Prioritas Utama: Microsoft Gadis Online Natural (Suara wanita paling jernih, lembut, empuk & natural di Windows/Edge)
-    const naturalGadis = idVoices.find(v => /gadis.*natural|natural.*gadis/i.test(v.name));
-    if (naturalGadis) return naturalGadis;
-
-    // 2. Microsoft Gadis standar
-    const gadisAny = idVoices.find(v => /gadis/i.test(v.name));
-    if (gadisAny) return gadisAny;
-
-    // 3. Suara wanita Indonesia: Siti, Damayanti, Putri, Ayu
-    const namedFemale = idVoices.find(v => /siti|damayanti|putri|ayu|female|wanita|perempuan/i.test(v.name));
-    if (namedFemale) return namedFemale;
-
-    // 4. Google Bahasa Indonesia
-    const googleId = idVoices.find(v => /google\s+bahasa\s+indonesia/i.test(v.name) || (/google/i.test(v.name) && !/male/i.test(v.name)));
-    if (googleId) return googleId;
-
-    if (idVoices.length > 0) return idVoices[0];
-    return cachedVoices.find(v => /female|wanita|woman|zira|jenny|aria/i.test(v.name)) || null;
-  }
-
-  function speakFatihResponse(textToSpeak) {
-    if (!window.speechSynthesis) return;
-    try {
-      window.speechSynthesis.cancel();
-
-      // Bersihkan teks dari markdown, blok kode, URL, dan sesuaikan singkatan agar enak didengar lisan
-      let clean = textToSpeak
-        .replace(/```[\s\S]*?```/g, '') // buang blok kode
-        .replace(/\*\*([^*]+)\*\*/g, '$1')
-        .replace(/\*([^*]+)\*/g, '$1')
-        .replace(/`([^`]+)`/g, '$1')
-        .replace(/#{1,6}\s+/g, '')
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        .replace(/[•●&bull;|&amp;]/g, '')
-        .replace(/https?:\/\/\S+/g, '')
-        .replace(/\bPJ\b/g, 'penanggung jawab')
-        .replace(/\bH-([0-9]+)\b/gi, 'H minus $1')
-        .replace(/\bSPP\b/g, 'S P P')
-        .replace(/\bBRIVA\b/gi, 'Briva')
-        .replace(/\bCMS\b/gi, 'C M S')
-        .replace(/Rp\s*([0-9.]+)/gi, function(match, num) {
-          return num.replace(/\./g, '') + ' rupiah';
-        })
-        .replace(/([0-9]+)\.([0-9]+)/g, '$1 koma $2')
-        .replace(/\n+/g, '. ')
-        .trim();
-
-      const utterance = new SpeechSynthesisUtterance(clean.substring(0, 450));
-      utterance.lang = 'id-ID';
-
-      const voice = getBestIndonesianFemaleVoice();
-      if (voice) utterance.voice = voice;
-
-      // Setting suara: nada lembut manis (pitch 1.14), tempo mengalun santai & manja berirama (rate 0.93)
-      utterance.pitch = 1.14;
-      utterance.rate = 0.93;
-
-      window.speechSynthesis.speak(utterance);
-    } catch(e) {
-      console.warn('TTS error:', e);
-    }
-  }
-
-  function toggleFatihAutoVoice() {
-    isAutoVoiceEnabled = !isAutoVoiceEnabled;
-    const btn = document.getElementById('fatihVoiceAutoToggle');
-    if (btn) {
-      if (isAutoVoiceEnabled) {
-        btn.classList.add('text-emerald-400');
-        btn.classList.remove('text-slate-400');
-        btn.title = 'Suara Otomatis Aktif (Klik untuk Mute)';
-        if (typeof window.showToast === 'function') {
-          window.showToast('🔊 Suara Fathiya Aktif', 'Jawaban akan dibacakan secara vokal.', 'info');
-        }
-      } else {
-        btn.classList.remove('text-emerald-400');
-        btn.classList.add('text-slate-400');
-        btn.title = 'Suara Otomatis Nonaktif (Klik untuk Unmute)';
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
-        if (typeof window.showToast === 'function') {
-          window.showToast('🔇 Suara Fathiya Mute', 'Suara otomatis dimatikan.', 'info');
-        }
-      }
-    }
-  }
 
   // --- 7. DUAL-ENGINE: GOOGLE GEMINI ADAPTIVE RESOLVER (v1 / v1beta Auto-Discovery) ---
   let cachedWorkingEndpoint = null; // { ver: 'v1'|'v1beta', modelName: 'gemini-3.8-flash' }
@@ -44498,7 +44402,12 @@ Format params:
           </div>
 
           <!-- Action Buttons in Header -->
-          <div class="flex items-center gap-1 flex-shrink-0">
+          <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+            <!-- Dynamic STOP Voice Button (Paling utama dan jelas saat suara aktif) -->
+            <button type="button" id="fatihStopSpeechBtn" onclick="window.stopFatihSpeech()" class="hidden px-2.5 py-1 rounded-lg bg-rose-500/25 hover:bg-rose-500 border border-rose-500/50 text-rose-300 hover:text-white text-[11px] font-bold items-center gap-1.5 transition-all shadow-xs animate-pulse cursor-pointer" title="Hentikan Suara Sekarang (Esc)">
+              <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+              <span>Stop Suara</span>
+            </button>
             <!-- Expand/Restore Window Button (Desktop Mode) -->
             <button type="button" id="fatihExpandBtn" onclick="window.toggleFatihChatExpand()" class="hidden sm:flex w-7 h-7 rounded-lg items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer" title="Perbesar / Perkecil Jendela">
               <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
@@ -44571,6 +44480,21 @@ Format params:
             </div>
           </div>
 
+        </div>
+
+        <!-- Active Speaking Indicator Bar -->
+        <div id="fatihSpeakingBar" class="hidden px-3.5 py-2 bg-gradient-to-r from-emerald-950/95 via-slate-900 to-rose-950/90 border-t border-emerald-500/30 items-center justify-between text-xs text-slate-200 flex-shrink-0 transition-all shadow-md">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="flex h-2.5 w-2.5 relative flex-shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span class="text-[11px] font-medium text-emerald-300 truncate">Fathiya sedang bersuara...</span>
+          </div>
+          <button type="button" onclick="window.stopFatihSpeech()" class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all shadow-sm cursor-pointer flex-shrink-0" title="Hentikan Suara Sekarang (Esc)">
+            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            <span>⏹️ Hentikan Suara</span>
+          </button>
         </div>
 
         <!-- Input Bar & Voice Controls -->
@@ -44847,8 +44771,8 @@ Format params:
               </span>
               <div class="flex items-center gap-2">
                 ${timeStr ? `<span>${timeStr}</span>` : ''}
-                <button type="button" onclick="window.speakFatihHistory(${idx})" class="p-1 -mr-1 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-white/10 transition-all cursor-pointer" title="Dengarkan Suara">
-                  <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                <button type="button" id="fatihMsgVoiceBtn_${idx}" onclick="window.handleFatihMsgVoiceClick(${idx})" class="p-1 -mr-1 rounded-md transition-all cursor-pointer ${isCurrentlySpeaking && currentSpeakingIdx === idx ? 'text-rose-400 bg-rose-500/25 ring-1 ring-rose-500/50 animate-pulse' : 'text-slate-400 hover:text-emerald-400 hover:bg-white/10'}" title="${isCurrentlySpeaking && currentSpeakingIdx === idx ? 'Hentikan Suara Sekarang (Esc)' : 'Dengarkan Suara'}">
+                  ${isCurrentlySpeaking && currentSpeakingIdx === idx ? '<svg class="w-3.5 h-3.5 fill-current text-rose-400" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>' : '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i>'}
                 </button>
               </div>
             </div>
@@ -44881,12 +44805,20 @@ Format params:
     return formatted;
   }
 
+  function handleFatihMsgVoiceClick(idx) {
+    if (isCurrentlySpeaking && currentSpeakingIdx === idx) {
+      stopFatihSpeech(true);
+      return;
+    }
+    speakFatihHistory(idx);
+  }
+
   function speakFatihHistory(idx) {
     const item = chatHistory[idx];
     if (item && item.voiceText) {
-      speakFatihResponse(item.voiceText);
+      speakFatihResponse(item.voiceText, idx);
     } else if (item && item.text) {
-      speakFatihResponse(item.text);
+      speakFatihResponse(item.text, idx);
     }
   }
 
@@ -46112,7 +46044,14 @@ Format params:
             actionCard = executeFatihAction(offlineAction);
           }
 
-          replyVoiceText = replyText.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\n+/g, ' ');
+          // Ekstrak intisari vokal yang hangat dan ringkas agar nyaman didengar lisan
+          let rawVoiceSummary = replyText.replace(/<fatih-action>[\s\S]*?<\/fatih-action>/gi, '').trim();
+          const sentenceMatches = rawVoiceSummary.match(/^([^\n.!?]+[.!?](?:\s+[^\n.!?]+[.!?])?)/s);
+          if (sentenceMatches && sentenceMatches[1].length >= 25 && sentenceMatches[1].length <= 320) {
+            replyVoiceText = sentenceMatches[1];
+          } else {
+            replyVoiceText = rawVoiceSummary.substring(0, 260);
+          }
           if (actionCard && actionCard.tab) {
             tabShortcut = actionCard.tab;
           }
@@ -46151,7 +46090,8 @@ Format params:
 
       // Bacakan suara bila fitur aktif
       if ((isAutoVoiceEnabled || isFromVoice) && replyVoiceText) {
-        speakFatihResponse(replyVoiceText);
+        const lastIdx = chatHistory.length - 1;
+        speakFatihResponse(replyVoiceText, lastIdx);
       }
     } catch(err) {
       chatHistory.push({
@@ -46185,107 +46125,264 @@ Format params:
     }
   }
 
-  // --- 12. VOICE ENGINE RESMI FATHIYA (TTS & STT BAHASA INDONESIA id-ID) ---
+  // --- 12. NATURAL VOICE ENGINE RESMI FATHIYA (TTS & STT BAHASA INDONESIA id-ID) ---
   let cachedIndonesianVoice = null;
+  let isCurrentlySpeaking = false;
+  let currentSpeakingIdx = null;
+  let activeSpeechUtterance = null;
+
+  function populateVoices() {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      cachedIndonesianVoice = null;
+    }
+  }
 
   function getBestIndonesianVoice() {
     if (!('speechSynthesis' in window)) return null;
     if (cachedIndonesianVoice) return cachedIndonesianVoice;
 
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices || voices.length === 0) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (voices.length === 0) return null;
 
-    // 1. Prioritaskan suara wanita Indonesia alami (Google Bahasa Indonesia / MS Gadis Natural / Damayanti)
-    const femaleIdVoice = voices.find(v => {
+    const idVoices = voices.filter(v => {
       const name = (v.name || '').toLowerCase();
       const lang = (v.lang || '').toLowerCase();
-      const isIndo = lang.includes('id') || lang.includes('indonesia') || name.includes('indonesia');
-      const isFemale = name.includes('gadis') || name.includes('female') || name.includes('wanita') || name.includes('damayanti') || name.includes('google');
-      return isIndo && isFemale;
+      return lang.includes('id') || lang.includes('indonesia') || name.includes('indonesia');
     });
 
+    // 1. Prioritas Utama: Suara Natural / Neural Online Bahasa Indonesia (Microsoft Gadis Natural di Windows/Edge)
+    const naturalVoice = idVoices.find(v => {
+      const n = (v.name || '').toLowerCase();
+      return n.includes('natural') || n.includes('neural') || n.includes('online');
+    });
+    if (naturalVoice) {
+      cachedIndonesianVoice = naturalVoice;
+      return naturalVoice;
+    }
+
+    // 2. Microsoft Gadis (Suara wanita Indonesia terbaik, lembut, dan empuk di Windows)
+    const gadisVoice = idVoices.find(v => (v.name || '').toLowerCase().includes('gadis'));
+    if (gadisVoice) {
+      cachedIndonesianVoice = gadisVoice;
+      return gadisVoice;
+    }
+
+    // 3. Suara Wanita Indonesia (Siti, Damayanti, Putri, Ayu)
+    const femaleIdVoice = idVoices.find(v => {
+      const n = (v.name || '').toLowerCase();
+      return n.includes('female') || n.includes('wanita') || n.includes('damayanti') || n.includes('siti') || n.includes('putri') || n.includes('ayu');
+    });
     if (femaleIdVoice) {
       cachedIndonesianVoice = femaleIdVoice;
       return femaleIdVoice;
     }
 
-    // 2. Prioritaskan suara bahasa Indonesia apapun (Microsoft Ardi / Android standard id-ID)
-    const anyIdVoice = voices.find(v => {
-      const name = (v.name || '').toLowerCase();
-      const lang = (v.lang || '').toLowerCase();
-      return lang.includes('id') || lang.includes('indonesia') || name.includes('indonesian');
-    });
-
-    if (anyIdVoice) {
-      cachedIndonesianVoice = anyIdVoice;
-      return anyIdVoice;
+    // 4. Google Bahasa Indonesia (Standar alami Chrome di PC & Android Samsung A55)
+    const googleIdVoice = idVoices.find(v => (v.name || '').toLowerCase().includes('google'));
+    if (googleIdVoice) {
+      cachedIndonesianVoice = googleIdVoice;
+      return googleIdVoice;
     }
 
-    return null;
+    // 5. Suara Bahasa Indonesia apapun yang tersedia di sistem
+    if (idVoices.length > 0) {
+      cachedIndonesianVoice = idVoices[0];
+      return idVoices[0];
+    }
+
+    // Fallback: Suara wanita umum
+    const genericFemale = voices.find(v => /female|wanita|woman|zira|jenny|aria/i.test(v.name));
+    return genericFemale || voices[0] || null;
   }
 
-  // Listener saat daftar suara browser telah siap dimuat
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = function() {
-      cachedIndonesianVoice = null;
-      getBestIndonesianVoice();
-    };
+    populateVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = function() {
+        cachedIndonesianVoice = null;
+        getBestIndonesianVoice();
+      };
+    }
   }
 
-  function cleanTextForIndonesianSpeech(rawText) {
+  function cleanTextForNaturalSpeech(rawText) {
     if (!rawText) return '';
-    let clean = String(rawText);
+    let s = String(rawText);
 
-    // Hapus kode blok markdown & format tabel
-    clean = clean.replace(/```[\s\S]*?```/g, ' Berikut rincian data terkait. ');
-    clean = clean.replace(/`([^`]+)`/g, '$1');
-    clean = clean.replace(/\*\*([^*]+)\*\*/g, '$1');
-    clean = clean.replace(/\*([^*]+)\*/g, '$1');
-    clean = clean.replace(/#{1,6}\s+/g, '');
-    clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-    clean = clean.replace(/\|/g, ' ');
+    // 1. Buang blok kode markdown, JSON tag, link, tabel, styling
+    s = s.replace(/```[\s\S]*?```/g, ' Rincian data terlampir di layar. ');
+    s = s.replace(/<fatih-action>[\s\S]*?<\/fatih-action>/gi, '');
+    s = s.replace(/`([^`]+)`/g, '$1');
+    s = s.replace(/https?:\/\/\S+/g, '');
+    s = s.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    s = s.replace(/\|[^\n]+\|/g, ' ');
+    s = s.replace(/#{1,6}\s+/g, '');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '$1');
+    s = s.replace(/\*([^*]+)\*/g, '$1');
+    s = s.replace(/~~([^~]+)~~/g, '$1');
 
-    // Bersihkan emoji unicode agar tidak dibaca nama simbol harfiah
-    clean = clean.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}]/gu, '');
+    // 2. Buang seluruh emoji & simbol grafis yang membuat browser mengeja harfiah atau glitch
+    s = s.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}]/gu, '');
+    s = s.replace(/[•●★✨⚡🌸☕😊❤️👍💡📌✅❌⚠️⚙️🧪]/g, '');
 
-    // Selaraskan nominal rupiah agar dilafalkan alami
-    clean = clean.replace(/Rp\s?([0-9.,]+)/gi, function(match, numStr) {
-      const numOnly = numStr.replace(/\./g, '');
-      return numOnly + ' rupiah';
+    // 3. Konversi format salam islami agar dilafalkan lembut & khusyuk
+    s = s.replace(/Assalamu['’]alaikum(?:\s+Wr\.?\s*Wb\.?)?/gi, 'Assalamu alaikum');
+    s = s.replace(/Wa['’]alaikum(?:us)?salam(?:\s+Wr\.?\s*Wb\.?)?/gi, 'Wa alaikum salam');
+    s = s.replace(/Insya\s*Allah/gi, 'Insya Allah');
+    s = s.replace(/Alhamdulillah/gi, 'Alhamdulillah');
+    s = s.replace(/Subhanallah/gi, 'Subhanallah');
+    s = s.replace(/Bismillah/gi, 'Bismillah');
+
+    // 4. Konversi Rupiah dan Angka
+    s = s.replace(/Rp\s*([0-9.,]+)/gi, function(_, numStr) {
+      const cleanNum = numStr.replace(/\./g, '').replace(/,/g, '');
+      return cleanNum + ' rupiah';
     });
+    s = s.replace(/([0-9]+)\.([0-9]+)/g, '$1 koma $2');
+    s = s.replace(/([0-9]+)%/g, '$1 persen');
+    s = s.replace(/\b24\/7\b/g, 'dua puluh empat jam');
 
-    // Istilah spesifik madrasah & Partner Fatih agar beraksen Indonesia fasih
-    clean = clean.replace(/\bKBM\b/g, 'K B M');
-    clean = clean.replace(/\bPPDB\b/g, 'P P D B');
-    clean = clean.replace(/\bBRIVA\b/gi, 'Briva');
-    clean = clean.replace(/\bYTPAI\b/g, 'Yayasan Tarbiyah');
-    clean = clean.replace(/\bH-7\b/gi, 'H minus tujuh');
-    clean = clean.replace(/\bH\+([0-9]+)\b/gi, 'H plus $1');
-    clean = clean.replace(/(?:^|\s)s\.d\.(?=\s|$)/gi, ' sampai dengan ');
-    clean = clean.replace(/(?:^|\s)dll\.(?=\s|$)/gi, ' dan lain-lain ');
-    clean = clean.replace(/(?:^|\s)dst\.(?=\s|$)/gi, ' dan seterusnya ');
-    clean = clean.replace(/(?:^|\s)ybs\.(?=\s|$)/gi, ' yang bersangkutan ');
-    clean = clean.replace(/&amp;/g, 'dan');
+    // 5. Konversi singkatan madrasah, perbankan, IT & organisasi
+    s = s.replace(/\bBRIVA\b/gi, 'Briva');
+    s = s.replace(/\bPPDB\b/g, 'P P D B');
+    s = s.replace(/\bKBM\b/g, 'K B M');
+    s = s.replace(/\bSPP\b/g, 'S P P');
+    s = s.replace(/\bCBT\b/g, 'C B T');
+    s = s.replace(/\bYTPAI\b/g, 'Yayasan Tarbiyah');
+    s = s.replace(/\bCMS\b/gi, 'C M S');
+    s = s.replace(/\bAI\b/g, 'A I');
+    s = s.replace(/\bPWA\b/gi, 'P W A');
+    s = s.replace(/\bWA\b/g, 'WhatsApp');
+    s = s.replace(/\bAPI\b/gi, 'A P I');
+    s = s.replace(/\bPJ\b/g, 'penanggung jawab');
+    s = s.replace(/\bH-([0-9]+)\b/gi, 'H minus $1');
+    s = s.replace(/\bH\+([0-9]+)\b/gi, 'H plus $1');
+    s = s.replace(/(?:^|\s)s\.d\.(?=\s|$)/gi, ' sampai ');
+    s = s.replace(/(?:^|\s)dll\.(?=\s|$)/gi, ' dan lain-lain ');
+    s = s.replace(/(?:^|\s)dst\.(?=\s|$)/gi, ' dan seterusnya ');
+    s = s.replace(/(?:^|\s)ybs\.(?=\s|$)/gi, ' yang bersangkutan ');
+    s = s.replace(/&amp;/g, ' dan ');
+    s = s.replace(/&/g, ' dan ');
 
-    return clean.replace(/\s+/g, ' ').trim();
+    // 6. Singkatan percakapan harian agar mengalir seperti manusia nyata
+    s = s.replace(/\byg\b/gi, 'yang');
+    s = s.replace(/\bdgn\b/gi, 'dengan');
+    s = s.replace(/\butk\b/gi, 'untuk');
+    s = s.replace(/\bsdh\b/gi, 'sudah');
+    s = s.replace(/\bblm\b/gi, 'belum');
+    s = s.replace(/\bgmn\b/gi, 'gimana');
+    s = s.replace(/\bbgt\b/gi, 'banget');
+    s = s.replace(/\bklo\b/gi, 'kalau');
+
+    // 7. Penyesuaian nomor urut agar tidak kaku
+    s = s.replace(/(?:^|\n)\s*([0-9]+)\.\s*/g, '. Poin $1, ');
+
+    // 8. Tanda baca & intonasi bernapas santai
+    s = s.replace(/!+/g, '.');
+    s = s.replace(/\?+/g, '? ');
+    s = s.replace(/\.{2,}/g, '. ');
+    s = s.replace(/[\r\n]+/g, '. ');
+    s = s.replace(/\s+/g, ' ').trim();
+
+    // 9. Batasi panjang ucapan ke intisari pesan (maksimum 350 karakter pertama)
+    if (s.length > 350) {
+      const cut = s.substring(0, 350);
+      const lastDot = cut.lastIndexOf('.');
+      if (lastDot > 160) {
+        s = cut.substring(0, lastDot + 1);
+      } else {
+        s = cut + '...';
+      }
+    }
+    return s;
   }
 
-  function stopFatihSpeech() {
+  function updateSpeechUiState(isSpeaking, msgIdx) {
+    isCurrentlySpeaking = !!isSpeaking;
+    currentSpeakingIdx = isSpeaking ? msgIdx : null;
+
+    // 1. Header Stop Button
+    const stopBtn = document.getElementById('fatihStopSpeechBtn');
+    if (stopBtn) {
+      if (isSpeaking) {
+        stopBtn.classList.remove('hidden');
+        stopBtn.classList.add('flex');
+      } else {
+        stopBtn.classList.add('hidden');
+        stopBtn.classList.remove('flex');
+      }
+    }
+
+    // 2. Floating Speaking Bar above input
+    const speakingBar = document.getElementById('fatihSpeakingBar');
+    if (speakingBar) {
+      if (isSpeaking) {
+        speakingBar.classList.remove('hidden');
+        speakingBar.classList.add('flex');
+      } else {
+        speakingBar.classList.add('hidden');
+        speakingBar.classList.remove('flex');
+      }
+    }
+
+    // 3. Auto Voice Icon in header
+    const autoVoiceBtn = document.getElementById('fatihVoiceAutoToggle');
+    if (autoVoiceBtn) {
+      if (isSpeaking) {
+        autoVoiceBtn.classList.add('text-emerald-400', 'animate-pulse');
+      } else {
+        autoVoiceBtn.classList.remove('animate-pulse');
+        if (!isAutoVoiceEnabled) {
+          autoVoiceBtn.classList.remove('text-emerald-400', 'bg-emerald-500/20');
+        }
+      }
+    }
+
+    // 4. Update bubble icon if chat is rendered
+    if (typeof msgIdx === 'number') {
+      const bubbleBtn = document.getElementById(`fatihMsgVoiceBtn_${msgIdx}`);
+      if (bubbleBtn) {
+        if (isSpeaking) {
+          bubbleBtn.className = 'p-1 -mr-1 rounded-md text-rose-400 bg-rose-500/25 ring-1 ring-rose-500/50 animate-pulse transition-all cursor-pointer';
+          bubbleBtn.title = 'Hentikan Suara Sekarang (Esc)';
+          bubbleBtn.innerHTML = '<svg class="w-3.5 h-3.5 fill-current text-rose-400" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
+        } else {
+          bubbleBtn.className = 'p-1 -mr-1 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-white/10 transition-all cursor-pointer';
+          bubbleBtn.title = 'Dengarkan Suara';
+          bubbleBtn.innerHTML = '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+        }
+      }
+    }
+  }
+
+  function stopFatihSpeech(showToastNotice = true) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
-    const autoVoiceBtn = document.getElementById('fatihVoiceAutoToggle');
-    if (autoVoiceBtn) {
-      autoVoiceBtn.classList.remove('animate-pulse');
+    const hadSpeaking = isCurrentlySpeaking;
+    updateSpeechUiState(false, null);
+    activeSpeechUtterance = null;
+    window._fatihCurrentUtterance = null;
+
+    if (hadSpeaking && showToastNotice && typeof window.showToast === 'function') {
+      window.showToast('⏹️ Suara Berhenti', 'Pembacaan suara Fathiya telah dihentikan.', 'info');
     }
   }
 
-  function speakFatihResponse(rawText) {
-    if (!('speechSynthesis' in window)) return;
-    const clean = cleanTextForIndonesianSpeech(rawText);
+  function speakFatihResponse(rawText, msgIdx = null) {
+    if (!('speechSynthesis' in window)) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Perhatian', 'Perangkat/browser belum mendukung Text-to-Speech.', 'warning');
+      }
+      return;
+    }
+
+    const clean = cleanTextForNaturalSpeech(rawText);
     if (!clean) return;
 
-    window.speechSynthesis.cancel();
+    // Hentikan suara yang sedang aktif sebelumnya
+    stopFatihSpeech(false);
 
     const utterance = new SpeechSynthesisUtterance(clean);
     utterance.lang = 'id-ID';
@@ -46295,42 +46392,44 @@ Format params:
       utterance.voice = voice;
     }
 
-    // Karakteristik vokal wanita Indonesia yang santun, hangat, dan anggun
-    utterance.rate = 1.0;   // Kecepatan normal alami
-    utterance.pitch = 1.06; // Nada ramah dan menyejukkan
+    // Karakteristik vokal wanita Indonesia: Nada hangat bersahabat (pitch: 0.98), tempo mengalun santai (rate: 0.94)
+    utterance.pitch = 0.98;
+    utterance.rate = 0.94;
+    utterance.volume = 1.0;
 
-    const autoVoiceBtn = document.getElementById('fatihVoiceAutoToggle');
+    activeSpeechUtterance = utterance;
+    window._fatihCurrentUtterance = utterance; // Mencegah pemutusan suara tiba-tiba oleh browser
 
     utterance.onstart = function() {
-      if (autoVoiceBtn) {
-        autoVoiceBtn.classList.add('text-emerald-400', 'animate-pulse');
-      }
+      updateSpeechUiState(true, msgIdx);
     };
 
     utterance.onend = function() {
-      if (autoVoiceBtn) {
-        autoVoiceBtn.classList.remove('animate-pulse');
-      }
+      updateSpeechUiState(false, msgIdx);
+      activeSpeechUtterance = null;
+      window._fatihCurrentUtterance = null;
     };
 
     utterance.onerror = function() {
-      if (autoVoiceBtn) {
-        autoVoiceBtn.classList.remove('animate-pulse');
-      }
+      updateSpeechUiState(false, msgIdx);
+      activeSpeechUtterance = null;
+      window._fatihCurrentUtterance = null;
     };
 
     window.speechSynthesis.speak(utterance);
   }
 
-  function speakFatihHistory(idx) {
-    if (chatHistory && chatHistory[idx]) {
-      const msg = chatHistory[idx];
-      const textToSpeak = msg.voiceText || msg.text;
-      speakFatihResponse(textToSpeak);
-      if (typeof window.showToast === 'function') {
-        window.showToast('🔊 Membaca Suara', 'Fathiya melafalkan jawaban dalam Bahasa Indonesia.', 'info');
+  function testNaturalVoice() {
+    speakFatihResponse("Assalamu alaikum Kak Fatih. Suara Fathiya sekarang sudah disetel lebih lembut, bersahabat, dan bernada alami. Ada yang bisa Fathiya dampingi hari ini?");
+  }
+
+  // Global keyboard listener: tekan tombol Escape untuk menghentikan suara seketika
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isCurrentlySpeaking) {
+        stopFatihSpeech(true);
       }
-    }
+    });
   }
 
   function toggleFatihAutoVoice() {
@@ -46528,6 +46627,29 @@ Format params:
                 <span>🧪 Tes Koneksi Kilat</span>
               </button>
             </div>
+            <!-- Fitur & Tes Suara Alami Fathiya -->
+            <div class="p-3 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                  <span>🎙️</span>
+                  <span>Vokal Alami Fathiya (Indonesian Natural)</span>
+                </span>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">
+                  Lembut &amp; Empuk
+                </span>
+              </div>
+              <p class="text-[9.5px] text-slate-400 leading-relaxed">
+                Karakter vokal disetel pada nada santun bersahabat (0.98x) dan tempo mengalun rileks (0.94x) dengan pembersih intonasi robotik otomatis.
+              </p>
+              <div class="flex items-center gap-2 pt-0.5">
+                <button type="button" onclick="window.testNaturalVoice()" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                  <span>🔊 Tes Suara Alami</span>
+                </button>
+                <button type="button" onclick="window.stopFatihSpeech()" class="py-1.5 px-3 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Hentikan Suara Sekarang (Esc)">
+                  <span>⏹️ Stop Suara</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="flex items-center justify-between border-t border-white/10 pt-3 gap-2">
@@ -46685,6 +46807,10 @@ Format params:
   window.removeFatihGeminiKey = removeFatihGeminiKey;
   window.updateFatihEngineStatusBadge = updateFatihEngineStatusBadge;
   window.speakFatihHistory = speakFatihHistory;
+  window.handleFatihMsgVoiceClick = handleFatihMsgVoiceClick;
+  window.stopFatihSpeech = stopFatihSpeech;
+  window.testNaturalVoice = testNaturalVoice;
+  window.cleanTextForNaturalSpeech = cleanTextForNaturalSpeech;
   window.matchLocalKnowledge = matchLocalKnowledge;
   window.detectActiveAppTab = detectActiveAppTab;
   window.detectOfflineActionIntent = detectOfflineActionIntent;
@@ -46697,6 +46823,8 @@ Format params:
     open: openFatihChat,
     close: closeFatihChat,
     submit: handleFatihChatSubmit,
+    stopSpeech: stopFatihSpeech,
+    testVoice: testNaturalVoice,
     detectOfflineActionIntent: detectOfflineActionIntent,
     executeFatihAction: executeFatihAction,
     getProfile: getFathiyaUserProfile,
