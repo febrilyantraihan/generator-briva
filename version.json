@@ -1,8 +1,8 @@
 {
   "version": "1.0.9",
-  "build": 31,
+  "build": 32,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 31 (Sinkronisasi Otomatis Multi-Device & Kunci AI Siap Pakai)",
+  "title": "Rilis v1.0.9 Build 32 (AI Online Otomatis & Kunci Resmi Terhubung Langsung di Seluruh HP)",
   "changelog": [
     "Kunci Groq Resmi Otomatis Siap Pakai: Buka di HP, PC, atau browser mana pun langsung aktif tanpa perlu ketik kunci manual",
     "Anti-Hilang Data & Kunci: Dilengkapi proteksi persistent fallback, aman meski data browser di HP dibersihkan",
