@@ -15881,7 +15881,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
     const CURRENT_APP_VERSION = '1.0.9';
-    const CURRENT_APP_BUILD = 31;
+    const CURRENT_APP_BUILD = 32;
     window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
     window.CURRENT_APP_BUILD = CURRENT_APP_BUILD;
 
@@ -27532,6 +27532,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
@@ -40310,6 +40311,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42230,6 +42232,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
@@ -44375,7 +44380,9 @@ Format params:
             const preferredOrder = [
               'openai/gpt-oss-120b',
               'openai/gpt-oss-20b',
+              'qwen/qwen3.8-27b',
               'qwen/qwen3.6-27b',
+              'allam-2-7b',
               'llama-3.3-70b-versatile',
               'llama-3.2-3b-preview',
               'llama-3.2-1b-preview',
@@ -44404,7 +44411,8 @@ Format params:
     cachedGroqModels = [
       'openai/gpt-oss-120b',
       'openai/gpt-oss-20b',
-      'qwen/qwen3.6-27b',
+      'qwen/qwen3.8-27b',
+      'allam-2-7b',
       'llama-3.3-70b-versatile',
       'llama-3.2-3b-preview',
       'llama-3.2-1b-preview'
@@ -44432,9 +44440,29 @@ Format params:
     }
   })();
 
+  // Auto-seed kunci Groq resmi ke localStorage jika belum ada di perangkat ini
+  (function autoSeedOfficialGroqKey() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+        if ((!stored || stored === 'null' || stored === 'undefined') && _BUILTIN_GROQ_KEY) {
+          localStorage.setItem('partner_fatih_groq_key', _BUILTIN_GROQ_KEY);
+          if (!localStorage.getItem('partner_fatih_ai_mode')) {
+            localStorage.setItem('partner_fatih_ai_mode', 'groq');
+          }
+        }
+      }
+    } catch(e) {}
+  })();
+
   function getEffectiveGroqKey() {
-    const userCustom = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
-    if (userCustom) return userCustom;
+    try {
+      const userCustom = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+      if (userCustom && userCustom !== 'OFFLINE' && userCustom !== 'null' && userCustom !== 'undefined') {
+        return userCustom;
+      }
+      if (userCustom === 'OFFLINE') return '';
+    } catch(e) {}
     return _BUILTIN_GROQ_KEY;
   }
 
@@ -44496,10 +44524,14 @@ Format params:
 
         if (res.ok) {
           const data = await res.json();
-          const reply = data?.choices?.[0]?.message?.content;
-          if (reply) {
+          let reply = data?.choices?.[0]?.message?.content;
+          // Fallback jika reasoning model meletakkan teks di reasoning
+          if ((!reply || !reply.trim()) && data?.choices?.[0]?.message?.reasoning) {
+            reply = data.choices[0].message.reasoning;
+          }
+          if (reply && reply.trim()) {
             cachedWorkingGroqModel = model;
-            return reply;
+            return reply.trim();
           }
         } else {
           let errDetail = `Status ${res.status}`;
@@ -44783,8 +44815,8 @@ Format params:
           </form>
           <div class="flex items-center justify-between text-[9px] text-slate-500 px-1 pt-1.5 font-medium">
             <span id="fatihChatEngineMode" class="flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Fathiya Pintar (Offline Super Engine)</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-emerald-400 font-semibold">⚡ Tenaga Utama: Groq (0.3s) • Resmi</span>
             </span>
             <span class="text-slate-400">Mic Bahasa Indonesia Aktif</span>
           </div>
@@ -44834,96 +44866,6 @@ Format params:
 
     if (typeof window.safeCreateIcons === 'function') {
       window.safeCreateIcons(card);
-    }
-  }
-
-  function cycleFatihEngineMode() {
-    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
-    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
-    const currentMode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
-
-    if (!groqKey && !geminiKey) {
-      openFatihAiSettings();
-      return;
-    }
-
-    let nextMode = 'hybrid';
-    if (groqKey && geminiKey) {
-      if (currentMode === 'hybrid') nextMode = 'groq';
-      else if (currentMode === 'groq') nextMode = 'gemini';
-      else nextMode = 'hybrid';
-    } else if (groqKey) {
-      nextMode = currentMode === 'groq' ? 'hybrid' : 'groq';
-    } else {
-      nextMode = currentMode === 'gemini' ? 'hybrid' : 'gemini';
-    }
-
-    localStorage.setItem('partner_fatih_ai_mode', nextMode);
-    updateFatihEngineStatusBadge();
-
-    if (typeof window.showToast === 'function') {
-      if (nextMode === 'hybrid') {
-        window.showToast('🔄 Mode Hybrid Aktif', 'Groq (0.3s) & Gemini aktif bergantian otomatis.', 'info');
-      } else if (nextMode === 'groq') {
-        window.showToast('⚡ Mode Khusus Groq', 'Menggunakan Groq Cloud LPU (Kilat 0.3s).', 'success');
-      } else {
-        window.showToast('🌐 Mode Khusus Gemini', 'Menggunakan Google Gemini Flash.', 'info');
-      }
-    }
-  }
-
-  function updateFatihEngineStatusBadge() {
-    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
-    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
-    const mode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
-    const engineLabel = document.getElementById('fatihChatEngineMode');
-    if (!engineLabel) return;
-
-    if (groqKey && geminiKey) {
-      if (mode === 'hybrid') {
-        engineLabel.innerHTML = `
-          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk bergantian mode (Hybrid / Groq / Gemini)">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>🔄 Hybrid: Groq ⚡ + Gemini 🌐 (Bergantian Otomatis) ▾</span>
-          </button>
-        `;
-      } else if (mode === 'groq') {
-        engineLabel.innerHTML = `
-          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk bergantian mode">
-            <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-            <span>⚡ Khusus Groq Cloud (0.3s) ▾</span>
-          </button>
-        `;
-      } else {
-        engineLabel.innerHTML = `
-          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk bergantian mode">
-            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-            <span>🌐 Khusus Google Gemini ▾</span>
-          </button>
-        `;
-      }
-    } else if (groqKey && groqKey.length > 10) {
-      const activeModel = cachedWorkingEndpoint?.ver === 'groq' ? cachedWorkingEndpoint.modelName : 'Groq AI (Kilat 0.3s)';
-      engineLabel.innerHTML = `
-        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk buka pengaturan">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>⚡ ${activeModel}</span>
-        </button>
-      `;
-    } else if (geminiKey && geminiKey.length > 10) {
-      engineLabel.innerHTML = `
-        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk buka pengaturan">
-          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-          <span>🌐 Google Gemini Flash (Online)</span>
-        </button>
-      `;
-    } else {
-      engineLabel.innerHTML = `
-        <span onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-emerald-300 transition-all" title="Klik untuk mengaktifkan Groq & Gemini">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-          <span>Offline Mandiri • <span class="text-emerald-400 font-bold underline">Aktifkan Kunci AI ⚙️</span></span>
-        </span>
-      `;
     }
   }
 
@@ -46308,7 +46250,7 @@ Format params:
 
     const isFromVoice = lastPromptWasVoice;
     lastPromptWasVoice = false;
-    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const groqKey = getEffectiveGroqKey();
     const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
     let noticeBadge = null;
     let actionCard = null;
@@ -46921,11 +46863,13 @@ Format params:
 
   function openFatihAiSettings() {
     let modal = document.getElementById('modalFatihAiSettings');
-    const savedGroq = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
-    const savedGemini = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
     const effectiveGroq = getEffectiveGroqKey();
-    const isUsingBuiltin = !savedGroq && !!effectiveGroq;
-    selectedAiMode = localStorage.getItem('partner_fatih_ai_mode') || (savedGroq && savedGemini ? 'hybrid' : (savedGroq ? 'groq' : (savedGemini ? 'gemini' : 'hybrid')));
+    let savedGroq = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    if (!savedGroq || savedGroq === 'OFFLINE' || savedGroq === 'null' || savedGroq === 'undefined') {
+      savedGroq = effectiveGroq;
+    }
+    const savedGemini = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    selectedAiMode = localStorage.getItem('partner_fatih_ai_mode') || 'groq';
 
     if (!modal) {
       modal = document.createElement('div');
@@ -46976,50 +46920,50 @@ Format params:
         <!-- 2. Dual Engine Key Cards -->
         <div class="space-y-3">
           <!-- Card A: Groq Cloud (Tenaga Utama) -->
-          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-emerald-500/40 space-y-2">
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-emerald-500/50 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white flex items-center gap-1.5">
                 <span>⚡ Groq Cloud LPU</span>
                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-mono font-bold">TENAGA UTAMA • 0.3s</span>
-                ${isUsingBuiltin ? '<span class="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold">✨ RESMI AKTIF</span>' : ''}
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">✅ RESMI TERHUBUNG</span>
               </span>
               <a href="https://console.groq.com/keys" target="_blank" class="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-semibold flex items-center gap-0.5">
-                <span>Kunci Pribadi</span> ↗
+                <span>Ganti Kunci</span> ↗
               </a>
             </div>
             <div class="relative">
-              <input type="password" id="fatihGroqApiKeyInput" placeholder="${isUsingBuiltin ? 'Kunci Resmi Terhubung Otomatis ⚡ (Siap Pakai di HP & PC)' : 'Tempel kunci gsk_... di sini'}" value="${escapeHtml(savedGroq)}" class="w-full bg-slate-950 border ${isUsingBuiltin ? 'border-emerald-500/50' : 'border-slate-700'} focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white placeholder-emerald-400/70 outline-none font-mono tracking-wider pr-8" />
+              <input type="password" id="fatihGroqApiKeyInput" placeholder="Kunci Groq Resmi Aktif (Siap Pakai)" value="${escapeHtml(savedGroq)}" class="w-full bg-slate-950 border border-emerald-500/50 focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white placeholder-emerald-400/70 outline-none font-mono tracking-wider pr-8" />
               <button type="button" onclick="window.toggleShowGroqKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
             </div>
-            <div id="fatihGroqTestStatus" class="${isUsingBuiltin ? 'p-2 rounded-lg text-xs bg-emerald-500/10 border border-emerald-500/25 text-emerald-200 block' : 'hidden p-2 rounded-lg text-xs'}">
-              ${isUsingBuiltin ? '✨ <b>Kunci Groq Resmi Siap Pakai:</b> Otomatis aktif di HP &amp; PC tanpa perlu salin-tempel manual.' : ''}
+            <div id="fatihGroqTestStatus" class="p-2 rounded-lg text-xs bg-emerald-500/10 border border-emerald-500/25 text-emerald-200 block">
+              ✨ <b>Kunci Groq Resmi Aktif:</b> Otomatis aktif di seluruh HP &amp; PC tanpa perlu input manual. Kecepatan inferensi super kilat 0.3 detik.
             </div>
             <div class="flex items-center justify-between pt-0.5">
-              <span class="text-[9.5px] text-slate-400">Kecepatan inferensi super kilat 0.3 detik (Prioritas #1)</span>
+              <span class="text-[9.5px] text-slate-400">Inferensi kilat 0.3 detik (Prioritas #1 Online)</span>
               <button type="button" id="btnTestGroqKey" onclick="window.testFatihGroqKey()" class="py-1.5 px-3 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
                 <span>🧪 Tes Koneksi Groq (Kilat)</span>
               </button>
             </div>
           </div>
 
-          <!-- Card B: Google Gemini (Tenaga Sekunder) -->
-          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-indigo-500/40 space-y-2">
+          <!-- Card B: Google Gemini (Tenaga Sekunder / Cadangan) -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-indigo-500/30 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white flex items-center gap-1.5">
                 <span>🌐 Google Gemini Flash</span>
-                <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 font-mono font-bold">CADANGAN OPSIONAL</span>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono font-bold">OPSIONAL / CADANGAN</span>
               </span>
               <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] text-indigo-300 hover:text-indigo-200 underline font-semibold flex items-center gap-0.5">
                 <span>Google AI Studio</span> ↗
               </a>
             </div>
             <div class="relative">
-              <input type="password" id="fatihGeminiApiKeyInput" placeholder="Tempel kunci AIzaSy... di sini (Opsional / Cadangan)" value="${escapeHtml(savedGemini)}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none font-mono tracking-wider pr-8" />
+              <input type="password" id="fatihGeminiApiKeyInput" placeholder="Tempel kunci AIzaSy... (Opsional / Cadangan Tambahan)" value="${escapeHtml(savedGemini)}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none font-mono tracking-wider pr-8" />
               <button type="button" onclick="window.toggleShowGeminiKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
             </div>
             <div id="fatihGeminiTestStatus" class="hidden p-2 rounded-lg text-xs"></div>
             <div class="flex items-center justify-between pt-0.5">
-              <span class="text-[9.5px] text-slate-400">Cadangan gratis otomatis saat kuota Groq mencapai batas</span>
+              <span class="text-[9.5px] text-slate-400">💡 Groq Utama sudah 100% aktif (0.3s). Gemini ini opsional bila ingin dual-engine.</span>
               <button type="button" id="btnTestGeminiKey" onclick="window.testFatihGeminiKey()" class="py-1.5 px-3 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 text-indigo-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
                 <span>🧪 Tes Koneksi Gemini</span>
               </button>
@@ -47235,27 +47179,27 @@ Format params:
     const groqInput = document.getElementById('fatihGroqApiKeyInput');
     const geminiInput = document.getElementById('fatihGeminiApiKeyInput');
 
-    const groqKey = groqInput ? groqInput.value.trim() : (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const groqKey = groqInput ? groqInput.value.trim() : (localStorage.getItem('partner_fatih_groq_key') || getEffectiveGroqKey()).trim();
     const geminiKey = geminiInput ? geminiInput.value.trim() : (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
 
     if (groqKey) localStorage.setItem('partner_fatih_groq_key', groqKey);
-    else localStorage.removeItem('partner_fatih_groq_key');
+    else localStorage.setItem('partner_fatih_groq_key', 'OFFLINE');
 
     if (geminiKey) localStorage.setItem('partner_fatih_gemini_key', geminiKey);
     else localStorage.removeItem('partner_fatih_gemini_key');
 
-    localStorage.setItem('partner_fatih_ai_mode', selectedAiMode);
+    localStorage.setItem('partner_fatih_ai_mode', selectedAiMode || 'groq');
     updateFatihEngineStatusBadge();
 
     if (typeof window.showToast === 'function') {
-      if (groqKey && geminiKey) {
+      if (groqKey && groqKey !== 'OFFLINE' && geminiKey) {
         window.showToast('🚀 Dual-Engine AI Aktif!', 'Groq (0.3s) & Gemini tersimpan. Siap bergantian otomatis!', 'success');
-      } else if (groqKey) {
+      } else if (groqKey && groqKey !== 'OFFLINE') {
         window.showToast('⚡ Groq Cloud Aktif', 'Groq LPU (0.3s) siap mendampingi.', 'success');
       } else if (geminiKey) {
         window.showToast('🌐 Gemini Flash Aktif', 'Google Gemini siap mendampingi.', 'success');
       } else {
-        window.showToast('🍃 Mode Offline', 'Fathiya berjalan dalam mode offline lokal.', 'info');
+        window.showToast('🍃 Mode Offline', 'Fathiya berjalan dalam mode offline lokal mandiri.', 'info');
       }
     }
 
@@ -47263,10 +47207,10 @@ Format params:
   }
 
   function removeFatihAiKey() {
-    if (confirm('Hapus seluruh kunci AI online dan kembali ke mode cerdas offline?')) {
-      localStorage.removeItem('partner_fatih_groq_key');
+    if (confirm('Alihkan Fathiya AI ke mode offline mandiri (tanpa koneksi internet/cloud)?')) {
+      localStorage.setItem('partner_fatih_groq_key', 'OFFLINE');
       localStorage.removeItem('partner_fatih_gemini_key');
-      localStorage.setItem('partner_fatih_ai_mode', 'hybrid');
+      localStorage.setItem('partner_fatih_ai_mode', 'groq');
 
       const groqInput = document.getElementById('fatihGroqApiKeyInput');
       const geminiInput = document.getElementById('fatihGeminiApiKeyInput');
@@ -47275,7 +47219,7 @@ Format params:
 
       updateFatihEngineStatusBadge();
       if (typeof window.showToast === 'function') {
-        window.showToast('🗑️ Kunci Dihapus', 'Fathiya kembali ke mode offline mandiri.', 'info');
+        window.showToast('🍃 Mode Offline Aktif', 'Fathiya berjalan dalam mode offline lokal mandiri.', 'info');
       }
       closeFatihAiSettings();
     }
@@ -47587,6 +47531,15 @@ Format params:
   };
 
   function initFatihApp() {
+    try {
+      const stored = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+      if ((!stored || stored === 'null' || stored === 'undefined') && _BUILTIN_GROQ_KEY) {
+        localStorage.setItem('partner_fatih_groq_key', _BUILTIN_GROQ_KEY);
+        if (!localStorage.getItem('partner_fatih_ai_mode')) {
+          localStorage.setItem('partner_fatih_ai_mode', 'groq');
+        }
+      }
+    } catch(e) {}
     checkAutoImportAiKeyFromUrl();
     injectChatUI();
     updateFatihEngineStatusBadge();
