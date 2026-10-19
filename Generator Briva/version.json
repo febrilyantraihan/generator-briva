@@ -1,13 +1,12 @@
 {
   "version": "1.0.9",
-  "build": 25,
+  "build": 26,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 25 (Natural Human Voice Tuning & Multi-Surface Stop Voice Controls)",
+  "title": "Rilis v1.0.9 Build 26 (Dynamic Schedule Mutation & Mobile Cross-Device Key Sync)",
   "changelog": [
-    "Ikon & Avatar Fathiya Baru: Menggunakan foto realistis Fathiya HD (JPEG 95% & PNG) dengan auto cache-busting v21",
-    "Mesin Empati Alami Super: Tanggap keluhan fisik/kesehatan (sakit perut, pusing, meriang, lelah) secara hangat, tulus, dan manusiawi",
-    "Sentuhan Personal & Curhat: Menanggapi obrolan batin, galau, pertanyaan personal, hingga doa dengan keanggunan sahabat muslimah sejati",
-    "Pintasan Cerdas Groq AI: Label mesin offline kini interaktif menghubungkan pengguna ke Llama 3.3 70B gratis super kilat 0.3s",
+    "Mutasi Jadwal KBM Realtime: Jadwal mengajar di kartu Dashboard & sub-tab Kelas kini dinamis terhubung langsung dengan mesin jadwal",
+    "Sinkronisasi Kunci AI ke HP: Fitur 1-klik kirim link WhatsApp & QR Code untuk mengaktifkan Groq/Gemini di HP Samsung Galaxy A55 secara instan",
+    "Solusi Koneksi Gemini: Optimalisasi timeout & perbaikan model resmi (2.5-flash / 2.0-flash / 1.5-flash) anti abort error",
     "PWA Cache Auto-Refresh: Pembaruan aset otomatis membersihkan cache lama di browser pengguna"
   ]
 }
