@@ -101,25 +101,343 @@
 
   // Default Curriculum Topics
   const PRAKARYA_CURRICULUM = [
-    { p: 1, m: "Pengenalan Mapel Prakarya, Kontrak Belajar & Ruang Lingkup Materi", ind: "Memahami tujuan pembelajaran Prakarya, tata tertib, dan lingkup kerajinan serta pengolahan." },
-    { p: 2, m: "Jenis & Karakteristik Bahan Serat Alam (Tumbuhan & Hewan)", ind: "Mengidentifikasi berbagai macam serat alam serta sifat fisiknya." },
-    { p: 3, m: "Pengolahan Bahan Serat & Teknik Dasar Kerajinan Tekstil", ind: "Menganalisis tahapan pengolahan bahan serat menjadi produk kerajinan." },
-    { p: 4, m: "Perancangan Produk Kerajinan Bahan Serat Berorientasi Lokal", ind: "Merancang ide, sketsa, dan kebutuhan alat/bahan produk kerajinan." },
-    { p: 5, m: "Praktik Pembuatan Produk Kerajinan Serat Alam (Sesi 1)", ind: "Mempraktikkan teknik pembuatan kerajinan serat sesuai rancangan sketsa." },
-    { p: 6, m: "Finishing & Pembuatan Kemasan Produk Kerajinan Serat", ind: "Menyelesaikan produk kerajinan dengan sentuhan akhir dan wadah kemasan estetis." },
-    { p: 7, m: "Evaluasi Hasil Produk Kerajinan Bahan Serat & Display Karya", ind: "Menilai estetika, fungsi produk, dan presentasi karya kelompok." },
-    { p: 8, m: "Pendalaman Materi & Review Menghadapi STS (Tengah Semester)", ind: "Mengulang konsep serat, pengolahan bahan dan persiapan evaluasi STS." },
-    { p: 9, m: "Pembahasan Soal STS Prakarya & Refleksi Hasil Ujian", ind: "Menganalisis hasil tes tengah semester dan remedial materi yang belum tuntas." },
-    { p: 10, m: "Pengolahan Bahan Pangan Buah Segar Menjadi Makanan & Minuman Sehat", ind: "Mengidentifikasi kandungan gizi dan manfaat buah segar khas daerah." },
-    { p: 11, m: "Metode & Teknik Dasar Pengolahan Pangan (Boiling, Steaming, dll)", ind: "Memahami teknik pengolahan panas basah dan panas kering." },
-    { p: 12, m: "Perancangan Resep & Praktik Minuman Segar Khas Daerah", ind: "Merancang takaran resep dan higienitas pembuatan minuman segar." },
-    { p: 13, m: "Praktik Pengolahan Makanan Ringan Sehat Berbahan Buah", ind: "Mengolah pangan buah menjadi olahan higienis siap santap." },
-    { p: 14, m: "Penyajian, Kemasan Higienis & Perhitungan Harga Jual", ind: "Menentukan kemasan pangan aman dan menghitung modal serta harga jual." },
-    { p: 15, m: "Pengolahan Hasil Samping Buah Menjadi Produk Bermanfaat", ind: "Memanfaatkan kulit dan biji buah menjadi produk bernilai guna." },
-    { p: 16, m: "Teknologi Konstruksi & Rekayasa Miniatur Bangunan Ramah Lingkungan", ind: "Merangkai bahan sederhana menjadi konstruksi miniatur miniatur rumah." },
-    { p: 17, m: "Ujian Praktik Akhir Semester & Pengumpulan Portofolio", ind: "Penilaian unjuk kerja akhir semester dan kelengkapan jurnal belajar." },
-    { p: 18, m: "Evaluasi Akhir Semester, Akumulasi Nilai SAS & Rapor", ind: "Rekapitulasi nilai harian, bonus keaktifan, dan penyerahan nilai akhir." }
-  ];
+    {
+        "p": 1,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.1",
+        "m": "Mengenal Jenis dan Karakteristik Tanaman Sayur",
+        "ind": "Mengidentifikasi jenis tanaman sayur (daun, batang, akar, buah) dan karakteristik morfologinya.",
+        "kbc": "Cinta Lingkungan & Cinta Allah Swt. (Tadabbur QS. An-Nahl: 10-11)",
+        "dalil": "QS. An-Nahl: 10-11 (\"Dia-lah yang menurunkan air dari langit untuk kamu...\")",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 2,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.2",
+        "m": "Sarana dan Teknik Budi Daya Tanaman Sayur",
+        "ind": "Menjelaskan alat, media tanam organik, benih unggul, pupuk, dan teknik penyiraman teratur.",
+        "kbc": "Cinta Ilmu & Keberkahan Menanam (HR. Muslim)",
+        "dalil": "HR. Muslim (\"Tidaklah seorang muslim menanam pohon kecuali bernilai sedekah\")",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 3,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.3",
+        "m": "Modifikasi Wadah & Media Budi Daya Tanaman Sayur",
+        "ind": "Merancang wadah vertikultur dan pemanfaatan barang bekas ramah lingkungan (Zero Waste).",
+        "kbc": "Cinta Lingkungan (Adiwiyata & Kelestarian Bumi)",
+        "dalil": "Amanah Khalifah di Muka Bumi (QS. Al-Baqarah: 30)",
+        "cp": "Desain / Perencanaan",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 4,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.4",
+        "m": "Merencanakan Budi Daya Tanaman Sayur Berkelanjutan",
+        "ind": "Menyusun jadwal tanam, pembagian tugas kelompok, dan estimasi kebutuhan sarana budi daya.",
+        "kbc": "Cinta Diri & Sesama Manusia (Musyawarah & Gotong Royong)",
+        "dalil": "Prinsip Syura & Ta'awun (QS. Al-Ma'idah: 2)",
+        "cp": "Desain / Perencanaan",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 5,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.5",
+        "m": "Praktik Budi Daya Tanaman Sayur: Penyemaian & Media Tanam",
+        "ind": "Mempraktikkan pencampuran tanah subur, pupuk kompos, dan penyemaian benih sayuran.",
+        "kbc": "Cinta Lingkungan & Ketelitian Bekerja",
+        "dalil": "Etos Kerja Itqan (HR. Thabrani)",
+        "cp": "Produksi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 6,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.5",
+        "m": "Praktik Pemeliharaan: Penyiraman, Penyiangan & Pemupukan",
+        "ind": "Melakukan perawatan harian bibit sayur, pengendalian gulma, dan pencatatan laju tumbuh.",
+        "kbc": "Cinta Lingkungan & Disiplin Tanggung Jawab",
+        "dalil": "Amanah menjaga titipan Allah Swt.",
+        "cp": "Produksi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 7,
+        "unit": "Unit 1: Budi Daya Tanaman Sayur",
+        "subBab": "Sub Bab 1.6",
+        "m": "Mengevaluasi Hasil Budi Daya Tanaman Sayur & Sumatif Unit 1",
+        "ind": "Mengevaluasi hasil panen sayuran, mencatat kendala proses budi daya, dan rasa syukur.",
+        "kbc": "Cinta Allah Swt. & Kejujuran Reflektif",
+        "dalil": "Syukur atas Nikmat Hasil Bumi (QS. Ibrahim: 7)",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 8,
+        "unit": "Unit 2: Budi Daya Ikan Konsumsi",
+        "subBab": "Sub Bab 2.1",
+        "m": "Mengenal Jenis dan Karakteristik Ikan Konsumsi Air Tawar",
+        "ind": "Mendeskripsikan minimal 3 jenis ikan konsumsi (Lele, Nila, Gurami) dan kandungan gizinya.",
+        "kbc": "Cinta Allah Swt. & Gizi Halalan Thayyiban",
+        "dalil": "Konsumsi Pangan Halal & Bergizi (QS. Al-Baqarah: 168)",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 9,
+        "unit": "Evaluasi Tengah Semester",
+        "subBab": "STS Ganjil",
+        "m": "Sumatif Tengah Semester (STS) Ganjil: Teori Budi Daya Sayur & Ikan",
+        "ind": "Mengukur ketercapaian TP budi daya sayuran dan pemahaman teknik budi daya ikan.",
+        "kbc": "Cinta Ilmu & Integritas Kejujuran Belajar",
+        "dalil": "Kejujuran Membawa Kebaikan (HR. Bukhari)",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 10,
+        "unit": "Unit 2: Budi Daya Ikan Konsumsi",
+        "subBab": "Sub Bab 2.2",
+        "m": "Sistem dan Teknik Budi Daya Ikan Konsumsi Air Tawar",
+        "ind": "Mengidentifikasi sistem kolam terpal, kolam tanah, dan budikdamber (ember tumpangsari).",
+        "kbc": "Cinta Ilmu & Teknologi Budi Daya Aplikatif",
+        "dalil": "Tafakkur dan Mengembangkan Ilmu Bermanfaat",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 11,
+        "unit": "Unit 2: Budi Daya Ikan Konsumsi",
+        "subBab": "Sub Bab 2.3",
+        "m": "Modifikasi Wadah Kolam Budi Daya Ikan Konsumsi Air Tawar",
+        "ind": "Membuat rancangan modifikasi kolam terpal hemat air dan sistem aquaponik mini.",
+        "kbc": "Cinta Lingkungan & Kreativitas Sumber Daya",
+        "dalil": "Larangan Berlebih-lebihan / Boros Air (QS. Al-A'raf: 31)",
+        "cp": "Desain / Perencanaan",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 12,
+        "unit": "Unit 2: Budi Daya Ikan Konsumsi",
+        "subBab": "Sub Bab 2.4",
+        "m": "Perencanaan Budi Daya Ikan Konsumsi Air Tawar",
+        "ind": "Menyusun rencana budi daya ikan (pemilihan benih, ransum pakan, manajemen air).",
+        "kbc": "Cinta Diri & Sesama (Manajemen Kolaboratif)",
+        "dalil": "Kerjasama Kelompok & Perencanaan Matang",
+        "cp": "Desain / Perencanaan",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 13,
+        "unit": "Unit 2: Budi Daya Ikan Konsumsi",
+        "subBab": "Sub Bab 2.5",
+        "m": "Praktik Budi Daya Ikan: Aklimatisasi & Penebaran Benih",
+        "ind": "Melaksanakan aklimatisasi benih ikan, penebaran bertahap, dan pemantauan aerasi.",
+        "kbc": "Cinta Lingkungan & Kasih Sayang Terhadap Hewan",
+        "dalil": "Kasih Sayang pada Makhluk Hidup (HR. Abu Dawud)",
+        "cp": "Produksi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 14,
+        "unit": "Unit 2: Budi Daya Ikan Konsumsi",
+        "subBab": "Sub Bab 2.6",
+        "m": "Evaluasi Hasil Budi Daya Ikan & Analisa Usaha Sederhana",
+        "ind": "Mengevaluasi FCR (pakan), estimasi biomassa, biaya modal, dan proyeksi keuntungan.",
+        "kbc": "Cinta Tanah Air & Kemandirian Ekonomi",
+        "dalil": "Berniaga dengan Benar & Jujur (QS. An-Nisa: 29)",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 15,
+        "unit": "Gelar Karya Ganjil",
+        "subBab": "Proyek KBC",
+        "m": "Proyek Kewirausahaan / Gelar Karya Hasil Budi Daya Ganjil",
+        "ind": "Mengemas dan menampilkan produk budi daya sayur & ikan serta presentasi pameran madrasah.",
+        "kbc": "Cinta Tanah Air, Komunikasi Santun & Percaya Diri",
+        "dalil": "Menampilkan Karya Terbaik Bagi Umat",
+        "cp": "Produksi & Gelar Karya",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 16,
+        "unit": "Pengayaan & Remedial",
+        "subBab": "Review KBC",
+        "m": "Pendalaman Materi & Review Portofolio Menghadapi SAS Ganjil",
+        "ind": "Mengulang konsep budi daya, penuntasan tugas praktikum, dan penguatan portofolio.",
+        "kbc": "Cinta Ilmu & Muhasabah Pembelajaran",
+        "dalil": "Evaluasi Diri Menuju Kesempurnaan Amal",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 17,
+        "unit": "Evaluasi Akhir Semester",
+        "subBab": "SAS Ganjil",
+        "m": "Sumatif Akhir Semester (SAS) Ganjil & Pengumpulan Jurnal Portofolio",
+        "ind": "Penilaian unjuk kerja akhir semester ganjil, kelengkapan lembar kerja KBC, dan rapor.",
+        "kbc": "Cinta Allah Swt., Tawakkal & Rasa Syukur",
+        "dalil": "Hasil Akhir Disertai Tawakkal kepada Allah Swt.",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 18,
+        "unit": "Refleksi Rapor",
+        "subBab": "Evaluasi Belajar",
+        "m": "Refleksi Hasil Belajar Semester Ganjil & Bedah Prestasi Siswa",
+        "ind": "Pemberian umpan balik pencapaian KKTP, apresiasi karya siswa, dan orientasi genap.",
+        "kbc": "Apresiasi & Cinta Diri/Sesama",
+        "dalil": "Saling Mendoakan & Mendukung Kebaikan",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "ganjil",
+        "jp": 2
+    },
+    {
+        "p": 19,
+        "unit": "Unit 3: Budi Daya Ternak Unggas",
+        "subBab": "Sub Bab 3.1",
+        "m": "Mengenal Jenis dan Karakteristik Ternak Unggas Pedaging",
+        "ind": "Mengidentifikasi minimal 3 jenis unggas pedaging (ayam broiler/kampung, itik, puyuh).",
+        "kbc": "Cinta Allah Swt. & Cinta Ilmu Peternakan",
+        "dalil": "Penciptaan Hewan Ternak Berkah Manusia (QS. An-Nahl: 5)",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 20,
+        "unit": "Unit 3: Budi Daya Ternak Unggas",
+        "subBab": "Sub Bab 3.2",
+        "m": "Modifikasi Peralatan dan Teknik Budi Daya Unggas Pedaging",
+        "ind": "Mengidentifikasi peralatan kandang sehat, tempat pakan higienis, dan sanitasi bio-security.",
+        "kbc": "Cinta Ilmu & Kebersihan Lingkungan",
+        "dalil": "Kebersihan Sebagian dari Iman (HR. Muslim)",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 21,
+        "unit": "Unit 3: Budi Daya Ternak Unggas",
+        "subBab": "Sub Bab 3.3",
+        "m": "Menyusun Rencana Budi Daya Ternak Unggas Pedaging",
+        "ind": "Menentukan jenis unggas, jadwal ransum pakan, vitamin herbal, dan sanitasi kandang.",
+        "kbc": "Cinta Diri & Sesama Manusia (Manajemen Rencana)",
+        "dalil": "Merencanakan Langkah dengan Teliti",
+        "cp": "Desain / Perencanaan",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 22,
+        "unit": "Unit 3: Budi Daya Ternak Unggas",
+        "subBab": "Sub Bab 3.4",
+        "m": "Praktik Budi Daya Ternak Unggas: Perawatan & Kontrol Pakan",
+        "ind": "Melaksanakan tahapan pemeliharaan unggas, sanitasi kandang, dan pemberian pakan harian.",
+        "kbc": "Cinta Lingkungan & Kasih Sayang pada Hewan",
+        "dalil": "Kebaikan Memberi Makan Makhluk Hidup",
+        "cp": "Produksi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 23,
+        "unit": "Unit 3: Budi Daya Ternak Unggas",
+        "subBab": "Sub Bab 3.5",
+        "m": "Evaluasi Hasil Budi Daya Unggas & Standar Kelayakan Pasar",
+        "ind": "Mengevaluasi bobot pertumbuhan unggas, angka mortalitas, dan kesiapan panen.",
+        "kbc": "Cinta Tanah Air & Kelayakan Pasar Halal",
+        "dalil": "Memenuhi Kebutuhan Konsumsi Pangan Rakyat",
+        "cp": "Refleksi / Evaluasi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 24,
+        "unit": "Unit 4: Kewirausahaan Budi Daya",
+        "subBab": "Sub Bab 4.1",
+        "m": "Peluang Kewirausahaan Produk Budi Daya Berbasis Potensi Lokal",
+        "ind": "Mengidentifikasi peluang usaha agrobisnis dan olahan hasil budi daya di wilayah Lamongan/Tuban.",
+        "kbc": "Cinta Ilmu & Cinta Tanah Air (Pemberdayaan Desa)",
+        "dalil": "Membangun Ekonomi Mandiri Umat",
+        "cp": "Observasi / Eksplorasi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 25,
+        "unit": "Unit 4: Kewirausahaan Budi Daya",
+        "subBab": "Sub Bab 4.2",
+        "m": "Perencanaan Usaha & Desain Kemasan Produk Budi Daya",
+        "ind": "Menyusun rancangan modal awal, penetapan harga jual, dan desain label kemasan ramah lingkungan.",
+        "kbc": "Cinta Diri & Sesama (Kreativitas & Estetika)",
+        "dalil": "Berbuat Ihsan dalam Setiap Hal (HR. Muslim)",
+        "cp": "Desain / Perencanaan",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 26,
+        "unit": "Unit 4: Kewirausahaan Budi Daya",
+        "subBab": "Sub Bab 4.3",
+        "m": "Produksi & Pengemasan Produk Olahan Budi Daya Higienis",
+        "ind": "Melaksanakan pengolahan hasil budi daya pangan dan pengemasan steril siap jual.",
+        "kbc": "Cinta Lingkungan & Pangan Halalan Thayyiban",
+        "dalil": "Keamanan Pangan untuk Kemaslahatan",
+        "cp": "Produksi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 27,
+        "unit": "Unit 4: Kewirausahaan Budi Daya",
+        "subBab": "Sub Bab 4.4",
+        "m": "Strategi Promosi & Komunikasi Pemasaran Santun",
+        "ind": "Merancang media promosi visual, strategi pesan WhatsApp, dan etika penjualan jujur.",
+        "kbc": "Cinta Tanah Air & Etika Berniaga Islami",
+        "dalil": "Kejujuran Pedagang Bersama Para Nabi di Surga",
+        "cp": "Produksi & Promosi",
+        "sem": "genap",
+        "jp": 2
+    },
+    {
+        "p": 28,
+        "unit": "Unit 4: Kewirausahaan Budi Daya",
+        "subBab": "Sub Bab 4.5",
+        "m": "Gelar Karya Akbar Kewirausahaan Panca Cinta KBC & Evaluasi",
+        "ind": "Menampilkan stan bazar produk budi daya santri, presentasi laporan laba, dan refleksi akhir tahun.",
+        "kbc": "Panca Cinta KBC (Syukur, Mandiri, Berdaya)",
+        "dalil": "Alhamdulillah atas Segala Nikmat Usaha",
+        "cp": "Produksi & Gelar Karya",
+        "sem": "genap",
+        "jp": 2
+    }
+];
 
   const SAFINAH_CURRICULUM = [
     { p: 1, m: "Mukadimah Kitab Safinatun Najah & Keutamaan Ilmu Syariat", ind: "Mengetahui biografi muallif Syaikh Salim bin Sumair dan pentingnya belajar fiqih." },
@@ -182,6 +500,7 @@
   // Active module state
   let currentJurnalUnit = 'formal';
   let currentJurnalClass = '7A';
+  let hasUserManuallySelectedClass = false;
   let currentJurnalPertemuan = 1;
   let currentJurnalSubTab = 'jadwal';
   let jurnalState = null;
@@ -235,21 +554,25 @@
         }
       });
 
-      // 2. Kalibrasi nama mapel & jam sesi tiap kelas formal ke Jadwal Resmi MTs Kode 33
+      // 2. Sinkronkan nama mapel & jam sesi tiap kelas dengan jadwal aktif
       Object.keys(jurnalState.classes).forEach(clsId => {
         const cls = jurnalState.classes[clsId];
         const sched = DEFAULT_CLASS_SCHEDULE[clsId];
-        if (cls && sched) {
-          if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
+        const userSched = (jurnalState.schedules || []).find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === clsId.toUpperCase());
+        if (cls) {
+          if (userSched && userSched.subject) {
+            cls.subject = userSched.subject;
+          } else if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
             cls.subject = 'Prakarya (Kode 33)';
           }
           if (cls.sessions) {
-            const officialTime = `${sched.time} (${sched.hours})`;
+            const activeTime = userSched ? userSched.time : (sched ? `${sched.time} (${sched.hours})` : '07.00 - 08.30');
+            const activeDay = userSched ? userSched.day : (sched ? sched.day : 'Ahad');
             for (let p = 1; p <= 18; p++) {
               if (cls.sessions[p]) {
-                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34') || cls.sessions[p].time !== officialTime) {
-                  cls.sessions[p].time = officialTime;
-                  cls.sessions[p].day = sched.day;
+                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34')) {
+                  cls.sessions[p].time = activeTime;
+                  cls.sessions[p].day = activeDay;
                   isUpdated = true;
                 }
               }
@@ -336,6 +659,19 @@
   // --- Public Exposed Controller Functions ---
   window.initJurnalModule = function() {
     loadJurnalState();
+
+    // Otomatis arahkan ke kelas yang aktif atau yang akan diajar terdekat
+    if (!hasUserManuallySelectedClass) {
+      const activeClassId = determineActiveTeachingClass();
+      if (activeClassId) {
+        currentJurnalClass = activeClassId;
+        const currentCls = jurnalState && jurnalState.classes && jurnalState.classes[currentJurnalClass];
+        if (currentCls && currentCls.unit) {
+          currentJurnalUnit = currentCls.unit;
+        }
+      }
+    }
+
     const subj = document.getElementById('jurnalActiveSubjectName');
     const classData = jurnalState && jurnalState.classes && jurnalState.classes[currentJurnalClass];
     if (subj && classData) {
@@ -402,6 +738,7 @@
   };
 
   window.switchJurnalClass = function(classId) {
+    hasUserManuallySelectedClass = true;
     currentJurnalClass = classId;
     const subj = document.getElementById('jurnalActiveSubjectName');
     const classData = jurnalState && jurnalState.classes && jurnalState.classes[currentJurnalClass];
@@ -423,7 +760,7 @@
 
   window.switchJurnalSubTab = function(tabName) {
     currentJurnalSubTab = tabName;
-    const subTabs = ['beranda', 'materi', 'kelas', 'presensi', 'jadwal', 'penilaian', 'rekap', 'slide'];
+    const subTabs = ['beranda', 'materi', 'kelas', 'presensi', 'jadwal', 'penilaian', 'rekap', 'slide', 'perangkat'];
     subTabs.forEach(t => {
       const btn = document.getElementById('jurnalSubTabBtn_' + t);
       const view = document.getElementById('jurnalSubView_' + t);
@@ -443,6 +780,7 @@
     if (tabName === 'penilaian') renderPenilaianTable();
     if (tabName === 'rekap') renderRekapSemesterTable();
     if (tabName === 'slide') renderSlideStudio();
+    if (tabName === 'perangkat') renderPerangkatAjarKbc();
     if (tabName === 'jadwal') {
       renderJurnalReminders();
       renderJurnalTimetable();
@@ -451,6 +789,46 @@
   };
 
   // --- RENDER SUB-VIEWS MOBILE TERPADU ---
+
+  // Helper Resolver Jadwal Kelas Dinamis dari State Runtime
+  function getDynamicClassDisplayList(unit) {
+    const baseFormal = [
+      { id: '7A', label: 'Kelas 7A MTs', title: 'Kelas 7A MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Ahad Jam 5-6' },
+      { id: '7B', label: 'Kelas 7B MTs', title: 'Kelas 7B MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Ahad Jam 7-8' },
+      { id: '7C', label: 'Kelas 7C MTs', title: 'Kelas 7C MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Kamis Jam 1-2' },
+      { id: '7D', label: 'Kelas 7D MTs', title: 'Kelas 7D MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Senin Jam 7-8' },
+      { id: '8A', label: 'Kelas 8A MTs', title: 'Kelas 8A MTs', defaultMapel: 'Prakarya', defaultSched: 'Selasa Jam 1-2' },
+      { id: '8B', label: 'Kelas 8B MTs', title: 'Kelas 8B MTs', defaultMapel: 'Prakarya', defaultSched: 'Selasa Jam 3-4' },
+      { id: '8C', label: 'Kelas 8C MTs', title: 'Kelas 8C MTs', defaultMapel: 'Prakarya', defaultSched: 'Ahad Jam 1-2' },
+      { id: '8D', label: 'Kelas 8D MTs', title: 'Kelas 8D MTs', defaultMapel: 'Prakarya', defaultSched: 'Senin Jam 1-2' }
+    ];
+    const baseNonFormal = [
+      { id: '1UlaA', label: '1 Ula A (Diniyah)', title: '1 Ula A (Diniyah)', defaultMapel: 'Safinatun Najah', defaultSched: 'Selasa Malam' },
+      { id: '1UlaB', label: '1 Ula B (Diniyah)', title: '1 Ula B (Diniyah)', defaultMapel: 'Safinatun Najah', defaultSched: 'Jumat Malam' }
+    ];
+
+    const rawList = unit === 'formal' ? baseFormal : baseNonFormal;
+    return rawList.map(c => {
+      const sch = (jurnalState && Array.isArray(jurnalState.schedules))
+        ? jurnalState.schedules.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === c.id.toUpperCase())
+        : null;
+      let schedDisplay = c.defaultSched;
+      let mapelDisplay = c.defaultMapel;
+      if (sch) {
+        if (sch.subject) mapelDisplay = sch.subject;
+        const mJam = (sch.time || '').match(/Jam\s*[\d-]+/i);
+        const timeBrief = mJam ? mJam[0] : (sch.time ? sch.time.split('(')[0].trim() : '');
+        schedDisplay = `${sch.day} ${timeBrief}`.trim();
+      }
+      return {
+        id: c.id,
+        label: c.label,
+        title: c.title,
+        mapel: mapelDisplay,
+        schedule: schedDisplay
+      };
+    });
+  }
 
   // 1. Render Dashboard Bento & Preview Kelas (Persis Screenshot 3)
   function renderJurnalDashboard() {
@@ -490,35 +868,64 @@
     // Render Preview Kelas Grid
     const previewGrid = document.getElementById('dashboardClassPreviewGrid');
     if (previewGrid) {
-      const classList = currentJurnalUnit === 'formal'
-        ? [
-            { id: '7A', label: 'Kelas 7A MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 5-6' },
-            { id: '7B', label: 'Kelas 7B MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 7-8' },
-            { id: '7C', label: 'Kelas 7C MTs', mapel: 'Prakarya (33)', schedule: 'Kamis Jam 1-2' },
-            { id: '7D', label: 'Kelas 7D MTs', mapel: 'Prakarya (33)', schedule: 'Senin Jam 7-8' },
-            { id: '8A', label: 'Kelas 8A MTs', mapel: 'Prakarya', schedule: 'MTs 8A' },
-            { id: '8B', label: 'Kelas 8B MTs', mapel: 'Prakarya', schedule: 'MTs 8B' },
-            { id: '8C', label: 'Kelas 8C MTs', mapel: 'Prakarya', schedule: 'MTs 8C' },
-            { id: '8D', label: 'Kelas 8D MTs', mapel: 'Prakarya', schedule: 'MTs 8D' }
-          ]
-        : [
-            { id: '1UlaA', label: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa Malam' },
-            { id: '1UlaB', label: '1 Ula B (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Jumat Malam' }
-          ];
+      const activeTeachingClassId = determineActiveTeachingClass();
+      const targetSelectedClass = currentJurnalClass || activeTeachingClassId;
+      const classList = getDynamicClassDisplayList(currentJurnalUnit);
 
       previewGrid.innerHTML = classList.map(c => {
-        const isSelected = c.id === currentJurnalClass;
-        const cardStyle = isSelected
-          ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-rose-500/25'
-          : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-white border border-slate-200/80 dark:border-slate-800 shadow-2xs';
-        const subColor = isSelected ? 'text-white/80' : 'text-slate-400';
+        const isSelected = c.id === targetSelectedClass;
+        const isUpcomingToTeach = c.id === activeTeachingClassId;
+        const isOngoing = isSessionCurrentlyOngoing(c.id);
+
+        // Kelas yang aktif atau akan diajar mendapatkan tanda merah mencolok
+        const isRedActive = isSelected || (!hasUserManuallySelectedClass && isUpcomingToTeach);
+
+        const cardStyle = isRedActive
+          ? 'bg-gradient-to-r from-red-600 via-rose-600 to-rose-700 text-white shadow-lg shadow-rose-600/30 ring-2 ring-rose-400/50'
+          : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-white border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:border-rose-300';
+        const subColor = isRedActive ? 'text-white/90' : 'text-slate-400';
+
+        let badgeHtml = '';
+        if (isOngoing) {
+          badgeHtml = `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500 text-white tracking-wider uppercase mb-1 shadow-xs animate-pulse">
+              <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              Sedang Berlangsung
+            </span>
+          `;
+        } else if (isUpcomingToTeach && isRedActive) {
+          badgeHtml = `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-white/20 text-white tracking-wider uppercase mb-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+              Jadwal Mengajar Terdekat
+            </span>
+          `;
+        } else if (isRedActive) {
+          badgeHtml = `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-white/20 text-white tracking-wider uppercase mb-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              Kelas Aktif
+            </span>
+          `;
+        } else if (isUpcomingToTeach) {
+          badgeHtml = `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 tracking-wider uppercase mb-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+              Akan Diajar Berikutnya
+            </span>
+          `;
+        }
+
         return `
           <div onclick="switchJurnalClass('${c.id}'); switchJurnalSubTab('materi');" class="${cardStyle} p-3.5 rounded-2xl cursor-pointer active:scale-95 transition-all flex items-center justify-between">
             <div>
+              ${badgeHtml}
               <span class="text-[10px] font-bold ${subColor} uppercase block">${c.mapel} • ${c.schedule}</span>
               <h5 class="text-sm font-black">${c.label}</h5>
             </div>
-            <i data-lucide="${isSelected ? 'check-circle-2' : 'chevron-right'}" class="w-4 h-4 ${isSelected ? 'text-white' : 'text-slate-400'}"></i>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <i data-lucide="${isRedActive ? 'check-circle-2' : 'chevron-right'}" class="w-5 h-5 ${isRedActive ? 'text-white' : 'text-slate-400'}"></i>
+            </div>
           </div>
         `;
       }).join('');
@@ -559,7 +966,7 @@
       const materiSnippet = sess.materi ? sess.materi : `Materi Pembelajaran Pertemuan ${p}`;
 
       cardsHtml += `
-        <div class="mobile-ref-card p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-rose-300 transition-all cursor-pointer" onclick="openJurnalDetailModal(${p})">
+        <div class="mobile-ref-card p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-rose-300 transition-all cursor-pointer" onclick="selectJurnalPertemuan(${p}); setJurnalViewMode('editor');">
           <!-- Left Icon Box: Crimson Square with White Check -->
           <div class="flex items-center gap-3 min-w-0 flex-1">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-600 to-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-rose-500/30">
@@ -578,7 +985,7 @@
             </div>
           </div>
 
-          <!-- Right: 3-Stats Column (Sakit, Alfa, Izin) & Detail Link -->
+          <!-- Right: 3-Stats Column (Sakit, Alfa, Izin) & Action Links -->
           <div class="flex flex-col items-end flex-shrink-0">
             <div class="flex items-center gap-2 sm:gap-3 text-center">
               <div class="leading-tight">
@@ -595,15 +1002,18 @@
               </div>
             </div>
             <div class="flex items-center gap-1.5 mt-1.5">
+              <button type="button" onclick="event.stopPropagation(); selectJurnalPertemuan(${p}); setJurnalViewMode('editor');" class="text-[9px] px-2 py-0.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1 border border-rose-500/20 active:scale-95 transition-all" title="Edit Jurnal Pertemuan Ini">
+                <span>Edit ✏️</span>
+              </button>
               <button type="button" onclick="event.stopPropagation(); openSlideStudioForPertemuan(${p});" class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 border border-indigo-500/20 active:scale-95 transition-all" title="Buka Slide Presentasi & Canva">
                 <span>Slide</span>
               </button>
               <button type="button" onclick="event.stopPropagation(); openJurnalAiQuizModal(${p});" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1 border border-amber-500/20 active:scale-95 transition-all" title="Tanya Santri (AI Evaluasi)">
                 <span>Tanya AI</span> 🎯
               </button>
-              <span class="text-[10px] text-rose-600 dark:text-rose-400 font-bold hover:underline">
+              <button type="button" onclick="event.stopPropagation(); openJurnalDetailModal(${p});" class="text-[10px] text-slate-500 hover:text-rose-600 font-bold cursor-pointer">
                 Detail &rarr;
-              </span>
+              </button>
             </div>
           </div>
         </div>
@@ -619,28 +1029,21 @@
     const container = document.getElementById('jurnalClassCardsList');
     if (!container) return;
 
-    const classList = currentJurnalUnit === 'formal'
-      ? [
-          { id: '7A', title: 'Kelas 7A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '7B', title: 'Kelas 7B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 10.20 - 11.40 (Jam 5-6)' },
-          { id: '7C', title: 'Kelas 7C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '7D', title: 'Kelas 7D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '8A', title: 'Kelas 8A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8B', title: 'Kelas 8B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '8C', title: 'Kelas 8C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8D', title: 'Kelas 8D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Senin • 12.10 - 13.20 (Jam 7-8)' }
-        ]
-      : [
-          { id: '1UlaA', title: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa • 18.00 - 19.30 (Malam)' },
-          { id: '1UlaB', title: '1 Ula B (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Jumat • 18.00 - 19.30 (Malam)' }
-        ];
+    const classList = getDynamicClassDisplayList(currentJurnalUnit);
+
+    const activeTeachingClassId = determineActiveTeachingClass();
+    const targetSelectedClass = currentJurnalClass || activeTeachingClassId;
 
     container.innerHTML = classList.map(c => {
-      const isSelected = c.id === currentJurnalClass;
-      if (isSelected) {
+      const isSelected = c.id === targetSelectedClass;
+      const isUpcomingToTeach = c.id === activeTeachingClassId;
+      const isRedCard = isSelected || (!hasUserManuallySelectedClass && isUpcomingToTeach);
+
+      if (isRedCard) {
         return `
-          <div onclick="switchJurnalClass('${c.id}'); switchJurnalSubTab('materi');" class="p-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-rose-700 text-white shadow-lg shadow-rose-500/30 flex items-center justify-between cursor-pointer active:scale-98 transition-all relative overflow-hidden">
+          <div onclick="switchJurnalClass('${c.id}'); switchJurnalSubTab('materi');" class="p-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-rose-700 text-white shadow-lg shadow-rose-500/30 flex items-center justify-between cursor-pointer active:scale-98 transition-all relative overflow-hidden ring-2 ring-rose-400/40">
             <div class="relative z-10">
+              ${isUpcomingToTeach ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-white/20 text-white tracking-wider uppercase mb-1"><span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Jadwal Terdekat</span>' : ''}
               <span class="text-[10px] font-bold text-white/80 block uppercase">${c.schedule} • ${c.mapel}</span>
               <h4 class="text-base font-black tracking-tight">${c.title}</h4>
               <span class="text-[11px] text-white/90 underline mt-1.5 block">Click untuk selengkapnya &rarr;</span>
@@ -787,7 +1190,8 @@
     closeJurnalDetailModal();
     selectJurnalPertemuan(currentDetailPertemuan);
     switchJurnalSubTab('materi');
-    const formTitle = document.getElementById('jurnalFormTitle');
+    if (typeof setJurnalViewMode === 'function') setJurnalViewMode('editor');
+    const formTitle = document.getElementById('jurnalFormClassTitle') || document.getElementById('jurnalFormTitle');
     if (formTitle) formTitle.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
@@ -858,12 +1262,64 @@
     }
   };
 
+  let currentJurnalViewMode = 'editor';
+  window.setJurnalViewMode = function(mode) {
+    currentJurnalViewMode = mode;
+    const editorSec = document.getElementById('jurnalEditorSection');
+    const listSec = document.getElementById('jurnalListSection');
+    const btnEditor = document.getElementById('btnJurnalModeEditor');
+    const btnList = document.getElementById('btnJurnalModeList');
+
+    if (mode === 'editor') {
+      if (editorSec) editorSec.classList.remove('hidden');
+      if (listSec) listSec.classList.add('hidden');
+      if (btnEditor) {
+        btnEditor.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs";
+      }
+      if (btnList) {
+        btnList.className = "flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+      }
+      renderCurrentJurnalForm();
+      renderJurnalPertemuanPills();
+      renderJurnalClassPills();
+    } else {
+      if (editorSec) editorSec.classList.add('hidden');
+      if (listSec) listSec.classList.remove('hidden');
+      if (btnEditor) {
+        btnEditor.className = "flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+      }
+      if (btnList) {
+        btnList.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs";
+      }
+      renderJurnalSessionCards();
+    }
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  };
+
+  window.navigateJurnalSession = function(delta) {
+    let nextP = currentJurnalPertemuan + delta;
+    if (nextP < 1) nextP = 18;
+    if (nextP > 18) nextP = 1;
+    selectJurnalPertemuan(nextP);
+  };
+
+  window.openPresensiForCurrentClassSession = function() {
+    switchJurnalSubTab('presensi');
+  };
+
   window.selectJurnalPertemuan = function(pNum) {
     currentJurnalPertemuan = pNum;
+    renderJurnalClassPills();
     renderJurnalPertemuanPills();
     renderCurrentJurnalForm();
     renderPresensiTable();
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
+
+    // Auto-scroll active pill into view smoothly
+    const pill = document.getElementById('jurnalPillBtn_' + pNum);
+    if (pill) {
+      pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
   };
 
   // Render Class Pills
@@ -878,9 +1334,9 @@
     container.innerHTML = classList.map(c => {
       const isActive = c.id === currentJurnalClass;
       const activeClass = isActive 
-        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-extrabold shadow-xs' 
+        ? 'bg-rose-600 text-white font-extrabold shadow-xs shadow-rose-600/30' 
         : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 font-semibold';
-      return `<button type="button" onclick="switchJurnalClass('${c.id}')" class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${activeClass}">${c.label}</button>`;
+      return `<button type="button" onclick="switchJurnalClass('${c.id}')" class="flex-shrink-0 px-2.5 py-1 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${activeClass}">${c.label}</button>`;
     }).join('');
   }
 
@@ -897,11 +1353,11 @@
       const isCurrent = p === currentJurnalPertemuan;
       const dotColor = isFilled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600';
       const btnClass = isCurrent 
-        ? 'bg-blue-600 text-white font-bold shadow-xs' 
-        : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium hover:bg-slate-100';
+        ? 'bg-rose-600 text-white font-bold shadow-xs shadow-rose-600/25 ring-2 ring-rose-400/40' 
+        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium hover:bg-slate-100 dark:hover:bg-slate-700';
 
       html += `
-        <button type="button" onclick="selectJurnalPertemuan(${p})" class="flex-shrink-0 px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${btnClass}">
+        <button id="jurnalPillBtn_${p}" type="button" onclick="selectJurnalPertemuan(${p})" class="flex-shrink-0 px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${btnClass}">
           <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
           <span>P${p}</span>
         </button>
@@ -918,6 +1374,13 @@
 
     const titleEl = document.getElementById('jurnalFormTitle');
     const subTitleEl = document.getElementById('jurnalFormSubtitle');
+    const meetingBadge = document.getElementById('jurnalFormMeetingBadge');
+    const classTitleEl = document.getElementById('jurnalFormClassTitle');
+    const schedBadge = document.getElementById('jurnalFormScheduleBadge');
+    const codeBadge = document.getElementById('jurnalFormCodeBadge');
+    const unitBadge = document.getElementById('jurnalFormUnitBadge');
+    const statusBadge = document.getElementById('jurnalFormStatusBadge');
+
     const dateEl = document.getElementById('jurnalFormDate');
     const timeEl = document.getElementById('jurnalFormTime');
     const statusEl = document.getElementById('jurnalFormStatus');
@@ -926,9 +1389,41 @@
     const catEl = document.getElementById('jurnalFormCatatan');
 
     if (titleEl) titleEl.textContent = `Jurnal Pembelajaran Pertemuan ${currentJurnalPertemuan}`;
+    if (meetingBadge) meetingBadge.textContent = `Pertemuan ${currentJurnalPertemuan} (Sesi ${currentJurnalPertemuan}/18)`;
+
     const sched = DEFAULT_CLASS_SCHEDULE[currentJurnalClass] || {};
     const schedInfo = sched.day ? ` • Jadwal: ${sched.day} ${sched.time} (${sched.hours})` : '';
     if (subTitleEl) subTitleEl.textContent = `Kelas: ${classData.label} (${classData.unit === 'formal' ? 'MTs' : 'Madrasah Diniyah'}) • Mapel: ${classData.subject}${schedInfo}`;
+
+    if (classTitleEl) {
+      classTitleEl.textContent = `Kelas ${classData.label} (${classData.unit === 'formal' ? 'MTs' : 'Madrasah Diniyah'}) • ${classData.subject}`;
+    }
+
+    if (schedBadge) {
+      const schedText = sched.day ? `${sched.day}, ${sched.time} (${sched.hours})` : 'Jadwal Reguler';
+      schedBadge.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-blue-500 flex-shrink-0"></i><span>${schedText}</span>`;
+    }
+
+    if (codeBadge) {
+      const codeVal = classData.subjectCode || (classData.unit === 'formal' ? 'Kode 33' : 'Kitab Standar');
+      codeBadge.innerHTML = `<i data-lucide="tag" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i><span>${codeVal}</span>`;
+    }
+
+    if (unitBadge) {
+      const unitLabel = classData.unit === 'formal' ? 'Formal MTs' : 'Madrasah Diniyah';
+      unitBadge.innerHTML = `<i data-lucide="building" class="w-3.5 h-3.5 text-purple-500 flex-shrink-0"></i><span>${unitLabel}</span>`;
+    }
+
+    if (statusBadge) {
+      const isDone = sess.status === 'terlaksana' || (sess.materi && sess.materi.trim() !== '');
+      if (isDone) {
+        statusBadge.className = "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+        statusBadge.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"></i><span>Terlaksana</span>`;
+      } else {
+        statusBadge.className = "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800";
+        statusBadge.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i><span>Belum Diisi</span>`;
+      }
+    }
 
     const officialTime = sched.time ? `${sched.time} (${sched.hours})` : (classData.unit === 'formal' ? '07.00 - 08.30' : '18.00 - 19.30 (Malam)');
 
@@ -943,9 +1438,14 @@
     if (materiEl) materiEl.value = sess.materi || '';
     if (indEl) indEl.value = sess.indikator || '';
     if (catEl) catEl.value = sess.catatan || '';
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
   }
 
   window.autoSaveJurnalDebounced = function() {
+    const statusBadge = document.getElementById('jurnalSaveStatusBadge');
+    if (statusBadge) {
+      statusBadge.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin text-amber-500"></i><span>Menyimpan...</span>';
+    }
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       saveCurrentJurnalSession(true);
@@ -970,11 +1470,17 @@
 
     saveJurnalState();
     renderJurnalPertemuanPills();
+    renderJurnalSessionCards();
 
     const statusBadge = document.getElementById('jurnalSaveStatusBadge');
     if (statusBadge) {
-      statusBadge.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Tersimpan Otomatis</span>';
+      statusBadge.innerHTML = '<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span>Tersimpan Otomatis</span>';
       statusBadge.classList.remove('hidden');
+    }
+    const formStatus = document.getElementById('jurnalFormStatusBadge');
+    if (formStatus) {
+      formStatus.className = "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+      formStatus.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i><span>Terlaksana</span>';
     }
     if (!silent && typeof showToast === 'function') {
       showToast('Jurnal Tersimpan', `Pertemuan ${currentJurnalPertemuan} Kelas ${classData.label} berhasil disimpan.`);
@@ -1430,6 +1936,97 @@
     }
   }
 
+  function determineActiveTeachingClass() {
+    if (!jurnalState || !jurnalState.schedules || jurnalState.schedules.length === 0) {
+      return currentJurnalClass || '7A';
+    }
+
+    const realNow = new Date();
+    let evalDate = new Date();
+    if (typeof teachingTimerSimMode !== 'undefined' && teachingTimerSimMode !== 'live') {
+      if (teachingTimerSimMode === 'sim_upcoming') {
+        evalDate = new Date(realNow);
+        evalDate.setHours(10, 5, 30);
+      } else if (teachingTimerSimMode === 'sim_active') {
+        evalDate = new Date(realNow);
+        evalDate.setHours(10, 55, 0);
+      } else if (teachingTimerSimMode === 'sim_ending') {
+        evalDate = new Date(realNow);
+        evalDate.setHours(11, 35, 15);
+      }
+    }
+
+    const currentDayIndex = (typeof teachingTimerSimMode !== 'undefined' && teachingTimerSimMode !== 'live') ? 0 : evalDate.getDay();
+    const nowMinutes = evalDate.getHours() * 60 + evalDate.getMinutes() + evalDate.getSeconds() / 60;
+
+    let schedules = jurnalState.schedules;
+    if (typeof teachingTimerUnitFilter !== 'undefined') {
+      if (teachingTimerUnitFilter === 'formal') {
+        schedules = schedules.filter(s => s.unit === 'formal');
+      } else if (teachingTimerUnitFilter === 'nonformal') {
+        schedules = schedules.filter(s => s.unit === 'nonformal');
+      }
+    }
+
+    // 1. Sesi sedang berlangsung hari ini
+    const todaySchedules = [];
+    schedules.forEach(s => {
+      if (s.dayIndex === currentDayIndex) {
+        const parsed = parseTimeRange(s.time);
+        if (parsed) {
+          todaySchedules.push({ ...s, parsed, startMin: parsed.startH * 60 + parsed.startM, endMin: parsed.endH * 60 + parsed.endM });
+        }
+      }
+    });
+    todaySchedules.sort((a, b) => a.startMin - b.startMin);
+
+    const activeSession = todaySchedules.find(s => nowMinutes >= s.startMin && nowMinutes < s.endMin);
+    if (activeSession && activeSession.classId && activeSession.classId !== 'Semua') {
+      return activeSession.classId;
+    }
+
+    // 2. Sesi mendatang hari ini
+    const upcomingToday = todaySchedules.filter(s => nowMinutes < s.startMin);
+    if (upcomingToday.length > 0 && upcomingToday[0].classId && upcomingToday[0].classId !== 'Semua') {
+      return upcomingToday[0].classId;
+    }
+
+    // 3. Sesi terdekat di hari berikutnya
+    let nextSession = null;
+    let minDiffMinutes = Infinity;
+    schedules.forEach(s => {
+      const parsed = parseTimeRange(s.time);
+      if (parsed) {
+        let dayDiff = (s.dayIndex - currentDayIndex + 7) % 7;
+        if (dayDiff === 0) dayDiff = 7;
+        const sessionStartMin = dayDiff * 24 * 60 + (parsed.startH * 60 + parsed.startM);
+        const diffMin = sessionStartMin - nowMinutes;
+        if (diffMin > 0 && diffMin < minDiffMinutes) {
+          minDiffMinutes = diffMin;
+          nextSession = s;
+        }
+      }
+    });
+
+    if (nextSession && nextSession.classId && nextSession.classId !== 'Semua') {
+      return nextSession.classId;
+    }
+
+    return currentJurnalClass || '7A';
+  }
+
+  function isSessionCurrentlyOngoing(classId) {
+    if (!jurnalState || !jurnalState.schedules) return false;
+    const realNow = new Date();
+    const currentDayIndex = realNow.getDay();
+    const nowMinutes = realNow.getHours() * 60 + realNow.getMinutes() + realNow.getSeconds() / 60;
+    const sch = jurnalState.schedules.find(s => s.classId === classId && s.dayIndex === currentDayIndex);
+    if (!sch) return false;
+    const parsed = parseTimeRange(sch.time);
+    if (!parsed) return false;
+    return nowMinutes >= (parsed.startH * 60 + parsed.startM) && nowMinutes < (parsed.endH * 60 + parsed.endM);
+  }
+
   function startTeachingLiveTimer() {
     if (teachingTimerInterval) clearInterval(teachingTimerInterval);
     updateTeachingLiveTimer();
@@ -1592,6 +2189,19 @@
       if (progressBarEl) progressBarEl.style.width = `${progressPct}%`;
       if (labelOpenClass) labelOpenClass.textContent = `Buka Kelas ${activeSession.classId}`;
 
+      if (!hasUserManuallySelectedClass && activeSession.classId && activeSession.classId !== 'Semua') {
+        if (currentJurnalClass !== activeSession.classId) {
+          currentJurnalClass = activeSession.classId;
+          const currentCls = jurnalState && jurnalState.classes && jurnalState.classes[currentJurnalClass];
+          if (currentCls && currentCls.unit) currentJurnalUnit = currentCls.unit;
+          renderJurnalDashboard();
+          renderJurnalClassPills();
+          renderCurrentJurnalForm();
+          renderJurnalPertemuanPills();
+          renderJurnalSessionCards();
+        }
+      }
+
     } else if (upcomingToday.length > 0) {
       // -------------------------------------------------------------
       // KONDISI 1: AKAN MEMASUKI WAKTU MENGAJAR (HARI INI)
@@ -1643,6 +2253,19 @@
         progressBarEl.style.width = `${countPct}%`;
       }
       if (labelOpenClass) labelOpenClass.textContent = `Siapkan Kelas ${nextToday.classId}`;
+
+      if (!hasUserManuallySelectedClass && nextToday.classId && nextToday.classId !== 'Semua') {
+        if (currentJurnalClass !== nextToday.classId) {
+          currentJurnalClass = nextToday.classId;
+          const currentCls = jurnalState && jurnalState.classes && jurnalState.classes[currentJurnalClass];
+          if (currentCls && currentCls.unit) currentJurnalUnit = currentCls.unit;
+          renderJurnalDashboard();
+          renderJurnalClassPills();
+          renderCurrentJurnalForm();
+          renderJurnalPertemuanPills();
+          renderJurnalSessionCards();
+        }
+      }
 
     } else {
       // -------------------------------------------------------------
@@ -1709,6 +2332,19 @@
           progressBarEl.style.width = '10%';
         }
         if (labelOpenClass) labelOpenClass.textContent = `Lihat Kelas ${nextSession.classId}`;
+
+        if (!hasUserManuallySelectedClass && nextSession && nextSession.classId && nextSession.classId !== 'Semua') {
+          if (currentJurnalClass !== nextSession.classId) {
+            currentJurnalClass = nextSession.classId;
+            const currentCls = jurnalState && jurnalState.classes && jurnalState.classes[currentJurnalClass];
+            if (currentCls && currentCls.unit) currentJurnalUnit = currentCls.unit;
+            renderJurnalDashboard();
+            renderJurnalClassPills();
+            renderCurrentJurnalForm();
+            renderJurnalPertemuanPills();
+            renderJurnalSessionCards();
+          }
+        }
       } else {
         if (digitH) digitH.textContent = '00';
         if (digitM) digitM.textContent = '00';
@@ -2185,6 +2821,8 @@
     renderJurnalTimetable();
     checkTodaySchedule();
     updateTeachingLiveTimer();
+    renderJurnalDashboard();
+    renderJurnalClassCards();
 
     if (typeof showToast === 'function') {
       showToast('Jadwal Disimpan', `Waktu belajar kelas ${classId} (${day}) berhasil disesuaikan.`);
@@ -2207,6 +2845,8 @@
     renderJurnalTimetable();
     checkTodaySchedule();
     updateTeachingLiveTimer();
+    renderJurnalDashboard();
+    renderJurnalClassCards();
 
     if (typeof showToast === 'function') {
       showToast('Jadwal Dihapus', 'Sesi jadwal telah berhasil dihapus.');
@@ -2223,6 +2863,8 @@
       renderJurnalReminders();
       checkTodaySchedule();
       updateTeachingLiveTimer();
+      renderJurnalDashboard();
+      renderJurnalClassCards();
       if (typeof safeCreateIcons === 'function') safeCreateIcons();
       if (typeof showToast === 'function') showToast('Jadwal Direset', 'Jadwal telah dikembalikan ke standar awal.');
     }
@@ -5128,8 +5770,426 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
   };
 
 
+  
+  // ============================================================================
+  // MODUL RESMI: PERANGKAT AJAR KURIKULUM BERBASIS CINTA (KBC)
+  // Seni dan Prakarya (Prakarya - Budi Daya) MTs Raudlatul Muta'allimin Tegalrejo
+  // Guru: M. Fatikhus Surur, S.Pd. | Kepala Madrasah: Syaikhul Abid, S.Pd.
+  // ============================================================================
+  let currentKbcSemesterFilter = 'semua';
+  let currentKbcSearchKeyword = '';
+
+  function renderPerangkatAjarKbc() {
+    // 1. Update info session yang sedang aktif di jurnal
+    const infoEl = document.getElementById('kbcActiveSessionInfo');
+    if (infoEl) {
+      infoEl.textContent = `Kelas ${currentJurnalClass} • Pertemuan ${currentJurnalPertemuan}`;
+    }
+
+    // 2. Render Tabel Silabus
+    renderKbcCurriculumTable();
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  }
+
+  function filterKbcCurriculum(sem) {
+    currentKbcSemesterFilter = sem;
+    
+    // Update tab filter buttons UI
+    ['semua', 'ganjil', 'genap'].forEach(s => {
+      const btn = document.getElementById('btnKbcFilter_' + s);
+      if (btn) {
+        if (s === sem) {
+          btn.className = 'px-2.5 py-1 rounded-lg font-bold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs cursor-pointer';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer';
+        }
+      }
+    });
+
+    renderKbcCurriculumTable();
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  }
+
+  function onKbcSearchInput(val) {
+    currentKbcSearchKeyword = (val || '').trim().toLowerCase();
+    renderKbcCurriculumTable();
+    if (typeof safeCreateIcons === 'function') safeCreateIcons();
+  }
+
+  function renderKbcCurriculumTable() {
+    const tbody = document.getElementById('kbcCurriculumTableBody');
+    if (!tbody) return;
+
+    let items = PRAKARYA_CURRICULUM;
+
+    // Filter Semester
+    if (currentKbcSemesterFilter === 'ganjil') {
+      items = items.filter(it => it.sem === 'ganjil');
+    } else if (currentKbcSemesterFilter === 'genap') {
+      items = items.filter(it => it.sem === 'genap');
+    }
+
+    // Filter Keyword Search
+    if (currentKbcSearchKeyword) {
+      items = items.filter(it => {
+        const text = `${it.p} ${it.unit} ${it.subBab} ${it.m} ${it.ind} ${it.kbc} ${it.dalil} ${it.cp}`.toLowerCase();
+        return text.includes(currentKbcSearchKeyword);
+      });
+    }
+
+    if (items.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="p-8 text-center text-slate-400">
+            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            <p class="font-bold text-xs">Tidak ditemukan materi silabus yang sesuai pencarian.</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = items.map(it => {
+      const isCurrentActive = it.p === currentJurnalPertemuan;
+      const rowHighlight = isCurrentActive 
+        ? 'bg-rose-50/70 dark:bg-rose-950/25 ring-1 ring-rose-500/30' 
+        : 'hover:bg-slate-50 dark:hover:bg-slate-800/40';
+
+      const semBadge = it.sem === 'ganjil'
+        ? '<span class="text-[9px] px-1.5 py-0.5 rounded font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Ganjil</span>'
+        : '<span class="text-[9px] px-1.5 py-0.5 rounded font-black bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300">Genap</span>';
+
+      return `
+        <tr class="${rowHighlight} transition-colors">
+          <td class="py-3 px-3 text-center align-top">
+            <div class="inline-flex flex-col items-center">
+              <span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 font-black text-xs flex items-center justify-center text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700">
+                ${it.p}
+              </span>
+              <div class="mt-1">${semBadge}</div>
+            </div>
+          </td>
+
+          <td class="py-3 px-3 align-top">
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">${it.subBab}</span>
+                <span class="text-[9px] text-slate-400 font-medium">• ${it.unit}</span>
+              </div>
+              <h5 class="font-bold text-xs text-slate-900 dark:text-white leading-snug">
+                ${it.m}
+              </h5>
+              <div class="text-[10px] text-slate-400 font-mono">Alokasi: ${it.jp} JP (80 Menit)</div>
+            </div>
+          </td>
+
+          <td class="py-3 px-3 align-top">
+            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+              ${it.ind}
+            </p>
+          </td>
+
+          <td class="py-3 px-3 align-top">
+            <div class="space-y-1">
+              <div class="text-[10.5px] font-bold text-rose-700 dark:text-rose-300 flex items-start gap-1">
+                <span class="text-xs">💖</span>
+                <span>${it.kbc}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 italic">
+                📖 ${it.dalil}
+              </div>
+            </div>
+          </td>
+
+          <td class="py-3 px-3 align-top">
+            <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+              ${it.cp}
+            </span>
+          </td>
+
+          <td class="py-3 px-3 align-top text-center">
+            <div class="flex flex-col gap-1.5 w-full">
+              <button 
+                type="button" 
+                onclick="applyKbcCurriculumToActiveSession(${it.p})" 
+                class="w-full px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-[10.5px] shadow-2xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                title="Terapkan materi ini ke sesi pertemuan yang aktif"
+              >
+                <i data-lucide="zap" class="w-3 h-3"></i>
+                <span>Terapkan</span>
+              </button>
+
+              <button 
+                type="button" 
+                onclick="copyKbcSyllabus(${it.p})" 
+                class="w-full px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer"
+                title="Salin rincian materi ke clipboard"
+              >
+                <i data-lucide="copy" class="w-3 h-3 text-slate-400"></i>
+                <span>Salin Teks</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Terapkan Silabus KBC ke Sesi Pertemuan Tertentu
+  window.applyKbcCurriculumToActiveSession = function(pNum) {
+    const cur = PRAKARYA_CURRICULUM.find(it => it.p === pNum);
+    if (!cur) return;
+
+    if (!jurnalState || !jurnalState.classes) loadJurnalState();
+    const classData = jurnalState.classes[currentJurnalClass];
+    if (!classData) return;
+
+    if (!classData.sessions) classData.sessions = {};
+    if (!classData.sessions[pNum]) {
+      const sched = DEFAULT_CLASS_SCHEDULE[currentJurnalClass];
+      const schedTime = sched ? `${sched.time} (${sched.hours})` : '07.00 - 08.20 (Jam 1-2)';
+      classData.sessions[pNum] = {
+        materi: '', indikator: '', catatan: '', media: '', kendala: '',
+        date: new Date().toISOString().split('T')[0],
+        time: schedTime,
+        attendance: {}, bonusPoints: {}
+      };
+    }
+
+    // Isi Otomatis dari Perangkat Ajar KBC Resmi
+    classData.sessions[pNum].materi = cur.m;
+    classData.sessions[pNum].indikator = cur.ind;
+    classData.sessions[pNum].catatan = `[KBC] ${cur.kbc}\n• Dalil: ${cur.dalil}\n• Elemen CP: ${cur.cp} (${cur.unit})`;
+    classData.sessions[pNum].media = 'Modul KBC Budi Daya, Alat/Bahan Praktik & Portofolio Siswa';
+
+    saveJurnalState();
+    currentJurnalPertemuan = pNum;
+
+    if (typeof showToast === 'function') {
+      showToast('Perangkat Ajar Diterapkan! 💖', `Materi Pekan ${pNum} (${cur.m}) berhasil dimasukkan ke Jurnal Kelas ${currentJurnalClass}.`);
+    }
+
+    // Pindah ke subtab materi jurnal agar guru langsung melihat form yang sudah terisi
+    switchJurnalSubTab('materi');
+  };
+
+  // Terapkan Pekan Ini yang Cocok dengan Pertemuan Aktif
+  window.applyCurrentMatchingKbcToSession = function() {
+    applyKbcCurriculumToActiveSession(currentJurnalPertemuan);
+  };
+
+  // Salin Rincian Materi Silabus ke Clipboard
+  window.copyKbcSyllabus = function(pNum) {
+    const cur = PRAKARYA_CURRICULUM.find(it => it.p === pNum);
+    if (!cur) return;
+
+    const text = `RENCANA MENGAJAR PRAKARYA (BUDI DAYA) KBC
+Satuan Pendidikan: MTs Raudlatul Muta'allimin Tegalrejo
+Guru Pengampu: M. Fatikhus Surur, S.Pd.
+Kepala Madrasah: Syaikhul Abid, S.Pd.
+
+Pekan / Pertemuan: Ke-${cur.p} (${cur.subBab})
+Materi Pokok: ${cur.m}
+Unit / Tema: ${cur.unit}
+Alokasi Waktu: ${cur.jp} JP (80 Menit)
+Elemen CP: ${cur.cp}
+
+TUJUAN PEMBELAJARAN (TP):
+${cur.ind}
+
+NILAI KURIKULUM BERBASIS CINTA (KBC):
+• Nilai Karakter: ${cur.kbc}
+• Tadabbur Dalil: ${cur.dalil}
+• KKM / KKTP Minimal: 75`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (typeof showToast === 'function') {
+          showToast('Silabus Disalin 📋', `Rencana materi Pekan ${pNum} siap dibagikan.`);
+        }
+      });
+    }
+  };
+
+  // Salin Rekap Perangkat Ajar untuk Laporan WhatsApp
+  window.copyKbcWaSummary = function() {
+    const text = `*LAPORAN PERANGKAT AJAR KURIKULUM BERBASIS CINTA (KBC)*
+*MTs RAUDLATUL MUTA'ALLIMIN TEGALREJO*
+Tahun Pelajaran: 2026/2027
+
+👤 *Guru Pengampu:* M. Fatikhus Surur, S.Pd.
+🏫 *Kepala Madrasah:* Syaikhul Abid, S.Pd.
+📖 *Mata Pelajaran:* Seni dan Prakarya (Prakarya - Budi Daya)
+🎯 *Fase / Kelas:* Fase D / Kelas VII (7A, 7B, 7C, 7D) & Kelas VIII
+⏰ *Alokasi Waktu:* 2 JP x 33 Pekan (Total 68 JP)
+🏆 *KKTP Minimal:* 75
+
+*BERKAS RESMI TERSEDIA:*
+1. Alur Tujuan Pembelajaran (ATP KBC 33 Pekan)
+2. Pemetaan CP & TP (4 Elemen: Eksplorasi, Desain, Produksi, Evaluasi)
+3. Modul Ajar RPPM Cinta Pertemuan 1 (Tanaman Sayur & QS. An-Nahl: 10-11)
+4. Modul Ajar RPPM Cinta Pertemuan 2 (Sarana Teknik & HR. Muslim)
+5. Kriteria Ketercapaian TP (KKTP Deskripsi, Rubrik & Interval)
+6. Program Semester Ganjil & Genap (Prosem)
+7. Program Tahunan 68 JP (Prota)
+8. Buku Panduan Kurikulum Berbasis Cinta (YTPAI)
+9. Tabel Matriks Indikator KBC 31-35
+
+*5 PILAR PANCA CINTA KBC:*
+1. Cinta Allah Swt. & Rasul-Nya
+2. Cinta Ilmu
+3. Cinta Lingkungan (Adiwiyata)
+4. Cinta Diri & Sesama Manusia
+5. Cinta Tanah Air & Bangsa
+
+_Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal Guru)._`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (typeof showToast === 'function') {
+          showToast('Rekap WA Disalin 📱', 'Rekap lengkap Perangkat Ajar KBC siap dikirim ke WhatsApp.');
+        }
+      });
+    }
+  };
+
+  // Modal Informasi Rinci Perangkat Ajar
+  window.showKbcDetailModal = function(type) {
+    let title = 'Dokumen Perangkat Ajar';
+    let bodyHtml = '';
+
+    if (type === 'cptp') {
+      title = 'Pemetaan Capaian Pembelajaran (CP) 4 Elemen';
+      bodyHtml = `
+        <div class="space-y-3 text-xs leading-relaxed">
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+            <strong class="text-rose-600 block">1. Observasi / Eksplorasi:</strong>
+            Peserta didik mampu mengamati, mengeksplorasi dan menganalisis jenis, karakteristik, dan potensi komoditas budi daya lokal (tanaman sayur, ikan konsumsi, ternak unggas).
+          </div>
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+            <strong class="text-blue-600 block">2. Desain / Perencanaan:</strong>
+            Peserta didik mampu merancang jadwal budi daya, pemilihan media, modifikasi wadah ramah lingkungan (vertikultur/kolam terpal), dan anggaran biaya.
+          </div>
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+            <strong class="text-emerald-600 block">3. Produksi:</strong>
+            Peserta didik mempraktikkan tahapan penanaman bibit, pemeliharaan harian, sanitasi, pemberian pakan, pemanenan dan pengemasan secara higienis.
+          </div>
+          <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+            <strong class="text-purple-600 block">4. Refleksi &amp; Evaluasi:</strong>
+            Peserta didik mengevaluasi keberhasilan panen, analisis rugi laba sederhana, serta merefleksikan nilai panca cinta KBC.
+          </div>
+        </div>
+      `;
+    } else if (type === 'kbc_guide') {
+      title = 'Filosofi Kurikulum Berbasis Cinta (KBC)';
+      bodyHtml = `
+        <div class="space-y-3 text-xs leading-relaxed">
+          <p class="text-slate-700 dark:text-slate-300">
+            Kurikulum Berbasis Cinta (KBC) yang dikembangkan Yayasan Pondok Pesantren Raudlatul Muta'allimin (YTPAI) memadukan kurikulum nasional Merdeka dengan nilai-nilai adab, kasih sayang, dan spiritualitas pesantren.
+          </p>
+          <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800">
+            <strong class="text-rose-700 dark:text-rose-300 block mb-1">Misi Pembelajaran Berbasis Cinta:</strong>
+            "Mendidik dengan hati, menanamkan ilmu dengan keteladanan kasih sayang, serta melahirkan generasi santri yang mandiri, berakhlak mulia, dan peduli terhadap kelestarian alam ciptaan Allah SWT."
+          </div>
+        </div>
+      `;
+    } else {
+      title = 'Tabel Matriks KBC 31–35';
+      bodyHtml = `
+        <div class="space-y-3 text-xs leading-relaxed">
+          <p class="text-slate-700 dark:text-slate-300">
+            Matriks evaluasi karakter santri MTs Raudlatul Muta'allimin mengukur 5 dimensi pembiasaan harian: Adab terhadap guru dan kawan, kepedulian lingkungan madrasah, kedisiplinan sholat dan tadarrus, kerja sama tim, serta kemandirian santri.
+          </p>
+        </div>
+      `;
+    }
+
+    if (typeof showModal === 'function') {
+      showModal(title, bodyHtml);
+    } else if (typeof showToast === 'function') {
+      showToast(title, 'Rincian perangkat ajar aktif dan dapat diakses dari menu silabus.');
+    }
+  };
+
+  window.renderPerangkatAjarKbc = renderPerangkatAjarKbc;
+  window.filterKbcCurriculum = filterKbcCurriculum;
+  window.onKbcSearchInput = onKbcSearchInput;
+  window.showKbcDetailModal = showKbcDetailModal;
+
   window.updateJurnalCloudStatusBadge = updateJurnalCloudStatusBadge;
   window.getJurnalSupabaseConfig = getJurnalSupabaseConfig;
 
+  // Global Bridge untuk Co-Pilot Fathiya AI
+  window.renderJurnalDashboard = renderJurnalDashboard;
+  window.renderJurnalClassCards = renderJurnalClassCards;
+  window.renderJurnalTimetable = renderJurnalTimetable;
+  window.renderJurnalReminders = renderJurnalReminders;
+  window.checkTodaySchedule = checkTodaySchedule;
+  window.loadJurnalState = loadJurnalState;
+  window.saveJurnalState = saveJurnalState;
+  window.getJurnalState = function() { return jurnalState; };
+
+  window.mutateJurnalSchedule = function(classId, targetDay, timeStr, hourLabel, subject, room) {
+    if (!jurnalState) loadJurnalState();
+    if (!jurnalState || !Array.isArray(jurnalState.schedules)) return false;
+
+    const normClass = (classId || '').replace(/\s+/g, '').toUpperCase();
+    const dayMap = { 'Ahad': 0, 'Senin': 1, 'Selasa': 2, 'Rabu': 3, 'Kamis': 4, 'Jumat': 5, 'Sabtu': 6, 'Minggu': 0 };
+    const dayIndex = dayMap[targetDay] !== undefined ? dayMap[targetDay] : 6;
+
+    if (!timeStr) {
+      if (hourLabel && hourLabel.includes('3-4')) timeStr = '08.30 - 09.50 (Jam 3-4)';
+      else if (hourLabel && hourLabel.includes('1-2')) timeStr = '07.00 - 08.30 (Jam 1-2)';
+      else if (hourLabel && hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
+      else if (hourLabel && hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
+      else timeStr = '08.30 - 09.50 (Jam 3-4)';
+    }
+
+    let existing = jurnalState.schedules.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === normClass);
+    if (existing) {
+      existing.day = targetDay;
+      existing.dayIndex = dayIndex;
+      existing.time = timeStr;
+      if (subject) existing.subject = subject;
+      if (room) existing.room = room;
+    } else {
+      jurnalState.schedules.push({
+        id: 'sch-' + Date.now(),
+        unit: normClass.startsWith('1ULA') ? 'nonformal' : 'formal',
+        day: targetDay,
+        dayIndex: dayIndex,
+        classId: normClass,
+        subject: subject || (normClass.startsWith('1ULA') ? 'Safinatun Najah' : 'Prakarya'),
+        room: room || (normClass.startsWith('1ULA') ? 'Gedung Diniyah' : `Ruang MTs ${normClass}`),
+        time: timeStr
+      });
+    }
+
+    // Update juga sessions 1-18 di class tersebut jika terdaftar
+    if (jurnalState.classes && jurnalState.classes[normClass]) {
+      const clsObj = jurnalState.classes[normClass];
+      if (subject) clsObj.subject = subject;
+      if (clsObj.sessions) {
+        for (let p = 1; p <= 18; p++) {
+          if (clsObj.sessions[p]) {
+            clsObj.sessions[p].day = targetDay;
+            clsObj.sessions[p].time = timeStr;
+          }
+        }
+      }
+    }
+
+    saveJurnalState();
+    if (typeof renderJurnalDashboard === 'function') renderJurnalDashboard();
+    if (typeof renderJurnalClassCards === 'function') renderJurnalClassCards();
+    if (typeof renderJurnalTimetable === 'function') renderJurnalTimetable();
+    if (typeof renderJurnalReminders === 'function') renderJurnalReminders();
+    if (typeof checkTodaySchedule === 'function') checkTodaySchedule();
+    if (typeof updateTeachingLiveTimer === 'function') updateTeachingLiveTimer();
+    if (typeof renderCurrentJurnalForm === 'function') renderCurrentJurnalForm();
+    return true;
+  };
+
 })();
+
 
