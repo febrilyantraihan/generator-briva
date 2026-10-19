@@ -27751,6 +27751,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40292,6 +40294,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42399,6 +42403,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -44298,9 +44308,87 @@ Format params:
     throw (primaryErr || lastErr || new Error('Gagal menghubungi server Google Gemini'));
   }
 
-  // --- 7B. DUAL-ENGINE: GROQ CLOUD LPU RESOLVER (Llama 3.3 70B & 3.1 8B - Super Kilat 0.3s) ---
+  // --- 7B. DUAL-ENGINE: GROQ CLOUD LPU RESOLVER (Llama 3.3 70B & Active Models - Super Kilat 0.3s) ---
+  let cachedGroqModels = null;
+  let cachedWorkingGroqModel = null;
+
+  async function discoverGroqModels(apiKey) {
+    if (cachedGroqModels && cachedGroqModels.length > 0) return cachedGroqModels;
+    const isXaiGrok = apiKey.startsWith('xai-');
+    if (isXaiGrok) {
+      cachedGroqModels = ['grok-2-latest', 'grok-beta'];
+      return cachedGroqModels;
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data?.data)) {
+          // Filter out whisper/audio/moderation/embed models
+          const validChatModels = data.data
+            .map(m => m.id)
+            .filter(id => !/whisper|embed|audio|guard|tts/i.test(id));
+
+          if (validChatModels.length > 0) {
+            const preferredOrder = [
+              'llama-3.3-70b-versatile',
+              'llama-3.1-8b-instant',
+              'llama-3.2-3b-preview',
+              'llama-3.2-1b-preview',
+              'openai/gpt-oss-120b',
+              'openai/gpt-oss-20b',
+              'qwen/qwen3.8-27b',
+              'qwen-2.5-32b',
+              'llama3-70b-8192',
+              'llama3-8b-8192',
+              'mixtral-8x7b-32768',
+              'gemma2-9b-it'
+            ];
+
+            const sorted = [];
+            preferredOrder.forEach(p => {
+              if (validChatModels.includes(p)) sorted.push(p);
+            });
+            validChatModels.forEach(m => {
+              if (!sorted.includes(m)) sorted.push(m);
+            });
+
+            cachedGroqModels = sorted;
+            console.log('[Fatih AI] Discovered active Groq models:', cachedGroqModels);
+            return cachedGroqModels;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[Fatih AI] Gagal mendeteksi model Groq secara dinamis, menggunakan fallback:', e);
+    }
+
+    // Fallback komprehensif model aktif Groq
+    cachedGroqModels = [
+      'llama-3.3-70b-versatile',
+      'llama-3.1-8b-instant',
+      'llama-3.2-3b-preview',
+      'llama-3.2-1b-preview',
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'llama3-70b-8192',
+      'llama3-8b-8192',
+      'mixtral-8x7b-32768',
+      'gemma2-9b-it'
+    ];
+    return cachedGroqModels;
+  }
+
   async function callGroqApi(prompt, apiKey) {
-    const keyToUse = (apiKey || localStorage.getItem('partner_fatih_groq_key') || localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const keyToUse = (apiKey || localStorage.getItem('partner_fatih_groq_key') || '').trim();
     if (!keyToUse) throw new Error('API Key Groq belum diisi di menu Pengaturan');
 
     const now = new Date();
@@ -44315,9 +44403,13 @@ Format params:
 
     const isXaiGrok = keyToUse.startsWith('xai-');
     const endpoint = isXaiGrok ? 'https://api.x.ai/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
-    const models = isXaiGrok 
-      ? ['grok-2-latest', 'grok-beta'] 
-      : ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+    
+    // Dapatkan daftar model aktif yang sesuai untuk kunci ini
+    const discovered = await discoverGroqModels(keyToUse);
+    const modelsToTry = cachedWorkingGroqModel && discovered.includes(cachedWorkingGroqModel)
+      ? [cachedWorkingGroqModel, ...discovered.filter(m => m !== cachedWorkingGroqModel)]
+      : discovered;
+
     let lastErr = null;
 
     const messages = [
@@ -44331,23 +44423,25 @@ Format params:
     });
     messages.push({ role: 'user', content: prompt });
 
-    for (const model of models) {
+    for (const model of modelsToTry) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 9000);
 
       try {
+        const payloadBody = {
+          model: model,
+          messages: messages,
+          temperature: 0.6,
+          max_tokens: 1024
+        };
+
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${keyToUse}`
           },
-          body: JSON.stringify({
-            model: model,
-            messages: messages,
-            temperature: 0.6,
-            max_completion_tokens: 1000
-          }),
+          body: JSON.stringify(payloadBody),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -44356,6 +44450,7 @@ Format params:
           const data = await res.json();
           const reply = data?.choices?.[0]?.message?.content;
           if (reply) {
+            cachedWorkingGroqModel = model;
             cachedWorkingEndpoint = { ver: 'groq', modelName: model };
             return reply;
           }
@@ -44365,9 +44460,18 @@ Format params:
             const errJson = await res.json();
             if (errJson?.error?.message) errDetail = errJson.error.message;
           } catch(e) {}
+
           if (res.status === 401 || /invalid_api_key/i.test(errDetail)) {
-            throw new Error('API Key Groq tidak valid. Pastikan kunci diawali "gsk_..." yang disalin dari console.groq.com');
+            throw new Error('API Key Groq tidak valid. Pastikan kunci diawali "gsk_..." yang disalin dari console.groq.com/keys');
           }
+
+          // Jika model tidak ditemukan / deprecate, lanjut ke model berikutnya
+          if (res.status === 404 || /model_not_found|does not exist/i.test(errDetail)) {
+            console.warn(`[Groq] Model '${model}' tidak tersedia, mencoba alternatif...`);
+            lastErr = new Error(`Model Groq '${model}' tidak tersedia.`);
+            continue;
+          }
+
           lastErr = new Error(`[Groq/${model}] ${errDetail}`);
         }
       } catch(err) {
@@ -44380,12 +44484,13 @@ Format params:
     throw (lastErr || new Error('Gagal menghubungi server Groq'));
   }
 
-  // --- 7C. UNIVERSAL ONLINE AI DISPATCHER (Groq Prioritas Utama -> Gemini Fallback) ---
+  // --- 7C. UNIVERSAL ONLINE AI DISPATCHER (HYBRID DUAL-ENGINE: BISA BERGANTIAN SECARA OTOMATIS) ---
   async function callOnlineAiApi(prompt, apiKey) {
     const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
     const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const mode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
 
-    // Jika parameter apiKey diberikan langsung (saat tombol tes ditekan)
+    // Jika parameter apiKey diberikan langsung (misal saat tombol tes koneksi modal ditekan)
     if (apiKey) {
       if (apiKey.startsWith('gsk_') || apiKey.startsWith('xai-')) {
         return await callGroqApi(prompt, apiKey);
@@ -44393,12 +44498,44 @@ Format params:
       return await callGeminiApi(prompt, apiKey);
     }
 
-    // 1. Prioritas Utama: Groq Cloud AI (Super Cepat 0.3s & Anti-Timeout)
+    // 1. MODE: KHUSUS GOOGLE GEMINI
+    if (mode === 'gemini') {
+      if (geminiKey && geminiKey.length > 10) {
+        try {
+          return await callGeminiApi(prompt, geminiKey);
+        } catch(geminiErr) {
+          // Fallback cerdas: jika Gemini gagal dan Groq tersedia, bergantian ke Groq
+          if (groqKey && groqKey.length > 10) {
+            console.warn('[Fatih AI] Gemini gagal, bergantian otomatis ke Groq:', geminiErr);
+            return await callGroqApi(prompt, groqKey);
+          }
+          throw geminiErr;
+        }
+      }
+    }
+
+    // 2. MODE: KHUSUS GROQ CLOUD
+    if (mode === 'groq') {
+      if (groqKey && groqKey.length > 10) {
+        try {
+          return await callGroqApi(prompt, groqKey);
+        } catch(groqErr) {
+          // Fallback cerdas: jika Groq gagal dan Gemini tersedia, bergantian ke Gemini
+          if (geminiKey && geminiKey.length > 10) {
+            console.warn('[Fatih AI] Groq gagal, bergantian otomatis ke Gemini:', groqErr);
+            return await callGeminiApi(prompt, geminiKey);
+          }
+          throw groqErr;
+        }
+      }
+    }
+
+    // 3. MODE: HYBRID CERDAS (BERGANTIAN OTOMATIS - PRIORITAS GROQ 0.3s -> FALLBACK GEMINI)
     if (groqKey && groqKey.length > 10) {
       try {
         return await callGroqApi(prompt, groqKey);
       } catch(groqErr) {
-        console.warn('[Fatih AI] Groq gagal, mencoba fallback ke Gemini jika ada:', groqErr);
+        console.warn('[Fatih AI] Groq gagal/limit, otomatis bergantian ke Gemini Flash:', groqErr);
         if (geminiKey && geminiKey.length > 10) {
           return await callGeminiApi(prompt, geminiKey);
         }
@@ -44406,12 +44543,12 @@ Format params:
       }
     }
 
-    // 2. Prioritas Kedua: Google Gemini
+    // 4. Jika hanya Gemini Key yang tersedia
     if (geminiKey && geminiKey.length > 10) {
       return await callGeminiApi(prompt, geminiKey);
     }
 
-    throw new Error('API Key belum diisi di menu Pengaturan');
+    throw new Error('API Key belum diisi di menu Pengaturan Mesin AI');
   }
 
   // --- 8. UI INJECTION & DOM CREATION ---
@@ -44633,19 +44770,93 @@ Format params:
     }
   }
 
+  function cycleFatihEngineMode() {
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const currentMode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
+
+    if (!groqKey && !geminiKey) {
+      openFatihAiSettings();
+      return;
+    }
+
+    let nextMode = 'hybrid';
+    if (groqKey && geminiKey) {
+      if (currentMode === 'hybrid') nextMode = 'groq';
+      else if (currentMode === 'groq') nextMode = 'gemini';
+      else nextMode = 'hybrid';
+    } else if (groqKey) {
+      nextMode = currentMode === 'groq' ? 'hybrid' : 'groq';
+    } else {
+      nextMode = currentMode === 'gemini' ? 'hybrid' : 'gemini';
+    }
+
+    localStorage.setItem('partner_fatih_ai_mode', nextMode);
+    updateFatihEngineStatusBadge();
+
+    if (typeof window.showToast === 'function') {
+      if (nextMode === 'hybrid') {
+        window.showToast('🔄 Mode Hybrid Aktif', 'Groq (0.3s) & Gemini aktif bergantian otomatis.', 'info');
+      } else if (nextMode === 'groq') {
+        window.showToast('⚡ Mode Khusus Groq', 'Menggunakan Groq Cloud LPU (Kilat 0.3s).', 'success');
+      } else {
+        window.showToast('🌐 Mode Khusus Gemini', 'Menggunakan Google Gemini Flash.', 'info');
+      }
+    }
+  }
+
   function updateFatihEngineStatusBadge() {
     const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
     const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const mode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
     const engineLabel = document.getElementById('fatihChatEngineMode');
     if (!engineLabel) return;
 
-    if (groqKey && groqKey.length > 10) {
+    if (groqKey && geminiKey) {
+      if (mode === 'hybrid') {
+        engineLabel.innerHTML = `
+          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk bergantian mode (Hybrid / Groq / Gemini)">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>🔄 Hybrid: Groq ⚡ + Gemini 🌐 (Bergantian Otomatis) ▾</span>
+          </button>
+        `;
+      } else if (mode === 'groq') {
+        engineLabel.innerHTML = `
+          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk bergantian mode">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+            <span>⚡ Khusus Groq Cloud (0.3s) ▾</span>
+          </button>
+        `;
+      } else {
+        engineLabel.innerHTML = `
+          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk bergantian mode">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+            <span>🌐 Khusus Google Gemini ▾</span>
+          </button>
+        `;
+      }
+    } else if (groqKey && groqKey.length > 10) {
       const activeModel = cachedWorkingEndpoint?.ver === 'groq' ? cachedWorkingEndpoint.modelName : 'Groq AI (Kilat 0.3s)';
-      engineLabel.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-emerald-300 font-semibold">${activeModel}</span>`;
+      engineLabel.innerHTML = `
+        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk buka pengaturan">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>⚡ ${activeModel}</span>
+        </button>
+      `;
     } else if (geminiKey && geminiKey.length > 10) {
-      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span><span class="text-indigo-300 font-semibold">Gemini Flash AI (Online)</span>';
+      engineLabel.innerHTML = `
+        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 transition-all cursor-pointer font-semibold" title="Klik untuk buka pengaturan">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+          <span>🌐 Google Gemini Flash (Online)</span>
+        </button>
+      `;
     } else {
-      engineLabel.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span onclick="window.openFatihAiSettings()" class="cursor-pointer hover:underline" title="Klik untuk aktifkan Groq AI Super Cepat">Fathiya Pintar (Offline Engine) • <span class="text-emerald-400 font-bold">Aktifkan Groq AI ⚙️</span></span>';
+      engineLabel.innerHTML = `
+        <span onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-emerald-300 transition-all" title="Klik untuk mengaktifkan Groq & Gemini">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          <span>Offline Mandiri • <span class="text-emerald-400 font-bold underline">Aktifkan Kunci AI ⚙️</span></span>
+        </span>
+      `;
     }
   }
 
@@ -46578,189 +46789,181 @@ Format params:
     speechRecognition.start();
   }
 
-  // --- 13. AI SETTINGS & CONNECTION TESTER (GROQ & GEMINI DUAL-PROVIDER) ---
-  let currentAiProviderTab = 'groq';
+  // --- 13. DUAL-ENGINE AI SETTINGS & CONNECTION TESTER (GROQ & GEMINI AKTIF BERSAMAAN) ---
+  let selectedAiMode = localStorage.getItem('partner_fatih_ai_mode') || 'hybrid';
 
-  function switchAiProviderTab(provider) {
-    currentAiProviderTab = provider;
-    const tabGroq = document.getElementById('tabSelectGroq');
-    const tabGemini = document.getElementById('tabSelectGemini');
-    const label = document.getElementById('fatihApiKeyLabel');
-    const input = document.getElementById('fatihApiKeyInput');
-    const badge = document.getElementById('fatihProviderBadge');
-    const guide = document.getElementById('fatihApiKeyGuideText');
-    const statusBox = document.getElementById('fatihApiTestStatus');
-    if (statusBox) statusBox.className = 'hidden';
+  function setAiOperationalMode(mode) {
+    selectedAiMode = mode;
+    const btnHybrid = document.getElementById('btnModeHybrid');
+    const btnGroq = document.getElementById('btnModeGroq');
+    const btnGemini = document.getElementById('btnModeGemini');
+    const descText = document.getElementById('modeExplanationText');
 
-    if (provider === 'groq') {
-      if (tabGroq) {
-        tabGroq.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold shadow-xs';
-      }
-      if (tabGemini) {
-        tabGemini.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium';
-      }
-      if (label) label.textContent = 'Groq Cloud API Key (gsk_...)';
-      if (badge) {
-        badge.textContent = '⚡ 0.3 Detik • Gratis 100%';
-        badge.className = 'text-[9px] text-emerald-400 font-mono font-bold';
-      }
-      if (input) {
-        input.placeholder = 'Tempel kunci gsk_... di sini';
-        input.value = localStorage.getItem('partner_fatih_groq_key') || '';
-      }
-      if (guide) {
-        guide.innerHTML = 'Kunci Groq 100% gratis tanpa kartu kredit. Ambil kunci dalam 1 menit di: <a href="https://console.groq.com/keys" target="_blank" class="text-emerald-400 font-bold underline hover:text-emerald-300 inline-flex items-center gap-0.5"><span>console.groq.com/keys</span> ↗</a>';
-      }
-    } else {
-      if (tabGroq) {
-        tabGroq.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium';
-      }
-      if (tabGemini) {
-        tabGemini.className = 'py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 font-bold shadow-xs';
-      }
-      if (label) label.textContent = 'Google Gemini API Key (AIzaSy...)';
-      if (badge) {
-        badge.textContent = 'Gemini 3.8 / 2.0 Flash';
-        badge.className = 'text-[9px] text-indigo-300 font-mono font-bold';
-      }
-      if (input) {
-        input.placeholder = 'Tempel kunci AIzaSy... di sini';
-        input.value = localStorage.getItem('partner_fatih_gemini_key') || '';
-      }
-      if (guide) {
-        guide.innerHTML = 'Kunci Gemini disimpan lokal. Dapatkan di: <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-indigo-400 font-bold underline hover:text-indigo-300 inline-flex items-center gap-0.5"><span>Google AI Studio</span> ↗</a>';
-      }
-    }
-  }
+    const activeClass = 'py-2 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold shadow-xs';
+    const inactiveClass = 'py-2 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium border border-transparent';
 
-  function handleApiKeyInputAutoDetect(val) {
-    if (!val) return;
-    const trimmed = val.trim();
-    if (trimmed.startsWith('gsk_') && currentAiProviderTab !== 'groq') {
-      switchAiProviderTab('groq');
-    } else if (trimmed.startsWith('AIza') && currentAiProviderTab !== 'gemini') {
-      switchAiProviderTab('gemini');
+    if (btnHybrid) btnHybrid.className = mode === 'hybrid' ? activeClass : inactiveClass;
+    if (btnGroq) btnGroq.className = mode === 'groq' ? activeClass : inactiveClass;
+    if (btnGemini) btnGemini.className = mode === 'gemini' ? activeClass : inactiveClass;
+
+    if (descText) {
+      if (mode === 'hybrid') {
+        descText.innerHTML = '🔄 <b>Mode Hybrid (Direkomendasikan):</b> Fathiya memprioritaskan <b>Groq (Super Cepat 0.3s)</b>. Jika Groq mencapai kuota/limit atau gagal, sistem <b>otomatis bergantian</b> ke <b>Google Gemini Flash</b> tanpa terputus.';
+      } else if (mode === 'groq') {
+        descText.innerHTML = '⚡ <b>Mode Khusus Groq:</b> Selalu menggunakan <b>Groq Cloud LPU (0.3s)</b> untuk kecepatan respons super kilat.';
+      } else {
+        descText.innerHTML = '🌐 <b>Mode Khusus Gemini:</b> Selalu menggunakan <b>Google Gemini Flash</b> dari Google AI Studio.';
+      }
     }
   }
 
   function openFatihAiSettings() {
     let modal = document.getElementById('modalFatihAiSettings');
+    const savedGroq = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const savedGemini = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    selectedAiMode = localStorage.getItem('partner_fatih_ai_mode') || (savedGroq && savedGemini ? 'hybrid' : (savedGroq ? 'groq' : (savedGemini ? 'gemini' : 'hybrid')));
+
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'modalFatihAiSettings';
-      modal.className = 'modal-portal fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-300';
-      modal.innerHTML = `
-        <div class="relative w-full max-w-md bg-[#0c121e] border border-emerald-500/30 rounded-2xl shadow-2xl p-5 text-slate-100 flex flex-col gap-4">
-          <div class="flex items-center justify-between border-b border-white/10 pb-3">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">⚙️</span>
-              <div>
-                <h3 class="font-bold text-sm text-white">Pengaturan Mesin AI Fathiya</h3>
-                <p class="text-[10px] text-slate-400">Pilih Provider: Groq Cloud (Super Cepat) atau Google Gemini</p>
-              </div>
-            </div>
-            <button type="button" onclick="window.closeFatihAiSettings()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
-          </div>
+      modal.className = 'modal-portal fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm transition-all duration-300';
+      document.body.appendChild(modal);
+    }
 
-          <!-- Provider Selector Tabs -->
-          <div class="grid grid-cols-2 gap-2 p-1 bg-slate-900/90 rounded-xl border border-white/10 text-xs font-semibold">
-            <button type="button" id="tabSelectGroq" onclick="window.switchAiProviderTab('groq')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-bold shadow-xs">
-              <span>⚡ Groq Cloud</span>
-              <span class="text-[9px] px-1 py-0.2 bg-emerald-400/20 text-emerald-200 rounded font-normal">0.3s</span>
-            </button>
-            <button type="button" id="tabSelectGemini" onclick="window.switchAiProviderTab('gemini')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 font-medium">
-              <span>🌐 Google Gemini</span>
-            </button>
-          </div>
-
-          <!-- Dynamic Content Area -->
-          <div class="space-y-3">
+    modal.innerHTML = `
+      <div class="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-[#0c121e] border border-emerald-500/30 rounded-2xl shadow-2xl p-4 sm:p-5 text-slate-100 flex flex-col gap-4 no-scrollbar">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">⚙️</span>
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <label id="fatihApiKeyLabel" class="block text-xs font-semibold text-slate-300">Groq API Key (gsk_...)</label>
-                <span id="fatihProviderBadge" class="text-[9px] text-emerald-400 font-mono font-bold">⚡ 0.3 Detik • Gratis 100%</span>
-              </div>
-              <div class="relative">
-                <input type="password" id="fatihApiKeyInput" oninput="window.handleApiKeyInputAutoDetect(this.value)" placeholder="Tempel kunci gsk_... di sini" class="w-full bg-slate-900 border border-slate-700 focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none font-mono tracking-wider" />
-                <button type="button" onclick="window.toggleShowApiKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
-              </div>
-              <p id="fatihApiKeyGuideText" class="text-[9.5px] text-slate-400 mt-1.5 leading-relaxed">
-                Kunci Groq 100% gratis tanpa kartu kredit. Ambil kunci dalam 1 menit di: <a href="https://console.groq.com/keys" target="_blank" class="text-emerald-400 font-bold underline hover:text-emerald-300 inline-flex items-center gap-0.5"><span>console.groq.com/keys</span> ↗</a>
-              </p>
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <span>Pengaturan Mesin AI Fathiya</span>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">Dual-Engine</span>
+              </h3>
+              <p class="text-[10px] text-slate-400">Groq Cloud (Super Cepat 0.3s) &amp; Google Gemini Flash Aktif Bersamaan</p>
             </div>
+          </div>
+          <button type="button" onclick="window.closeFatihAiSettings()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
+        </div>
 
-            <!-- Area Hasil Tes Koneksi -->
-            <div id="fatihApiTestStatus" class="hidden p-2.5 rounded-xl text-xs"></div>
+        <!-- 1. Pilihan Mode Kerja & Bergantian -->
+        <div class="space-y-1.5 p-3 rounded-xl bg-slate-900/90 border border-white/10">
+          <label class="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
+            Pilih Mode Operasional (Bisa Bergantian):
+          </label>
+          <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-lg border border-white/5 text-[11px]">
+            <button type="button" id="btnModeHybrid" onclick="window.setAiOperationalMode('hybrid')" class="py-2 px-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer font-bold text-center">
+              <span>🔄 Hybrid (Auto)</span>
+            </button>
+            <button type="button" id="btnModeGroq" onclick="window.setAiOperationalMode('groq')" class="py-2 px-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer font-medium text-center">
+              <span>⚡ Groq (0.3s)</span>
+            </button>
+            <button type="button" id="btnModeGemini" onclick="window.setAiOperationalMode('gemini')" class="py-2 px-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer font-medium text-center">
+              <span>🌐 Gemini Flash</span>
+            </button>
+          </div>
+          <p id="modeExplanationText" class="text-[9.5px] text-slate-300 pt-1 leading-relaxed border-t border-white/5"></p>
+        </div>
 
-            <div class="flex items-center gap-2 pt-1">
-              <button type="button" id="btnTestAiKey" onclick="window.testFatihAiKey()" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-98">
-                <span>🧪 Tes Koneksi Kilat</span>
+        <!-- 2. Dual Engine Key Cards -->
+        <div class="space-y-3">
+          <!-- Card A: Groq Cloud -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-emerald-500/30 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>⚡ Groq Cloud LPU</span>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-400/20 text-emerald-300 font-mono">Kilat 0.3s</span>
+              </span>
+              <a href="https://console.groq.com/keys" target="_blank" class="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-semibold flex items-center gap-0.5">
+                <span>Ambil Kunci Gratis</span> ↗
+              </a>
+            </div>
+            <div class="relative">
+              <input type="password" id="fatihGroqApiKeyInput" placeholder="Tempel kunci gsk_... di sini" value="${escapeHtml(savedGroq)}" class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none font-mono tracking-wider pr-8" />
+              <button type="button" onclick="window.toggleShowGroqKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
+            </div>
+            <div id="fatihGroqTestStatus" class="hidden p-2 rounded-lg text-xs"></div>
+            <div class="flex justify-end pt-0.5">
+              <button type="button" id="btnTestGroqKey" onclick="window.testFatihGroqKey()" class="py-1.5 px-3 rounded-lg bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
+                <span>🧪 Tes Koneksi Groq (Kilat)</span>
               </button>
-            </div>
-
-            <!-- Hubungkan Kunci ke HP (1 Klik WhatsApp / QR Code) -->
-            <div class="pt-0.5">
-              <button type="button" onclick="window.openCrossDeviceSyncModal()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2">
-                <span>📱 Hubungkan Kunci ke HP (1 Klik WhatsApp / QR)</span>
-              </button>
-            </div>
-            <!-- Fitur & Tes Suara Alami Fathiya -->
-            <div class="p-3 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                  <span>🎙️</span>
-                  <span>Vokal Alami Fathiya (Indonesian Natural)</span>
-                </span>
-                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">
-                  Lembut &amp; Empuk
-                </span>
-              </div>
-              <p class="text-[9.5px] text-slate-400 leading-relaxed">
-                Karakter vokal disetel pada nada santun bersahabat (0.98x) dan tempo mengalun rileks (0.94x) dengan pembersih intonasi robotik otomatis.
-              </p>
-              <div class="flex items-center gap-2 pt-0.5">
-                <button type="button" onclick="window.testNaturalVoice()" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                  <span>🔊 Tes Suara Alami</span>
-                </button>
-                <button type="button" onclick="window.stopFatihSpeech()" class="py-1.5 px-3 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Hentikan Suara Sekarang (Esc)">
-                  <span>⏹️ Stop Suara</span>
-                </button>
-              </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between border-t border-white/10 pt-3 gap-2">
-            <button type="button" onclick="window.removeFatihAiKey()" class="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all cursor-pointer">
-              Hapus Kunci (Offline)
-            </button>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="window.closeFatihAiSettings()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer">
-                Batal
-              </button>
-              <button type="button" onclick="window.saveFatihAiKey()" class="py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer">
-                Simpan Kunci
+          <!-- Card B: Google Gemini -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-indigo-500/30 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>🌐 Google Gemini Flash</span>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-400/20 text-indigo-300 font-mono">Google AI</span>
+              </span>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] text-indigo-300 hover:text-indigo-200 underline font-semibold flex items-center gap-0.5">
+                <span>Google AI Studio</span> ↗
+              </a>
+            </div>
+            <div class="relative">
+              <input type="password" id="fatihGeminiApiKeyInput" placeholder="Tempel kunci AIzaSy... di sini" value="${escapeHtml(savedGemini)}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none font-mono tracking-wider pr-8" />
+              <button type="button" onclick="window.toggleShowGeminiKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
+            </div>
+            <div id="fatihGeminiTestStatus" class="hidden p-2 rounded-lg text-xs"></div>
+            <div class="flex justify-end pt-0.5">
+              <button type="button" id="btnTestGeminiKey" onclick="window.testFatihGeminiKey()" class="py-1.5 px-3 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
+                <span>🧪 Tes Koneksi Gemini</span>
               </button>
             </div>
           </div>
         </div>
-      `;
-      document.body.appendChild(modal);
-    }
 
-    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
-    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+        <!-- 3. Hubungkan Kunci ke HP (1 Klik WhatsApp / QR Code) -->
+        <div>
+          <button type="button" onclick="window.openCrossDeviceSyncModal()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2">
+            <span>📱 Hubungkan Semua Kunci ke HP (1 Klik WhatsApp / QR)</span>
+          </button>
+        </div>
 
-    if (groqKey) {
-      switchAiProviderTab('groq');
-    } else if (geminiKey) {
-      switchAiProviderTab('gemini');
-    } else {
-      switchAiProviderTab('groq');
-    }
+        <!-- 4. Fitur & Tes Suara Alami Fathiya -->
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+              <span>🎙️</span>
+              <span>Vokal Alami Fathiya (Indonesian Natural)</span>
+            </span>
+            <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">
+              Lembut &amp; Empuk
+            </span>
+          </div>
+          <p class="text-[9.5px] text-slate-400 leading-relaxed">
+            Karakter vokal disetel pada nada santun bersahabat (0.98x) dan tempo mengalun rileks (0.94x) dengan pembersih intonasi robotik otomatis.
+          </p>
+          <div class="flex items-center gap-2 pt-0.5">
+            <button type="button" onclick="window.testNaturalVoice()" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+              <span>🔊 Tes Suara Alami</span>
+            </button>
+            <button type="button" onclick="window.stopFatihSpeech()" class="py-1.5 px-3 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Hentikan Suara Sekarang (Esc)">
+              <span>⏹️ Stop Suara</span>
+            </button>
+          </div>
+        </div>
 
-    const statusBox = document.getElementById('fatihApiTestStatus');
-    if (statusBox) statusBox.className = 'hidden';
+        <!-- 5. Footer Buttons -->
+        <div class="flex items-center justify-between border-t border-white/10 pt-3 gap-2 flex-shrink-0">
+          <button type="button" onclick="window.removeFatihAiKey()" class="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all cursor-pointer">
+            Hapus Kunci (Offline)
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="window.closeFatihAiSettings()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer">
+              Batal
+            </button>
+            <button type="button" onclick="window.saveFatihAiKey()" class="py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer">
+              Simpan Semua Kunci
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
 
+    setAiOperationalMode(selectedAiMode);
     modal.style.display = 'flex';
   }
 
@@ -46769,86 +46972,128 @@ Format params:
     if (modal) modal.style.display = 'none';
   }
 
-  function toggleShowApiKey() {
-    const input = document.getElementById('fatihApiKeyInput');
-    if (input) {
-      input.type = input.type === 'password' ? 'text' : 'password';
-    }
+  function toggleShowGroqKey() {
+    const input = document.getElementById('fatihGroqApiKeyInput');
+    if (input) input.type = input.type === 'password' ? 'text' : 'password';
   }
 
-  async function testFatihAiKey() {
-    const input = document.getElementById('fatihApiKeyInput');
-    const statusBox = document.getElementById('fatihApiTestStatus');
-    const btn = document.getElementById('btnTestAiKey');
-    if (!input || !statusBox || !btn) return;
+  function toggleShowGeminiKey() {
+    const input = document.getElementById('fatihGeminiApiKeyInput');
+    if (input) input.type = input.type === 'password' ? 'text' : 'password';
+  }
 
-    const key = input.value.trim();
+  async function testFatihGroqKey() {
+    const input = document.getElementById('fatihGroqApiKeyInput');
+    const statusBox = document.getElementById('fatihGroqTestStatus');
+    const btn = document.getElementById('btnTestGroqKey');
+    if (!statusBox || !btn) return;
+
+    const key = (input ? input.value : localStorage.getItem('partner_fatih_groq_key') || '').trim();
     if (!key) {
-      statusBox.className = 'p-2.5 rounded-xl text-xs bg-amber-500/20 border border-amber-500/40 text-amber-200 block';
-      statusBox.innerHTML = '⚠️ Masukkan API Key terlebih dahulu sebelum mengetes.';
+      statusBox.className = 'p-2 rounded-lg text-xs bg-amber-500/20 border border-amber-500/40 text-amber-200 block';
+      statusBox.innerHTML = '⚠️ Masukkan Groq API Key terlebih dahulu.';
       return;
     }
 
-    const isGroq = currentAiProviderTab === 'groq' || key.startsWith('gsk_');
-    const provTitle = isGroq ? 'Groq Cloud AI' : 'Google Gemini';
-
     btn.disabled = true;
-    btn.innerHTML = `<span class="inline-block animate-spin mr-1">⏳</span> Menghubungi ${provTitle}...`;
-    statusBox.className = 'p-2.5 rounded-xl text-xs bg-slate-800 border border-slate-700 text-slate-300 block';
-    statusBox.innerHTML = `Sedang mengirim permintaan uji ke ${provTitle}...`;
+    btn.innerHTML = '<span class="inline-block animate-spin mr-1">⏳</span> Menghubungi Groq...';
+    statusBox.className = 'p-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-slate-300 block';
+    statusBox.innerHTML = 'Sedang mencari model aktif dan menguji latensi Groq Cloud...';
 
     const t0 = performance.now();
-
     try {
-      let reply = '';
-      if (isGroq) {
-        reply = await callGroqApi('Sebutkan secara singkat dalam 1 kalimat: Apa ibukota Indonesia dan siapa vokalis band Ungu?', key);
-      } else {
-        reply = await callGeminiApi('Berapa 2+2? Balas singkat hanya dengan: "2+2=4. Koneksi Gemini Flash Aktif!"', key);
-      }
+      const reply = await callGroqApi('Sebutkan secara singkat dalam 1 kalimat: Apa ibukota Indonesia dan siapa vokalis band Ungu?', key);
       const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-      const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : (isGroq ? 'qwen/qwen3.8-27b' : 'gemini');
+      const activeModel = cachedWorkingGroqModel || (cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : 'Groq LPU');
 
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 block';
-      statusBox.innerHTML = `✅ <b>Koneksi ${provTitle} Berhasil!</b><br/><span class="text-[10px] text-emerald-300/90 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1.5 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
+      statusBox.innerHTML = `✅ <b>Koneksi Groq Cloud Berhasil!</b><br/><span class="text-[10px] text-emerald-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
     } catch(err) {
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-rose-500/20 border border-rose-500/50 text-rose-200 block';
-      statusBox.innerHTML = `❌ <b>Koneksi Gagal:</b><br/><span class="text-[11px] text-rose-300/90 mt-1 block">${escapeHtml(err.message || 'Terjadi kesalahan.')}</span>`;
+      statusBox.innerHTML = `❌ <b>Koneksi Groq Gagal:</b><br/><span class="text-[11px] text-rose-300/90 mt-1 block">${escapeHtml(err.message || 'Terjadi kesalahan.')}</span>`;
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<span>🧪 Tes Koneksi Kilat</span>';
+      btn.innerHTML = '<span>🧪 Tes Koneksi Groq (Kilat)</span>';
+    }
+  }
+
+  async function testFatihGeminiKey() {
+    const input = document.getElementById('fatihGeminiApiKeyInput');
+    const statusBox = document.getElementById('fatihGeminiTestStatus');
+    const btn = document.getElementById('btnTestGeminiKey');
+    if (!statusBox || !btn) return;
+
+    const key = (input ? input.value : localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    if (!key) {
+      statusBox.className = 'p-2 rounded-lg text-xs bg-amber-500/20 border border-amber-500/40 text-amber-200 block';
+      statusBox.innerHTML = '⚠️ Masukkan Google Gemini API Key terlebih dahulu.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="inline-block animate-spin mr-1">⏳</span> Menghubungi Gemini...';
+    statusBox.className = 'p-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-slate-300 block';
+    statusBox.innerHTML = 'Sedang menguji koneksi Google Gemini Flash...';
+
+    const t0 = performance.now();
+    try {
+      const reply = await callGeminiApi('Berapa 2+2? Balas singkat hanya dengan: "2+2=4. Koneksi Gemini Flash Aktif!"', key);
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : 'gemini-flash';
+
+      statusBox.className = 'p-2.5 rounded-xl text-xs bg-indigo-500/20 border border-indigo-400/50 text-indigo-200 block';
+      statusBox.innerHTML = `✅ <b>Koneksi Google Gemini Berhasil!</b><br/><span class="text-[10px] text-indigo-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
+    } catch(err) {
+      statusBox.className = 'p-2.5 rounded-xl text-xs bg-rose-500/20 border border-rose-500/50 text-rose-200 block';
+      statusBox.innerHTML = `❌ <b>Koneksi Gemini Gagal:</b><br/><span class="text-[11px] text-rose-300/90 mt-1 block">${escapeHtml(err.message || 'Terjadi kesalahan.')}</span>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>🧪 Tes Koneksi Gemini</span>';
     }
   }
 
   function saveFatihAiKey() {
-    const input = document.getElementById('fatihApiKeyInput');
-    if (!input) return;
-    const key = input.value.trim();
-    const isGroq = currentAiProviderTab === 'groq' || key.startsWith('gsk_');
+    const groqInput = document.getElementById('fatihGroqApiKeyInput');
+    const geminiInput = document.getElementById('fatihGeminiApiKeyInput');
 
-    if (key) {
-      if (isGroq) {
-        localStorage.setItem('partner_fatih_groq_key', key);
-        if (typeof window.showToast === 'function') {
-          window.showToast('⚡ Groq AI Aktif', 'Groq AI Cloud siap mendampingi (Super Kilat 0.3s).', 'success');
-        }
+    const groqKey = groqInput ? groqInput.value.trim() : (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = geminiInput ? geminiInput.value.trim() : (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+
+    if (groqKey) localStorage.setItem('partner_fatih_groq_key', groqKey);
+    else localStorage.removeItem('partner_fatih_groq_key');
+
+    if (geminiKey) localStorage.setItem('partner_fatih_gemini_key', geminiKey);
+    else localStorage.removeItem('partner_fatih_gemini_key');
+
+    localStorage.setItem('partner_fatih_ai_mode', selectedAiMode);
+    updateFatihEngineStatusBadge();
+
+    if (typeof window.showToast === 'function') {
+      if (groqKey && geminiKey) {
+        window.showToast('🚀 Dual-Engine AI Aktif!', 'Groq (0.3s) & Gemini tersimpan. Siap bergantian otomatis!', 'success');
+      } else if (groqKey) {
+        window.showToast('⚡ Groq Cloud Aktif', 'Groq LPU (0.3s) siap mendampingi.', 'success');
+      } else if (geminiKey) {
+        window.showToast('🌐 Gemini Flash Aktif', 'Google Gemini siap mendampingi.', 'success');
       } else {
-        localStorage.setItem('partner_fatih_gemini_key', key);
-        if (typeof window.showToast === 'function') {
-          window.showToast('✅ Gemini AI Aktif', 'Google Gemini AI telah disimpan.', 'success');
-        }
+        window.showToast('🍃 Mode Offline', 'Fathiya berjalan dalam mode offline lokal.', 'info');
       }
     }
-    updateFatihEngineStatusBadge();
+
     closeFatihAiSettings();
   }
 
   function removeFatihAiKey() {
-    if (confirm('Hapus kunci AI online dan kembali ke mode cerdas offline?')) {
+    if (confirm('Hapus seluruh kunci AI online dan kembali ke mode cerdas offline?')) {
       localStorage.removeItem('partner_fatih_groq_key');
       localStorage.removeItem('partner_fatih_gemini_key');
-      const input = document.getElementById('fatihApiKeyInput');
-      if (input) input.value = '';
+      localStorage.setItem('partner_fatih_ai_mode', 'hybrid');
+
+      const groqInput = document.getElementById('fatihGroqApiKeyInput');
+      const geminiInput = document.getElementById('fatihGeminiApiKeyInput');
+      if (groqInput) groqInput.value = '';
+      if (geminiInput) geminiInput.value = '';
+
       updateFatihEngineStatusBadge();
       if (typeof window.showToast === 'function') {
         window.showToast('🗑️ Kunci Dihapus', 'Fathiya kembali ke mode offline mandiri.', 'info');
@@ -46919,21 +47164,18 @@ Format params:
 
   function openCrossDeviceSyncModal() {
     let modal = document.getElementById('modalCrossDeviceSync');
-    const inputVal = (document.getElementById('fatihApiKeyInput')?.value || '').trim();
-    let groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
-    let geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
-
-    if (inputVal) {
-      if (inputVal.startsWith('gsk_')) groqKey = inputVal;
-      else if (inputVal.startsWith('AIzaSy')) geminiKey = inputVal;
-    }
+    const groqInputVal = (document.getElementById('fatihGroqApiKeyInput')?.value || '').trim();
+    const geminiInputVal = (document.getElementById('fatihGeminiApiKeyInput')?.value || '').trim();
+    let groqKey = groqInputVal || (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    let geminiKey = geminiInputVal || (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const mode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
 
     if (!groqKey && !geminiKey) {
       alert('Masukkan atau simpan API Key terlebih dahulu agar bisa dihubungkan ke HP.');
       return;
     }
 
-    const payload = btoa(JSON.stringify({ groq: groqKey, gemini: geminiKey }));
+    const payload = btoa(JSON.stringify({ groq: groqKey, gemini: geminiKey, mode: mode }));
     const syncUrl = `${window.location.origin}/#sync_ai=${encodeURIComponent(payload)}`;
     const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}`;
 
@@ -46951,14 +47193,14 @@ Format params:
             <span class="text-xl">📱</span>
             <div>
               <h4 class="text-sm font-bold text-white">Hubungkan Kunci AI ke HP</h4>
-              <p class="text-[10px] text-indigo-300">Aktifkan Fathiya Online di Samsung Galaxy A55</p>
+              <p class="text-[10px] text-indigo-300">Aktifkan Groq &amp; Gemini di HP Samsung Galaxy A55</p>
             </div>
           </div>
           <button type="button" onclick="window.closeCrossDeviceSyncModal()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
         </div>
 
         <p class="text-[11px] text-slate-300 leading-relaxed">
-          Penyimpanan browser di HP terpisah dari laptop. Pilih salah satu cara cepat di bawah ini untuk menghubungkan kunci AI ke HP:
+          Penyimpanan browser di HP terpisah dari laptop. Link ini akan otomatis menghubungkan <b>kedua kunci (Groq &amp; Gemini)</b> sekaligus ke HP Anda:
         </p>
 
         <!-- Pilihan 1: Kirim ke WhatsApp -->
@@ -47005,7 +47247,7 @@ Format params:
 
   function openWaSyncLink(encodedUrl) {
     const rawUrl = decodeURIComponent(encodedUrl);
-    const waMsg = encodeURIComponent(`Buka link ini di HP untuk mengaktifkan Fathiya AI Partner Fatih secara otomatis:\n\n${rawUrl}`);
+    const waMsg = encodeURIComponent(`Buka link ini di HP untuk mengaktifkan Fathiya AI Partner Fatih secara otomatis (Dual-Engine Groq + Gemini):\n\n${rawUrl}`);
     window.open(`https://wa.me/?text=${waMsg}`, '_blank');
   }
 
@@ -47021,11 +47263,6 @@ Format params:
       prompt('Salin link ini dan buka di HP Anda:', rawUrl);
     }
   }
-
-  // Kompatibilitas mundur
-  const testFatihGeminiKey = testFatihAiKey;
-  const saveFatihGeminiKey = saveFatihAiKey;
-  const removeFatihGeminiKey = removeFatihAiKey;
 
   // --- 14. EXPORT GLOBALS & INITIALIZATION ---
   window.openFatihChat = openFatihChat;
@@ -47043,15 +47280,15 @@ Format params:
   window.openWaSyncLink = openWaSyncLink;
   window.copySyncLinkText = copySyncLinkText;
   window.checkAutoImportAiKeyFromUrl = checkAutoImportAiKeyFromUrl;
-  window.toggleShowApiKey = toggleShowApiKey;
-  window.switchAiProviderTab = switchAiProviderTab;
-  window.handleApiKeyInputAutoDetect = handleApiKeyInputAutoDetect;
-  window.testFatihAiKey = testFatihAiKey;
+  window.setAiOperationalMode = setAiOperationalMode;
+  window.cycleFatihEngineMode = cycleFatihEngineMode;
+  window.toggleShowGroqKey = toggleShowGroqKey;
+  window.toggleShowGeminiKey = toggleShowGeminiKey;
+  window.testFatihGroqKey = testFatihGroqKey;
+  window.testFatihGeminiKey = testFatihGeminiKey;
+  window.testFatihAiKey = testFatihGroqKey; // Backward compat
   window.saveFatihAiKey = saveFatihAiKey;
   window.removeFatihAiKey = removeFatihAiKey;
-  window.testFatihGeminiKey = testFatihGeminiKey;
-  window.saveFatihGeminiKey = saveFatihGeminiKey;
-  window.removeFatihGeminiKey = removeFatihGeminiKey;
   window.updateFatihEngineStatusBadge = updateFatihEngineStatusBadge;
   window.speakFatihHistory = speakFatihHistory;
   window.handleFatihMsgVoiceClick = handleFatihMsgVoiceClick;
