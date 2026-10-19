@@ -1,8 +1,8 @@
 {
   "version": "1.0.9",
-  "build": 24,
+  "build": 25,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 24 (Active Groq Qwen/GPT-OSS Dynamic Engine & Realtime Connectivity)",
+  "title": "Rilis v1.0.9 Build 25 (Natural Human Voice Tuning & Multi-Surface Stop Voice Controls)",
   "changelog": [
     "Ikon & Avatar Fathiya Baru: Menggunakan foto realistis Fathiya HD (JPEG 95% & PNG) dengan auto cache-busting v21",
     "Mesin Empati Alami Super: Tanggap keluhan fisik/kesehatan (sakit perut, pusing, meriang, lelah) secara hangat, tulus, dan manusiawi",
