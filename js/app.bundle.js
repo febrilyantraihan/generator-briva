@@ -27749,6 +27749,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -28304,21 +28306,25 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
         }
       });
 
-      // 2. Kalibrasi nama mapel & jam sesi tiap kelas formal ke Jadwal Resmi MTs Kode 33
+      // 2. Sinkronkan nama mapel & jam sesi tiap kelas dengan jadwal aktif
       Object.keys(jurnalState.classes).forEach(clsId => {
         const cls = jurnalState.classes[clsId];
         const sched = DEFAULT_CLASS_SCHEDULE[clsId];
-        if (cls && sched) {
-          if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
+        const userSched = (jurnalState.schedules || []).find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === clsId.toUpperCase());
+        if (cls) {
+          if (userSched && userSched.subject) {
+            cls.subject = userSched.subject;
+          } else if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
             cls.subject = 'Prakarya (Kode 33)';
           }
           if (cls.sessions) {
-            const officialTime = `${sched.time} (${sched.hours})`;
+            const activeTime = userSched ? userSched.time : (sched ? `${sched.time} (${sched.hours})` : '07.00 - 08.30');
+            const activeDay = userSched ? userSched.day : (sched ? sched.day : 'Ahad');
             for (let p = 1; p <= 18; p++) {
               if (cls.sessions[p]) {
-                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34') || cls.sessions[p].time !== officialTime) {
-                  cls.sessions[p].time = officialTime;
-                  cls.sessions[p].day = sched.day;
+                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34')) {
+                  cls.sessions[p].time = activeTime;
+                  cls.sessions[p].day = activeDay;
                   isUpdated = true;
                 }
               }
@@ -28536,6 +28542,46 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 
   // --- RENDER SUB-VIEWS MOBILE TERPADU ---
 
+  // Helper Resolver Jadwal Kelas Dinamis dari State Runtime
+  function getDynamicClassDisplayList(unit) {
+    const baseFormal = [
+      { id: '7A', label: 'Kelas 7A MTs', title: 'Kelas 7A MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Ahad Jam 5-6' },
+      { id: '7B', label: 'Kelas 7B MTs', title: 'Kelas 7B MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Ahad Jam 7-8' },
+      { id: '7C', label: 'Kelas 7C MTs', title: 'Kelas 7C MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Kamis Jam 1-2' },
+      { id: '7D', label: 'Kelas 7D MTs', title: 'Kelas 7D MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Senin Jam 7-8' },
+      { id: '8A', label: 'Kelas 8A MTs', title: 'Kelas 8A MTs', defaultMapel: 'Prakarya', defaultSched: 'Selasa Jam 1-2' },
+      { id: '8B', label: 'Kelas 8B MTs', title: 'Kelas 8B MTs', defaultMapel: 'Prakarya', defaultSched: 'Selasa Jam 3-4' },
+      { id: '8C', label: 'Kelas 8C MTs', title: 'Kelas 8C MTs', defaultMapel: 'Prakarya', defaultSched: 'Ahad Jam 1-2' },
+      { id: '8D', label: 'Kelas 8D MTs', title: 'Kelas 8D MTs', defaultMapel: 'Prakarya', defaultSched: 'Senin Jam 1-2' }
+    ];
+    const baseNonFormal = [
+      { id: '1UlaA', label: '1 Ula A (Diniyah)', title: '1 Ula A (Diniyah)', defaultMapel: 'Safinatun Najah', defaultSched: 'Selasa Malam' },
+      { id: '1UlaB', label: '1 Ula B (Diniyah)', title: '1 Ula B (Diniyah)', defaultMapel: 'Safinatun Najah', defaultSched: 'Jumat Malam' }
+    ];
+
+    const rawList = unit === 'formal' ? baseFormal : baseNonFormal;
+    return rawList.map(c => {
+      const sch = (jurnalState && Array.isArray(jurnalState.schedules))
+        ? jurnalState.schedules.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === c.id.toUpperCase())
+        : null;
+      let schedDisplay = c.defaultSched;
+      let mapelDisplay = c.defaultMapel;
+      if (sch) {
+        if (sch.subject) mapelDisplay = sch.subject;
+        const mJam = (sch.time || '').match(/Jam\s*[\d-]+/i);
+        const timeBrief = mJam ? mJam[0] : (sch.time ? sch.time.split('(')[0].trim() : '');
+        schedDisplay = `${sch.day} ${timeBrief}`.trim();
+      }
+      return {
+        id: c.id,
+        label: c.label,
+        title: c.title,
+        mapel: mapelDisplay,
+        schedule: schedDisplay
+      };
+    });
+  }
+
   // 1. Render Dashboard Bento & Preview Kelas (Persis Screenshot 3)
   function renderJurnalDashboard() {
     const classData = jurnalState.classes[currentJurnalClass];
@@ -28576,22 +28622,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     if (previewGrid) {
       const activeTeachingClassId = determineActiveTeachingClass();
       const targetSelectedClass = currentJurnalClass || activeTeachingClassId;
-
-      const classList = currentJurnalUnit === 'formal'
-        ? [
-            { id: '7A', label: 'Kelas 7A MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 5-6' },
-            { id: '7B', label: 'Kelas 7B MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 7-8' },
-            { id: '7C', label: 'Kelas 7C MTs', mapel: 'Prakarya (33)', schedule: 'Kamis Jam 1-2' },
-            { id: '7D', label: 'Kelas 7D MTs', mapel: 'Prakarya (33)', schedule: 'Senin Jam 7-8' },
-            { id: '8A', label: 'Kelas 8A MTs', mapel: 'Prakarya', schedule: 'MTs 8A' },
-            { id: '8B', label: 'Kelas 8B MTs', mapel: 'Prakarya', schedule: 'MTs 8B' },
-            { id: '8C', label: 'Kelas 8C MTs', mapel: 'Prakarya', schedule: 'MTs 8C' },
-            { id: '8D', label: 'Kelas 8D MTs', mapel: 'Prakarya', schedule: 'MTs 8D' }
-          ]
-        : [
-            { id: '1UlaA', label: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa Malam' },
-            { id: '1UlaB', label: '1 Ula B (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Jumat Malam' }
-          ];
+      const classList = getDynamicClassDisplayList(currentJurnalUnit);
 
       previewGrid.innerHTML = classList.map(c => {
         const isSelected = c.id === targetSelectedClass;
@@ -28750,21 +28781,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     const container = document.getElementById('jurnalClassCardsList');
     if (!container) return;
 
-    const classList = currentJurnalUnit === 'formal'
-      ? [
-          { id: '7A', title: 'Kelas 7A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '7B', title: 'Kelas 7B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 10.20 - 11.40 (Jam 5-6)' },
-          { id: '7C', title: 'Kelas 7C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '7D', title: 'Kelas 7D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '8A', title: 'Kelas 8A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8B', title: 'Kelas 8B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '8C', title: 'Kelas 8C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8D', title: 'Kelas 8D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Senin • 12.10 - 13.20 (Jam 7-8)' }
-        ]
-      : [
-          { id: '1UlaA', title: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa • 18.00 - 19.30 (Malam)' },
-          { id: '1UlaB', title: '1 Ula B (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Jumat • 18.00 - 19.30 (Malam)' }
-        ];
+    const classList = getDynamicClassDisplayList(currentJurnalUnit);
 
     const activeTeachingClassId = determineActiveTeachingClass();
     const targetSelectedClass = currentJurnalClass || activeTeachingClassId;
@@ -30556,6 +30573,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     renderJurnalTimetable();
     checkTodaySchedule();
     updateTeachingLiveTimer();
+    renderJurnalDashboard();
+    renderJurnalClassCards();
 
     if (typeof showToast === 'function') {
       showToast('Jadwal Disimpan', `Waktu belajar kelas ${classId} (${day}) berhasil disesuaikan.`);
@@ -30578,6 +30597,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     renderJurnalTimetable();
     checkTodaySchedule();
     updateTeachingLiveTimer();
+    renderJurnalDashboard();
+    renderJurnalClassCards();
 
     if (typeof showToast === 'function') {
       showToast('Jadwal Dihapus', 'Sesi jadwal telah berhasil dihapus.');
@@ -30594,6 +30615,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       renderJurnalReminders();
       checkTodaySchedule();
       updateTeachingLiveTimer();
+      renderJurnalDashboard();
+      renderJurnalClassCards();
       if (typeof safeCreateIcons === 'function') safeCreateIcons();
       if (typeof showToast === 'function') showToast('Jadwal Direset', 'Jadwal telah dikembalikan ke standar awal.');
     }
@@ -33849,6 +33872,8 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
   window.getJurnalSupabaseConfig = getJurnalSupabaseConfig;
 
   // Global Bridge untuk Co-Pilot Fathiya AI
+  window.renderJurnalDashboard = renderJurnalDashboard;
+  window.renderJurnalClassCards = renderJurnalClassCards;
   window.renderJurnalTimetable = renderJurnalTimetable;
   window.renderJurnalReminders = renderJurnalReminders;
   window.checkTodaySchedule = checkTodaySchedule;
@@ -33892,10 +33917,28 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
       });
     }
 
+    // Update juga sessions 1-18 di class tersebut jika terdaftar
+    if (jurnalState.classes && jurnalState.classes[normClass]) {
+      const clsObj = jurnalState.classes[normClass];
+      if (subject) clsObj.subject = subject;
+      if (clsObj.sessions) {
+        for (let p = 1; p <= 18; p++) {
+          if (clsObj.sessions[p]) {
+            clsObj.sessions[p].day = targetDay;
+            clsObj.sessions[p].time = timeStr;
+          }
+        }
+      }
+    }
+
     saveJurnalState();
+    if (typeof renderJurnalDashboard === 'function') renderJurnalDashboard();
+    if (typeof renderJurnalClassCards === 'function') renderJurnalClassCards();
     if (typeof renderJurnalTimetable === 'function') renderJurnalTimetable();
     if (typeof renderJurnalReminders === 'function') renderJurnalReminders();
     if (typeof checkTodaySchedule === 'function') checkTodaySchedule();
+    if (typeof updateTeachingLiveTimer === 'function') updateTeachingLiveTimer();
+    if (typeof renderCurrentJurnalForm === 'function') renderCurrentJurnalForm();
     return true;
   };
 
@@ -40247,6 +40290,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42348,6 +42393,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -43776,11 +43827,11 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
     if (cachedWorkingEndpoint) return cachedWorkingEndpoint;
     const key = encodeURIComponent(apiKey.trim());
 
-    // 1. Coba ListModels ke Google sesuai anjuran resmi ModelService (Fast 3.5s Discovery)
+    // 1. Coba ListModels ke Google sesuai anjuran resmi ModelService (Discovery 8s Timeout)
     for (const ver of ['v1beta', 'v1']) {
       try {
         const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 3500);
+        const tid = setTimeout(() => controller.abort(), 8000);
         const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${key}`;
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(tid);
@@ -43790,18 +43841,14 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
             const supported = data.models
               .filter(m => !m.supportedGenerationMethods || m.supportedGenerationMethods.includes('generateContent'))
               .map(m => m.name.replace(/^models\//, ''))
-              .filter(name => !/gemini-2\.5|gemini-pro$|gemini-1\.0/i.test(name)); // singkirkan model yang sudah retired
+              .filter(name => !/gemini-1\.0|embedding|bison/i.test(name));
 
             const preferredList = [
-              'gemini-3.8-flash',
-              'gemini-3.8-flash-latest',
-              'gemini-3.8-pro',
+              'gemini-2.5-flash',
               'gemini-2.0-flash',
-              'gemini-2.0-flash-exp',
               'gemini-1.5-flash',
-              'gemini-1.5-flash-latest',
               'gemini-1.5-flash-8b',
-              'gemini-1.5-pro'
+              'gemini-2.0-flash-exp'
             ];
 
             for (const pref of preferredList) {
@@ -44134,8 +44181,7 @@ Format params:
       candidates.push({ ver: detected.ver, model: detected.modelName });
     }
     candidates.push(
-      { ver: 'v1beta', model: 'gemini-3.8-flash' },
-      { ver: 'v1', model: 'gemini-3.8-flash' },
+      { ver: 'v1beta', model: 'gemini-2.5-flash' },
       { ver: 'v1beta', model: 'gemini-2.0-flash' },
       { ver: 'v1beta', model: 'gemini-1.5-flash' },
       { ver: 'v1', model: 'gemini-1.5-flash' },
@@ -44234,6 +44280,10 @@ Format params:
         }
       } catch(err) {
         clearTimeout(timeoutId);
+        if (err.name === 'AbortError' || /aborted/i.test(err.message || '')) {
+          lastErr = new Error('Koneksi ke endpoint Google Gemini memakan waktu terlalu lama (timeout). Silakan gunakan provider Groq Cloud (⚡ 0.3s) yang jauh lebih cepat, stabil, dan bebas kuota.');
+          continue;
+        }
         // Jika error adalah error fatal spesifik yang sudah diformat di atas, segera lempar (jangan loop model lain)
         if (err.message && !err.message.startsWith('[')) {
           throw err;
@@ -44917,6 +44967,12 @@ Format params:
         // C. Panggil bridge jurnal jika modul jurnal terpasang di window
         if (typeof window.mutateJurnalSchedule === 'function') {
           try { window.mutateJurnalSchedule(normClass, targetDay, timeStr, hourLabel, subject, room); } catch(e) {}
+        }
+        if (typeof window.renderJurnalDashboard === 'function') {
+          try { window.renderJurnalDashboard(); } catch(e) {}
+        }
+        if (typeof window.renderJurnalClassCards === 'function') {
+          try { window.renderJurnalClassCards(); } catch(e) {}
         }
         if (typeof window.renderJurnalTimetable === 'function') {
           try { window.renderJurnalTimetable(); } catch(e) {}
@@ -45625,15 +45681,23 @@ Format params:
     const t = text.trim();
 
     // 0. Mutasi / Pindah / Ganti Jadwal Mengajar KBM Guru
-    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "sesuaikan jadwal 8D ke sabtu"
-    if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t)) {
-      const classMatch = t.match(/\b([789])\s*([a-dA-D])\b/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
+    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "ubah jadwal mengajarnya ke hari senin jam 1-2"
+    if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t) || /(?:jadwal\s+mengajar|jadwal\s+kbm)/i.test(t)) {
+      const classMatch = t.match(/\b(?:kelas\s*)?([789])\s*([a-dA-D])\b/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
       const dayMatch = t.match(/\b(ahad|minggu|senin|selasa|rabu|kamis|jumat|sabtu)\b/i);
       const jamKeMatch = t.match(/jam\s*(?:ke\s*)?(\d+(?:\s*[-–]\s*\d+)?)/i);
       const timeClockMatch = t.match(/(\d{1,2}[.:]\d{2})\s*(?:[-–]\s*(\d{1,2}[.:]\d{2}))?/i);
 
-      if (classMatch && dayMatch) {
-        const cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/\s+/g, '').toUpperCase();
+      if (dayMatch) {
+        let cls = '';
+        if (classMatch) {
+          cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase();
+        } else {
+          // Cari kelas dari percakapan sebelumnya atau kelas aktif di jurnal
+          const prevMatch = (chatContext?.recentTurns || []).slice(-4).map(turn => (turn.text || '').match(/\b(?:kelas\s*)?([789][a-dA-D]|1\s*ula\s*[abAB])\b/i)).filter(Boolean)[0];
+          cls = prevMatch ? (prevMatch[1] || prevMatch[0]).replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase() : '8A';
+        }
+
         let dayRaw = dayMatch[1].toLowerCase();
         let dayFormatted = dayRaw.charAt(0).toUpperCase() + dayRaw.slice(1);
         if (dayFormatted === 'Minggu') dayFormatted = 'Ahad';
@@ -45645,14 +45709,14 @@ Format params:
         else if (hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
         else if (hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
         else if (timeClockMatch) timeStr = timeClockMatch[0];
-        else timeStr = '08.30 - 09.50 (Jam 3-4)';
+        else timeStr = '07.00 - 08.30 (Jam 1-2)';
 
         return {
           action: 'MUTATE_SCHEDULE',
           params: {
             classId: cls,
             day: dayFormatted,
-            hourLabel: hourLabel || 'Jam 3-4',
+            hourLabel: hourLabel || 'Jam 1-2',
             time: timeStr
           }
         };
@@ -46042,6 +46106,12 @@ Format params:
           } else if (offlineAction) {
             // Fallback: AI tidak menyertakan blok fatih-action tapi kalimat user jelas merupakan perintah mutasi
             actionCard = executeFatihAction(offlineAction);
+          } else {
+            // Fallback ekstra: Periksa jika balasan AI mengindikasikan jadwal/data telah diubah tapi tanpa tag kode
+            const parsedFromAiText = detectOfflineActionIntent(replyText);
+            if (parsedFromAiText) {
+              actionCard = executeFatihAction(parsedFromAiText);
+            }
           }
 
           // Ekstrak intisari vokal yang hangat dan ringkas agar nyaman didengar lisan
@@ -46627,6 +46697,13 @@ Format params:
                 <span>🧪 Tes Koneksi Kilat</span>
               </button>
             </div>
+
+            <!-- Hubungkan Kunci ke HP (1 Klik WhatsApp / QR Code) -->
+            <div class="pt-0.5">
+              <button type="button" onclick="window.openCrossDeviceSyncModal()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2">
+                <span>📱 Hubungkan Kunci ke HP (1 Klik WhatsApp / QR)</span>
+              </button>
+            </div>
             <!-- Fitur & Tes Suara Alami Fathiya -->
             <div class="p-3 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
               <div class="flex items-center justify-between">
@@ -46780,6 +46857,171 @@ Format params:
     }
   }
 
+  // --- 13B. CROSS-DEVICE MOBILE KEY SYNC (HP SYNC VIA WHATSAPP / QR CODE) ---
+  function checkAutoImportAiKeyFromUrl() {
+    try {
+      const hash = window.location.hash || '';
+      if (!hash) return;
+
+      let importedGroq = '';
+      let importedGemini = '';
+
+      if (hash.includes('sync_groq=')) {
+        const m = hash.match(/sync_groq=([^&]+)/);
+        if (m && m[1]) importedGroq = decodeURIComponent(m[1]).trim();
+      }
+      if (hash.includes('sync_gemini=')) {
+        const m = hash.match(/sync_gemini=([^&]+)/);
+        if (m && m[1]) importedGemini = decodeURIComponent(m[1]).trim();
+      }
+      if (hash.includes('sync_ai=')) {
+        const m = hash.match(/sync_ai=([^&]+)/);
+        if (m && m[1]) {
+          try {
+            const rawJson = atob(decodeURIComponent(m[1]));
+            const payload = JSON.parse(rawJson);
+            if (payload.groq) importedGroq = payload.groq;
+            if (payload.gemini) importedGemini = payload.gemini;
+          } catch(e) {
+            const val = decodeURIComponent(m[1]);
+            if (val.startsWith('gsk_')) importedGroq = val;
+            else if (val.startsWith('AIzaSy')) importedGemini = val;
+          }
+        }
+      }
+
+      let hasImported = false;
+      if (importedGroq && importedGroq.length > 10) {
+        localStorage.setItem('partner_fatih_groq_key', importedGroq);
+        hasImported = true;
+      }
+      if (importedGemini && importedGemini.length > 10) {
+        localStorage.setItem('partner_fatih_gemini_key', importedGemini);
+        hasImported = true;
+      }
+
+      if (hasImported) {
+        updateFatihEngineStatusBadge();
+        // Bersihkan hash dari URL address bar agar aman dan rapi
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        setTimeout(() => {
+          if (typeof window.showToast === 'function') {
+            window.showToast('📱 Kunci AI Terhubung!', 'Fathiya AI Online berhasil aktif di HP Anda.', 'success');
+          }
+        }, 600);
+      }
+    } catch(err) {
+      console.warn('Auto import AI key hash error:', err);
+    }
+  }
+
+  function openCrossDeviceSyncModal() {
+    let modal = document.getElementById('modalCrossDeviceSync');
+    const inputVal = (document.getElementById('fatihApiKeyInput')?.value || '').trim();
+    let groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    let geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+
+    if (inputVal) {
+      if (inputVal.startsWith('gsk_')) groqKey = inputVal;
+      else if (inputVal.startsWith('AIzaSy')) geminiKey = inputVal;
+    }
+
+    if (!groqKey && !geminiKey) {
+      alert('Masukkan atau simpan API Key terlebih dahulu agar bisa dihubungkan ke HP.');
+      return;
+    }
+
+    const payload = btoa(JSON.stringify({ groq: groqKey, gemini: geminiKey }));
+    const syncUrl = `${window.location.origin}/#sync_ai=${encodeURIComponent(payload)}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}`;
+
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modalCrossDeviceSync';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="relative w-full max-w-sm bg-slate-900 border border-indigo-500/30 rounded-2xl p-5 shadow-2xl text-slate-100 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📱</span>
+            <div>
+              <h4 class="text-sm font-bold text-white">Hubungkan Kunci AI ke HP</h4>
+              <p class="text-[10px] text-indigo-300">Aktifkan Fathiya Online di Samsung Galaxy A55</p>
+            </div>
+          </div>
+          <button type="button" onclick="window.closeCrossDeviceSyncModal()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
+        </div>
+
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          Penyimpanan browser di HP terpisah dari laptop. Pilih salah satu cara cepat di bawah ini untuk menghubungkan kunci AI ke HP:
+        </p>
+
+        <!-- Pilihan 1: Kirim ke WhatsApp -->
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+          <span class="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+            <span>💬 Cara 1: Kirim 1-Klik ke WhatsApp Sendiri</span>
+          </span>
+          <button type="button" onclick="window.openWaSyncLink('${encodeURIComponent(syncUrl)}')" class="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-98">
+            <span>📲 Buka WhatsApp &amp; Kirim Link</span>
+          </button>
+          <p class="text-[9.5px] text-slate-400 leading-tight">Ketuk tombol di atas untuk mengirim link ke WhatsApp Anda, lalu buka link tersebut di HP.</p>
+        </div>
+
+        <!-- Pilihan 2: Scan QR Code -->
+        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-center space-y-2">
+          <span class="text-[11px] font-bold text-indigo-300 flex items-center justify-center gap-1.5">
+            <span>📷 Cara 2: Scan QR Code dengan Kamera HP</span>
+          </span>
+          <div class="flex justify-center p-2 bg-white rounded-xl inline-block mx-auto shadow-sm">
+            <img src="${qrApiUrl}" alt="QR Code Link HP" class="w-36 h-36 mx-auto" />
+          </div>
+          <p class="text-[9.5px] text-slate-400 leading-tight">Arahkan kamera HP ke QR Code di atas, lalu ketuk tautan yang muncul di layar HP Anda.</p>
+        </div>
+
+        <!-- Salin Link Manual -->
+        <div class="flex items-center gap-2 pt-1">
+          <button type="button" onclick="window.copySyncLinkText('${encodeURIComponent(syncUrl)}')" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer flex items-center justify-center gap-1.5">
+            <span>📋 Salin Link HP</span>
+          </button>
+          <button type="button" onclick="window.closeCrossDeviceSyncModal()" class="py-2 px-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold cursor-pointer">
+            Tutup
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+  }
+
+  function closeCrossDeviceSyncModal() {
+    const modal = document.getElementById('modalCrossDeviceSync');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function openWaSyncLink(encodedUrl) {
+    const rawUrl = decodeURIComponent(encodedUrl);
+    const waMsg = encodeURIComponent(`Buka link ini di HP untuk mengaktifkan Fathiya AI Partner Fatih secara otomatis:\n\n${rawUrl}`);
+    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
+  }
+
+  function copySyncLinkText(encodedUrl) {
+    const rawUrl = decodeURIComponent(encodedUrl);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(rawUrl).then(() => {
+        if (typeof window.showToast === 'function') {
+          window.showToast('📋 Link Disalin!', 'Tempelkan link ini di chat WA atau browser HP Anda.', 'success');
+        }
+      });
+    } else {
+      prompt('Salin link ini dan buka di HP Anda:', rawUrl);
+    }
+  }
+
   // Kompatibilitas mundur
   const testFatihGeminiKey = testFatihAiKey;
   const saveFatihGeminiKey = saveFatihAiKey;
@@ -46796,6 +47038,11 @@ Format params:
   window.toggleFatihChatExpand = toggleFatihChatExpand;
   window.openFatihAiSettings = openFatihAiSettings;
   window.closeFatihAiSettings = closeFatihAiSettings;
+  window.openCrossDeviceSyncModal = openCrossDeviceSyncModal;
+  window.closeCrossDeviceSyncModal = closeCrossDeviceSyncModal;
+  window.openWaSyncLink = openWaSyncLink;
+  window.copySyncLinkText = copySyncLinkText;
+  window.checkAutoImportAiKeyFromUrl = checkAutoImportAiKeyFromUrl;
   window.toggleShowApiKey = toggleShowApiKey;
   window.switchAiProviderTab = switchAiProviderTab;
   window.handleApiKeyInputAutoDetect = handleApiKeyInputAutoDetect;
@@ -46832,10 +47079,16 @@ Format params:
     matchLocal: matchLocalKnowledge
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectChatUI);
-  } else {
+  function initFatihApp() {
+    checkAutoImportAiKeyFromUrl();
     injectChatUI();
+    updateFatihEngineStatusBadge();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFatihApp);
+  } else {
+    initFatihApp();
   }
 
 })(window, document);
