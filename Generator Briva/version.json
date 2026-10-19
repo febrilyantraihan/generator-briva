@@ -1,13 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 27,
+  "build": 28,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 27 (Dual-Engine AI Active & Auto-Alternating Groq/Gemini)",
+  "title": "Rilis v1.0.9 Build 28 (Tenaga Utama: Groq 0.3s & Tenaga Sekunder: Gemini Flash)",
   "changelog": [
-    "Dual-Engine AI Aktif Bersamaan: Menyimpan dan mengaktifkan kunci Groq Cloud dan Google Gemini secara simultan tanpa saling menimpa",
-    "Mode Bergantian Otomatis (Hybrid Cerdas): Fathiya memprioritaskan kecepatan kilat Groq (0.3s) dan otomatis bergantian ke Gemini jika limit atau gagal",
-    "Deteksi Model Dinamis Groq: Auto-discover active models langsung dari API Groq untuk mencegah error 404 model does not exist",
-    "1-Klik Bergantian di Ruang Chat: Badge status interaktif di bawah obrolan untuk beralih mode mesin secara instan",
-    "Sinkronisasi Ganda ke HP: Tautan WhatsApp & QR Code kini menyinkronkan kedua kunci sekaligus ke HP Samsung Galaxy A55"
+    "Tenaga Utama Groq Cloud (Super Kilat 0.3s): Inferensi Groq diprioritaskan sebagai mesin utama dengan model openai/gpt-oss-120b & qwen3.6-27b",
+    "Tenaga Sekunder Google Gemini Flash: Cadangan otomatis tanpa jeda saat Groq sibuk, mencapai limit harian, atau kendala jaringan",
+    "Pembersihan Total Model Lama: Menghapus dependensi lama llama-3.1-8b-instant dan beralih ke model aktif mutakhir Groq LPU",
+    "PWA Network-First: Script aplikasi (app.bundle.js & sahabat_fatih_ai.js) diperbarui otomatis tanpa tertahan cache browser",
+    "Dual-Engine Status Badge: Indikator interaktif satu sentuhan untuk beralih mode operasional di layar chat"
   ]
 }
