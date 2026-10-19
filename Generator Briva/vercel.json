@@ -30,7 +30,7 @@
       ]
     },
     {
-      "source": "/(index\\.html|index|sw\\.js|manifest\\.json|$)",
+      "source": "/(index\\.html|index|sw\\.js|manifest\\.json|version\\.json|$)",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
