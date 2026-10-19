@@ -1315,11 +1315,11 @@
     if (cachedWorkingEndpoint) return cachedWorkingEndpoint;
     const key = encodeURIComponent(apiKey.trim());
 
-    // 1. Coba ListModels ke Google sesuai anjuran resmi ModelService (Fast 3.5s Discovery)
+    // 1. Coba ListModels ke Google sesuai anjuran resmi ModelService (Discovery 8s Timeout)
     for (const ver of ['v1beta', 'v1']) {
       try {
         const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 3500);
+        const tid = setTimeout(() => controller.abort(), 8000);
         const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${key}`;
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(tid);
@@ -1329,18 +1329,14 @@
             const supported = data.models
               .filter(m => !m.supportedGenerationMethods || m.supportedGenerationMethods.includes('generateContent'))
               .map(m => m.name.replace(/^models\//, ''))
-              .filter(name => !/gemini-2\.5|gemini-pro$|gemini-1\.0/i.test(name)); // singkirkan model yang sudah retired
+              .filter(name => !/gemini-1\.0|embedding|bison/i.test(name));
 
             const preferredList = [
-              'gemini-3.8-flash',
-              'gemini-3.8-flash-latest',
-              'gemini-3.8-pro',
+              'gemini-2.5-flash',
               'gemini-2.0-flash',
-              'gemini-2.0-flash-exp',
               'gemini-1.5-flash',
-              'gemini-1.5-flash-latest',
               'gemini-1.5-flash-8b',
-              'gemini-1.5-pro'
+              'gemini-2.0-flash-exp'
             ];
 
             for (const pref of preferredList) {
@@ -1673,8 +1669,7 @@ Format params:
       candidates.push({ ver: detected.ver, model: detected.modelName });
     }
     candidates.push(
-      { ver: 'v1beta', model: 'gemini-3.8-flash' },
-      { ver: 'v1', model: 'gemini-3.8-flash' },
+      { ver: 'v1beta', model: 'gemini-2.5-flash' },
       { ver: 'v1beta', model: 'gemini-2.0-flash' },
       { ver: 'v1beta', model: 'gemini-1.5-flash' },
       { ver: 'v1', model: 'gemini-1.5-flash' },
@@ -1773,6 +1768,10 @@ Format params:
         }
       } catch(err) {
         clearTimeout(timeoutId);
+        if (err.name === 'AbortError' || /aborted/i.test(err.message || '')) {
+          lastErr = new Error('Koneksi ke endpoint Google Gemini memakan waktu terlalu lama (timeout). Silakan gunakan provider Groq Cloud (⚡ 0.3s) yang jauh lebih cepat, stabil, dan bebas kuota.');
+          continue;
+        }
         // Jika error adalah error fatal spesifik yang sudah diformat di atas, segera lempar (jangan loop model lain)
         if (err.message && !err.message.startsWith('[')) {
           throw err;
@@ -2456,6 +2455,12 @@ Format params:
         // C. Panggil bridge jurnal jika modul jurnal terpasang di window
         if (typeof window.mutateJurnalSchedule === 'function') {
           try { window.mutateJurnalSchedule(normClass, targetDay, timeStr, hourLabel, subject, room); } catch(e) {}
+        }
+        if (typeof window.renderJurnalDashboard === 'function') {
+          try { window.renderJurnalDashboard(); } catch(e) {}
+        }
+        if (typeof window.renderJurnalClassCards === 'function') {
+          try { window.renderJurnalClassCards(); } catch(e) {}
         }
         if (typeof window.renderJurnalTimetable === 'function') {
           try { window.renderJurnalTimetable(); } catch(e) {}
@@ -3164,15 +3169,23 @@ Format params:
     const t = text.trim();
 
     // 0. Mutasi / Pindah / Ganti Jadwal Mengajar KBM Guru
-    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "sesuaikan jadwal 8D ke sabtu"
-    if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t)) {
-      const classMatch = t.match(/\b([789])\s*([a-dA-D])\b/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
+    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "ubah jadwal mengajarnya ke hari senin jam 1-2"
+    if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t) || /(?:jadwal\s+mengajar|jadwal\s+kbm)/i.test(t)) {
+      const classMatch = t.match(/\b(?:kelas\s*)?([789])\s*([a-dA-D])\b/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
       const dayMatch = t.match(/\b(ahad|minggu|senin|selasa|rabu|kamis|jumat|sabtu)\b/i);
       const jamKeMatch = t.match(/jam\s*(?:ke\s*)?(\d+(?:\s*[-–]\s*\d+)?)/i);
       const timeClockMatch = t.match(/(\d{1,2}[.:]\d{2})\s*(?:[-–]\s*(\d{1,2}[.:]\d{2}))?/i);
 
-      if (classMatch && dayMatch) {
-        const cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/\s+/g, '').toUpperCase();
+      if (dayMatch) {
+        let cls = '';
+        if (classMatch) {
+          cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase();
+        } else {
+          // Cari kelas dari percakapan sebelumnya atau kelas aktif di jurnal
+          const prevMatch = (chatContext?.recentTurns || []).slice(-4).map(turn => (turn.text || '').match(/\b(?:kelas\s*)?([789][a-dA-D]|1\s*ula\s*[abAB])\b/i)).filter(Boolean)[0];
+          cls = prevMatch ? (prevMatch[1] || prevMatch[0]).replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase() : '8A';
+        }
+
         let dayRaw = dayMatch[1].toLowerCase();
         let dayFormatted = dayRaw.charAt(0).toUpperCase() + dayRaw.slice(1);
         if (dayFormatted === 'Minggu') dayFormatted = 'Ahad';
@@ -3184,14 +3197,14 @@ Format params:
         else if (hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
         else if (hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
         else if (timeClockMatch) timeStr = timeClockMatch[0];
-        else timeStr = '08.30 - 09.50 (Jam 3-4)';
+        else timeStr = '07.00 - 08.30 (Jam 1-2)';
 
         return {
           action: 'MUTATE_SCHEDULE',
           params: {
             classId: cls,
             day: dayFormatted,
-            hourLabel: hourLabel || 'Jam 3-4',
+            hourLabel: hourLabel || 'Jam 1-2',
             time: timeStr
           }
         };
@@ -3581,6 +3594,12 @@ Format params:
           } else if (offlineAction) {
             // Fallback: AI tidak menyertakan blok fatih-action tapi kalimat user jelas merupakan perintah mutasi
             actionCard = executeFatihAction(offlineAction);
+          } else {
+            // Fallback ekstra: Periksa jika balasan AI mengindikasikan jadwal/data telah diubah tapi tanpa tag kode
+            const parsedFromAiText = detectOfflineActionIntent(replyText);
+            if (parsedFromAiText) {
+              actionCard = executeFatihAction(parsedFromAiText);
+            }
           }
 
           // Ekstrak intisari vokal yang hangat dan ringkas agar nyaman didengar lisan
@@ -4166,6 +4185,13 @@ Format params:
                 <span>🧪 Tes Koneksi Kilat</span>
               </button>
             </div>
+
+            <!-- Hubungkan Kunci ke HP (1 Klik WhatsApp / QR Code) -->
+            <div class="pt-0.5">
+              <button type="button" onclick="window.openCrossDeviceSyncModal()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white text-xs font-bold transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2">
+                <span>📱 Hubungkan Kunci ke HP (1 Klik WhatsApp / QR)</span>
+              </button>
+            </div>
             <!-- Fitur & Tes Suara Alami Fathiya -->
             <div class="p-3 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
               <div class="flex items-center justify-between">
@@ -4319,6 +4345,171 @@ Format params:
     }
   }
 
+  // --- 13B. CROSS-DEVICE MOBILE KEY SYNC (HP SYNC VIA WHATSAPP / QR CODE) ---
+  function checkAutoImportAiKeyFromUrl() {
+    try {
+      const hash = window.location.hash || '';
+      if (!hash) return;
+
+      let importedGroq = '';
+      let importedGemini = '';
+
+      if (hash.includes('sync_groq=')) {
+        const m = hash.match(/sync_groq=([^&]+)/);
+        if (m && m[1]) importedGroq = decodeURIComponent(m[1]).trim();
+      }
+      if (hash.includes('sync_gemini=')) {
+        const m = hash.match(/sync_gemini=([^&]+)/);
+        if (m && m[1]) importedGemini = decodeURIComponent(m[1]).trim();
+      }
+      if (hash.includes('sync_ai=')) {
+        const m = hash.match(/sync_ai=([^&]+)/);
+        if (m && m[1]) {
+          try {
+            const rawJson = atob(decodeURIComponent(m[1]));
+            const payload = JSON.parse(rawJson);
+            if (payload.groq) importedGroq = payload.groq;
+            if (payload.gemini) importedGemini = payload.gemini;
+          } catch(e) {
+            const val = decodeURIComponent(m[1]);
+            if (val.startsWith('gsk_')) importedGroq = val;
+            else if (val.startsWith('AIzaSy')) importedGemini = val;
+          }
+        }
+      }
+
+      let hasImported = false;
+      if (importedGroq && importedGroq.length > 10) {
+        localStorage.setItem('partner_fatih_groq_key', importedGroq);
+        hasImported = true;
+      }
+      if (importedGemini && importedGemini.length > 10) {
+        localStorage.setItem('partner_fatih_gemini_key', importedGemini);
+        hasImported = true;
+      }
+
+      if (hasImported) {
+        updateFatihEngineStatusBadge();
+        // Bersihkan hash dari URL address bar agar aman dan rapi
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        setTimeout(() => {
+          if (typeof window.showToast === 'function') {
+            window.showToast('📱 Kunci AI Terhubung!', 'Fathiya AI Online berhasil aktif di HP Anda.', 'success');
+          }
+        }, 600);
+      }
+    } catch(err) {
+      console.warn('Auto import AI key hash error:', err);
+    }
+  }
+
+  function openCrossDeviceSyncModal() {
+    let modal = document.getElementById('modalCrossDeviceSync');
+    const inputVal = (document.getElementById('fatihApiKeyInput')?.value || '').trim();
+    let groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    let geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+
+    if (inputVal) {
+      if (inputVal.startsWith('gsk_')) groqKey = inputVal;
+      else if (inputVal.startsWith('AIzaSy')) geminiKey = inputVal;
+    }
+
+    if (!groqKey && !geminiKey) {
+      alert('Masukkan atau simpan API Key terlebih dahulu agar bisa dihubungkan ke HP.');
+      return;
+    }
+
+    const payload = btoa(JSON.stringify({ groq: groqKey, gemini: geminiKey }));
+    const syncUrl = `${window.location.origin}/#sync_ai=${encodeURIComponent(payload)}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(syncUrl)}`;
+
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modalCrossDeviceSync';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="relative w-full max-w-sm bg-slate-900 border border-indigo-500/30 rounded-2xl p-5 shadow-2xl text-slate-100 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📱</span>
+            <div>
+              <h4 class="text-sm font-bold text-white">Hubungkan Kunci AI ke HP</h4>
+              <p class="text-[10px] text-indigo-300">Aktifkan Fathiya Online di Samsung Galaxy A55</p>
+            </div>
+          </div>
+          <button type="button" onclick="window.closeCrossDeviceSyncModal()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
+        </div>
+
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          Penyimpanan browser di HP terpisah dari laptop. Pilih salah satu cara cepat di bawah ini untuk menghubungkan kunci AI ke HP:
+        </p>
+
+        <!-- Pilihan 1: Kirim ke WhatsApp -->
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+          <span class="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+            <span>💬 Cara 1: Kirim 1-Klik ke WhatsApp Sendiri</span>
+          </span>
+          <button type="button" onclick="window.openWaSyncLink('${encodeURIComponent(syncUrl)}')" class="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-98">
+            <span>📲 Buka WhatsApp &amp; Kirim Link</span>
+          </button>
+          <p class="text-[9.5px] text-slate-400 leading-tight">Ketuk tombol di atas untuk mengirim link ke WhatsApp Anda, lalu buka link tersebut di HP.</p>
+        </div>
+
+        <!-- Pilihan 2: Scan QR Code -->
+        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-center space-y-2">
+          <span class="text-[11px] font-bold text-indigo-300 flex items-center justify-center gap-1.5">
+            <span>📷 Cara 2: Scan QR Code dengan Kamera HP</span>
+          </span>
+          <div class="flex justify-center p-2 bg-white rounded-xl inline-block mx-auto shadow-sm">
+            <img src="${qrApiUrl}" alt="QR Code Link HP" class="w-36 h-36 mx-auto" />
+          </div>
+          <p class="text-[9.5px] text-slate-400 leading-tight">Arahkan kamera HP ke QR Code di atas, lalu ketuk tautan yang muncul di layar HP Anda.</p>
+        </div>
+
+        <!-- Salin Link Manual -->
+        <div class="flex items-center gap-2 pt-1">
+          <button type="button" onclick="window.copySyncLinkText('${encodeURIComponent(syncUrl)}')" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer flex items-center justify-center gap-1.5">
+            <span>📋 Salin Link HP</span>
+          </button>
+          <button type="button" onclick="window.closeCrossDeviceSyncModal()" class="py-2 px-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold cursor-pointer">
+            Tutup
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+  }
+
+  function closeCrossDeviceSyncModal() {
+    const modal = document.getElementById('modalCrossDeviceSync');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function openWaSyncLink(encodedUrl) {
+    const rawUrl = decodeURIComponent(encodedUrl);
+    const waMsg = encodeURIComponent(`Buka link ini di HP untuk mengaktifkan Fathiya AI Partner Fatih secara otomatis:\n\n${rawUrl}`);
+    window.open(`https://wa.me/?text=${waMsg}`, '_blank');
+  }
+
+  function copySyncLinkText(encodedUrl) {
+    const rawUrl = decodeURIComponent(encodedUrl);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(rawUrl).then(() => {
+        if (typeof window.showToast === 'function') {
+          window.showToast('📋 Link Disalin!', 'Tempelkan link ini di chat WA atau browser HP Anda.', 'success');
+        }
+      });
+    } else {
+      prompt('Salin link ini dan buka di HP Anda:', rawUrl);
+    }
+  }
+
   // Kompatibilitas mundur
   const testFatihGeminiKey = testFatihAiKey;
   const saveFatihGeminiKey = saveFatihAiKey;
@@ -4335,6 +4526,11 @@ Format params:
   window.toggleFatihChatExpand = toggleFatihChatExpand;
   window.openFatihAiSettings = openFatihAiSettings;
   window.closeFatihAiSettings = closeFatihAiSettings;
+  window.openCrossDeviceSyncModal = openCrossDeviceSyncModal;
+  window.closeCrossDeviceSyncModal = closeCrossDeviceSyncModal;
+  window.openWaSyncLink = openWaSyncLink;
+  window.copySyncLinkText = copySyncLinkText;
+  window.checkAutoImportAiKeyFromUrl = checkAutoImportAiKeyFromUrl;
   window.toggleShowApiKey = toggleShowApiKey;
   window.switchAiProviderTab = switchAiProviderTab;
   window.handleApiKeyInputAutoDetect = handleApiKeyInputAutoDetect;
@@ -4371,10 +4567,16 @@ Format params:
     matchLocal: matchLocalKnowledge
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectChatUI);
-  } else {
+  function initFatihApp() {
+    checkAutoImportAiKeyFromUrl();
     injectChatUI();
+    updateFatihEngineStatusBadge();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFatihApp);
+  } else {
+    initFatihApp();
   }
 
 })(window, document);
