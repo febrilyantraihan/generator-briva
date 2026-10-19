@@ -5,7 +5,7 @@
  */
 
 const APP_VERSION = '1.0.9';
-const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b30`;
+const CACHE_NAME = `partner-fatih-v${APP_VERSION}-b31`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
@@ -44,7 +44,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      console.log('[PWA SW v30] Pre-caching offline assets...');
+      console.log('[PWA SW v31] Pre-caching offline assets...');
       await Promise.all(
         PRECACHE_ASSETS.map(url => {
           return cache.add(url).catch(err => {
@@ -68,7 +68,12 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => self.clients.claim()).then(() => {
+      // Broadcast pesan update ke seluruh tab aktif agar antarmuka otomatis bersinkronisasi
+      return self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(c => c.postMessage({ type: 'SW_UPDATED', version: CACHE_NAME }));
+      });
+    })
   );
 });
 
@@ -89,40 +94,40 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-
-  // --- A. NAVIGASI HALAMAN UTAMA (index.html): INSTANT CACHE-FIRST DENGAN BACKGROUND REVALIDATE ---
+  // --- A. NAVIGASI HALAMAN UTAMA (index.html): NETWORK-FIRST (ANTI-SELISIH VERSI) DENGAN TIMEOUT FALLBACK ---
   if (request.mode === 'navigate') {
     event.respondWith(
       (async () => {
-        // Cek cache lokal terlebih dahulu (Respon Instan 0ms)
-        const cached = (await caches.match('./index.html')) || 
-                       (await caches.match('./')) || 
-                       (await caches.match(request));
+        try {
+          // Ambil versi terbaru langsung dari server (cepat, timeout 2.5s jika sinyal lambat)
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+          const networkResponse = await fetch(request, { signal: controller.signal });
+          clearTimeout(timeoutId);
 
-        // Revalidate di background tanpa menghambat pembukaan aplikasi
-        const fetchPromise = fetch(request).then(async networkResponse => {
           if (networkResponse && networkResponse.status === 200) {
             const clone = networkResponse.clone();
             const cache = await caches.open(CACHE_NAME);
             await cache.put(request, clone);
             await cache.put('./index.html', clone.clone());
             await cache.put('./', clone.clone());
+            return networkResponse;
           }
-          return networkResponse;
-        }).catch(() => null);
+        } catch (e) {
+          // Timeout atau sedang offline, lanjutkan ke cache lokal di bawah
+        }
 
-        // Jika sudah tersimpan di cache HP, sajikan INSTAN tanpa menunggu jaringan
+        // Fallback instan ke cache lokal jika offline atau jaringan lambat
+        const cached = (await caches.match('./index.html')) || 
+                       (await caches.match('./')) || 
+                       (await caches.match(request));
         if (cached) {
           return cached;
         }
 
-        // Jika belum ada di cache (akses perdana), tunggu jaringan
-        const networkResponse = await fetchPromise;
-        if (networkResponse) return networkResponse;
-
-        // Fallback offline
+        // Fallback offline bila belum pernah tercache sama sekali
         return new Response(
-          '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Partner Fatih - Offline</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:sans-serif;text-align:center;padding:40px;background:#0f172a;color:#fff;"><h2>Mode Offline</h2><p>Buka aplikasi ini sekali saat tersambung internet untuk memuat seluruh sistem offline.</p></body></html>',
+          '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>Partner Fatih - Offline</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:sans-serif;text-align:center;padding:40px;background:#0f172a;color:#fff;"><h2>Mode Offline</h2><p>Buka aplikasi ini saat tersambung internet untuk memuat seluruh sistem offline.</p></body></html>',
           { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
         );
       })()
