@@ -33349,6 +33349,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -33904,21 +33906,25 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
         }
       });
 
-      // 2. Kalibrasi nama mapel & jam sesi tiap kelas formal ke Jadwal Resmi MTs Kode 33
+      // 2. Sinkronkan nama mapel & jam sesi tiap kelas dengan jadwal aktif
       Object.keys(jurnalState.classes).forEach(clsId => {
         const cls = jurnalState.classes[clsId];
         const sched = DEFAULT_CLASS_SCHEDULE[clsId];
-        if (cls && sched) {
-          if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
+        const userSched = (jurnalState.schedules || []).find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === clsId.toUpperCase());
+        if (cls) {
+          if (userSched && userSched.subject) {
+            cls.subject = userSched.subject;
+          } else if (cls.unit === 'formal' && ['7A', '7B', '7C', '7D'].includes(clsId)) {
             cls.subject = 'Prakarya (Kode 33)';
           }
           if (cls.sessions) {
-            const officialTime = `${sched.time} (${sched.hours})`;
+            const activeTime = userSched ? userSched.time : (sched ? `${sched.time} (${sched.hours})` : '07.00 - 08.30');
+            const activeDay = userSched ? userSched.day : (sched ? sched.day : 'Ahad');
             for (let p = 1; p <= 18; p++) {
               if (cls.sessions[p]) {
-                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34') || cls.sessions[p].time !== officialTime) {
-                  cls.sessions[p].time = officialTime;
-                  cls.sessions[p].day = sched.day;
+                if (!cls.sessions[p].time || cls.sessions[p].time.includes('07.00 - 08.20') || cls.sessions[p].time.includes('34')) {
+                  cls.sessions[p].time = activeTime;
+                  cls.sessions[p].day = activeDay;
                   isUpdated = true;
                 }
               }
@@ -34136,6 +34142,46 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 
   // --- RENDER SUB-VIEWS MOBILE TERPADU ---
 
+  // Helper Resolver Jadwal Kelas Dinamis dari State Runtime
+  function getDynamicClassDisplayList(unit) {
+    const baseFormal = [
+      { id: '7A', label: 'Kelas 7A MTs', title: 'Kelas 7A MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Ahad Jam 5-6' },
+      { id: '7B', label: 'Kelas 7B MTs', title: 'Kelas 7B MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Ahad Jam 7-8' },
+      { id: '7C', label: 'Kelas 7C MTs', title: 'Kelas 7C MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Kamis Jam 1-2' },
+      { id: '7D', label: 'Kelas 7D MTs', title: 'Kelas 7D MTs', defaultMapel: 'Prakarya (Kode 33)', defaultSched: 'Senin Jam 7-8' },
+      { id: '8A', label: 'Kelas 8A MTs', title: 'Kelas 8A MTs', defaultMapel: 'Prakarya', defaultSched: 'Selasa Jam 1-2' },
+      { id: '8B', label: 'Kelas 8B MTs', title: 'Kelas 8B MTs', defaultMapel: 'Prakarya', defaultSched: 'Selasa Jam 3-4' },
+      { id: '8C', label: 'Kelas 8C MTs', title: 'Kelas 8C MTs', defaultMapel: 'Prakarya', defaultSched: 'Ahad Jam 1-2' },
+      { id: '8D', label: 'Kelas 8D MTs', title: 'Kelas 8D MTs', defaultMapel: 'Prakarya', defaultSched: 'Senin Jam 1-2' }
+    ];
+    const baseNonFormal = [
+      { id: '1UlaA', label: '1 Ula A (Diniyah)', title: '1 Ula A (Diniyah)', defaultMapel: 'Safinatun Najah', defaultSched: 'Selasa Malam' },
+      { id: '1UlaB', label: '1 Ula B (Diniyah)', title: '1 Ula B (Diniyah)', defaultMapel: 'Safinatun Najah', defaultSched: 'Jumat Malam' }
+    ];
+
+    const rawList = unit === 'formal' ? baseFormal : baseNonFormal;
+    return rawList.map(c => {
+      const sch = (jurnalState && Array.isArray(jurnalState.schedules))
+        ? jurnalState.schedules.find(s => (s.classId || '').replace(/\s+/g, '').toUpperCase() === c.id.toUpperCase())
+        : null;
+      let schedDisplay = c.defaultSched;
+      let mapelDisplay = c.defaultMapel;
+      if (sch) {
+        if (sch.subject) mapelDisplay = sch.subject;
+        const mJam = (sch.time || '').match(/Jam\s*[\d-]+/i);
+        const timeBrief = mJam ? mJam[0] : (sch.time ? sch.time.split('(')[0].trim() : '');
+        schedDisplay = `${sch.day} ${timeBrief}`.trim();
+      }
+      return {
+        id: c.id,
+        label: c.label,
+        title: c.title,
+        mapel: mapelDisplay,
+        schedule: schedDisplay
+      };
+    });
+  }
+
   // 1. Render Dashboard Bento & Preview Kelas (Persis Screenshot 3)
   function renderJurnalDashboard() {
     const classData = jurnalState.classes[currentJurnalClass];
@@ -34176,22 +34222,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     if (previewGrid) {
       const activeTeachingClassId = determineActiveTeachingClass();
       const targetSelectedClass = currentJurnalClass || activeTeachingClassId;
-
-      const classList = currentJurnalUnit === 'formal'
-        ? [
-            { id: '7A', label: 'Kelas 7A MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 5-6' },
-            { id: '7B', label: 'Kelas 7B MTs', mapel: 'Prakarya (33)', schedule: 'Ahad Jam 7-8' },
-            { id: '7C', label: 'Kelas 7C MTs', mapel: 'Prakarya (33)', schedule: 'Kamis Jam 1-2' },
-            { id: '7D', label: 'Kelas 7D MTs', mapel: 'Prakarya (33)', schedule: 'Senin Jam 7-8' },
-            { id: '8A', label: 'Kelas 8A MTs', mapel: 'Prakarya', schedule: 'MTs 8A' },
-            { id: '8B', label: 'Kelas 8B MTs', mapel: 'Prakarya', schedule: 'MTs 8B' },
-            { id: '8C', label: 'Kelas 8C MTs', mapel: 'Prakarya', schedule: 'MTs 8C' },
-            { id: '8D', label: 'Kelas 8D MTs', mapel: 'Prakarya', schedule: 'MTs 8D' }
-          ]
-        : [
-            { id: '1UlaA', label: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa Malam' },
-            { id: '1UlaB', label: '1 Ula B (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Jumat Malam' }
-          ];
+      const classList = getDynamicClassDisplayList(currentJurnalUnit);
 
       previewGrid.innerHTML = classList.map(c => {
         const isSelected = c.id === targetSelectedClass;
@@ -34350,21 +34381,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     const container = document.getElementById('jurnalClassCardsList');
     if (!container) return;
 
-    const classList = currentJurnalUnit === 'formal'
-      ? [
-          { id: '7A', title: 'Kelas 7A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '7B', title: 'Kelas 7B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 10.20 - 11.40 (Jam 5-6)' },
-          { id: '7C', title: 'Kelas 7C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Ahad • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '7D', title: 'Kelas 7D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 12.10 - 13.20 (Jam 7-8)' },
-          { id: '8A', title: 'Kelas 8A MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8B', title: 'Kelas 8B MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Selasa • 08.30 - 09.50 (Jam 3-4)' },
-          { id: '8C', title: 'Kelas 8C MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Kamis • 07.00 - 08.30 (Jam 1-2)' },
-          { id: '8D', title: 'Kelas 8D MTs', mapel: 'Prakarya (Kode 33)', schedule: 'Senin • 12.10 - 13.20 (Jam 7-8)' }
-        ]
-      : [
-          { id: '1UlaA', title: '1 Ula A (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Selasa • 18.00 - 19.30 (Malam)' },
-          { id: '1UlaB', title: '1 Ula B (Diniyah)', mapel: 'Safinatun Najah', schedule: 'Jumat • 18.00 - 19.30 (Malam)' }
-        ];
+    const classList = getDynamicClassDisplayList(currentJurnalUnit);
 
     const activeTeachingClassId = determineActiveTeachingClass();
     const targetSelectedClass = currentJurnalClass || activeTeachingClassId;
@@ -36156,6 +36173,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     renderJurnalTimetable();
     checkTodaySchedule();
     updateTeachingLiveTimer();
+    renderJurnalDashboard();
+    renderJurnalClassCards();
 
     if (typeof showToast === 'function') {
       showToast('Jadwal Disimpan', `Waktu belajar kelas ${classId} (${day}) berhasil disesuaikan.`);
@@ -36178,6 +36197,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     renderJurnalTimetable();
     checkTodaySchedule();
     updateTeachingLiveTimer();
+    renderJurnalDashboard();
+    renderJurnalClassCards();
 
     if (typeof showToast === 'function') {
       showToast('Jadwal Dihapus', 'Sesi jadwal telah berhasil dihapus.');
@@ -36194,6 +36215,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       renderJurnalReminders();
       checkTodaySchedule();
       updateTeachingLiveTimer();
+      renderJurnalDashboard();
+      renderJurnalClassCards();
       if (typeof safeCreateIcons === 'function') safeCreateIcons();
       if (typeof showToast === 'function') showToast('Jadwal Direset', 'Jadwal telah dikembalikan ke standar awal.');
     }
@@ -39449,6 +39472,8 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
   window.getJurnalSupabaseConfig = getJurnalSupabaseConfig;
 
   // Global Bridge untuk Co-Pilot Fathiya AI
+  window.renderJurnalDashboard = renderJurnalDashboard;
+  window.renderJurnalClassCards = renderJurnalClassCards;
   window.renderJurnalTimetable = renderJurnalTimetable;
   window.renderJurnalReminders = renderJurnalReminders;
   window.checkTodaySchedule = checkTodaySchedule;
@@ -39492,10 +39517,28 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
       });
     }
 
+    // Update juga sessions 1-18 di class tersebut jika terdaftar
+    if (jurnalState.classes && jurnalState.classes[normClass]) {
+      const clsObj = jurnalState.classes[normClass];
+      if (subject) clsObj.subject = subject;
+      if (clsObj.sessions) {
+        for (let p = 1; p <= 18; p++) {
+          if (clsObj.sessions[p]) {
+            clsObj.sessions[p].day = targetDay;
+            clsObj.sessions[p].time = timeStr;
+          }
+        }
+      }
+    }
+
     saveJurnalState();
+    if (typeof renderJurnalDashboard === 'function') renderJurnalDashboard();
+    if (typeof renderJurnalClassCards === 'function') renderJurnalClassCards();
     if (typeof renderJurnalTimetable === 'function') renderJurnalTimetable();
     if (typeof renderJurnalReminders === 'function') renderJurnalReminders();
     if (typeof checkTodaySchedule === 'function') checkTodaySchedule();
+    if (typeof updateTeachingLiveTimer === 'function') updateTeachingLiveTimer();
+    if (typeof renderCurrentJurnalForm === 'function') renderCurrentJurnalForm();
     return true;
   };
 
@@ -45847,6 +45890,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -47767,6 +47812,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
+
+
+
 
 
 
