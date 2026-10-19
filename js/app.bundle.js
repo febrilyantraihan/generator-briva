@@ -27754,6 +27754,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40298,6 +40299,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42414,6 +42416,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -43836,17 +43841,20 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
   // --- 7. DUAL-ENGINE: GOOGLE GEMINI ADAPTIVE RESOLVER (v1 / v1beta Auto-Discovery) ---
-  let cachedWorkingEndpoint = null; // { ver: 'v1'|'v1beta', modelName: 'gemini-3.8-flash' }
+  // --- 7. DUAL-ENGINE: GOOGLE GEMINI ADAPTIVE RESOLVER (v1 / v1beta Auto-Discovery) ---
+  let cachedWorkingGeminiEndpoint = null; // { ver: 'v1'|'v1beta', modelName: 'gemini-2.5-flash' }
 
   async function discoverGeminiModels(apiKey) {
-    if (cachedWorkingEndpoint) return cachedWorkingEndpoint;
+    if (cachedWorkingGeminiEndpoint && cachedWorkingGeminiEndpoint.ver !== 'groq') {
+      return cachedWorkingGeminiEndpoint;
+    }
     const key = encodeURIComponent(apiKey.trim());
 
     // 1. Coba ListModels ke Google sesuai anjuran resmi ModelService (Discovery 8s Timeout)
     for (const ver of ['v1beta', 'v1']) {
       try {
         const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 8000);
+        const tid = setTimeout(() => controller.abort(), 6000);
         const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${key}`;
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(tid);
@@ -43868,14 +43876,14 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
             for (const pref of preferredList) {
               if (supported.includes(pref)) {
-                cachedWorkingEndpoint = { ver, modelName: pref };
-                return cachedWorkingEndpoint;
+                cachedWorkingGeminiEndpoint = { ver, modelName: pref };
+                return cachedWorkingGeminiEndpoint;
               }
             }
 
             if (supported.length > 0) {
-              cachedWorkingEndpoint = { ver, modelName: supported[0] };
-              return cachedWorkingEndpoint;
+              cachedWorkingGeminiEndpoint = { ver, modelName: supported[0] };
+              return cachedWorkingGeminiEndpoint;
             }
           }
         }
@@ -44241,7 +44249,7 @@ Format params:
           const data = await res.json();
           const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (reply) {
-            cachedWorkingEndpoint = { ver: c.ver, modelName: c.model };
+            cachedWorkingGeminiEndpoint = { ver: c.ver, modelName: c.model };
             return reply;
           }
         } else {
@@ -44447,7 +44455,6 @@ Format params:
           const reply = data?.choices?.[0]?.message?.content;
           if (reply) {
             cachedWorkingGroqModel = model;
-            cachedWorkingEndpoint = { ver: 'groq', modelName: model };
             return reply;
           }
         } else {
@@ -47005,7 +47012,7 @@ Format params:
     try {
       const reply = await callGroqApi('Sebutkan secara singkat dalam 1 kalimat: Apa ibukota Indonesia dan siapa vokalis band Ungu?', key);
       const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-      const activeModel = cachedWorkingGroqModel || (cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : 'Groq LPU');
+      const activeModel = cachedWorkingGroqModel || 'openai/gpt-oss-120b';
 
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 block';
       statusBox.innerHTML = `✅ <b>Koneksi Groq Cloud (Tenaga Utama) Berhasil!</b><br/><span class="text-[10px] text-emerald-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik (Super Kilat)</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
@@ -47040,7 +47047,7 @@ Format params:
     try {
       const reply = await callGeminiApi('Berapa 2+2? Balas singkat hanya dengan: "2+2=4. Koneksi Gemini Flash Aktif!"', key);
       const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-      const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : 'gemini-flash';
+      const activeModel = cachedWorkingGeminiEndpoint ? cachedWorkingGeminiEndpoint.modelName : 'gemini-flash';
 
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-indigo-500/20 border border-indigo-400/50 text-indigo-200 block';
       statusBox.innerHTML = `✅ <b>Koneksi Google Gemini (Tenaga Sekunder) Berhasil!</b><br/><span class="text-[10px] text-indigo-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
