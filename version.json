@@ -1,13 +1,12 @@
 {
   "version": "1.0.9",
-  "build": 28,
+  "build": 29,
   "releaseDate": "2026-10-19",
-  "title": "Rilis v1.0.9 Build 28 (Tenaga Utama: Groq 0.3s & Tenaga Sekunder: Gemini Flash)",
+  "title": "Rilis v1.0.9 Build 29 (Isolasi Endpoint Groq & Gemini & Zero Cache Collision)",
   "changelog": [
-    "Tenaga Utama Groq Cloud (Super Kilat 0.3s): Inferensi Groq diprioritaskan sebagai mesin utama dengan model openai/gpt-oss-120b & qwen3.6-27b",
-    "Tenaga Sekunder Google Gemini Flash: Cadangan otomatis tanpa jeda saat Groq sibuk, mencapai limit harian, atau kendala jaringan",
-    "Pembersihan Total Model Lama: Menghapus dependensi lama llama-3.1-8b-instant dan beralih ke model aktif mutakhir Groq LPU",
-    "PWA Network-First: Script aplikasi (app.bundle.js & sahabat_fatih_ai.js) diperbarui otomatis tanpa tertahan cache browser",
-    "Dual-Engine Status Badge: Indikator interaktif satu sentuhan untuk beralih mode operasional di layar chat"
+    "Isolasi Endpoint Mandiri: Memisahkan variabel cache Groq (cachedWorkingGroqModel) dan Google Gemini (cachedWorkingGeminiEndpoint) sehingga kedua tes koneksi berjalan simultan 100% stabil",
+    "Pencegahan Error Failed to Fetch Gemini: Memastikan endpoint Google AI tidak pernah tertukar dengan format endpoint Groq",
+    "Tenaga Utama Groq Cloud: Berjalan prima dengan model openai/gpt-oss-120b dan latensi super kilat",
+    "Tenaga Sekunder Google Gemini Flash: Berjalan mulus sebagai cadangan otomatis tanpa gangguan silang"
   ]
 }
