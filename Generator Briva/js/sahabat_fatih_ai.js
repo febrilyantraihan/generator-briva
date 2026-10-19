@@ -1817,18 +1817,13 @@ Format params:
 
           if (validChatModels.length > 0) {
             const preferredOrder = [
-              'llama-3.3-70b-versatile',
-              'llama-3.1-8b-instant',
-              'llama-3.2-3b-preview',
-              'llama-3.2-1b-preview',
               'openai/gpt-oss-120b',
               'openai/gpt-oss-20b',
-              'qwen/qwen3.8-27b',
-              'qwen-2.5-32b',
-              'llama3-70b-8192',
-              'llama3-8b-8192',
-              'mixtral-8x7b-32768',
-              'gemma2-9b-it'
+              'qwen/qwen3.6-27b',
+              'llama-3.3-70b-versatile',
+              'llama-3.2-3b-preview',
+              'llama-3.2-1b-preview',
+              'qwen-2.5-32b'
             ];
 
             const sorted = [];
@@ -1849,18 +1844,14 @@ Format params:
       console.warn('[Fatih AI] Gagal mendeteksi model Groq secara dinamis, menggunakan fallback:', e);
     }
 
-    // Fallback komprehensif model aktif Groq
+    // Fallback komprehensif model aktif Groq (openai/gpt-oss-120b & 20b sebagai unggulan resmi)
     cachedGroqModels = [
-      'llama-3.3-70b-versatile',
-      'llama-3.1-8b-instant',
-      'llama-3.2-3b-preview',
-      'llama-3.2-1b-preview',
       'openai/gpt-oss-120b',
       'openai/gpt-oss-20b',
-      'llama3-70b-8192',
-      'llama3-8b-8192',
-      'mixtral-8x7b-32768',
-      'gemma2-9b-it'
+      'qwen/qwen3.6-27b',
+      'llama-3.3-70b-versatile',
+      'llama-3.2-3b-preview',
+      'llama-3.2-1b-preview'
     ];
     return cachedGroqModels;
   }
@@ -1943,10 +1934,10 @@ Format params:
             throw new Error('API Key Groq tidak valid. Pastikan kunci diawali "gsk_..." yang disalin dari console.groq.com/keys');
           }
 
-          // Jika model tidak ditemukan / deprecate, lanjut ke model berikutnya
-          if (res.status === 404 || /model_not_found|does not exist/i.test(errDetail)) {
-            console.warn(`[Groq] Model '${model}' tidak tersedia, mencoba alternatif...`);
-            lastErr = new Error(`Model Groq '${model}' tidak tersedia.`);
+          // Jika model tidak ditemukan / tidak punya akses / deprecated, lanjut ke model berikutnya
+          if (res.status === 404 || res.status === 400 || /model_not_found|does not exist|not exist|permission|access|decommissioned/i.test(errDetail)) {
+            console.warn(`[Groq] Model '${model}' tidak tersedia (${errDetail}), mencoba model berikutnya...`);
+            lastErr = new Error(`Model Groq '${model}' tidak tersedia: ${errDetail}`);
             continue;
           }
 
@@ -4286,11 +4277,11 @@ Format params:
 
     if (descText) {
       if (mode === 'hybrid') {
-        descText.innerHTML = '🔄 <b>Mode Hybrid (Direkomendasikan):</b> Fathiya memprioritaskan <b>Groq (Super Cepat 0.3s)</b>. Jika Groq mencapai kuota/limit atau gagal, sistem <b>otomatis bergantian</b> ke <b>Google Gemini Flash</b> tanpa terputus.';
+        descText.innerHTML = '⚡🔄 <b>Tenaga Utama: Groq (0.3s) ➔ Sekunder: Gemini:</b> Fathiya memprioritaskan <b>Groq (Tenaga Utama)</b> untuk kecepatan respons kilat 0.3 detik. Jika Groq mencapai kuota/limit harian atau mengalami kendala, sistem <b>otomatis bergantian</b> ke <b>Google Gemini Flash (Tenaga Sekunder)</b> tanpa terputus.';
       } else if (mode === 'groq') {
-        descText.innerHTML = '⚡ <b>Mode Khusus Groq:</b> Selalu menggunakan <b>Groq Cloud LPU (0.3s)</b> untuk kecepatan respons super kilat.';
+        descText.innerHTML = '⚡ <b>Mode Khusus Groq (Tenaga Utama):</b> Selalu menggunakan <b>Groq Cloud LPU (0.3s)</b> untuk kecepatan inferensi kilat.';
       } else {
-        descText.innerHTML = '🌐 <b>Mode Khusus Gemini:</b> Selalu menggunakan <b>Google Gemini Flash</b> dari Google AI Studio.';
+        descText.innerHTML = '🌐 <b>Mode Khusus Gemini (Tenaga Sekunder):</b> Selalu menggunakan <b>Google Gemini Flash</b> dari Google AI Studio.';
       }
     }
   }
@@ -4319,7 +4310,7 @@ Format params:
                 <span>Pengaturan Mesin AI Fathiya</span>
                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">Dual-Engine</span>
               </h3>
-              <p class="text-[10px] text-slate-400">Groq Cloud (Super Cepat 0.3s) &amp; Google Gemini Flash Aktif Bersamaan</p>
+              <p class="text-[10px] text-slate-400">Groq Cloud (Tenaga Utama 0.3s) &amp; Google Gemini Flash (Tenaga Sekunder)</p>
             </div>
           </div>
           <button type="button" onclick="window.closeFatihAiSettings()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer">✕</button>
@@ -4328,17 +4319,20 @@ Format params:
         <!-- 1. Pilihan Mode Kerja & Bergantian -->
         <div class="space-y-1.5 p-3 rounded-xl bg-slate-900/90 border border-white/10">
           <label class="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
-            Pilih Mode Operasional (Bisa Bergantian):
+            Prioritas &amp; Mode Operasional Mesin:
           </label>
           <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-lg border border-white/5 text-[11px]">
-            <button type="button" id="btnModeHybrid" onclick="window.setAiOperationalMode('hybrid')" class="py-2 px-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer font-bold text-center">
-              <span>🔄 Hybrid (Auto)</span>
+            <button type="button" id="btnModeHybrid" onclick="window.setAiOperationalMode('hybrid')" class="py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer font-bold text-center">
+              <span>🔄 Hybrid Utama</span>
+              <span class="text-[9px] opacity-75 font-normal">Groq ➔ Gemini</span>
             </button>
-            <button type="button" id="btnModeGroq" onclick="window.setAiOperationalMode('groq')" class="py-2 px-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer font-medium text-center">
-              <span>⚡ Groq (0.3s)</span>
+            <button type="button" id="btnModeGroq" onclick="window.setAiOperationalMode('groq')" class="py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer font-medium text-center">
+              <span>⚡ Tenaga Utama</span>
+              <span class="text-[9px] opacity-75 font-normal">Khusus Groq 0.3s</span>
             </button>
-            <button type="button" id="btnModeGemini" onclick="window.setAiOperationalMode('gemini')" class="py-2 px-1.5 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer font-medium text-center">
-              <span>🌐 Gemini Flash</span>
+            <button type="button" id="btnModeGemini" onclick="window.setAiOperationalMode('gemini')" class="py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer font-medium text-center">
+              <span>🌐 Sekunder</span>
+              <span class="text-[9px] opacity-75 font-normal">Khusus Gemini</span>
             </button>
           </div>
           <p id="modeExplanationText" class="text-[9.5px] text-slate-300 pt-1 leading-relaxed border-t border-white/5"></p>
@@ -4346,12 +4340,12 @@ Format params:
 
         <!-- 2. Dual Engine Key Cards -->
         <div class="space-y-3">
-          <!-- Card A: Groq Cloud -->
-          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-emerald-500/30 space-y-2">
+          <!-- Card A: Groq Cloud (Tenaga Utama) -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-emerald-500/40 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white flex items-center gap-1.5">
                 <span>⚡ Groq Cloud LPU</span>
-                <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-400/20 text-emerald-300 font-mono">Kilat 0.3s</span>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 font-mono font-bold">TENAGA UTAMA • 0.3s</span>
               </span>
               <a href="https://console.groq.com/keys" target="_blank" class="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-semibold flex items-center gap-0.5">
                 <span>Ambil Kunci Gratis</span> ↗
@@ -4362,19 +4356,20 @@ Format params:
               <button type="button" onclick="window.toggleShowGroqKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
             </div>
             <div id="fatihGroqTestStatus" class="hidden p-2 rounded-lg text-xs"></div>
-            <div class="flex justify-end pt-0.5">
-              <button type="button" id="btnTestGroqKey" onclick="window.testFatihGroqKey()" class="py-1.5 px-3 rounded-lg bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
+            <div class="flex items-center justify-between pt-0.5">
+              <span class="text-[9.5px] text-slate-400">Kecepatan inferensi super kilat 0.3 detik (Prioritas #1)</span>
+              <button type="button" id="btnTestGroqKey" onclick="window.testFatihGroqKey()" class="py-1.5 px-3 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
                 <span>🧪 Tes Koneksi Groq (Kilat)</span>
               </button>
             </div>
           </div>
 
-          <!-- Card B: Google Gemini -->
-          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-indigo-500/30 space-y-2">
+          <!-- Card B: Google Gemini (Tenaga Sekunder) -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-indigo-500/40 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white flex items-center gap-1.5">
                 <span>🌐 Google Gemini Flash</span>
-                <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-400/20 text-indigo-300 font-mono">Google AI</span>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 font-mono font-bold">TENAGA SEKUNDER • CADANGAN</span>
               </span>
               <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] text-indigo-300 hover:text-indigo-200 underline font-semibold flex items-center gap-0.5">
                 <span>Google AI Studio</span> ↗
@@ -4385,8 +4380,9 @@ Format params:
               <button type="button" onclick="window.toggleShowGeminiKey()" class="absolute right-2.5 top-2 text-[11px] text-slate-400 hover:text-white cursor-pointer">👁️</button>
             </div>
             <div id="fatihGeminiTestStatus" class="hidden p-2 rounded-lg text-xs"></div>
-            <div class="flex justify-end pt-0.5">
-              <button type="button" id="btnTestGeminiKey" onclick="window.testFatihGeminiKey()" class="py-1.5 px-3 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
+            <div class="flex items-center justify-between pt-0.5">
+              <span class="text-[9.5px] text-slate-400">Cadangan otomatis saat Groq sibuk / kuota harian</span>
+              <button type="button" id="btnTestGeminiKey" onclick="window.testFatihGeminiKey()" class="py-1.5 px-3 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 text-indigo-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-98">
                 <span>🧪 Tes Koneksi Gemini</span>
               </button>
             </div>
@@ -4485,7 +4481,7 @@ Format params:
       const activeModel = cachedWorkingGroqModel || (cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : 'Groq LPU');
 
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 block';
-      statusBox.innerHTML = `✅ <b>Koneksi Groq Cloud Berhasil!</b><br/><span class="text-[10px] text-emerald-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
+      statusBox.innerHTML = `✅ <b>Koneksi Groq Cloud (Tenaga Utama) Berhasil!</b><br/><span class="text-[10px] text-emerald-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik (Super Kilat)</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
     } catch(err) {
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-rose-500/20 border border-rose-500/50 text-rose-200 block';
       statusBox.innerHTML = `❌ <b>Koneksi Groq Gagal:</b><br/><span class="text-[11px] text-rose-300/90 mt-1 block">${escapeHtml(err.message || 'Terjadi kesalahan.')}</span>`;
@@ -4520,7 +4516,7 @@ Format params:
       const activeModel = cachedWorkingEndpoint ? cachedWorkingEndpoint.modelName : 'gemini-flash';
 
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-indigo-500/20 border border-indigo-400/50 text-indigo-200 block';
-      statusBox.innerHTML = `✅ <b>Koneksi Google Gemini Berhasil!</b><br/><span class="text-[10px] text-indigo-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
+      statusBox.innerHTML = `✅ <b>Koneksi Google Gemini (Tenaga Sekunder) Berhasil!</b><br/><span class="text-[10px] text-indigo-300 font-mono mt-0.5 block">Model: <b>${activeModel}</b> • Waktu respons: <b>${elapsed} detik</b></span><span class="text-[11px] text-slate-200 mt-1 block p-1.5 rounded-lg bg-black/30 border border-white/5"><i>"${escapeHtml(reply.substring(0, 160))}"</i></span>`;
     } catch(err) {
       statusBox.className = 'p-2.5 rounded-xl text-xs bg-rose-500/20 border border-rose-500/50 text-rose-200 block';
       statusBox.innerHTML = `❌ <b>Koneksi Gemini Gagal:</b><br/><span class="text-[11px] text-rose-300/90 mt-1 block">${escapeHtml(err.message || 'Terjadi kesalahan.')}</span>`;
@@ -4577,6 +4573,95 @@ Format params:
         window.showToast('🗑️ Kunci Dihapus', 'Fathiya kembali ke mode offline mandiri.', 'info');
       }
       closeFatihAiSettings();
+    }
+  }
+
+  function updateFatihEngineStatusBadge() {
+    const badge = document.getElementById('fatihChatEngineMode');
+    if (!badge) return;
+
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const mode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
+
+    if (groqKey && geminiKey) {
+      if (mode === 'groq') {
+        badge.innerHTML = `
+          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold transition-all cursor-pointer" title="Klik untuk beralih mode operasional AI">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>⚡ Tenaga Utama: Groq (0.3s)</span>
+          </button>
+        `;
+      } else if (mode === 'gemini') {
+        badge.innerHTML = `
+          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-bold transition-all cursor-pointer" title="Klik untuk beralih mode operasional AI">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+            <span>🌐 Tenaga Sekunder: Gemini Flash</span>
+          </button>
+        `;
+      } else {
+        badge.innerHTML = `
+          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 text-emerald-300 hover:text-teal-200 font-bold transition-all cursor-pointer" title="Klik untuk beralih mode operasional AI">
+            <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+            <span>⚡🔄 Utama: Groq (0.3s) ➔ Sekunder: Gemini</span>
+          </button>
+        `;
+      }
+    } else if (groqKey) {
+      badge.innerHTML = `
+        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold transition-all cursor-pointer">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>⚡ Tenaga Utama: Groq (0.3s)</span>
+        </button>
+      `;
+    } else if (geminiKey) {
+      badge.innerHTML = `
+        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-bold transition-all cursor-pointer">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+          <span>🌐 Tenaga Sekunder: Gemini Flash</span>
+        </button>
+      `;
+    } else {
+      badge.innerHTML = `
+        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition-all cursor-pointer" title="Klik untuk pasang kunci online">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>🍃 Fathiya Pintar (Offline Lokal)</span>
+        </button>
+      `;
+    }
+  }
+
+  function cycleFatihEngineMode() {
+    const groqKey = (localStorage.getItem('partner_fatih_groq_key') || '').trim();
+    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+
+    if (!groqKey && !geminiKey) {
+      openFatihAiSettings();
+      return;
+    }
+
+    const current = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
+    let next = 'hybrid';
+    if (groqKey && geminiKey) {
+      if (current === 'hybrid') next = 'groq';
+      else if (current === 'groq') next = 'gemini';
+      else next = 'hybrid';
+    } else if (groqKey) {
+      next = 'groq';
+    } else if (geminiKey) {
+      next = 'gemini';
+    }
+
+    localStorage.setItem('partner_fatih_ai_mode', next);
+    selectedAiMode = next;
+    updateFatihEngineStatusBadge();
+
+    const desc = next === 'hybrid'
+      ? 'Utama: Groq (0.3s) ➔ Sekunder: Gemini Flash'
+      : (next === 'groq' ? 'Khusus Groq Cloud (Tenaga Utama 0.3s)' : 'Khusus Google Gemini Flash (Tenaga Sekunder)');
+
+    if (typeof window.showToast === 'function') {
+      window.showToast('🔄 Mesin AI Berganti', desc, 'info');
     }
   }
 
