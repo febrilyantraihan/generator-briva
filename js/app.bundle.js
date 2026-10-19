@@ -27755,6 +27755,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40300,6 +40301,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42419,6 +42421,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -44047,9 +44052,11 @@ IDENTITAS & PRINSIP GAYA BICARA NATURAL SEPERTI MANUSIA ASLI (ANTI-AI SLOP):
 2. MENJAGA KONTINUITAS KONTEKS PERCAKAPAN (WAJIB NYAMBUNG 100%):
    - Kamu menerima riwayat percakapan sebelumnya. Perhatikan apa yang baru saja dibahas di giliran sebelumnya!
    - Contoh nyata: Jika di pesan sebelumnya Kak Fatih menanyakan "besok aku ada jam nggak?", lalu di pesan berikutnya bertanya "aku ada jadwal mengajar kah?", kamu HARUS paham bahwa yang dimaksud adalah jadwal BESOK (bukan jadwal hari ini atau malam ini)!
-3. GAYA BICARA ALAMI SEORANG SAHABAT & PARTNER:
-   - Berbicaralah santai, cerdas, bersahabat, luwes, dan solutif layaknya teman akrab di WhatsApp.
-   - Jangan menulis paragraf panjang bertele-tele jika pertanyaan Kak Fatih singkat. Jawab padat, hangat, dan tepat sasaran.
+3. KARAKTER VOKAL & PEMBAWAAN REMAJA YANG ASIK DIAJAK NGOBROL:
+   - Pembawaan Fathiya berjiwa muda, segar, ceria, renyah, ekspresif, dan seru diajak ngobrol santai layaknya sahabat remaja sebaya yang cerdas dan suportif.
+   - Jauhi intonasi kaku, gaya ibu-ibu tua/dewasa formal, atau nada robot birokrasi.
+   - Gunakan gaya bahasa yang hidup, santun, tapi asik, manis, dan seru diajak curhat maupun berdiskusi kerjaan.
+   - Jangan menulis paragraf panjang bertele-tele jika pertanyaan Kak Fatih singkat. Jawab padat, hangat, dan seru!
    - Peka terhadap waktu (pagi/siang/malam) secara alami tanpa mengulang jam atau tanggal secara kaku jika tidak ditanyakan.
 
 SNAPSHOT DATA REALTIME SELURUH MODUL APLIKASI SAAT INI (GUNAKAN INI UNTUK MENGANALISA SEGALA HAL):
@@ -46676,9 +46683,19 @@ Format params:
       utterance.voice = voice;
     }
 
-    // Karakteristik vokal wanita Indonesia: Nada hangat bersahabat (pitch: 0.98), tempo mengalun santai (rate: 0.94)
-    utterance.pitch = 0.98;
-    utterance.rate = 0.94;
+    // Karakteristik vokal remaja Indonesia: Lebih ceria, renyah, berjiwa muda, dan asik diajak ngobrol
+    const preset = localStorage.getItem('partner_fatih_voice_preset') || 'teen_fun';
+    if (preset === 'teen_cute') {
+      utterance.pitch = 1.30;
+      utterance.rate = 1.08;
+    } else if (preset === 'friendly') {
+      utterance.pitch = 1.15;
+      utterance.rate = 1.02;
+    } else {
+      // Default: Remaja Ceria (Lincah & Asik Ngobrol)
+      utterance.pitch = 1.22;
+      utterance.rate = 1.05;
+    }
     utterance.volume = 1.0;
 
     activeSpeechUtterance = utterance;
@@ -46703,8 +46720,33 @@ Format params:
     window.speechSynthesis.speak(utterance);
   }
 
+  function setVoicePreset(preset) {
+    localStorage.setItem('partner_fatih_voice_preset', preset);
+    const btnFun = document.getElementById('btnVoiceTeenFun');
+    const btnCute = document.getElementById('btnVoiceTeenCute');
+    const btnFriendly = document.getElementById('btnVoiceFriendly');
+
+    const activeCls = 'py-1.5 px-2 rounded-lg text-[10px] font-bold border border-pink-400/50 bg-pink-500/25 text-pink-200 transition-all cursor-pointer text-center shadow-xs';
+    const inactiveCls = 'py-1.5 px-2 rounded-lg text-[10px] font-medium border border-white/10 bg-slate-950 text-slate-300 hover:text-white transition-all cursor-pointer text-center';
+
+    if (btnFun) btnFun.className = preset === 'teen_fun' ? activeCls : inactiveCls;
+    if (btnCute) btnCute.className = preset === 'teen_cute' ? activeCls : inactiveCls;
+    if (btnFriendly) btnFriendly.className = preset === 'friendly' ? activeCls : inactiveCls;
+
+    // Putar preview vokal remaja yang asik
+    let sample = "Halo Kak Fatih! Ini suara remaja ceria dan lincah, asik kan diajak ngobrol?";
+    if (preset === 'teen_cute') sample = "Hai Kak Fatih! Ini suara remaja manis dan imut. Senang bisa nemenin Kakak!";
+    else if (preset === 'friendly') sample = "Halo Kak Fatih. Ini suara santai bersahabat, rileks dan hangat.";
+
+    speakFatihResponse(sample);
+  }
+
   function testNaturalVoice() {
-    speakFatihResponse("Assalamu alaikum Kak Fatih. Suara Fathiya sekarang sudah disetel lebih lembut, bersahabat, dan bernada alami. Ada yang bisa Fathiya dampingi hari ini?");
+    const preset = localStorage.getItem('partner_fatih_voice_preset') || 'teen_fun';
+    let sample = "Halo Kak Fatih! Suara Fathiya sekarang lebih ceria dan asik diajak ngobrol, kayak teman sebaya. Gimana Kak, seru kan?";
+    if (preset === 'teen_cute') sample = "Hai Kak Fatih! Suara Fathiya manis dan imut, siap nemenin Kakak seharian!";
+    else if (preset === 'friendly') sample = "Halo Kak Fatih. Suara Fathiya santai dan hangat, siap mendampingi pekerjaan Kakak.";
+    speakFatihResponse(sample);
   }
 
   // Global keyboard listener: tekan tombol Escape untuk menghentikan suara seketika
@@ -46930,23 +46972,37 @@ Format params:
           </button>
         </div>
 
-        <!-- 4. Fitur & Tes Suara Alami Fathiya -->
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
+        <!-- 4. Fitur & Karakter Suara Remaja Fathiya -->
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-pink-500/30 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
               <span>🎙️</span>
-              <span>Vokal Alami Fathiya (Indonesian Natural)</span>
+              <span>Karakter Suara Remaja Fathiya (Asik Ngobrol)</span>
             </span>
-            <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">
-              Lembut &amp; Empuk
+            <span class="text-[9px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-mono font-bold">
+              Remaja Ceria 1.2x
             </span>
           </div>
           <p class="text-[9.5px] text-slate-400 leading-relaxed">
-            Karakter vokal disetel pada nada santun bersahabat (0.98x) dan tempo mengalun rileks (0.94x) dengan pembersih intonasi robotik otomatis.
+            Karakter vokal disetel berjiwa muda, renyah, ceria, dan asik diajak ngobrol santai layaknya sahabat sebaya (bukan nada kaku/dewasa).
           </p>
+          <div class="space-y-1">
+            <span class="text-[10px] text-slate-300 font-bold block">Pilih Gaya Vokal Remaja:</span>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button type="button" onclick="window.setVoicePreset('teen_fun')" id="btnVoiceTeenFun" class="py-1.5 px-2 rounded-lg text-[10px] font-bold border border-pink-400/50 bg-pink-500/25 text-pink-200 transition-all cursor-pointer text-center shadow-xs">
+                👧 Remaja Ceria
+              </button>
+              <button type="button" onclick="window.setVoicePreset('teen_cute')" id="btnVoiceTeenCute" class="py-1.5 px-2 rounded-lg text-[10px] font-medium border border-white/10 bg-slate-950 text-slate-300 hover:text-white transition-all cursor-pointer text-center">
+                🎀 Remaja Manis
+              </button>
+              <button type="button" onclick="window.setVoicePreset('friendly')" id="btnVoiceFriendly" class="py-1.5 px-2 rounded-lg text-[10px] font-medium border border-white/10 bg-slate-950 text-slate-300 hover:text-white transition-all cursor-pointer text-center">
+                🌸 Rileks Akrab
+              </button>
+            </div>
+          </div>
           <div class="flex items-center gap-2 pt-0.5">
-            <button type="button" onclick="window.testNaturalVoice()" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-              <span>🔊 Tes Suara Alami</span>
+            <button type="button" onclick="window.testNaturalVoice()" class="flex-1 py-1.5 px-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+              <span>🔊 Tes Suara Remaja</span>
             </button>
             <button type="button" onclick="window.stopFatihSpeech()" class="py-1.5 px-3 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Hentikan Suara Sekarang (Esc)">
               <span>⏹️ Stop Suara</span>
@@ -46972,6 +47028,17 @@ Format params:
     `;
 
     setAiOperationalMode(selectedAiMode);
+
+    const savedPreset = localStorage.getItem('partner_fatih_voice_preset') || 'teen_fun';
+    const btnFun = document.getElementById('btnVoiceTeenFun');
+    const btnCute = document.getElementById('btnVoiceTeenCute');
+    const btnFriendly = document.getElementById('btnVoiceFriendly');
+    const activePresetCls = 'py-1.5 px-2 rounded-lg text-[10px] font-bold border border-pink-400/50 bg-pink-500/25 text-pink-200 transition-all cursor-pointer text-center shadow-xs';
+    const inactivePresetCls = 'py-1.5 px-2 rounded-lg text-[10px] font-medium border border-white/10 bg-slate-950 text-slate-300 hover:text-white transition-all cursor-pointer text-center';
+    if (btnFun) btnFun.className = savedPreset === 'teen_fun' ? activePresetCls : inactivePresetCls;
+    if (btnCute) btnCute.className = savedPreset === 'teen_cute' ? activePresetCls : inactivePresetCls;
+    if (btnFriendly) btnFriendly.className = savedPreset === 'friendly' ? activePresetCls : inactivePresetCls;
+
     modal.style.display = 'flex';
   }
 
@@ -47391,6 +47458,7 @@ Format params:
   window.handleFatihMsgVoiceClick = handleFatihMsgVoiceClick;
   window.stopFatihSpeech = stopFatihSpeech;
   window.testNaturalVoice = testNaturalVoice;
+  window.setVoicePreset = setVoicePreset;
   window.cleanTextForNaturalSpeech = cleanTextForNaturalSpeech;
   window.matchLocalKnowledge = matchLocalKnowledge;
   window.detectActiveAppTab = detectActiveAppTab;
