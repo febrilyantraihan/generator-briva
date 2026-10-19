@@ -169,13 +169,17 @@
     }, 3500);
 
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function() {});
+      navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).catch(function() {});
 
       navigator.serviceWorker.addEventListener('message', function(event) {
         if (event.data && event.data.type === 'APP_NOTIFICATION_CLICK') {
           var d = event.data.data;
           if (d && typeof window.handleDeepLinkNavigation === 'function') {
             window.handleDeepLinkNavigation(d.tab || 'humas', d.eventId);
+          }
+        } else if (event.data && event.data.type === 'SW_UPDATED') {
+          if (typeof window.checkForRemoteVersionUpdate === 'function') {
+            window.checkForRemoteVersionUpdate();
           }
         }
       });
@@ -21485,7 +21489,9 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
     const CURRENT_APP_VERSION = '1.0.9';
+    const CURRENT_APP_BUILD = 31;
     window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
+    window.CURRENT_APP_BUILD = CURRENT_APP_BUILD;
 
     let pendingSwRegistration = null;
     let pendingSwWorker = null;
@@ -21496,7 +21502,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       try {
         const vBadges = document.querySelectorAll('#appVersionBadgeDrawer, #appVersionDrawerPill, #appVersionHeaderBadge, #appVersionDrawerLabel, .app-version-badge');
         vBadges.forEach(el => {
-          if (el) el.textContent = `v${CURRENT_APP_VERSION}`;
+          if (el) el.textContent = `v${CURRENT_APP_VERSION}-b${CURRENT_APP_BUILD}`;
         });
       } catch (e) {}
     }
@@ -21508,7 +21514,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         if (!modal) return;
 
         const curLabel = document.getElementById('updateModalCurrentVersion');
-        if (curLabel) curLabel.textContent = `v${CURRENT_APP_VERSION}`;
+        if (curLabel) curLabel.textContent = `v${CURRENT_APP_VERSION}-b${CURRENT_APP_BUILD}`;
 
         const newLabel = document.getElementById('updateModalNewVersion');
         if (newLabel) newLabel.textContent = newVer ? `v${newVer}` : 'Versi Baru';
@@ -21581,21 +21587,23 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         const res = await fetch('./version.json?_t=' + Date.now(), { cache: 'no-store' });
         if (res.ok) {
           const meta = await res.json();
-          if (meta && meta.version && meta.version !== CURRENT_APP_VERSION) {
-            console.log(`[PWA Update Found] Lokal: v${CURRENT_APP_VERSION} -> Server: v${meta.version}`);
-            showAppUpdateModal(meta.version, meta.changelog);
+          const remoteBuild = parseInt(meta.build || 0, 10);
+          if (meta && (meta.version !== CURRENT_APP_VERSION || remoteBuild > CURRENT_APP_BUILD)) {
+            console.log(`[PWA Update Found] Lokal: v${CURRENT_APP_VERSION}-b${CURRENT_APP_BUILD} -> Server: v${meta.version}-b${meta.build}`);
+            showAppUpdateModal(meta.version + (meta.build ? ` (Build ${meta.build})` : ''), meta.changelog);
           }
         }
       } catch (e) {
         // Safe offline skip
       }
     }
+    window.checkForRemoteVersionUpdate = checkForRemoteVersionUpdate;
 
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       const initServiceWorkerLifecycle = () => {
-        navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => {
+        navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).then(reg => {
           pendingSwRegistration = reg;
-          console.log(`[PWA v${CURRENT_APP_VERSION}] ServiceWorker terdaftar aktif:`, reg.scope);
+          console.log(`[PWA v${CURRENT_APP_VERSION}-b${CURRENT_APP_BUILD}] ServiceWorker terdaftar aktif:`, reg.scope);
 
           // Jika ada Service Worker yang sedang menunggu aktif (Waiting Worker)
           if (reg.waiting) {
@@ -33128,6 +33136,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
@@ -45902,6 +45911,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -47822,6 +47832,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
