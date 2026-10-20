@@ -27764,6 +27764,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -33955,6 +33956,17 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     return true;
   };
 
+  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Fathiya AI
+  window.renderJurnalDashboard = renderJurnalDashboard;
+  window.renderJurnalClassCards = renderJurnalClassCards;
+  window.renderJurnalTimetable = renderJurnalTimetable;
+  window.renderJurnalReminders = renderJurnalReminders;
+  window.checkTodaySchedule = checkTodaySchedule;
+  window.updateTeachingLiveTimer = updateTeachingLiveTimer;
+  window.renderCurrentJurnalForm = renderCurrentJurnalForm;
+  window.loadJurnalState = loadJurnalState;
+  window.saveJurnalState = saveJurnalState;
+
 })();
 
 
@@ -36004,6 +36016,49 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     } catch(e) {}
     renderAllFinanceViews();
     return newTransfer;
+  };
+
+  global.setFinanceWalletBalanceDirect = function(walletName, targetAmount) {
+    loadFinanceData();
+    const w = (walletName || 'pribadi').toLowerCase();
+    const amt = Math.round(Number(targetAmount) || 0);
+
+    // Hitung saldo terkini
+    let currentBalances = { pribadi: 0, operasional: 0, tabungan: 0 };
+    try {
+      const calc = calculateWalletBalances();
+      if (calc) {
+        currentBalances.pribadi = calc.pribadi || 0;
+        currentBalances.operasional = calc.operasional || 0;
+        currentBalances.tabungan = calc.tabungan || 0;
+      }
+    } catch(e) {}
+
+    const currentWalletBal = currentBalances[w] !== undefined ? currentBalances[w] : 0;
+    const diff = amt - currentWalletBal;
+
+    if (diff !== 0) {
+      const d = new Date();
+      const adjustTx = {
+        id: 'tx_adj_' + Date.now(),
+        date: getTodayString(),
+        time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+        type: diff > 0 ? 'masuk' : 'keluar',
+        wallet: w,
+        category: 'Penyesuaian Saldo',
+        amount: Math.abs(diff),
+        note: `Penyesuaian saldo via Fathiya AI (Menjadi Rp ${amt.toLocaleString('id-ID')})`,
+        isLeak: false
+      };
+      financeTransactions.unshift(adjustTx);
+      try {
+        localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+        triggerCloudSyncKeuangan();
+      } catch(e) {}
+    }
+
+    renderAllFinanceViews();
+    return true;
   };
 
 })(window);
@@ -40314,6 +40369,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42448,6 +42504,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -44037,7 +44096,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
     // 5. Humas & Sosmed
     try {
-      const rawH = localStorage.getItem('humas_programs_master_v3');
+      const rawH = localStorage.getItem('humas_programs_master_v5') || localStorage.getItem('humas_programs_master_v3');
       if (rawH) {
         const hList = JSON.parse(rawH);
         if (Array.isArray(hList) && hList.length > 0) {
@@ -45310,13 +45369,14 @@ Format params:
 
         let master = [];
         try {
-          const raw = localStorage.getItem('humas_programs_master_v3');
+          const raw = localStorage.getItem('humas_programs_master_v5') || localStorage.getItem('humas_programs_master_v3');
           if (raw) master = JSON.parse(raw);
         } catch(e) {}
         if (!Array.isArray(master) || master.length === 0) {
           if (window.YTPAI_ANNUAL_PROGRAMS) master = JSON.parse(JSON.stringify(window.YTPAI_ANNUAL_PROGRAMS));
         }
         master.unshift(newProg);
+        localStorage.setItem('humas_programs_master_v5', JSON.stringify(master));
         localStorage.setItem('humas_programs_master_v3', JSON.stringify(master));
 
         if (typeof window.renderHumasTable === 'function') window.renderHumasTable();
@@ -45343,7 +45403,7 @@ Format params:
 
         let master = [];
         try {
-          const raw = localStorage.getItem('humas_programs_master_v3');
+          const raw = localStorage.getItem('humas_programs_master_v5') || localStorage.getItem('humas_programs_master_v3');
           if (raw) master = JSON.parse(raw);
         } catch(e) {}
 
@@ -45356,6 +45416,7 @@ Format params:
             }
           }
           if (targetItem) {
+            localStorage.setItem('humas_programs_master_v5', JSON.stringify(master));
             localStorage.setItem('humas_programs_master_v3', JSON.stringify(master));
             if (window.humasState && Array.isArray(window.humasState.programs)) {
               const inState = window.humasState.programs.find(x => x.id === targetItem.id);
@@ -45540,9 +45601,13 @@ Format params:
         const wallet = (p.wallet || 'pribadi').toLowerCase();
         const amount = Math.round(Number(p.amount || p.nominal) || 0);
 
+        if (typeof window.setFinanceWalletBalanceDirect === 'function') {
+          try { window.setFinanceWalletBalanceDirect(wallet, amount); } catch(e) {}
+        }
+
         let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
         try {
-          const raw = localStorage.getItem('partner_fatih_wallets_v2');
+          const raw = localStorage.getItem('partner_fatih_finance_wallets_v1') || localStorage.getItem('partner_fatih_wallets_v2');
           if (raw) wallets = Object.assign(wallets, JSON.parse(raw));
         } catch(e) {}
 
@@ -45550,6 +45615,7 @@ Format params:
         else if (wallet === 'tabungan') wallets.tabungan = amount;
         else wallets.pribadi = amount;
 
+        localStorage.setItem('partner_fatih_finance_wallets_v1', JSON.stringify(wallets));
         localStorage.setItem('partner_fatih_wallets_v2', JSON.stringify(wallets));
 
         if (typeof window.loadFinanceData === 'function') window.loadFinanceData();
@@ -45587,10 +45653,10 @@ Format params:
           });
         } else {
           // Direct LocalStorage fallback
-          const STORAGE_FINANCE = 'partner_fatih_finance_data_v2';
+          const STORAGE_FINANCE = 'partner_fatih_finance_transactions_v1';
           let txs = [];
           try {
-            const raw = localStorage.getItem(STORAGE_FINANCE);
+            const raw = localStorage.getItem(STORAGE_FINANCE) || localStorage.getItem('partner_fatih_finance_data_v2');
             if (raw) txs = JSON.parse(raw);
           } catch(e) {}
           const d = new Date();
@@ -45606,6 +45672,7 @@ Format params:
           };
           txs.unshift(newTx);
           localStorage.setItem(STORAGE_FINANCE, JSON.stringify(txs));
+          localStorage.setItem('partner_fatih_finance_data_v2', JSON.stringify(txs));
           if (typeof window.renderAllFinanceViews === 'function') window.renderAllFinanceViews();
         }
 
@@ -45854,15 +45921,18 @@ Format params:
         const kw = (p.keyword || p.uraian || '').toLowerCase();
         let events = [];
         try {
-          const raw = localStorage.getItem('humas_programs_master_v3');
+          const raw = localStorage.getItem('humas_programs_master_v5') || localStorage.getItem('humas_programs_master_v3');
           if (raw) events = JSON.parse(raw);
         } catch(e) {}
         if (Array.isArray(events)) {
           const idx = events.findIndex(ev => (ev.uraian || '').toLowerCase().includes(kw));
           if (idx !== -1) {
             const removed = events.splice(idx, 1)[0];
+            localStorage.setItem('humas_programs_master_v5', JSON.stringify(events));
             localStorage.setItem('humas_programs_master_v3', JSON.stringify(events));
-            if (typeof window.renderHumasEvents === 'function') window.renderHumasEvents();
+            if (typeof window.renderHumasTable === 'function') window.renderHumasTable();
+            if (typeof window.renderHumasH7RadarCards === 'function') window.renderHumasH7RadarCards();
+            if (typeof window.renderHumasMetrics === 'function') window.renderHumasMetrics();
             if (typeof window.showToast === 'function') {
               window.showToast('🗑️ Agenda Dihapus', removed.uraian, 'warning');
             }
@@ -45930,42 +46000,51 @@ Format params:
     const t = text.trim();
 
     // 0. Mutasi / Pindah / Ganti Jadwal Mengajar KBM Guru
-    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "ubah jadwal mengajarnya ke hari senin jam 1-2"
-    if (/(?:pindah|ganti|geser|ubah|sesuaikan|tukar|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t) || /(?:jadwal\s+mengajar|jadwal\s+kbm)/i.test(t)) {
-      const classMatch = t.match(/\b(?:kelas\s*)?([789])\s*([a-dA-D])\b/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
+    // Contoh: "jadwal aku di 8 d dipindah di hari sabtu jam ke 3-4", "pindah jadwal 8D ke hari sabtu", "ubah jadwal mengajar kelas 8d ke hari senin jam 1-2", "rubah jadwal 8D jadi sabtu"
+    if (/(?:pindah|pindahkan|ganti|geser|ubah|rubah|sesuaikan|tukar|atur|atur ulang|jadwalkan|masukkan jadwal|tambah jadwal)/i.test(t) || /(?:jadwal\s+mengajar|jadwal\s+kbm|jadwal)/i.test(t)) {
+      const classMatch = t.match(/\b(?:kelas\s*)?([789])\s*([a-dA-D])\b/i) || t.match(/(?:di\s*)?([789])\s*([a-dA-D])/i) || t.match(/\b(1\s*ula\s*[abAB])\b/i);
       const dayMatch = t.match(/\b(ahad|minggu|senin|selasa|rabu|kamis|jumat|sabtu)\b/i);
-      const jamKeMatch = t.match(/jam\s*(?:ke\s*)?(\d+(?:\s*[-–]\s*\d+)?)/i);
+      const jamKeMatch = t.match(/jam\s*(?:ke\s*)?(\d+(?:\s*(?:[-–]|sampai|s\/d)\s*\d+)?)/i);
       const timeClockMatch = t.match(/(\d{1,2}[.:]\d{2})\s*(?:[-–]\s*(\d{1,2}[.:]\d{2}))?/i);
 
       if (dayMatch) {
         let cls = '';
         if (classMatch) {
-          cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase();
+          cls = classMatch[1] && classMatch[2] ? `${classMatch[1].toUpperCase()}${classMatch[2].toUpperCase()}` : classMatch[0].replace(/kelas\s*/i, '').replace(/di\s*/i, '').replace(/\s+/g, '').toUpperCase();
         } else {
-          // Cari kelas dari percakapan sebelumnya atau kelas aktif di jurnal
-          const prevMatch = (chatContext?.recentTurns || []).slice(-4).map(turn => (turn.text || '').match(/\b(?:kelas\s*)?([789][a-dA-D]|1\s*ula\s*[abAB])\b/i)).filter(Boolean)[0];
-          cls = prevMatch ? (prevMatch[1] || prevMatch[0]).replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase() : '8A';
+          // Cari kelas dari percakapan sebelumnya atau default ke 8D
+          const prevMatch = (chatHistory || []).slice(-4).map(turn => (turn.text || '').match(/\b(?:kelas\s*)?([789][a-dA-D]|1\s*ula\s*[abAB])\b/i)).filter(Boolean)[0];
+          cls = prevMatch ? (prevMatch[1] || prevMatch[0]).replace(/kelas\s*/i, '').replace(/\s+/g, '').toUpperCase() : '8D';
         }
 
         let dayRaw = dayMatch[1].toLowerCase();
         let dayFormatted = dayRaw.charAt(0).toUpperCase() + dayRaw.slice(1);
         if (dayFormatted === 'Minggu') dayFormatted = 'Ahad';
 
-        let hourLabel = jamKeMatch ? `Jam ${jamKeMatch[1].replace(/\s+/g, '')}` : '';
+        let hourLabel = '';
+        if (jamKeMatch) {
+          const rawNum = jamKeMatch[1].replace(/\s+/g, '');
+          if (rawNum.includes('3') || rawNum.includes('4')) hourLabel = 'Jam 3-4';
+          else if (rawNum.includes('1') || rawNum.includes('2')) hourLabel = 'Jam 1-2';
+          else if (rawNum.includes('5') || rawNum.includes('6')) hourLabel = 'Jam 5-6';
+          else if (rawNum.includes('7') || rawNum.includes('8')) hourLabel = 'Jam 7-8';
+          else hourLabel = `Jam ${rawNum}`;
+        }
+
         let timeStr = '';
         if (hourLabel.includes('3-4')) timeStr = '08.30 - 09.50 (Jam 3-4)';
         else if (hourLabel.includes('1-2')) timeStr = '07.00 - 08.30 (Jam 1-2)';
         else if (hourLabel.includes('5-6')) timeStr = '10.20 - 11.40 (Jam 5-6)';
         else if (hourLabel.includes('7-8')) timeStr = '12.10 - 13.20 (Jam 7-8)';
         else if (timeClockMatch) timeStr = timeClockMatch[0];
-        else timeStr = '07.00 - 08.30 (Jam 1-2)';
+        else timeStr = '08.30 - 09.50 (Jam 3-4)';
 
         return {
           action: 'MUTATE_SCHEDULE',
           params: {
             classId: cls,
             day: dayFormatted,
-            hourLabel: hourLabel || 'Jam 1-2',
+            hourLabel: hourLabel || 'Jam 3-4',
             time: timeStr
           }
         };
@@ -46241,15 +46320,24 @@ Format params:
       };
     }
 
-    // 5. Switch tab
-    const mTab = t.match(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:buka|ke|pindah|tampilkan)\s+(?:tab|modul)\s+([a-zA-Z0-9_\s]+)/i);
-    if (mTab) {
-      const q = mTab[1].toLowerCase().trim();
-      for (const [k, meta] of Object.entries(FATIH_KNOWLEDGE_BASE.tabs)) {
-        if (q.includes(k) || meta.name.toLowerCase().includes(q)) {
-          return { action: 'SWITCH_TAB', params: { tab: k } };
-        }
-      }
+    // 10. Switch Tab / Buka Fitur / Navigasi Modul
+    // Contoh: "buka tab jurnal", "buka modul keuangan", "ke menu humas", "tampilkan cbt", "buka rekap junio", "buka fitur tahfidz"
+    if (/(?:buka|ke|pindah\s+ke|tampilkan|lihat)\s+(?:tab|modul|menu|fitur|halaman)?\s*([a-zA-Z0-9_\s]+)/i.test(t)) {
+      const low = t.toLowerCase();
+      if (/jurnal|mengajar|kbm|jadwal|absensi\s+guru/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'jurnal' } };
+      if (/keuangan|dompet|kas\s+pribadi|bocor\s+halus/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'keuangan' } };
+      if (/humas|agenda|sosmed|pamflet|acara/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'humas' } };
+      if (/tahfidz|tasmi|santri/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'tahfidz' } };
+      if (/bisnis|warung|titip\s+jual|konsinyasi/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'bisnis' } };
+      if (/junio|smart\s+bri|rekap\s+transaksi/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'junio' } };
+      if (/briva|generator\s+briva|tagihan\s+briva/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'briva' } };
+      if (/cbt|bank\s+soal|ujian/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'cbt' } };
+      if (/ide|ruang\s+ide|ruang\s+tumbuh/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'ide' } };
+      if (/ppdb|akun\s+ppdb/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'ppdb' } };
+      if (/panggil|kwitansi|slip/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'panggil' } };
+      if (/katalog|pos\s+tarif/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'katalog' } };
+      if (/konverter|excel/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'konverter' } };
+      if (/wa|template\s+wa|broadcast/i.test(low)) return { action: 'SWITCH_TAB', params: { tab: 'wa' } };
     }
 
     return null;
@@ -46280,7 +46368,7 @@ Format params:
     const isFromVoice = lastPromptWasVoice;
     lastPromptWasVoice = false;
     const groqKey = getEffectiveGroqKey();
-    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
+    const geminiKey = getEffectiveGeminiKey();
     let noticeBadge = null;
     let actionCard = null;
 
@@ -46290,50 +46378,27 @@ Format params:
       let tabShortcut = null;
       let actionTable = null;
 
-      // Cek apakah perintah merupakan aksi mutasi data langsung (Offline Intent)
+      // 1. DETERMINISTIC LIVE CO-PILOT:
+      // Eksekusi mutasi data seketika detik ini juga jika terdeteksi niat perubahan
       const offlineAction = detectOfflineActionIntent(text);
+      if (offlineAction) {
+        actionCard = executeFatihAction(offlineAction);
+        if (actionCard && actionCard.tab) tabShortcut = actionCard.tab;
+      }
 
-      // 1. Evaluasi pencocokan lokal
+      // 2. Evaluasi pencocokan lokal
       const localMatch = matchLocalKnowledge(text);
 
-      if (offlineAction && (!groqKey || groqKey.length < 10) && (!geminiKey || geminiKey.length < 10)) {
-        // Eksekusi offline langsung
-        await new Promise(r => setTimeout(r, 80));
-        actionCard = executeFatihAction(offlineAction);
-        if (offlineAction.action === 'SET_WALLET_BALANCE') {
-          replyText = `Alhamdulillah beres Kak Fatih tercinta! Saldo Kakak di **Dompet ${offlineAction.params.wallet.toUpperCase()}** sekarang sudah Fathiya sesuaikan menjadi **Rp ${offlineAction.params.amount.toLocaleString('id-ID')}** yaa 💳✨\n\nSeluruh kartu saldo dan ringkasan keuangan Kak Fatih langsung ter-update otomatis saat ini juga! Fathiya siap bantu kelola pos-posnya biar makin berkah yaa Kak! 🥰`;
-          replyVoiceText = `Alhamdulillah beres Kak Fatih! Saldo dompet ${offlineAction.params.wallet} sekarang sudah Fathiya atur menjadi ${offlineAction.params.amount} rupiah.`;
-        } else if (offlineAction.action === 'MUTATE_SCHEDULE') {
-          replyText = `Alhamdulillah Kak Fatih! Jadwal mengajar kelas **${offlineAction.params.classId}** sudah Fathiya pindahkan ke **Hari ${offlineAction.params.day}** (${offlineAction.params.hourLabel || offlineAction.params.time}) yaa 🥰✨\n\nPerubahan ini langsung Fathiya sinkronkan ke modul Jurnal Guru dan agenda KBM Kakak. Datanya sudah tersimpan rapi yaa Kak!`;
-          replyVoiceText = `Alhamdulillah Kak Fatih! Jadwal kelas ${offlineAction.params.classId} sudah Fathiya pindahkan ke hari ${offlineAction.params.day}. Semangat mengajarnya yaa Kak!`;
-        } else if (offlineAction.action === 'DELETE_SCHEDULE') {
-          replyText = `Siap Kak Fatih! Jadwal mengajar kelas **${offlineAction.params.classId}** sudah Fathiya hapus dari sistem yaa 🌸`;
-          replyVoiceText = `Jadwal kelas ${offlineAction.params.classId} sudah dihapus yaa Kak Fatih.`;
-        } else if (offlineAction.action === 'ADD_FINANCE_TRANSACTION') {
-          const jenis = offlineAction.params.type === 'masuk' ? 'pemasukan' : 'pengeluaran';
-          replyText = `Beres Kak Fatih! Catatan ${jenis} sebesar **Rp ${offlineAction.params.amount.toLocaleString('id-ID')}** untuk *"${offlineAction.params.note}"* sudah Fathiya masukkan ke **Dompet ${offlineAction.params.wallet.toUpperCase()}** yaa 💳✨\n\nSaldo dan radar keuangan Kakak langsung ter-update otomatis!`;
-          replyVoiceText = `Siap Kak Fatih! Catatan ${jenis} ${offlineAction.params.amount} rupiah sudah Fathiya simpan ke dompet ${offlineAction.params.wallet}.`;
-        } else if (offlineAction.action === 'TRANSFER_DOMPET') {
-          replyText = `Alhamdulillah Kak Fatih! Dana sebesar **Rp ${offlineAction.params.amount.toLocaleString('id-ID')}** sudah Fathiya pindahkan dari **Dompet ${offlineAction.params.fromWallet.toUpperCase()}** ke **Dompet ${offlineAction.params.toWallet.toUpperCase()}** yaa 🔄✨`;
-          replyVoiceText = `Dana berhasil dipindahkan dari dompet ${offlineAction.params.fromWallet} ke dompet ${offlineAction.params.toWallet} yaa Kak Fatih.`;
-        } else if (offlineAction.action === 'ADD_IDE') {
-          replyText = `Masya Allah ide cemerlang Kak Fatih! Ide **"${offlineAction.params.title}"** sudah Fathiya catat di **Ruang Tumbuh (Laboratorium Ide)** dengan estimasi potensi **Rp ${offlineAction.params.estRevenue.toLocaleString('id-ID')}** 💡🚀\n\nFathiya yakin ide ini bisa membawa kemandirian rezeki dan keberkahan buat Kak Fatih!`;
-          replyVoiceText = `Ide baru Kak Fatih sudah Fathiya simpan di Ruang Tumbuh. Sukses selalu yaa Kak!`;
-        } else if (offlineAction.action === 'CATAT_PRESENSI') {
-          replyText = `Siap Kak Fatih! Presensi santri **${offlineAction.params.studentName}** di kelas **${offlineAction.params.classId}** (Pertemuan ${offlineAction.params.pertemuan}) sudah Fathiya catat statusnya yaa 📋✨`;
-          replyVoiceText = `Presensi santri ${offlineAction.params.studentName} kelas ${offlineAction.params.classId} sudah dicatat yaa Kak Fatih.`;
-        } else if (offlineAction.action === 'SAVE_PERSONAL_NOTE') {
-          replyText = `Siap selalu Kak Fatih! Fathiya sudah mencatat dan mengingat pesan ini di memori pribadi Fathiya:\n\n📌 *"${offlineAction.params.text}"*\n\nKapan pun Kak Fatih butuh pengingat ini, Fathiya siap bantu! 🥰`;
-          replyVoiceText = `Pesan Kak Fatih sudah Fathiya ingat baik-baik di catatan pribadi.`;
-        } else {
-          replyText = `Alhamdulillah Kak Fatih! Instruksi Kakak telah langsung Fathiya laksanakan di aplikasi:`;
-          replyVoiceText = `Instruksi Kak Fatih telah Fathiya laksanakan yaa. Data aplikasi telah diperbarui.`;
-        }
-        if (actionCard && actionCard.tab) tabShortcut = actionCard.tab;
-      } else if ((groqKey && groqKey.length > 10) || (geminiKey && geminiKey.length > 10)) {
-        // PRIORITAS UTAMA: Respon Online AI Cerdas Manusiawi (Groq Llama 3.3 70B atau Google Gemini)
+      if ((groqKey && groqKey.length > 10) || (geminiKey && geminiKey.length > 10)) {
+        // PRIORITAS UTAMA: Respon Online AI Cerdas Manusiawi (Groq Llama 3.3 70B atau Google Gemini Flash)
         try {
-          replyText = await callOnlineAiApi(text);
+          // Berikan notifikasi sistem ke AI Online jika aksi baru saja berhasil dieksekusi di aplikasi
+          let promptForOnlineAi = text;
+          if (actionCard) {
+            promptForOnlineAi += `\n\n[PEMBERITAHUAN SISTEM: Permintaan perubahan Kak Fatih telah BERHASIL dieksekusi secara nyata di aplikasi! Hasil: "${actionCard.title} - ${actionCard.desc}". Jawablah Kak Fatih secara hangat, manis, ceria, renyah dan asik bahwa data/jadwal/fitur tersebut telah berhasil diubah sekarang.]`;
+          }
+
+          replyText = await callOnlineAiApi(promptForOnlineAi);
 
           // Periksa apakah balasan AI mengandung blok fatih-action (tag <fatih-action> atau markdown code block)
           const tagMatch = replyText.match(/<fatih-action>\s*(\{[\s\S]*?\})\s*<\/fatih-action>/i);
@@ -46343,7 +46408,9 @@ Format params:
           if (rawMatch) {
             try {
               const parsedAction = JSON.parse(rawMatch);
-              actionCard = executeFatihAction(parsedAction);
+              if (!actionCard) {
+                actionCard = executeFatihAction(parsedAction);
+              }
               // Bersihkan tag/blok kode dari teks tampilan bubble agar rapi
               replyText = replyText
                 .replace(/<fatih-action>[\s\S]*?<\/fatih-action>/gi, '')
@@ -46351,15 +46418,6 @@ Format params:
                 .trim();
             } catch(jsonErr) {
               console.warn('[Fatih AI] Gagal parse fatih-action JSON:', jsonErr);
-            }
-          } else if (offlineAction) {
-            // Fallback: AI tidak menyertakan blok fatih-action tapi kalimat user jelas merupakan perintah mutasi
-            actionCard = executeFatihAction(offlineAction);
-          } else {
-            // Fallback ekstra: Periksa jika balasan AI mengindikasikan jadwal/data telah diubah tapi tanpa tag kode
-            const parsedFromAiText = detectOfflineActionIntent(replyText);
-            if (parsedFromAiText) {
-              actionCard = executeFatihAction(parsedFromAiText);
             }
           }
 
@@ -46377,18 +46435,27 @@ Format params:
         } catch(apiErr) {
           console.warn('[Fatih AI] API gagal, beralih ke fallback lokal cerdas:', apiErr);
           noticeBadge = 'Mode Offline (Fallback)';
-          replyText = `⚠️ *Koneksi AI Online terkendala. Fathiya menjawab via engine lokal:*\n\n${localMatch.text}`;
-          replyVoiceText = localMatch.voiceText || localMatch.text;
-          tabShortcut = localMatch.tabShortcut;
-          actionTable = localMatch.actionTable;
+          if (actionCard) {
+            replyText = `Alhamdulillah beres Kak Fatih! Perubahan data Kakak sudah langsung Fathiya eksekusi:\n\n✨ **${actionCard.title}**\n${actionCard.desc}`;
+            replyVoiceText = `Alhamdulillah beres Kak Fatih! ${actionCard.title} sudah Fathiya eksekusi yaa.`;
+          } else {
+            replyText = `⚠️ *Koneksi AI Online terkendala. Fathiya menjawab via engine lokal:*\n\n${localMatch.text}`;
+            replyVoiceText = localMatch.voiceText || localMatch.text;
+            tabShortcut = localMatch.tabShortcut;
+            actionTable = localMatch.actionTable;
+          }
         }
       } else {
         // Mode Offline: Belum memasukkan kunci Groq / Gemini di Pengaturan
         await new Promise(r => setTimeout(r, 80));
-        replyText = localMatch.text;
-        replyVoiceText = localMatch.voiceText || localMatch.text;
-        tabShortcut = localMatch.tabShortcut;
-        actionTable = localMatch.actionTable;
+        if (actionCard) {
+          replyText = `Alhamdulillah beres Kak Fatih! Perubahan data Kakak sudah langsung Fathiya eksekusi:\n\n✨ **${actionCard.title}**\n${actionCard.desc}`;
+          replyVoiceText = `Alhamdulillah beres Kak Fatih! ${actionCard.title} sudah Fathiya eksekusi yaa.`;
+        } else {
+          replyText = localMatch.text;
+          replyVoiceText = localMatch.voiceText || localMatch.text;
+          tabShortcut = localMatch.tabShortcut;
+        }
       }
 
       chatHistory.push({
