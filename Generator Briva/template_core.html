@@ -33368,6 +33368,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -39559,6 +39560,17 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     return true;
   };
 
+  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Fathiya AI
+  window.renderJurnalDashboard = renderJurnalDashboard;
+  window.renderJurnalClassCards = renderJurnalClassCards;
+  window.renderJurnalTimetable = renderJurnalTimetable;
+  window.renderJurnalReminders = renderJurnalReminders;
+  window.checkTodaySchedule = checkTodaySchedule;
+  window.updateTeachingLiveTimer = updateTeachingLiveTimer;
+  window.renderCurrentJurnalForm = renderCurrentJurnalForm;
+  window.loadJurnalState = loadJurnalState;
+  window.saveJurnalState = saveJurnalState;
+
 })();
 
 
@@ -41608,6 +41620,49 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     } catch(e) {}
     renderAllFinanceViews();
     return newTransfer;
+  };
+
+  global.setFinanceWalletBalanceDirect = function(walletName, targetAmount) {
+    loadFinanceData();
+    const w = (walletName || 'pribadi').toLowerCase();
+    const amt = Math.round(Number(targetAmount) || 0);
+
+    // Hitung saldo terkini
+    let currentBalances = { pribadi: 0, operasional: 0, tabungan: 0 };
+    try {
+      const calc = calculateWalletBalances();
+      if (calc) {
+        currentBalances.pribadi = calc.pribadi || 0;
+        currentBalances.operasional = calc.operasional || 0;
+        currentBalances.tabungan = calc.tabungan || 0;
+      }
+    } catch(e) {}
+
+    const currentWalletBal = currentBalances[w] !== undefined ? currentBalances[w] : 0;
+    const diff = amt - currentWalletBal;
+
+    if (diff !== 0) {
+      const d = new Date();
+      const adjustTx = {
+        id: 'tx_adj_' + Date.now(),
+        date: getTodayString(),
+        time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+        type: diff > 0 ? 'masuk' : 'keluar',
+        wallet: w,
+        category: 'Penyesuaian Saldo',
+        amount: Math.abs(diff),
+        note: `Penyesuaian saldo via Fathiya AI (Menjadi Rp ${amt.toLocaleString('id-ID')})`,
+        isLeak: false
+      };
+      financeTransactions.unshift(adjustTx);
+      try {
+        localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+        triggerCloudSyncKeuangan();
+      } catch(e) {}
+    }
+
+    renderAllFinanceViews();
+    return true;
   };
 
 })(window);
@@ -45918,6 +45973,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -47838,6 +47894,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
