@@ -6190,6 +6190,17 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     return true;
   };
 
+  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Fathiya AI
+  window.renderJurnalDashboard = renderJurnalDashboard;
+  window.renderJurnalClassCards = renderJurnalClassCards;
+  window.renderJurnalTimetable = renderJurnalTimetable;
+  window.renderJurnalReminders = renderJurnalReminders;
+  window.checkTodaySchedule = checkTodaySchedule;
+  window.updateTeachingLiveTimer = updateTeachingLiveTimer;
+  window.renderCurrentJurnalForm = renderCurrentJurnalForm;
+  window.loadJurnalState = loadJurnalState;
+  window.saveJurnalState = saveJurnalState;
+
 })();
 
 
