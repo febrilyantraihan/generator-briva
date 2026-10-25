@@ -1767,21 +1767,32 @@
       });
 
       // Total Row
+      // Total Row
       const totDelta = comp.netStudentDiff;
       const totPct = comp.totalBaseStudents > 0 ? ((totDelta / comp.totalBaseStudents) * 100).toFixed(1) : '0.0';
       const totMondokNon = comp.mondokToNonCount || 0;
+      const totBadgeColor = totDelta > 0 
+        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-700/60' 
+        : (totDelta < 0 
+          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300/40 dark:border-rose-700/60' 
+          : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300/40 dark:border-slate-700/60');
+
+      const totMondokNonBadge = totMondokNon > 0
+        ? `<button type="button" onclick="filterCompChanges('PINDAH_NON')" class="px-1.5 py-0.5 rounded-[4px] bg-amber-100 hover:bg-amber-200 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700 text-[10px] font-black cursor-pointer shadow-2xs" title="Total santri mondok alih ke bajak">${totMondokNon}</button>`
+        : `<span class="text-slate-400 text-[10px]">0</span>`;
+
       unitRowsHtml += `
-        <tr class="bg-slate-100/90 dark:bg-slate-800 font-black text-slate-900 dark:text-white border-t border-slate-300 dark:border-slate-700">
+        <tr class="bg-slate-100/90 dark:bg-slate-800/90 font-black text-slate-900 dark:text-white border-t border-slate-300 dark:border-slate-700">
           <td class="py-2 px-2 text-left">TOTAL</td>
-          <td class="py-2 px-1 text-slate-500">${comp.totalBaseStudents}</td>
+          <td class="py-2 px-1 text-slate-500 dark:text-slate-400">${comp.totalBaseStudents}</td>
           <td class="py-2 px-1 text-teal-600 dark:text-teal-400">${comp.totalTargetStudents}</td>
           <td class="py-2 px-1 whitespace-nowrap">
-            <span class="inline-block px-1.5 py-0.5 rounded-[4px] text-[10px] font-black ${totDelta > 0 ? 'bg-emerald-200 text-emerald-900' : (totDelta < 0 ? 'bg-rose-200 text-rose-900' : 'bg-slate-200 text-slate-800')}">
+            <span class="inline-block px-1.5 py-0.5 rounded-[4px] text-[10px] font-black ${totBadgeColor}">
               ${totDelta > 0 ? '+' : ''}${totDelta} (${totPct}%)
             </span>
           </td>
-          <td class="py-2 px-1 text-center">
-            ${totMondokNon > 0 ? `<span class="px-1.5 py-0.5 rounded-[4px] bg-amber-200 text-amber-900 text-[10px] font-bold">${totMondokNon}</span>` : '<span class="text-slate-400 text-[10px]">0</span>'}
+          <td class="py-2 px-1 text-center whitespace-nowrap">
+            ${totMondokNonBadge}
           </td>
           <td class="py-2 px-2 text-right font-mono text-[11px] text-teal-700 dark:text-teal-300">
             Rp ${comp.totalTargetBilling.toLocaleString('id-ID')}
