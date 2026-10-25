@@ -1,12 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 36,
+  "build": 37,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 36 (Grafik Tren Multiseri: Kurva Santri Mondok & Total Muncul Langsung Tanpa Glitch)",
+  "title": "Rilis v1.0.9 Build 37 (Perbaikan Kontras Badge Total Pergerakan Santri di Dark Mode)",
   "changelog": [
-    "Kurva Mondok & Total Muncul Langsung: Grafik utama langsung menampilkan garis Santri Mondok (Mukim) bersama Total Siswa & Bajak tanpa perlu klik gonta-ganti",
-    "Zero Glitch & Kalibrasi Data Historis: Menghilangkan anomali patahan lonjakan semu dan pin alih status palsu pada bulan Juli-Agustus",
-    "Skala Vertikal Lapang & Proporsional: Jarak antar-kurva terpisah lega (36px - 68px) dengan label tag nilai yang rapi dan tidak tumpang tindih",
+    "Perbaikan Kontras Badge Total: Angka selisih (-8/-1.1%) dan alih status (1) pada baris TOTAL tabel Pergerakan per Unit kini berlatar gelap kontras tinggi (dark:bg-rose-950 text-rose-300 & dark:bg-amber-950 text-amber-300) sehingga terbaca tajam dan jelas di tema gelap",
+    "Kurva Mondok & Total Multiseri: Grafik tren pergerakan siswa terpadu tanpa glitch",
     "Tabel Matriks Sinkron: Status mutasi terkalibrasi presisi dengan 1 transisi resmi nyata di bulan Oktober 2026"
   ]
 }
