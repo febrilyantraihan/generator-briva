@@ -1,13 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 34,
-  "releaseDate": "2026-10-20",
-  "title": "Rilis v1.0.9 Build 34 (Universal Realtime Co-Pilot: AI Bisa Langsung Mengubah Jadwal, Saldo, Agenda & Fitur)",
+  "build": 35,
+  "releaseDate": "2026-10-25",
+  "title": "Rilis v1.0.9 Build 35 (Matriks Rekap Santri, Grafik Tren Mondok vs Bajak & Perubahan Status)",
   "changelog": [
-    "Deterministic Live Co-Pilot: Fathiya langsung mengeksekusi mutasi jadwal KBM, penyesuaian saldo keuangan, agenda humas, dan navigasi tab secara nyata di memori & layar",
-    "Live UI Synchronization: Pemanggilan render otomatis (Timetable, Dashboard, AllFinanceViews, HumasTable) seketika perintah chat diberikan",
-    "Penyelarasan Key Master Cache: Humas v5 & Keuangan v1/v2 tersinkronisasi 100% tanpa selisih",
-    "Kunci Paten Permanen Groq & Gemini: Kedua API Key resmi terpasang paten di seluruh aplikasi dan perangkat",
-    "Karakter Vokal Remaja Ceria: Vokal ramah, asik diajak ngobrol dan anti robotik"
+    "Matriks Ringkasan Tren Bulanan: Visualisasi interaktif grafik Mondok vs Bajak (Non Mukim) dengan skala proporsional",
+    "Pilihan Filter Kelas Urut: Filter kelas 7, 8, 9, 10, 11, 12 per unit dan sorting alfabetis nama siswa",
+    "Ganti Terminologi Resmi 'Bajak': Standarisasi istilah santri non-mukim/nduduk menjadi Bajak",
+    "Badge Gender & Status Interaktif: Desain compact, ergonomis, dan touch-friendly pada perangkat mobile dan desktop",
+    "Tabel Mutasi Alih Status: Ringkasan jelas transisi santri antar bulan"
   ]
 }
