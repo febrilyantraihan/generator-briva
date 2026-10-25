@@ -3925,30 +3925,83 @@
     ctx.fillStyle = '#475569';
     ctx.fillText("DATA PELAJAR & SANTRI RESMI YTPAI", leftTableX, botY + 68);
 
-    // Box Demografi Putra & Putri (Font Besar & Jelas, Tanpa Tabrakan)
-    drawCell(leftTableX, botY + 104, 390, 86, "TOTAL SANTRI PUTRA", {
-      subText: `${m.totalPa} Santri (${m.totalPaPct})`,
-      subFont: '900 23px "Segoe UI", Arial',
-      subColor: '#0284c7',
-      font: 'bold 14px "Segoe UI", Arial',
-      bg: '#f0f9ff',
-      border: '#0284c7',
-      borderWidth: 1.5,
-      mainOffset: 24,
-      subOffset: 56
-    });
+    // Box Demografi Putra & Putri (Font Besar, Jelas & Transparan: Rincian Mukim vs Bajak)
+    const demoBoxY = botY + 98;
+    const demoBoxH = 104;
+    const demoBoxW = 402;
+    const demoGap = 16;
+    const paX = leftTableX;
+    const piX = leftTableX + demoBoxW + demoGap;
 
-    drawCell(leftTableX + 410, botY + 104, 410, 86, "TOTAL SANTRI PUTRI", {
-      subText: `${m.totalPi} Santri (${m.totalPiPct})`,
-      subFont: '900 23px "Segoe UI", Arial',
-      subColor: '#db2777',
-      font: 'bold 14px "Segoe UI", Arial',
-      bg: '#fdf2f8',
-      border: '#db2777',
-      borderWidth: 1.5,
-      mainOffset: 24,
-      subOffset: 56
-    });
+    // 1. Box Demografi Putra
+    ctx.fillStyle = '#f0f9ff';
+    ctx.fillRect(paX, demoBoxY, demoBoxW, demoBoxH);
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(paX, demoBoxY, demoBoxW, demoBoxH);
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#0369a1';
+    ctx.font = '900 13px "Segoe UI", Arial, sans-serif';
+    ctx.fillText("TOTAL SISWA / PELAJAR PUTRA", paX + demoBoxW / 2, demoBoxY + 22);
+
+    ctx.fillStyle = '#0284c7';
+    ctx.font = '900 24px "Segoe UI", Arial, sans-serif';
+    ctx.fillText(`${m.totalPa} Siswa (${m.totalPaPct})`, paX + demoBoxW / 2, demoBoxY + 50);
+
+    const paSubText = `${m.mukimPa} Mukim (Mondok)  •  ${m.nonMukimPa} Bajak (Laju)`;
+    ctx.font = 'bold 12px "Segoe UI", Arial, sans-serif';
+    const paMetrics = ctx.measureText(paSubText);
+    const paPillW = paMetrics.width + 18;
+    const paPillH = 22;
+    const paPillX = paX + (demoBoxW - paPillW) / 2;
+    const paPillY = demoBoxY + 70;
+
+    ctx.fillStyle = '#e0f2fe';
+    ctx.beginPath();
+    ctx.roundRect(paPillX, paPillY, paPillW, paPillH, 4);
+    ctx.fill();
+    ctx.strokeStyle = '#bae6fd';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#0369a1';
+    ctx.fillText(paSubText, paX + demoBoxW / 2, demoBoxY + 81);
+
+    // 2. Box Demografi Putri
+    ctx.fillStyle = '#fdf2f8';
+    ctx.fillRect(piX, demoBoxY, demoBoxW, demoBoxH);
+    ctx.strokeStyle = '#db2777';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(piX, demoBoxY, demoBoxW, demoBoxH);
+
+    ctx.fillStyle = '#be185d';
+    ctx.font = '900 13px "Segoe UI", Arial, sans-serif';
+    ctx.fillText("TOTAL SISWA / PELAJAR PUTRI", piX + demoBoxW / 2, demoBoxY + 22);
+
+    ctx.fillStyle = '#db2777';
+    ctx.font = '900 24px "Segoe UI", Arial, sans-serif';
+    ctx.fillText(`${m.totalPi} Siswi (${m.totalPiPct})`, piX + demoBoxW / 2, demoBoxY + 50);
+
+    const piSubText = `${m.mukimPi} Mukim (Mondok)  •  ${m.nonMukimPi} Bajak (Laju)`;
+    ctx.font = 'bold 12px "Segoe UI", Arial, sans-serif';
+    const piMetrics = ctx.measureText(piSubText);
+    const piPillW = piMetrics.width + 18;
+    const piPillH = 22;
+    const piPillX = piX + (demoBoxW - piPillW) / 2;
+    const piPillY = demoBoxY + 70;
+
+    ctx.fillStyle = '#fce7f3';
+    ctx.beginPath();
+    ctx.roundRect(piPillX, piPillY, piPillW, piPillH, 4);
+    ctx.fill();
+    ctx.strokeStyle = '#fbcfe8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#9d174d';
+    ctx.fillText(piSubText, piX + demoBoxW / 2, demoBoxY + 81);
 
     // Kanan Bawah: Tabel Grand Total Matriks Persis Gambar Referensi (Lebar 670)
     const gtX = rightTableX;
