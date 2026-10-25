@@ -1266,7 +1266,18 @@
       stroke: #ffffff !important;
       transform: scale(1.1);
     }
-    .dock-item-active {
+        .dock-cat-active {
+      background-color: rgba(20, 184, 166, 0.25) !important;
+      color: #5eead4 !important;
+      border: 1px solid rgba(45, 212, 191, 0.6) !important;
+      box-shadow: 0 4px 14px rgba(20, 184, 166, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+    }
+    .dock-cat-active svg {
+      color: #5eead4 !important;
+      stroke: #5eead4 !important;
+      transform: scale(1.08);
+    }
+.dock-item-active {
       background-color: rgba(255, 255, 255, 0.22) !important;
       color: #ffffff !important;
       border: 1px solid rgba(255, 255, 255, 0.3) !important;
