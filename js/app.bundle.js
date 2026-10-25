@@ -27798,6 +27798,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40430,6 +40432,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42350,6 +42354,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
+
+
+
 
 
 
@@ -79169,6 +79179,42 @@ if (typeof window !== "undefined") {
       defaultStudents = mapRawSantri(sourceMaster);
     }
 
+    // 2B. KALIBRASI DATA HISTORIS RESMI (Mondok vs Bajak): Mencegah lonjakan semu / glitch
+    const officialStatusMap = new Map();
+    septemberStudents.concat(defaultStudents).forEach(s => {
+      if (s.reg && String(s.reg).trim()) officialStatusMap.set(String(s.reg).trim(), s.status);
+      if (s.nama && String(s.nama).trim()) officialStatusMap.set(String(s.nama).trim().toLowerCase(), s.status);
+    });
+
+    function calibrateHistoricalList(list) {
+      if (!list || !Array.isArray(list)) return;
+      list.forEach(s => {
+        const regKey = String(s.reg || '').trim();
+        const nameKey = String(s.nama || '').trim().toLowerCase();
+        let st = null;
+        if (regKey && officialStatusMap.has(regKey)) st = officialStatusMap.get(regKey);
+        else if (nameKey && officialStatusMap.has(nameKey)) st = officialStatusMap.get(nameKey);
+        if (st && st.includes('Non Mukim')) {
+          s.status = 'Non Mukim';
+        }
+      });
+    }
+
+    calibrateHistoricalList(awalStudents);
+    calibrateHistoricalList(juliStudents);
+    calibrateHistoricalList(agustusStudents);
+
+    // Auto-heal cache lama di browser jika Non Mukim di Awal/Juli/Agustus masih belum terkalibrasi (<50)
+    if (monthlySantriStore && monthlySantriStore['00-2026'] && monthlySantriStore['00-2026'].students) {
+      const nonMukimCount = monthlySantriStore['00-2026'].students.filter(s => s.status === 'Non Mukim').length;
+      if (nonMukimCount < 50) {
+        calibrateHistoricalList(monthlySantriStore['00-2026'].students);
+        if (monthlySantriStore['07-2026']) calibrateHistoricalList(monthlySantriStore['07-2026'].students);
+        if (monthlySantriStore['08-2026']) calibrateHistoricalList(monthlySantriStore['08-2026'].students);
+        saveMonthlySantriStore();
+      }
+    }
+
     if (!monthlySantriStore || Object.keys(monthlySantriStore).length === 0) {
       monthlySantriStore = {};
 
@@ -80929,69 +80975,109 @@ if (typeof window !== "undefined") {
     svgInner += `
       <defs>
         <linearGradient id="gradAreaTeal" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#0d9488" stop-opacity="0.25" />
+          <stop offset="0%" stop-color="#0d9488" stop-opacity="0.20" />
           <stop offset="100%" stop-color="#0d9488" stop-opacity="0.0" />
+        </linearGradient>
+        <linearGradient id="gradAreaEmerald" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#10b981" stop-opacity="0.16" />
+          <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+        </linearGradient>
+        <linearGradient id="gradAreaAmber" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.12" />
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0" />
         </linearGradient>
         <filter id="glowTeal" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0d9488" flood-opacity="0.35" />
         </filter>
+        <filter id="glowEmerald" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#10b981" flood-opacity="0.35" />
+        </filter>
         <filter id="glowAmber" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#f59e0b" flood-opacity="0.35" />
+          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#f59e0b" flood-opacity="0.35" />
         </filter>
       </defs>
     `;
 
     if (currentStudentChartMode === 'TOTAL') {
-      // MODE TOTAL SISWA: Kurva Sangat Bersih & Nyaman Dianalisa
-      const totals = periodsData.map(d => d.total);
-      const minVal = Math.min(...totals);
-      const maxVal = Math.max(...totals);
-      const range = maxVal - minVal || 10;
-      const yMin = Math.max(0, Math.floor(minVal - range * 0.6));
-      const yMax = Math.ceil(maxVal + range * 0.5);
-
+      // MODE UTAMA (TOTAL & MONDOK): Menampilkan kurva Total Siswa, Santri Mondok, dan Santri Bajak secara mulus tanpa glitch
+      const yMin = 0;
+      const yMax = 850;
       const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      // Gridlines (4 lines)
-      const steps = 4;
-      for (let i = 0; i <= steps; i++) {
-        const val = Math.round(yMin + (i / steps) * (yMax - yMin));
+      // Gridlines (0, 200, 400, 600, 800)
+      for (let val = 0; val <= 800; val += 200) {
         const yPos = getY(val);
         svgInner += `
-          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${i === 0 ? '' : '3,3'}" />
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 0 ? '' : '3,3'}" />
           <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
         `;
       }
 
-      // Compute Path Points
-      const points = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.total), d }));
-      const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-      const areaD = `${lineD} L ${points[points.length - 1].x.toFixed(1)} ${padT + plotH} L ${points[0].x.toFixed(1)} ${padT + plotH} Z`;
+      // 1. Kurva Total Siswa
+      const totalPoints = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.total), val: d.total, d }));
+      const totalLineD = totalPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const totalAreaD = `${totalLineD} L ${totalPoints[totalPoints.length - 1].x.toFixed(1)} ${padT + plotH} L ${totalPoints[0].x.toFixed(1)} ${padT + plotH} Z`;
 
-      // Draw Area Fill & Line
-      svgInner += `<path d="${areaD}" fill="url(#gradAreaTeal)" />`;
-      svgInner += `<path d="${lineD}" fill="none" stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
+      // 2. Kurva Santri Mondok (Mukim)
+      const mukimPoints = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.mukim), val: d.mukim, d }));
+      const mukimLineD = mukimPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const mukimAreaD = `${mukimLineD} L ${mukimPoints[mukimPoints.length - 1].x.toFixed(1)} ${padT + plotH} L ${mukimPoints[0].x.toFixed(1)} ${padT + plotH} Z`;
 
-      // Draw Points & Clean Labels (TANPA TABRAKAN TEKS)
-      points.forEach((p) => {
+      // 3. Kurva Santri Bajak (Non-Mukim)
+      const bajakPoints = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.nonMukim), val: d.nonMukim, d }));
+      const bajakLineD = bajakPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+
+      // Render Area Fills
+      svgInner += `<path d="${totalAreaD}" fill="url(#gradAreaTeal)" />`;
+      svgInner += `<path d="${mukimAreaD}" fill="url(#gradAreaEmerald)" />`;
+
+      // Render Strokes
+      svgInner += `<path d="${totalLineD}" fill="none" stroke="#0d9488" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
+      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#10b981" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowEmerald)" />`;
+      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="4,3" />`;
+
+      // Render Bajak Points & Tags (y ~ 148px)
+      bajakPoints.forEach((p) => {
         svgInner += `
-          <!-- X-Axis Month Label -->
-          <text x="${p.x}" y="${svgH - 8}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[11px]">${p.d.shortLabel}</text>
-          
-          <!-- Outer Circle Glow -->
-          <circle cx="${p.x}" cy="${p.y}" r="6" fill="#0d9488" class="animate-pulse opacity-30" />
-          
-          <!-- Main Point Circle -->
-          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" class="cursor-pointer transition-transform hover:scale-125" 
+          <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="#f59e0b" stroke-width="2" class="cursor-pointer hover:scale-125 transition-transform"
             onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
             onmouseleave="hideStudentChartTooltip()" 
             onclick="showStudentChartTooltip(event, '${p.d.key}')" 
           />
-
-          <!-- Single Clean Value Tag Above Point -->
-          <rect x="${p.x - 32}" y="${p.y - 24}" width="64" height="17" rx="3.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
-          <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[10px]">${p.d.total} Siswa</text>
+          <rect x="${p.x - 28}" y="${p.y + 7}" width="56" height="15" rx="3" class="fill-amber-900/85 dark:fill-amber-950/95" />
+          <text x="${p.x}" y="${p.y + 18}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[8.5px]">${p.val} Bajak</text>
         `;
+      });
+
+      // Render Mondok Points & Tags (y ~ 82px)
+      mukimPoints.forEach((p) => {
+        svgInner += `
+          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#10b981" stroke-width="2.4" class="cursor-pointer hover:scale-125 transition-transform"
+            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
+            onmouseleave="hideStudentChartTooltip()" 
+            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
+          />
+          <rect x="${p.x - 34}" y="${p.y - 21}" width="68" height="16" rx="3.5" class="fill-emerald-800/90 dark:fill-emerald-950/95" />
+          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[9px]">${p.val} Mondok</text>
+        `;
+      });
+
+      // Render Total Siswa Points & Tags (y ~ 46px)
+      totalPoints.forEach((p) => {
+        svgInner += `
+          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" class="cursor-pointer hover:scale-125 transition-transform"
+            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
+            onmouseleave="hideStudentChartTooltip()" 
+            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
+          />
+          <rect x="${p.x - 32}" y="${p.y - 23}" width="64" height="16" rx="3.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[9.5px]">${p.val} Siswa</text>
+        `;
+      });
+
+      // Render X-Axis Month Labels
+      periodsData.forEach((d, idx) => {
+        svgInner += `<text x="${getX(idx)}" y="${svgH - 8}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[11px]">${d.shortLabel}</text>`;
       });
 
     } else if (currentStudentChartMode === 'MUKIM_LAJU') {
@@ -81054,12 +81140,12 @@ if (typeof window !== "undefined") {
           </text>
         `;
 
-        // Highlight Alih Status pin KHUSUS di bulan yang benar-benar ada santri alih status
-        if (p.d.alihMondokToNon > 0) {
+        // Highlight Alih Status pin KHUSUS di bulan yang benar-benar ada santri alih status (Oktober 2026)
+        if (p.d.alihMondokToNon > 0 && p.d.key === '10-2026') {
           svgInner += `
-            <line x1="${p.x}" y1="${p.y - 2}" x2="${p.x}" y2="${padT - 4}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="3,3" />
-            <rect x="${p.x - 60}" y="${padT - 22}" width="120" height="18" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" class="dark:fill-amber-950 dark:stroke-amber-500 shadow-sm" />
-            <text x="${p.x}" y="${padT - 9}" text-anchor="middle" fill="#92400e" class="dark:fill-amber-200 font-black text-[9.5px]">
+            <line x1="${p.x}" y1="${p.y - 2}" x2="${p.x}" y2="${padT + 4}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="3,3" />
+            <rect x="${p.x - 55}" y="${padT - 16}" width="110" height="17" rx="3.5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" class="dark:fill-amber-950 dark:stroke-amber-500 shadow-xs" />
+            <text x="${p.x}" y="${padT - 4.5}" text-anchor="middle" fill="#92400e" class="dark:fill-amber-200 font-black text-[9px]">
               ⚡ Alih Mondok ➔ Bajak: ${p.d.alihMondokToNon}
             </text>
           `;
