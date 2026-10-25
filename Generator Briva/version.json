@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 37,
+  "build": 38,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 37 (Perbaikan Kontras Badge Total Pergerakan Santri di Dark Mode)",
+  "title": "Rilis v1.0.9 Build 38 (Transparansi Demografi Gender: Label Total Siswa/Pelajar & Rincian Mukim vs Bajak)",
   "changelog": [
-    "Perbaikan Kontras Badge Total: Angka selisih (-8/-1.1%) dan alih status (1) pada baris TOTAL tabel Pergerakan per Unit kini berlatar gelap kontras tinggi (dark:bg-rose-950 text-rose-300 & dark:bg-amber-950 text-amber-300) sehingga terbaca tajam dan jelas di tema gelap",
-    "Kurva Mondok & Total Multiseri: Grafik tren pergerakan siswa terpadu tanpa glitch",
-    "Tabel Matriks Sinkron: Status mutasi terkalibrasi presisi dengan 1 transisi resmi nyata di bulan Oktober 2026"
+    "Transparansi Demografi Gender Gambar HD: Label kotak diperjelas menjadi 'TOTAL SISWA / PELAJAR PUTRA & PUTRI' dengan pill rincian status (Mukim Mondok vs Bajak Laju) agar tidak rancu antara santri mukim murni dan total siswa",
+    "Perbaikan Kontras Badge Total Dark Mode: Angka pergerakan santri terbaca tajam dan jelas di tema gelap",
+    "Kurva Mondok & Total Multiseri: Grafik tren pergerakan siswa terpadu tanpa glitch"
   ]
 }
