@@ -1,13 +1,12 @@
 {
   "version": "1.0.9",
-  "build": 35,
-  "releaseDate": "2026-10-25",
-  "title": "Rilis v1.0.9 Build 35 (Matriks Rekap Santri, Grafik Tren Mondok vs Bajak & Perubahan Status)",
+  "build": 36,
+  "releaseDate": "2026-10-26",
+  "title": "Rilis v1.0.9 Build 36 (Grafik Tren Multiseri: Kurva Santri Mondok & Total Muncul Langsung Tanpa Glitch)",
   "changelog": [
-    "Matriks Ringkasan Tren Bulanan: Visualisasi interaktif grafik Mondok vs Bajak (Non Mukim) dengan skala proporsional",
-    "Pilihan Filter Kelas Urut: Filter kelas 7, 8, 9, 10, 11, 12 per unit dan sorting alfabetis nama siswa",
-    "Ganti Terminologi Resmi 'Bajak': Standarisasi istilah santri non-mukim/nduduk menjadi Bajak",
-    "Badge Gender & Status Interaktif: Desain compact, ergonomis, dan touch-friendly pada perangkat mobile dan desktop",
-    "Tabel Mutasi Alih Status: Ringkasan jelas transisi santri antar bulan"
+    "Kurva Mondok & Total Muncul Langsung: Grafik utama langsung menampilkan garis Santri Mondok (Mukim) bersama Total Siswa & Bajak tanpa perlu klik gonta-ganti",
+    "Zero Glitch & Kalibrasi Data Historis: Menghilangkan anomali patahan lonjakan semu dan pin alih status palsu pada bulan Juli-Agustus",
+    "Skala Vertikal Lapang & Proporsional: Jarak antar-kurva terpisah lega (36px - 68px) dengan label tag nilai yang rapi dan tidak tumpang tindih",
+    "Tabel Matriks Sinkron: Status mutasi terkalibrasi presisi dengan 1 transisi resmi nyata di bulan Oktober 2026"
   ]
 }
