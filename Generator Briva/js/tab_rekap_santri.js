@@ -4855,6 +4855,28 @@
     { unit: 'SMA', kelas: 12, label: 'SMA 12', fileName: 'SMA 12.xlsx' }
   ];
 
+  
+  // --- HELPER KODE ID TAGIHAN BRIVA SESUAI DATA MASTER BULANAN ---
+  function getBrivaMonthlyBillId(periodKey) {
+    const parts = (periodKey || '11-2026').split('-');
+    const mm = Number(parts[0]) || 11;
+    const monthBillIdMap = {
+      1: { id: '54', desc: 'Syahriyah Januari' },
+      2: { id: '55', desc: 'Syahriyah Februari' },
+      3: { id: '56', desc: 'Syahriyah Maret' },
+      4: { id: '57', desc: 'Syahriyah April' },
+      5: { id: '58', desc: 'Syahriyah Mei' },
+      6: { id: '59', desc: 'Syahriyah Juni' },
+      7: { id: '60', desc: 'Syahriyah Juli' },
+      8: { id: '61', desc: 'Syahriyah Agustus' },
+      9: { id: '62', desc: 'Syahriyah September' },
+      10: { id: '63', desc: 'Syahriyah Oktober' },
+      11: { id: '64', desc: 'Syahriyah November' },
+      12: { id: '65', desc: 'Syahriyah Desember' }
+    };
+    return monthBillIdMap[mm] || { id: '64', desc: 'Syahriyah' };
+  }
+
   function getReconciliationFolderName(periodKey) {
     const parts = (periodKey || '11-2026').split('-');
     const mm = Number(parts[0]) || 11;
@@ -5170,6 +5192,56 @@
     if (subtitle) subtitle.textContent = `Periode Tagihan: Bulan ${curObj.label}`;
 
     const folderName = getReconciliationFolderName(currentPeriodKey);
+
+    // Set Default Kode ID Tagihan & Tanggal BRIVA
+    const billObj = getBrivaMonthlyBillId(currentPeriodKey);
+    const idInput = document.getElementById('brivaModalIdTagihan');
+    const idDesc = document.getElementById('brivaModalIdTagihanDesc');
+    const tglEfInput = document.getElementById('brivaModalTglEfektif');
+    const tglTpInput = document.getElementById('brivaModalTglTempo');
+
+    const parts = (currentPeriodKey || '11-2026').split('-');
+    const curMm = parts[0] || '11';
+    const curYy = parts[1] || '2026';
+
+    if (idInput) idInput.value = billObj.id;
+    if (idDesc) idDesc.textContent = billObj.desc;
+    if (tglEfInput) tglEfInput.value = `01-${curMm}-${curYy}`;
+    if (tglTpInput) tglTpInput.value = `10-${curMm}-${curYy}`;
+
+    // Populate brivaClassFilesGrid with 12 Class Excel Cards
+    const filesGrid = document.getElementById('brivaClassFilesGrid');
+    if (filesGrid) {
+      let gridHtml = '';
+      RECONCILIATION_CLASSES.forEach(item => {
+        const classStudents = curObj.students.filter(s => s.unit === item.unit && String(s.kelas) === String(item.kelas) && s.status !== 'Boyong');
+        const totalNominal = classStudents.reduce((sum, s) => sum + (Number(s.bulanan) || 0), 0);
+        const nominalFmt = totalNominal.toLocaleString('id-ID');
+
+        gridHtml += `
+          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-1 shadow-2xs">
+            <div class="min-w-0">
+              <div class="font-black text-xs text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
+                <span class="truncate">${item.fileName}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 font-mono mt-0.5">
+                ${classStudents.length} Siswa • Rp ${nominalFmt}
+              </div>
+            </div>
+            <button 
+              type="button" 
+              onclick="downloadSingleClassExcel('${item.unit}', ${item.kelas})"
+              class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-teal-600 dark:text-teal-400 cursor-pointer flex-shrink-0 active:scale-95 transition-all"
+              title="Unduh File ${item.fileName} Satuan"
+            >
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+      });
+      filesGrid.innerHTML = gridHtml;
+    }
     const folderBadge = document.getElementById('pengesahanFolderNameBadge');
     if (folderBadge) folderBadge.textContent = folderName;
 
@@ -5226,7 +5298,7 @@
     showToast('Hasil Rapat Disahkan', `Bulan ${curObj.label} resmi difinalkan & terkunci untuk pembuatan tagihan Junio.`);
   }
 
-  // Helper Pembuat File Excel 5 Kolom Resmi per Kelas
+  // Helper Pembuat File Excel 5 Kolom Resmi per Kelas Sesuai Standar BRIVA
   function buildClassExcelArrayBuffer(unit, kelas, periodKey) {
     if (typeof XLSX === 'undefined') return null;
 
@@ -5236,11 +5308,16 @@
     const parts = (periodKey || '11-2026').split('-');
     const mm = parts[0] || '11';
     const yyyy = parts[1] || '2026';
-    const tglEfektif = `01-${mm}-${yyyy}`;
-    const tglTempo = `10-${mm}-${yyyy}`;
+    
+    // Gunakan nilai ID Tagihan & Tanggal dari input modal pengesahan, atau fallback otomatis resmi
+    const billObj = getBrivaMonthlyBillId(periodKey);
+    const idTagihan = document.getElementById('brivaModalIdTagihan')?.value?.trim() || billObj.id;
+    const tglEfektif = document.getElementById('brivaModalTglEfektif')?.value?.trim() || `01-${mm}-${yyyy}`;
+    const tglTempo = document.getElementById('brivaModalTglTempo')?.value?.trim() || `10-${mm}-${yyyy}`;
 
     const students = curObj.students.filter(s => s.unit === unit && String(s.kelas) === String(kelas) && s.status !== 'Boyong');
 
+    // 5 Kolom Resmi BRIVA Bank BRI
     const rows = [
       ['No. Registrasi', 'ID Tagihan', 'Jumlah', 'Tanggal Efektif', 'Tanggal Jatuh Tempo']
     ];
@@ -5248,7 +5325,7 @@
     students.forEach(s => {
       rows.push([
         String(s.reg).padStart(6, '0'),
-        '63',
+        String(idTagihan),
         Number(s.bulanan) || 281000,
         tglEfektif,
         tglTempo
@@ -5259,6 +5336,28 @@
     const ws = XLSX.utils.aoa_to_sheet(rows);
     XLSX.utils.book_append_sheet(wb, ws, 'Import Tagihan');
     return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  }
+
+  // Unduh 1 Berkas Excel Kelas Secara Mandiri (Single Class Download)
+  function downloadSingleClassExcel(unit, kelas) {
+    const periodKey = currentPeriodKey;
+    const item = RECONCILIATION_CLASSES.find(c => c.unit === unit && c.kelas === Number(kelas)) || { fileName: `${unit} ${kelas}.xlsx` };
+    const fileBuf = buildClassExcelArrayBuffer(unit, kelas, periodKey);
+    if (!fileBuf) {
+      alert('Gagal menghasilkan file Excel.');
+      return;
+    }
+
+    const blob = new Blob([fileBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = item.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File Excel Terunduh', `Berkas ${item.fileName} untuk tagihan BRIVA berhasil disimpan.`);
   }
 
   // Helper Pembuat File Tagihan Junio Lengkap 4 Unit
@@ -5467,6 +5566,8 @@
   window.exportReconciliationToFilesystem = exportReconciliationToFilesystem;
   window.exportReconciliationToZip = exportReconciliationToZip;
   window.getReconciliationFolderName = getReconciliationFolderName;
+  window.downloadSingleClassExcel = downloadSingleClassExcel;
+  window.getBrivaMonthlyBillId = getBrivaMonthlyBillId;
   window.showStudentChartTooltip = showStudentChartTooltip;
   window.hideStudentChartTooltip = hideStudentChartTooltip;
   window.unpinStudentChartTooltip = unpinStudentChartTooltip;
