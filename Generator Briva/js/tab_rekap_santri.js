@@ -2203,15 +2203,15 @@
       }
     }
 
-    // 3. Setup SVG Canvas Dimension (Lapang, Bersih, Tidak Menabrak)
-    const padL = 55;
-    const padR = 40;
-    const padT = 32;
-    const padB = 36;
-    const svgW = 760;
-    const svgH = 210;
-    const plotW = svgW - padL - padR;
-    const plotH = svgH - padT - padB;
+    // 3. Setup SVG Canvas Dimension (Vertikal Lebar & Mepet Rapi ke Label Bulan)
+    const padL = 65;
+    const padR = 55;
+    const padT = 28;
+    const padB = 24;
+    const svgW = 780;
+    const svgH = 216;
+    const plotW = svgW - padL - padR; // 660px
+    const plotH = svgH - padT - padB; // 164px
 
     const count = periodsData.length;
     const getX = (idx) => count === 1 ? padL + plotW / 2 : padL + (idx / (count - 1)) * plotW;
@@ -2247,15 +2247,15 @@
 
     if (currentStudentChartMode === 'TOTAL') {
       // MODE UTAMA (TOTAL & MONDOK): Menampilkan kurva Total Siswa, Santri Mondok, dan Santri Bajak secara mulus tanpa glitch
-      const yMin = 0;
-      const yMax = 850;
+      const yMin = 150;
+      const yMax = 820;
       const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      // Gridlines (0, 200, 400, 600, 800)
-      for (let val = 0; val <= 800; val += 200) {
+      // Gridlines (200, 400, 600, 800) - Mepet langsung di bawah kurva Bajak tanpa ruang kosong 0
+      for (let val = 200; val <= 800; val += 200) {
         const yPos = getY(val);
         svgInner += `
-          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 0 ? '' : '3,3'}" />
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 200 ? '' : '3,3'}" />
           <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
         `;
       }
@@ -2324,20 +2324,20 @@
 
       // Render X-Axis Month Labels
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${svgH - 8}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[11px]">${d.shortLabel}</text>`;
+        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
       });
 
     } else if (currentStudentChartMode === 'MUKIM_LAJU') {
       // MODE MONDOK (MUKIM) VS BAJAK (NON-MUKIM): 2 Kurva Jelas Tanpa Bentrok
-      const yMin = 0;
-      const yMax = 800; // Skala umum 0 s.d. 800
+      const yMin = 150;
+      const yMax = 800; // Skala umum 150 s.d. 800
       const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      // Gridlines (0, 200, 400, 600, 800)
-      for (let val = 0; val <= 800; val += 200) {
+      // Gridlines (200, 400, 600, 800)
+      for (let val = 200; val <= 800; val += 200) {
         const yPos = getY(val);
         svgInner += `
-          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 0 ? '' : '3,3'}" />
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 200 ? '' : '3,3'}" />
           <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
         `;
       }
@@ -2401,7 +2401,7 @@
 
       // X-Axis Labels
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${svgH - 8}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[11px]">${d.shortLabel}</text>`;
+        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
       });
 
     } else if (currentStudentChartMode === 'PCT') {
@@ -2444,7 +2444,7 @@
       });
 
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${svgH - 8}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[11px]">${d.shortLabel}</text>`;
+        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
       });
 
     } else {
@@ -2489,12 +2489,12 @@
       });
 
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${svgH - 8}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[11px]">${d.shortLabel}</text>`;
+        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
       });
     }
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none max-h-[240px]" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none max-h-[250px]" preserveAspectRatio="xMidYMid meet">
         ${svgInner}
       </svg>
     `;
