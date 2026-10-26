@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 38,
+  "build": 39,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 38 (Transparansi Demografi Gender: Label Total Siswa/Pelajar & Rincian Mukim vs Bajak)",
+  "title": "Rilis v1.0.9 Build 39 (Penyempurnaan Proporsi Mepet Grafik Tren & Demografi Santri)",
   "changelog": [
-    "Transparansi Demografi Gender Gambar HD: Label kotak diperjelas menjadi 'TOTAL SISWA / PELAJAR PUTRA & PUTRI' dengan pill rincian status (Mukim Mondok vs Bajak Laju) agar tidak rancu antara santri mukim murni dan total siswa",
-    "Perbaikan Kontras Badge Total Dark Mode: Angka pergerakan santri terbaca tajam dan jelas di tema gelap",
-    "Kurva Mondok & Total Multiseri: Grafik tren pergerakan siswa terpadu tanpa glitch"
+    "Proporsi Grafik Tren Mepet & Presisi: Mengeliminasi dead zone 0-200 sehingga garis dasar 200 dan deretan nama bulan tersusun mepet dan rapat langsung di bawah kurva Bajak",
+    "Skala Vertikal Lapang: Mempertahankan ketinggian kurva yang luas dan jelas antar-garis (Total Siswa, Mondok, dan Bajak)",
+    "Transparansi Demografi Gender Gambar HD: Label diperjelas menjadi 'TOTAL SISWA / PELAJAR PUTRA & PUTRI' lengkap dengan rincian Mukim Mondok vs Bajak Laju"
   ]
 }
