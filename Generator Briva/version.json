@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 43,
+  "build": 44,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 43 (Grafik Garis Sederhana & Bersih + Tab Pemisah Rincian Periode Interaktif)",
+  "title": "Rilis v1.0.9 Build 44 (Alur Rapat Rekonsiliasi Terpandu & Auto-Export Folder Tagihan)",
   "changelog": [
-    "Penyederhanaan Kanvas Grafik: Kanvas garis kurva dibuat bersih, rapi, dan mudah dibaca seketika tanpa penumpukan badge.",
-    "Tab Pemisah Rincian Periode: Tab interaktif antar-bulan di bawah grafik untuk menampilkan rincian komprehensif saat diklik.",
-    "Sinkronisasi Titik & Tab: Memilih tab atau mengklik titik pada grafik langsung membuka kartu analisis 4 Unit Pendidikan."
+    "Alur Rapat Rekonsiliasi Terpandu: Checklist verifikasi dan konfirmasi berjenjang per kelas (12 kelas 4 unit) untuk mencegah kekeliruan data tagihan saat rapat.",
+    "Tombol Cepat ACC Kelas: Tombol satu sentuhan untuk memvalidasi kelas aktif dan otomatis beralih fokus ke kelas berikutnya secara mulus.",
+    "Auto-Export Folder Resmi: Otomatis mendeteksi urutan folder ('06. Bulan November tagihan') dan menyimpan seluruh 13 file Excel kelas resmi + Tagihan Junio Smart via Web File System API atau paket ZIP."
   ]
 }
