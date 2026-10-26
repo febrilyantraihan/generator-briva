@@ -1,11 +1,12 @@
 {
   "version": "1.0.9",
-  "build": 44,
+  "build": 45,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 44 (Alur Rapat Rekonsiliasi Terpandu & Auto-Export Folder Tagihan)",
+  "title": "Rilis v1.0.9 Build 45 (Fitur Koreksi & Penanganan Santri Terlewat Lengkap)",
   "changelog": [
-    "Alur Rapat Rekonsiliasi Terpandu: Checklist verifikasi dan konfirmasi berjenjang per kelas (12 kelas 4 unit) untuk mencegah kekeliruan data tagihan saat rapat.",
-    "Tombol Cepat ACC Kelas: Tombol satu sentuhan untuk memvalidasi kelas aktif dan otomatis beralih fokus ke kelas berikutnya secara mulus.",
-    "Auto-Export Folder Resmi: Otomatis mendeteksi urutan folder ('06. Bulan November tagihan') dan menyimpan seluruh 13 file Excel kelas resmi + Tagihan Junio Smart via Web File System API atau paket ZIP."
+    "Buka Revisi Kelas: Tombol koreksi instan untuk membatalkan status ACC kelas jika ada data yang terlewat untuk diperbaiki.",
+    "Tambah Santri Susulan: Tombol 1-klik untuk mendaftarkan santri yang terlewat langsung ke unit & kelas aktif.",
+    "Pencarian Santri Cerdas: Jika pencarian santri tidak ditemukan, sistem menyediakan opsi cepat untuk mendaftarkan nama tersebut secara instan atau mencari di seluruh unit/kelas.",
+    "Hapus & Pulihkan Santri: Tombol hapus santri pada modal edit serta tombol pulihkan santri boyong yang jelas."
   ]
 }
