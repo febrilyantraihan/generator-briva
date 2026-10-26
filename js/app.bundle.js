@@ -27815,6 +27815,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40464,6 +40465,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42384,6 +42386,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
@@ -79833,13 +79838,59 @@ if (typeof window !== "undefined") {
     const pageItems = filtered.slice(startIdx, startIdx + pageSize);
 
     if (pageItems.length === 0) {
+      const activeUnitVal = document.getElementById('santriFilterUnit')?.value || currentUnitMeetingTab || 'ALL';
+      const activeKelasVal = currentKelasMeetingTab || document.getElementById('santriFilterKelas')?.value || 'ALL';
+      
       tbody.innerHTML = `
         <tr>
-          <td colspan="8" class="text-center py-8 text-slate-400">
-            Tidak ada data santri yang cocok dengan filter pencarian.
+          <td colspan="8" class="text-center py-8 px-4">
+            <div class="max-w-md mx-auto p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+              <div class="w-11 h-11 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-600 flex items-center justify-center mx-auto shadow-2xs">
+                <i data-lucide="search-x" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h4 class="font-black text-sm text-slate-800 dark:text-slate-100">
+                  ${searchVal ? `Santri "${searchVal}" tidak ditemukan` : 'Tidak ada data santri pada filter ini'}
+                </h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  ${searchVal 
+                    ? `Apakah santri ini terlewat atau baru mendaftar? Anda bisa langsung menambahkannya ke kelas ini, atau cari di semua unit/kelas:` 
+                    : 'Gunakan tombol di bawah untuk menambah santri baru ke kelas ini:'}
+                </p>
+              </div>
+              <div class="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                ${searchVal ? `
+                  <button 
+                    type="button" 
+                    onclick="quickAddMissingStudent('${searchVal.replace(/'/g, "\\'")}')"
+                    class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                  >
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>+ Daftarkan "${searchVal}" Sekarang</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="resetFilterAndSearch('${searchVal.replace(/'/g, "\\'")}')"
+                    class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer active:scale-95"
+                  >
+                    Cari di Semua Unit &amp; Kelas
+                  </button>
+                ` : `
+                  <button 
+                    type="button" 
+                    onclick="openAddSantriModalForActiveClass()"
+                    class="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                  >
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>+ Tambah Santri ke Kelas Ini</span>
+                  </button>
+                `}
+              </div>
+            </div>
           </td>
         </tr>
       `;
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
     } else {
       let rowsHtml = '';
       let lastGroupKey = null;
@@ -82488,6 +82539,8 @@ if (typeof window !== "undefined") {
     if (!student) return;
 
     document.getElementById('editSantriModalTitle').innerHTML = '<i data-lucide="user-check" class="w-4 h-4"></i><span>Edit Data Santri</span>';
+    const btnDel = document.getElementById('btnDeleteSantri');
+    if (btnDel) btnDel.classList.remove('hidden');
     document.getElementById('editSantriRegHidden').value = student.reg;
     document.getElementById('editSantriReg').value = student.reg;
     document.getElementById('editSantriNama').value = student.nama;
@@ -82507,6 +82560,8 @@ if (typeof window !== "undefined") {
 
   function openAddSantriModal() {
     document.getElementById('editSantriModalTitle').innerHTML = '<i data-lucide="user-plus" class="w-4 h-4"></i><span>Tambah Santri Baru</span>';
+    const btnDelAdd = document.getElementById('btnDeleteSantri');
+    if (btnDelAdd) btnDelAdd.classList.add('hidden');
     document.getElementById('editSantriRegHidden').value = '';
     document.getElementById('editSantriReg').value = '';
     document.getElementById('editSantriNama').value = '';
@@ -83837,10 +83892,50 @@ if (typeof window !== "undefined") {
     }
 
     const btnAccText = document.getElementById('btnAccActiveClassText');
-    if (btnAccText) {
-      btnAccText.textContent = isActVerified 
-        ? `✓ ${activeItem.label} Sudah Di-ACC (Lanjut ➔)` 
-        : `✓ ACC & Fikskan Kelas ${activeItem.label} (Lanjut ➔)`;
+    const btnAccBtn = document.getElementById('btnAccActiveClass');
+    if (btnAccText && btnAccBtn) {
+      if (isActVerified) {
+        btnAccBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-black shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95';
+        btnAccText.textContent = `✓ ${activeItem.label} Sudah Di-ACC (Lanjut ➔)`;
+      } else {
+        btnAccBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-black shadow-md shadow-teal-500/20 hover:shadow-teal-500/40 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95';
+        btnAccText.textContent = `✓ ACC & Fikskan Kelas ${activeItem.label} (Lanjut ➔)`;
+      }
+    }
+
+    // Dynamic Revision & Add Student buttons in banner
+    let revBtn = document.getElementById('btnBukaRevisiActiveClass');
+    let addSusulanBtn = document.getElementById('btnAddSusulanActiveClass');
+
+    if (!revBtn && btnAccBtn && btnAccBtn.parentElement) {
+      const container = btnAccBtn.parentElement;
+      
+      // Tombol Tambah Santri Susulan
+      addSusulanBtn = document.createElement('button');
+      addSusulanBtn.type = 'button';
+      addSusulanBtn.id = 'btnAddSusulanActiveClass';
+      addSusulanBtn.onclick = () => openAddSantriModalForActiveClass();
+      addSusulanBtn.className = 'px-3 py-2 rounded-xl border border-teal-500/40 bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 dark:hover:bg-teal-900/40 text-teal-800 dark:text-teal-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95';
+      addSusulanBtn.title = 'Tambah Santri yang Terlewat ke Kelas Ini';
+      addSusulanBtn.innerHTML = '<i data-lucide="user-plus" class="w-3.5 h-3.5 text-teal-600"></i><span>+ Santri Susulan</span>';
+      container.insertBefore(addSusulanBtn, btnAccBtn);
+
+      // Tombol Buka Revisi (Batal ACC)
+      revBtn = document.createElement('button');
+      revBtn.type = 'button';
+      revBtn.id = 'btnBukaRevisiActiveClass';
+      revBtn.onclick = () => toggleReconciliationClassVerified(activeItem.unit, activeItem.kelas);
+      revBtn.className = 'px-3 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95';
+      revBtn.title = 'Buka Kembali Status Kelas untuk Melakukan Perubahan / Koreksi';
+      revBtn.innerHTML = '<i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-amber-600"></i><span>Buka Revisi</span>';
+      container.insertBefore(revBtn, btnAccBtn.nextSibling);
+    }
+
+    if (revBtn) {
+      revBtn.style.display = isActVerified ? 'inline-flex' : 'none';
+    }
+    if (addSusulanBtn) {
+      addSusulanBtn.innerHTML = `<i data-lucide="user-plus" class="w-3.5 h-3.5 text-teal-600"></i><span>+ Tambah Santri ke ${activeItem.label}</span>`;
     }
 
     const focusName = document.getElementById('reconcileActiveClassName');
@@ -84140,6 +84235,72 @@ if (typeof window !== "undefined") {
   window.setUnitChartFocus = setUnitChartFocus;
   window.selectChartPeriodTab = selectChartPeriodTab;
   window.renderSelectedPeriodDetail = renderSelectedPeriodDetail;
+
+  // --- FITUR REVISI & SANTRI TERLEWAT ---
+  function toggleReconciliationClassVerified(unit, kelas) {
+    const recState = getPeriodReconcileState();
+    if (!recState) return;
+    const key = `${unit}-${kelas}`;
+    if (recState.verifiedClasses[key]) {
+      delete recState.verifiedClasses[key];
+      showToast('Revisi Dibuka', `Status ACC ${unit} Kelas ${kelas} dibatalkan untuk revisi data.`);
+    } else {
+      recState.verifiedClasses[key] = true;
+      showToast('Kelas Di-ACC', `Kelas ${unit} Kelas ${kelas} berhasil di-ACC.`);
+    }
+    saveMonthlySantriStore();
+    renderReconciliationUI();
+  }
+
+  function openAddSantriModalForActiveClass() {
+    const recState = getPeriodReconcileState();
+    const activeKey = recState ? recState.activeClassKey : 'MTs-7';
+    const item = RECONCILIATION_CLASSES.find(c => `${c.unit}-${c.kelas}` === activeKey) || { unit: 'MTs', kelas: 7 };
+    
+    openAddSantriModal();
+    const uSelect = document.getElementById('editSantriUnit');
+    const kSelect = document.getElementById('editSantriKelas');
+    if (uSelect) uSelect.value = item.unit;
+    if (kSelect) kSelect.value = String(item.kelas);
+    autoUpdateSantriTariff();
+  }
+
+  function quickAddMissingStudent(nama) {
+    openAddSantriModalForActiveClass();
+    const nameInput = document.getElementById('editSantriNama');
+    if (nameInput) {
+      nameInput.value = nama.toUpperCase();
+    }
+  }
+
+  function resetFilterAndSearch(search) {
+    selectUnitMeetingTab('ALL');
+    selectKelasMeetingTab('ALL');
+    const sInput = document.getElementById('santriSearchInput');
+    if (sInput) sInput.value = search;
+    renderSantriTable();
+  }
+
+  function deleteCurrentEditingSantri() {
+    const regHidden = document.getElementById('editSantriRegHidden')?.value;
+    if (!regHidden) return;
+    const student = santriDataList.find(s => s.reg === regHidden);
+    if (!student) return;
+
+    if (confirm(`Apakah Anda yakin ingin MENGHAPUS santri ${student.nama} (Reg: ${student.reg}) dari daftar bulan ini? Tindakan ini tidak dapat dibatalkan.`)) {
+      santriDataList = santriDataList.filter(s => s.reg !== regHidden);
+      saveSantriDataList();
+      closeEditSantriModal();
+      calculateAndRenderAll();
+      showToast('Santri Dihapus', `${student.nama} telah dihapus dari daftar santri bulan ini.`);
+    }
+  }
+
+  window.toggleReconciliationClassVerified = toggleReconciliationClassVerified;
+  window.openAddSantriModalForActiveClass = openAddSantriModalForActiveClass;
+  window.quickAddMissingStudent = quickAddMissingStudent;
+  window.resetFilterAndSearch = resetFilterAndSearch;
+  window.deleteCurrentEditingSantri = deleteCurrentEditingSantri;
   window.renderReconciliationUI = renderReconciliationUI;
   window.selectReconciliationClass = selectReconciliationClass;
   window.stepReconciliationClass = stepReconciliationClass;
