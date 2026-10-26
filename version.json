@@ -1,12 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 45,
+  "build": 46,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 45 (Fitur Koreksi & Penanganan Santri Terlewat Lengkap)",
+  "title": "Rilis v1.0.9 Build 46 (Generator Tagihan Excel Per-Kelas Resmi BRIVA Bank BRI)",
   "changelog": [
-    "Buka Revisi Kelas: Tombol koreksi instan untuk membatalkan status ACC kelas jika ada data yang terlewat untuk diperbaiki.",
-    "Tambah Santri Susulan: Tombol 1-klik untuk mendaftarkan santri yang terlewat langsung ke unit & kelas aktif.",
-    "Pencarian Santri Cerdas: Jika pencarian santri tidak ditemukan, sistem menyediakan opsi cepat untuk mendaftarkan nama tersebut secara instan atau mencari di seluruh unit/kelas.",
-    "Hapus & Pulihkan Santri: Tombol hapus santri pada modal edit serta tombol pulihkan santri boyong yang jelas."
+    "Generator Tagihan BRIVA Per-Kelas: Menghasilkan berkas Excel tagihan per-kelas (MTs 7.xlsx, SMP 7.xlsx, dst.) sesuai standar resmi 5 kolom BRIVA.",
+    "Kode & Nominal Dinamis: Otomatis mengisi kode ID Tagihan bulanan resmi (misal ID 64 untuk November, 63 untuk Oktober) dan nominal masing-masing santri.",
+    "Unduh Satuan Per-Kelas: Menyediakan tombol unduh Excel per-kelas mandiri untuk dibagikan langsung ke bendahara unit terkait."
   ]
 }
