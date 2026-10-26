@@ -27814,6 +27814,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40462,6 +40463,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42382,6 +42384,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
@@ -79192,6 +79197,12 @@ if (typeof window !== "undefined") {
   function initSantriModule() {
     loadSantriData();
     calculateAndRenderAll();
+    setTimeout(() => {
+      const panel = document.getElementById('panelRapatRekonsiliasi');
+      if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 250);
     updateSortButtonUI();
     initMatrixZoomControls();
   }
@@ -79697,6 +79708,7 @@ if (typeof window !== "undefined") {
 
     // 5. Render Trend Bulanan & Mutasi (MoM)
     renderSantriTrendAnalytics();
+    renderReconciliationUI();
 
     // 6. Sinkronisasi Skala & Dimensi Viewport Matriks
     if (typeof applyMatrixScale === 'function') {
@@ -83612,6 +83624,515 @@ if (typeof window !== "undefined") {
   window.applyMatrixScale = applyMatrixScale;
   window.initMatrixZoomControls = initMatrixZoomControls;
 
+
+  // =========================================================================
+  // --- 8. ENGINE ALUR RAPAT REKONSILIASI & AUTO-EXPORT FOLDER BERJENJANG ---
+  // =========================================================================
+
+  const RECONCILIATION_CLASSES = [
+    { unit: 'MTs', kelas: 7, label: 'MTs 7', fileName: 'MTs 7.xlsx' },
+    { unit: 'MTs', kelas: 8, label: 'MTs 8', fileName: 'MTs 8.xlsx' },
+    { unit: 'MTs', kelas: 9, label: 'MTS 9', fileName: 'MTS 9.xlsx' },
+    { unit: 'SMP', kelas: 7, label: 'SMP 7', fileName: 'SMP 7.xlsx' },
+    { unit: 'SMP', kelas: 8, label: 'SMP 8', fileName: 'SMP 8.xlsx' },
+    { unit: 'SMP', kelas: 9, label: 'SMP 9', fileName: 'SMP 9.xlsx' },
+    { unit: 'MA', kelas: 10, label: 'MA 10', fileName: 'MA 10.xlsx' },
+    { unit: 'MA', kelas: 11, label: 'MA 11', fileName: 'MA 11.xlsx' },
+    { unit: 'MA', kelas: 12, label: 'MA 12', fileName: 'MA 12.xlsx' },
+    { unit: 'SMA', kelas: 10, label: 'SMA 10', fileName: 'SMA 10.xlsx' },
+    { unit: 'SMA', kelas: 11, label: 'SMA 11', fileName: 'SMA 11.xlsx' },
+    { unit: 'SMA', kelas: 12, label: 'SMA 12', fileName: 'SMA 12.xlsx' }
+  ];
+
+  function getReconciliationFolderName(periodKey) {
+    const parts = (periodKey || '11-2026').split('-');
+    const mm = Number(parts[0]) || 11;
+    const yyyy = Number(parts[1]) || 2026;
+    const monthNames = [
+      '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    let orderNum = 1;
+    if (mm >= 7 && mm <= 12) {
+      orderNum = mm - 5; // Juli(7)->02, Agu(8)->03, Sep(9)->04, Okt(10)->05, Nov(11)->06, Des(12)->07
+    } else if (mm >= 1 && mm <= 6) {
+      orderNum = mm + 7; // Jan(1)->08, Feb(2)->09, Mar(3)->10, Apr(4)->11, Mei(5)->12, Jun(6)->13
+    }
+    const prefix = String(orderNum).padStart(2, '0');
+    const mName = monthNames[mm] || 'Bulan';
+    return `${prefix}. Bulan ${mName} tagihan`;
+  }
+
+  function getPeriodReconcileState() {
+    if (!monthlySantriStore || !monthlySantriStore[currentPeriodKey]) return null;
+    const curObj = monthlySantriStore[currentPeriodKey];
+    if (!curObj.reconciliation) {
+      curObj.reconciliation = {
+        verifiedClasses: {},
+        activeClassKey: 'MTs-7'
+      };
+    }
+    return curObj.reconciliation;
+  }
+
+  function renderReconciliationUI() {
+    const panel = document.getElementById('panelRapatRekonsiliasi');
+    if (!panel) return;
+
+    const curObj = monthlySantriStore[currentPeriodKey];
+    if (!curObj) return;
+
+    const recState = getPeriodReconcileState();
+    if (!recState) return;
+
+    // 1. Header Badges
+    const periodBadge = document.getElementById('reconcilePeriodBadge');
+    if (periodBadge) {
+      periodBadge.textContent = `Bulan ${curObj.label}`;
+    }
+
+    const statusBadge = document.getElementById('reconcileGlobalStatusBadge');
+    if (statusBadge) {
+      if (curObj.isPedoman) {
+        statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border border-teal-300 dark:border-teal-800';
+        statusBadge.textContent = 'Pedoman Master (Fiks)';
+      } else if (curObj.status === 'LOCKED') {
+        statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800';
+        statusBadge.textContent = 'Rapat Fiks & Disahkan';
+      } else {
+        statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-700';
+        statusBadge.textContent = 'Draf Rapat Sedang Berjalan';
+      }
+    }
+
+    // 2. Kalkulasi Progress ACC 12 Kelas
+    const verifiedKeys = Object.keys(recState.verifiedClasses || {}).filter(k => recState.verifiedClasses[k]);
+    const verifiedCount = verifiedKeys.length;
+    const totalClasses = RECONCILIATION_CLASSES.length; // 12
+    const pct = Math.min(100, Math.round((verifiedCount / totalClasses) * 100));
+
+    const progressText = document.getElementById('reconcileProgressText');
+    if (progressText) {
+      progressText.textContent = `${verifiedCount} dari ${totalClasses} Kelas Di-ACC (${pct}%)`;
+    }
+
+    const progressBar = document.getElementById('reconcileProgressBar');
+    if (progressBar) {
+      progressBar.style.width = `${pct}%`;
+    }
+
+    // 3. Grid 12 Kelas (4 Unit)
+    const gridEl = document.getElementById('reconcileClassesGrid');
+    if (gridEl) {
+      const units = [
+        { key: 'MTs', name: 'MTs', color: 'emerald', border: 'border-emerald-500/30 dark:border-emerald-500/20', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20' },
+        { key: 'SMP', name: 'SMP', color: 'blue', border: 'border-blue-500/30 dark:border-blue-500/20', bg: 'bg-blue-50/50 dark:bg-blue-950/20' },
+        { key: 'MA', name: 'MA', color: 'lime', border: 'border-lime-500/30 dark:border-lime-500/20', bg: 'bg-lime-50/50 dark:bg-lime-950/20' },
+        { key: 'SMA', name: 'SMA', color: 'amber', border: 'border-amber-500/30 dark:border-amber-500/20', bg: 'bg-amber-50/50 dark:bg-amber-950/20' }
+      ];
+
+      let gridHtml = '';
+      units.forEach(u => {
+        const uClasses = RECONCILIATION_CLASSES.filter(c => c.unit === u.key);
+        const uVerified = uClasses.filter(c => recState.verifiedClasses[`${c.unit}-${c.kelas}`]).length;
+        const isUnitAllAcc = uVerified === uClasses.length;
+
+        gridHtml += `
+          <div class="rounded-xl border ${u.border} ${u.bg} p-2.5 sm:p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-xs text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-${u.color}-500"></span>
+                <span>Unit ${u.name}</span>
+              </span>
+              <span class="text-[10px] font-black px-1.5 py-0.2 rounded ${isUnitAllAcc ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}">
+                ${isUnitAllAcc ? '✓ Unit Fiks' : `${uVerified}/${uClasses.length} ACC`}
+              </span>
+            </div>
+
+            <div class="space-y-1.5">
+        `;
+
+        uClasses.forEach(c => {
+          const classKey = `${c.unit}-${c.kelas}`;
+          const isVerified = Boolean(recState.verifiedClasses[classKey]);
+          const isActive = recState.activeClassKey === classKey;
+
+          // Hitung santri aktif di kelas ini
+          const count = curObj.students.filter(s => s.unit === c.unit && String(s.kelas) === String(c.kelas) && s.status !== 'Boyong').length;
+
+          let btnClass = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-teal-400';
+          if (isActive) {
+            btnClass = 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400/50 font-black shadow-xs';
+          } else if (isVerified) {
+            btnClass = 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500/60 text-emerald-900 dark:text-emerald-200 font-bold';
+          }
+
+          gridHtml += `
+            <button 
+              type="button" 
+              onclick="selectReconciliationClass('${c.unit}', ${c.kelas})"
+              class="w-full px-2.5 py-1.5 rounded-lg border text-xs flex items-center justify-between transition-all cursor-pointer ${btnClass}"
+            >
+              <div class="flex items-center gap-1.5">
+                ${isVerified 
+                  ? '<span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">✓</span>' 
+                  : (isActive 
+                      ? '<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>' 
+                      : '<span class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>')}
+                <span class="font-bold">Kelas ${c.kelas}</span>
+              </div>
+              <span class="text-[11px] font-mono font-bold opacity-80">${count} Santri</span>
+            </button>
+          `;
+        });
+
+        gridHtml += `
+            </div>
+          </div>
+        `;
+      });
+
+      gridEl.innerHTML = gridHtml;
+    }
+
+    // 4. Update Active Class Banner
+    const activeItem = RECONCILIATION_CLASSES.find(c => `${c.unit}-${c.kelas}` === recState.activeClassKey) || RECONCILIATION_CLASSES[0];
+    const activeKey = `${activeItem.unit}-${activeItem.kelas}`;
+    const isActVerified = Boolean(recState.verifiedClasses[activeKey]);
+
+    const activeBadge = document.getElementById('activeClassUnitBadge');
+    if (activeBadge) activeBadge.textContent = activeItem.unit;
+
+    const activeTitle = document.getElementById('activeClassTitle');
+    if (activeTitle) activeTitle.textContent = `${activeItem.unit} - KELAS ${activeItem.kelas} • SIAP DICOCOKKAN`;
+
+    const activeAccBadge = document.getElementById('activeClassAccStatusBadge');
+    if (activeAccBadge) {
+      if (isActVerified) {
+        activeAccBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300';
+        activeAccBadge.textContent = '✓ SUDAH DI-ACC';
+      } else {
+        activeAccBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700';
+        activeAccBadge.textContent = 'BELUM DI-ACC';
+      }
+    }
+
+    // Hitung rincian kelas aktif
+    const classStudents = curObj.students.filter(s => s.unit === activeItem.unit && String(s.kelas) === String(activeItem.kelas));
+    const actTotal = classStudents.filter(s => s.status !== 'Boyong').length;
+    const actMukim = classStudents.filter(s => s.status && s.status.includes('Mukim')).length;
+    const actNon = classStudents.filter(s => s.status === 'Non Mukim').length;
+    const actBoyong = classStudents.filter(s => s.status === 'Boyong').length;
+
+    const summaryStats = document.getElementById('activeClassSummaryStats');
+    if (summaryStats) {
+      summaryStats.innerHTML = `
+        <span class="font-extrabold text-slate-800 dark:text-slate-100">${actTotal} Santri Aktif</span>
+        <span>•</span>
+        <span class="font-bold text-teal-700 dark:text-teal-300">${actMukim} Mukim</span>
+        <span>•</span>
+        <span class="font-bold text-slate-600 dark:text-slate-300">${actNon} Non-Mukim</span>
+        ${actBoyong > 0 ? `<span>•</span><span class="font-black text-rose-600 dark:text-rose-400">${actBoyong} Boyong</span>` : ''}
+      `;
+    }
+
+    const btnAccText = document.getElementById('btnAccActiveClassText');
+    if (btnAccText) {
+      btnAccText.textContent = isActVerified 
+        ? `✓ ${activeItem.label} Sudah Di-ACC (Lanjut ➔)` 
+        : `✓ ACC & Fikskan Kelas ${activeItem.label} (Lanjut ➔)`;
+    }
+
+    const focusName = document.getElementById('reconcileActiveClassName');
+    if (focusName) {
+      focusName.textContent = `Fokus: ${activeItem.unit} Kelas ${activeItem.kelas}`;
+    }
+
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+      lucide.createIcons();
+    }
+  }
+
+  function selectReconciliationClass(unit, kelas) {
+    const recState = getPeriodReconcileState();
+    if (!recState) return;
+
+    recState.activeClassKey = `${unit}-${kelas}`;
+    saveMonthlySantriStore();
+
+    // Otomatis sinkronkan filter unit dan filter kelas tabel santri
+    selectUnitMeetingTab(unit);
+    selectKelasMeetingTab(String(kelas));
+
+    renderReconciliationUI();
+  }
+
+  function stepReconciliationClass(direction) {
+    const recState = getPeriodReconcileState();
+    if (!recState) return;
+
+    const curIdx = RECONCILIATION_CLASSES.findIndex(c => `${c.unit}-${c.kelas}` === recState.activeClassKey);
+    let nextIdx = curIdx + direction;
+
+    if (nextIdx < 0) nextIdx = 0;
+    if (nextIdx >= RECONCILIATION_CLASSES.length) {
+      // Sudah sampai kelas terakhir: Buka modal pengesahan final!
+      openModalPengesahanRapat();
+      return;
+    }
+
+    const target = RECONCILIATION_CLASSES[nextIdx];
+    selectReconciliationClass(target.unit, target.kelas);
+  }
+
+  function accCurrentReconciliationClass() {
+    const recState = getPeriodReconcileState();
+    if (!recState) return;
+
+    const activeKey = recState.activeClassKey;
+    const activeItem = RECONCILIATION_CLASSES.find(c => `${c.unit}-${c.kelas}` === activeKey);
+
+    recState.verifiedClasses[activeKey] = true;
+    saveMonthlySantriStore();
+
+    showToast('Kelas Berhasil Di-ACC', `Data santri ${activeItem ? activeItem.label : activeKey} tervalidasi fiks.`);
+
+    // Periksa apakah semua kelas sudah di-ACC
+    const verifiedKeys = Object.keys(recState.verifiedClasses || {}).filter(k => recState.verifiedClasses[k]);
+    if (verifiedKeys.length === RECONCILIATION_CLASSES.length) {
+      renderReconciliationUI();
+      openModalPengesahanRapat();
+    } else {
+      stepReconciliationClass(1);
+    }
+  }
+
+  // --- MODAL PENGESAHAN & AUTO-EXPORT FOLDER HANDLERS ---
+  function openModalPengesahanRapat() {
+    const curObj = monthlySantriStore[currentPeriodKey];
+    if (!curObj) return;
+
+    const modal = document.getElementById('modalPengesahanRapatRekonsiliasi');
+    if (!modal) return;
+
+    const subtitle = document.getElementById('pengesahanPeriodSubtitle');
+    if (subtitle) subtitle.textContent = `Periode Tagihan: Bulan ${curObj.label}`;
+
+    const folderName = getReconciliationFolderName(currentPeriodKey);
+    const folderBadge = document.getElementById('pengesahanFolderNameBadge');
+    if (folderBadge) folderBadge.textContent = folderName;
+
+    const zipText = document.getElementById('pengesahanZipNameText');
+    if (zipText) zipText.textContent = `[${folderName}.zip]`;
+
+    // Kalkulasi ringkasan santri
+    const activeList = curObj.students.filter(s => s.status !== 'Boyong');
+    const mukimCount = activeList.filter(s => s.status && s.status.includes('Mukim')).length;
+    const nonCount = activeList.filter(s => s.status === 'Non Mukim').length;
+    const boyongCount = curObj.students.filter(s => s.status === 'Boyong').length;
+
+    const statsGrid = document.getElementById('pengesahanStatsGrid');
+    if (statsGrid) {
+      statsGrid.innerHTML = `
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <div class="text-[10px] uppercase font-bold text-slate-500">Total Santri</div>
+          <div class="text-base sm:text-lg font-black text-slate-900 dark:text-white">${activeList.length}</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800">
+          <div class="text-[10px] uppercase font-bold text-teal-700 dark:text-teal-300">Santri Mukim</div>
+          <div class="text-base sm:text-lg font-black text-teal-800 dark:text-teal-200">${mukimCount}</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
+          <div class="text-[10px] uppercase font-bold text-amber-700 dark:text-amber-300">Non Mukim</div>
+          <div class="text-base sm:text-lg font-black text-amber-800 dark:text-amber-200">${nonCount}</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800">
+          <div class="text-[10px] uppercase font-bold text-rose-700 dark:text-rose-300">Santri Boyong</div>
+          <div class="text-base sm:text-lg font-black text-rose-800 dark:text-rose-200">${boyongCount}</div>
+        </div>
+      `;
+    }
+
+    modal.classList.remove('hidden');
+    if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+  }
+
+  function closeModalPengesahanRapat() {
+    const modal = document.getElementById('modalPengesahanRapatRekonsiliasi');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function confirmSahDanKunciRapat() {
+    const curObj = monthlySantriStore[currentPeriodKey];
+    if (!curObj) return;
+
+    curObj.status = 'LOCKED';
+    curObj.lockedAt = new Date().toISOString();
+    saveMonthlySantriStore();
+
+    closeModalPengesahanRapat();
+    calculateAndRenderAll();
+    showToast('Hasil Rapat Disahkan', `Bulan ${curObj.label} resmi difinalkan & terkunci untuk pembuatan tagihan Junio.`);
+  }
+
+  // Helper Pembuat File Excel 5 Kolom Resmi per Kelas
+  function buildClassExcelArrayBuffer(unit, kelas, periodKey) {
+    if (typeof XLSX === 'undefined') return null;
+
+    const curObj = monthlySantriStore[periodKey];
+    if (!curObj) return null;
+
+    const parts = (periodKey || '11-2026').split('-');
+    const mm = parts[0] || '11';
+    const yyyy = parts[1] || '2026';
+    const tglEfektif = `01-${mm}-${yyyy}`;
+    const tglTempo = `10-${mm}-${yyyy}`;
+
+    const students = curObj.students.filter(s => s.unit === unit && String(s.kelas) === String(kelas) && s.status !== 'Boyong');
+
+    const rows = [
+      ['No. Registrasi', 'ID Tagihan', 'Jumlah', 'Tanggal Efektif', 'Tanggal Jatuh Tempo']
+    ];
+
+    students.forEach(s => {
+      rows.push([
+        String(s.reg).padStart(6, '0'),
+        '63',
+        Number(s.bulanan) || 281000,
+        tglEfektif,
+        tglTempo
+      ]);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'Import Tagihan');
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  }
+
+  // Helper Pembuat File Tagihan Junio Lengkap 4 Unit
+  function buildAllJunioExcelArrayBuffer(periodKey) {
+    if (typeof XLSX === 'undefined') return null;
+    const curObj = monthlySantriStore[periodKey];
+    if (!curObj) return null;
+
+    const parts = (periodKey || '11-2026').split('-');
+    const mm = parts[0] || '11';
+    const yyyy = parts[1] || '2026';
+    const tglEfektif = `01-${mm}-${yyyy}`;
+    const tglTempo = `10-${mm}-${yyyy}`;
+
+    const students = curObj.students.filter(s => s.status !== 'Boyong');
+    const rows = [
+      ['No. Registrasi', 'ID Tagihan', 'Jumlah', 'Tanggal Efektif', 'Tanggal Jatuh Tempo']
+    ];
+
+    students.forEach(s => {
+      rows.push([
+        String(s.reg).padStart(6, '0'),
+        '63',
+        Number(s.bulanan) || 281000,
+        tglEfektif,
+        tglTempo
+      ]);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'Tagihan Junio Smart');
+    return XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  }
+
+  // --- EKSPOR 1: SIMPAN KE FOLDER KOMPUTER (WEB FILE SYSTEM API) ---
+  async function exportReconciliationToFilesystem() {
+    if (typeof window.showDirectoryPicker !== 'function') {
+      alert('Peramban Anda tidak mendukung akses folder langsung (Web File System API). Silakan gunakan tombol Opsi 2 (Unduh Paket ZIP) untuk mendapatkan seluruh berkas lengkap.');
+      return;
+    }
+
+    const folderName = getReconciliationFolderName(currentPeriodKey);
+
+    try {
+      showToast('Pilih Folder Induk', 'Pilih folder "Data Santri" di komputer Anda.');
+      const parentDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      
+      // Buat subfolder baru sesuai urutan: misal "06. Bulan November tagihan"
+      const subDirHandle = await parentDirHandle.getDirectoryHandle(folderName, { create: true });
+
+      // 1. Tulis 12 File Excel Kelas
+      for (const item of RECONCILIATION_CLASSES) {
+        const fileBuf = buildClassExcelArrayBuffer(item.unit, item.kelas, currentPeriodKey);
+        if (fileBuf) {
+          const fileHandle = await subDirHandle.getFileHandle(item.fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(fileBuf);
+          await writable.close();
+        }
+      }
+
+      // 2. Tulis File Tagihan Junio Smart Lengkap
+      const junioBuf = buildAllJunioExcelArrayBuffer(currentPeriodKey);
+      if (junioBuf) {
+        const junioFileName = `Tagihan_Junio_Smart_${currentPeriodKey}.xlsx`;
+        const fileHandle = await subDirHandle.getFileHandle(junioFileName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(junioBuf);
+        await writable.close();
+      }
+
+      confirmSahDanKunciRapat();
+      alert(`Alhamdulillah! Folder "${folderName}" berhasil dibuat di dalam folder Data Santri Anda, dan seluruh 13 berkas Excel kelas resmi telah tersimpan rapi!`);
+
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('File system export error:', err);
+        alert('Gagal menyimpan ke folder: ' + err.message + '. Silakan gunakan Opsi 2 (Unduh Paket ZIP).');
+      }
+    }
+  }
+
+  // --- EKSPOR 2: UNDUH BUNDLE ZIP LENGKAP (JSZip) ---
+  async function exportReconciliationToZip() {
+    if (typeof JSZip === 'undefined') {
+      alert('Pustaka JSZip sedang dimuat, silakan coba sesaat lagi.');
+      return;
+    }
+
+    const folderName = getReconciliationFolderName(currentPeriodKey);
+    const zip = new JSZip();
+    const folder = zip.folder(folderName);
+
+    // 1. Masukkan 12 File Excel Kelas
+    for (const item of RECONCILIATION_CLASSES) {
+      const fileBuf = buildClassExcelArrayBuffer(item.unit, item.kelas, currentPeriodKey);
+      if (fileBuf) {
+        folder.file(item.fileName, fileBuf);
+      }
+    }
+
+    // 2. Masukkan File Tagihan Junio Lengkap
+    const junioBuf = buildAllJunioExcelArrayBuffer(currentPeriodKey);
+    if (junioBuf) {
+      folder.file(`Tagihan_Junio_Smart_${currentPeriodKey}.xlsx`, junioBuf);
+    }
+
+    showToast('Menyiapkan ZIP...', 'Mengemas seluruh 13 berkas Excel kelas ke dalam ZIP...');
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+    // Download via link
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${folderName}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    confirmSahDanKunciRapat();
+    showToast('Paket ZIP Terunduh', `Berkas ${folderName}.zip berhasil disimpan.`);
+  }
+
   // Fitur Analisis Tren MoM, Grafik Garis & Mutasi Santri
   window.renderSantriTrendAnalytics = renderSantriTrendAnalytics;
   window.renderMonthlyStudentLineChart = renderMonthlyStudentLineChart;
@@ -83619,6 +84140,16 @@ if (typeof window !== "undefined") {
   window.setUnitChartFocus = setUnitChartFocus;
   window.selectChartPeriodTab = selectChartPeriodTab;
   window.renderSelectedPeriodDetail = renderSelectedPeriodDetail;
+  window.renderReconciliationUI = renderReconciliationUI;
+  window.selectReconciliationClass = selectReconciliationClass;
+  window.stepReconciliationClass = stepReconciliationClass;
+  window.accCurrentReconciliationClass = accCurrentReconciliationClass;
+  window.openModalPengesahanRapat = openModalPengesahanRapat;
+  window.closeModalPengesahanRapat = closeModalPengesahanRapat;
+  window.confirmSahDanKunciRapat = confirmSahDanKunciRapat;
+  window.exportReconciliationToFilesystem = exportReconciliationToFilesystem;
+  window.exportReconciliationToZip = exportReconciliationToZip;
+  window.getReconciliationFolderName = getReconciliationFolderName;
   window.showStudentChartTooltip = showStudentChartTooltip;
   window.hideStudentChartTooltip = hideStudentChartTooltip;
   window.unpinStudentChartTooltip = unpinStudentChartTooltip;
