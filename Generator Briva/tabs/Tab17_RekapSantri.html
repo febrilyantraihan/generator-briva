@@ -910,7 +910,7 @@
           </p>
         </div>
 
-        <!-- Mode Toggle Switch: Total Siswa vs Mukim & Laju vs Prosentase Unit vs Semua Unit -->
+        <!-- Mode Toggle Switch: Total Siswa vs Mukim & Laju vs Kurva 4 Unit vs Arus Keluar/Masuk vs Prosentase -->
         <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[10.5px] font-bold self-start sm:self-auto flex-wrap">
           <button 
             type="button" 
@@ -932,19 +932,30 @@
           </button>
           <button 
             type="button" 
-            onclick="switchStudentChartMode('PCT')" 
-            id="chartModeBtnPCT" 
-            class="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium"
+            onclick="switchStudentChartMode('UNITS')" 
+            id="chartModeBtnUNITS" 
+            class="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium whitespace-nowrap"
+            title="Grafik garis perbandingan jumlah siswa 4 unit (MTs, SMP, MA, SMA) dengan warna resmi masing-masing"
           >
-            Prosentase (%)
+            Kurva 4 Unit
           </button>
           <button 
             type="button" 
-            onclick="switchStudentChartMode('UNITS')" 
-            id="chartModeBtnUNITS" 
-            class="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium"
+            onclick="switchStudentChartMode('MUTASI_UNITS')" 
+            id="chartModeBtnMUTASI_UNITS" 
+            class="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium whitespace-nowrap"
+            title="Grafik garis analisa mutasi santri masuk vs keluar/boyong per unit antar-bulan"
           >
-            Kurva 4 Unit
+            Arus Keluar/Masuk Unit
+          </button>
+          <button 
+            type="button" 
+            onclick="switchStudentChartMode('PCT')" 
+            id="chartModeBtnPCT" 
+            class="px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium whitespace-nowrap"
+            title="Grafik garis perbandingan pangsa prosentase (%) 4 unit"
+          >
+            Prosentase (%)
           </button>
         </div>
       </div>
@@ -956,11 +967,11 @@
 
       <!-- Interactive SVG Chart Viewport -->
       <div class="relative w-full overflow-hidden rounded-lg bg-slate-50/80 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 p-2 sm:p-3">
-        <div id="studentLineChartContainer" class="w-full min-h-[210px] sm:min-h-[230px] flex items-center justify-center">
+        <div id="studentLineChartContainer" onmouseleave="hideStudentChartTooltip(false)" class="w-full min-h-[210px] sm:min-h-[230px] flex items-center justify-center">
           <!-- Rendered dynamically by JS renderMonthlyStudentLineChart() -->
         </div>
         <!-- Tooltip box -->
-        <div id="studentChartTooltip" class="absolute hidden pointer-events-none z-20 px-2.5 py-1.5 rounded-lg bg-slate-900/95 text-white border border-slate-700 text-xs shadow-xl backdrop-blur-md font-sans transition-all duration-150"></div>
+        <div id="studentChartTooltip" class="absolute hidden pointer-events-none z-30 px-3 py-2 rounded-xl bg-slate-900/95 text-white border border-slate-700 text-xs shadow-2xl backdrop-blur-md font-sans transition-opacity duration-150 max-w-[280px]"></div>
       </div>
 
       <!-- TABEL REKAPITULASI TREN BULANAN: MONDOK VS BAJAK (MEMUDAHKAN ANALISA RESMI) -->
