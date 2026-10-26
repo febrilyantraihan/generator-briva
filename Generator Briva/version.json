@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 39,
+  "build": 42,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 39 (Penyempurnaan Proporsi Mepet Grafik Tren & Demografi Santri)",
+  "title": "Rilis v1.0.9 Build 42 (Maksimalisasi Rincian Data Grafik Garis & Spasi Bulan Mepet Presisi)",
   "changelog": [
-    "Proporsi Grafik Tren Mepet & Presisi: Mengeliminasi dead zone 0-200 sehingga garis dasar 200 dan deretan nama bulan tersusun mepet dan rapat langsung di bawah kurva Bajak",
-    "Skala Vertikal Lapang: Mempertahankan ketinggian kurva yang luas dan jelas antar-garis (Total Siswa, Mondok, dan Bajak)",
-    "Transparansi Demografi Gender Gambar HD: Label diperjelas menjadi 'TOTAL SISWA / PELAJAR PUTRA & PUTRI' lengkap dengan rincian Mukim Mondok vs Bajak Laju"
+    "Maksimalisasi Rincian Data Grafik: Menampilkan persentase (%) dan delta di setiap titik, strip ringkasan 4 unit (MTs, SMP, MA, SMA) antar-garis, dan alert peristiwa",
+    "Spasi Bulan Mepet Presisi: Memperpendek rentang horizontal antar-bulan dan menaikkan skala garis agar badge tidak menabrak label bulan",
+    "Deskripsi Bulan Mepet (Anchored Stay): Kotak deskripsi bulan berlabuh mepet ke kolom aktif dengan tata letak padat informatif"
   ]
 }
