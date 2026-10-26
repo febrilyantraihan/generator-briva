@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 42,
+  "build": 43,
   "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 42 (Maksimalisasi Rincian Data Grafik Garis & Spasi Bulan Mepet Presisi)",
+  "title": "Rilis v1.0.9 Build 43 (Grafik Garis Sederhana & Bersih + Tab Pemisah Rincian Periode Interaktif)",
   "changelog": [
-    "Maksimalisasi Rincian Data Grafik: Menampilkan persentase (%) dan delta di setiap titik, strip ringkasan 4 unit (MTs, SMP, MA, SMA) antar-garis, dan alert peristiwa",
-    "Spasi Bulan Mepet Presisi: Memperpendek rentang horizontal antar-bulan dan menaikkan skala garis agar badge tidak menabrak label bulan",
-    "Deskripsi Bulan Mepet (Anchored Stay): Kotak deskripsi bulan berlabuh mepet ke kolom aktif dengan tata letak padat informatif"
+    "Penyederhanaan Kanvas Grafik: Kanvas garis kurva dibuat bersih, rapi, dan mudah dibaca seketika tanpa penumpukan badge.",
+    "Tab Pemisah Rincian Periode: Tab interaktif antar-bulan di bawah grafik untuk menampilkan rincian komprehensif saat diklik.",
+    "Sinkronisasi Titik & Tab: Memilih tab atau mengklik titik pada grafik langsung membuka kartu analisis 4 Unit Pendidikan."
   ]
 }
