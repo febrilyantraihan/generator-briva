@@ -1734,9 +1734,14 @@
     const tbodyUnit = document.getElementById('unitComparisonTableBody');
     if (tbodyUnit) {
       let unitRowsHtml = '';
-      const unitKeys = ['MTs', 'SMP', 'MA', 'SMA'];
-      unitKeys.forEach(uKey => {
-        const u = comp.unitComparison[uKey];
+      const unitConfigs = [
+        { key: 'MTs', dot: 'bg-emerald-500 shadow-2xs', text: 'text-emerald-700 dark:text-emerald-300' },
+        { key: 'SMP', dot: 'bg-sky-500 shadow-2xs', text: 'text-sky-700 dark:text-sky-300' },
+        { key: 'MA',  dot: 'bg-amber-500 shadow-2xs', text: 'text-amber-700 dark:text-amber-300' },
+        { key: 'SMA', dot: 'bg-orange-500 shadow-2xs', text: 'text-orange-700 dark:text-orange-300' }
+      ];
+      unitConfigs.forEach(uCfg => {
+        const u = comp.unitComparison[uCfg.key];
         const diffSign = u.deltaCount > 0 ? '+' : '';
         const badgeColor = u.deltaCount > 0 
           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' 
@@ -1748,7 +1753,12 @@
 
         unitRowsHtml += `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-            <td class="py-2 px-2 text-left font-black text-slate-800 dark:text-slate-100">${u.unit}</td>
+            <td class="py-2 px-2 text-left font-black text-slate-800 dark:text-slate-100">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full ${uCfg.dot} shrink-0"></span>
+                <span class="${uCfg.text}">${u.unit}</span>
+              </div>
+            </td>
             <td class="py-2 px-1 text-slate-500 font-semibold">${u.baseCount}</td>
             <td class="py-2 px-1 font-bold text-teal-700 dark:text-teal-300">${u.targetCount}</td>
             <td class="py-2 px-1 whitespace-nowrap">
@@ -1993,21 +2003,35 @@
 
   // --- 5C. GRAFIK GARIS TREN BULANAN & PROSENTASE SISWA INTERAKTIF (SVG ENGINE) ---
   let computedPeriodsCache = null;
+  let activeUnitChartFocus = 'ALL'; // 'ALL', 'MTs', 'SMP', 'MA', 'SMA'
+  let pinnedStudentChartKey = null; // Key periode yang terkunci/stay (misal '09-2026')
+  let activeStudentChartKey = null; // Key periode yang sedang aktif
+  let periodsDataCache = [];
+  let getXCache = (idx) => 0;
+
+  function setUnitChartFocus(unitKey) {
+    activeUnitChartFocus = (activeUnitChartFocus === unitKey) ? 'ALL' : unitKey;
+    renderMonthlyStudentLineChart();
+  }
 
   function switchStudentChartMode(mode) {
     currentStudentChartMode = mode;
-    const modes = ['TOTAL', 'MUKIM_LAJU', 'PCT', 'UNITS'];
+    const modes = ['TOTAL', 'MUKIM_LAJU', 'UNITS', 'MUTASI_UNITS', 'PCT'];
     modes.forEach(m => {
       const btn = document.getElementById(`chartModeBtn${m}`);
       if (btn) {
         if (m === mode) {
           btn.className = m === 'MUKIM_LAJU'
             ? 'px-2.5 py-1 rounded-md bg-amber-600 text-white shadow-xs transition-all cursor-pointer font-bold whitespace-nowrap'
-            : 'px-2.5 py-1 rounded-md bg-teal-600 text-white shadow-xs transition-all cursor-pointer font-bold whitespace-nowrap';
+            : (m === 'MUTASI_UNITS'
+                ? 'px-2.5 py-1 rounded-md bg-rose-600 text-white shadow-xs transition-all cursor-pointer font-bold whitespace-nowrap'
+                : 'px-2.5 py-1 rounded-md bg-teal-600 text-white shadow-xs transition-all cursor-pointer font-bold whitespace-nowrap');
         } else {
           btn.className = m === 'MUKIM_LAJU'
             ? 'px-2.5 py-1 rounded-md text-amber-700 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-bold whitespace-nowrap'
-            : 'px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium whitespace-nowrap';
+            : (m === 'MUTASI_UNITS'
+                ? 'px-2.5 py-1 rounded-md text-rose-700 dark:text-rose-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-bold whitespace-nowrap'
+                : 'px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer font-medium whitespace-nowrap');
         }
       }
     });
@@ -2048,11 +2072,14 @@
       const mukimPct = total > 0 ? Number(((mukim / total) * 100).toFixed(1)) : 0;
       const nonMukimPct = total > 0 ? Number(((nonMukim / total) * 100).toFixed(1)) : 0;
 
-      // Alih status mondok ke bajak (hanya dihitung pada transisi periode resmi dengan NoReg terdaftar)
+      // Alih status mondok ke bajak & mutasi per unit
       let alihMondokToNon = 0;
       let prevTotal = total;
       let prevMukim = mukim;
       let prevNon = nonMukim;
+      let prevMts = mts, prevSmp = smp, prevMa = ma, prevSma = sma;
+      let mtsBoyong = 0, smpBoyong = 0, maBoyong = 0, smaBoyong = 0;
+      let mtsMasuk = 0, smpMasuk = 0, maMasuk = 0, smaMasuk = 0;
 
       if (idx > 0) {
         const prevK = sortedKeys[idx - 1];
@@ -2062,19 +2089,55 @@
           prevTotal = prevActive.length;
           prevMukim = prevActive.filter(s => s.status === 'Mukim Reguler' || s.status === 'Mukim VIP').length;
           prevNon = prevActive.filter(s => s.status === 'Non Mukim').length;
+          prevMts = prevActive.filter(s => s.unit === 'MTs').length;
+          prevSmp = prevActive.filter(s => s.unit === 'SMP').length;
+          prevMa  = prevActive.filter(s => s.unit === 'MA').length;
+          prevSma = prevActive.filter(s => s.unit === 'SMA').length;
 
-          // Hanya hitung alih status jika bulan pembanding memiliki NoReg valid
           if (prevActive.some(s => s.reg && String(s.reg).trim() !== '')) {
-            const prevMukimMap = new Map();
+            const prevActiveMap = new Map();
             prevActive.forEach(s => {
-              if (s.reg && String(s.reg).trim() !== '' && (s.status === 'Mukim Reguler' || s.status === 'Mukim VIP')) {
-                prevMukimMap.set(String(s.reg), s);
+              if (s.reg && String(s.reg).trim() !== '') {
+                prevActiveMap.set(String(s.reg).trim(), s);
               }
             });
 
+            const currActiveMap = new Map();
             active.forEach(s => {
-              if (s.reg && String(s.reg).trim() !== '' && s.status === 'Non Mukim' && prevMukimMap.has(String(s.reg))) {
-                alihMondokToNon++;
+              if (s.reg && String(s.reg).trim() !== '') {
+                currActiveMap.set(String(s.reg).trim(), s);
+              }
+            });
+
+            // Santri Alih Mondok -> Bajak
+            active.forEach(s => {
+              if (s.reg && String(s.reg).trim() !== '' && s.status === 'Non Mukim') {
+                const prevS = prevActiveMap.get(String(s.reg).trim());
+                if (prevS && (prevS.status === 'Mukim Reguler' || prevS.status === 'Mukim VIP')) {
+                  alihMondokToNon++;
+                }
+              }
+            });
+
+            // Santri Boyong per Unit
+            prevActive.forEach(s => {
+              const regStr = s.reg ? String(s.reg).trim() : '';
+              if (regStr && !currActiveMap.has(regStr)) {
+                if (s.unit === 'MTs') mtsBoyong++;
+                else if (s.unit === 'SMP') smpBoyong++;
+                else if (s.unit === 'MA') maBoyong++;
+                else if (s.unit === 'SMA') smaBoyong++;
+              }
+            });
+
+            // Santri Masuk per Unit
+            active.forEach(s => {
+              const regStr = s.reg ? String(s.reg).trim() : '';
+              if (regStr && !prevActiveMap.has(regStr)) {
+                if (s.unit === 'MTs') mtsMasuk++;
+                else if (s.unit === 'SMP') smpMasuk++;
+                else if (s.unit === 'MA') maMasuk++;
+                else if (s.unit === 'SMA') smaMasuk++;
               }
             });
           }
@@ -2084,6 +2147,22 @@
       const mukimDelta = idx === 0 ? 0 : mukim - prevMukim;
       const nonMukimDelta = idx === 0 ? 0 : nonMukim - prevNon;
       const totalDelta = idx === 0 ? 0 : total - prevTotal;
+
+      const mtsDelta = idx === 0 ? 0 : mts - prevMts;
+      const smpDelta = idx === 0 ? 0 : smp - prevSmp;
+      const maDelta  = idx === 0 ? 0 : ma - prevMa;
+      const smaDelta = idx === 0 ? 0 : sma - prevSma;
+
+      // Fallback jika reg tidak tersedia
+      if (mtsBoyong === 0 && mtsDelta < 0) mtsBoyong = Math.abs(mtsDelta);
+      if (smpBoyong === 0 && smpDelta < 0) smpBoyong = Math.abs(smpDelta);
+      if (maBoyong === 0 && maDelta < 0) maBoyong = Math.abs(maDelta);
+      if (smaBoyong === 0 && smaDelta < 0) smaBoyong = Math.abs(smaDelta);
+
+      if (mtsMasuk === 0 && mtsDelta > 0) mtsMasuk = mtsDelta;
+      if (smpMasuk === 0 && smpDelta > 0) smpMasuk = smpDelta;
+      if (maMasuk === 0 && maDelta > 0) maMasuk = maDelta;
+      if (smaMasuk === 0 && smaDelta > 0) smaMasuk = smaDelta;
 
       const mukimDeltaPct = prevMukim > 0 ? ((mukimDelta / prevMukim) * 100).toFixed(1) : '0.0';
       const alihPct = prevMukim > 0 ? ((alihMondokToNon / prevMukim) * 100).toFixed(1) : '0.0';
@@ -2098,6 +2177,18 @@
         smp,
         ma,
         sma,
+        mtsDelta,
+        smpDelta,
+        maDelta,
+        smaDelta,
+        mtsBoyong,
+        smpBoyong,
+        maBoyong,
+        smaBoyong,
+        mtsMasuk,
+        smpMasuk,
+        maMasuk,
+        smaMasuk,
         mukim,
         nonMukim,
         mukimPct,
@@ -2116,8 +2207,9 @@
 
     computedPeriodsCache = {};
     periodsData.forEach(d => { computedPeriodsCache[d.key] = d; });
+    periodsDataCache = periodsData;
 
-    // 2. Render Legend Pills (Bersih, Rapi, Jelas)
+    // 2. Render Legend Pills (Sesuai Mode Grafik Garis & Warna Unit Resmi)
     if (legend) {
       const latest = periodsData[periodsData.length - 1] || {};
       const mukimSign = latest.mukimDelta > 0 ? '▲+' : (latest.mukimDelta < 0 ? '▼' : '');
@@ -2143,7 +2235,7 @@
               <span>Alih Mondok ➔ Bajak: ${latest.alihMondokToNon} Santri (${latest.alihPct}%)</span>
             </div>
           ` : ''}
-          <span class="text-xs text-slate-400 hidden sm:inline">• Sentuh titik grafik atau lihat tabel matriks di bawah</span>
+          <span class="text-xs text-slate-400 hidden sm:inline">• Klik titik bulan untuk kunci info (Stay)</span>
         `;
       } else if (currentStudentChartMode === 'MUKIM_LAJU') {
         legend.innerHTML = `
@@ -2162,7 +2254,56 @@
             </div>
           ` : ''}
         `;
-      } else if (currentStudentChartMode === 'PCT') {
+      } else if (currentStudentChartMode === 'UNITS') {
+        const isAll = activeUnitChartFocus === 'ALL';
+        legend.innerHTML = `
+          <button type="button" onclick="setUnitChartFocus('ALL')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${isAll ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}">
+            <span>Semua Unit</span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('MTs')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'MTs' ? 'ring-2 ring-emerald-500 shadow-xs scale-105' : ''} bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>MTs: ${latest.mts || 0} Siswa ${latest.mtsDelta !== 0 ? `<span class="${latest.mtsDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">(${latest.mtsDelta < 0 ? '▼' : '▲+'}${latest.mtsDelta})</span>` : ''}</span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('SMP')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'SMP' ? 'ring-2 ring-sky-500 shadow-xs scale-105' : ''} bg-sky-50 dark:bg-sky-950/70 border border-sky-300 dark:border-sky-700 text-sky-800 dark:text-sky-200">
+            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+            <span>SMP: ${latest.smp || 0} Siswa ${latest.smpDelta !== 0 ? `<span class="${latest.smpDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">(${latest.smpDelta < 0 ? '▼' : '▲+'}${latest.smpDelta})</span>` : '<span class="text-slate-400 font-normal">(Tetap)</span>'}</span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('MA')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'MA' ? 'ring-2 ring-amber-500 shadow-xs scale-105' : ''} bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>MA: ${latest.ma || 0} Siswa ${latest.maDelta !== 0 ? `<span class="${latest.maDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">(${latest.maDelta < 0 ? '▼' : '▲+'}${latest.maDelta})</span>` : ''}</span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('SMA')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'SMA' ? 'ring-2 ring-orange-500 shadow-xs scale-105' : ''} bg-orange-50 dark:bg-orange-950/70 border border-orange-300 dark:border-orange-700 text-orange-800 dark:text-orange-200">
+            <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+            <span>SMA: ${latest.sma || 0} Siswa ${latest.smaDelta !== 0 ? `<span class="${latest.smaDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">(${latest.smaDelta < 0 ? '▼' : '▲+'}${latest.smaDelta})</span>` : ''}</span>
+          </button>
+          <span class="text-xs text-slate-400 hidden lg:inline">• Klik tombol unit untuk fokuskan kurva</span>
+        `;
+      } else if (currentStudentChartMode === 'MUTASI_UNITS') {
+        const isAll = activeUnitChartFocus === 'ALL';
+        legend.innerHTML = `
+          <button type="button" onclick="setUnitChartFocus('ALL')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${isAll ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'}">
+            <span>Semua Unit</span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('MTs')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'MTs' ? 'ring-2 ring-emerald-500 shadow-xs scale-105' : ''} bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>MTs: <b class="${latest.mtsDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">${latest.mtsDelta < 0 ? `▼${latest.mtsDelta} Boyong` : (latest.mtsDelta > 0 ? `▲+${latest.mtsDelta} Masuk` : '0 Tetap')}</b></span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('SMP')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'SMP' ? 'ring-2 ring-sky-500 shadow-xs scale-105' : ''} bg-sky-50 dark:bg-sky-950/70 border border-sky-300 dark:border-sky-700 text-sky-800 dark:text-sky-200">
+            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+            <span>SMP: <b class="text-sky-600 dark:text-sky-400">${latest.smpDelta < 0 ? `▼${latest.smpDelta} Boyong` : (latest.smpDelta > 0 ? `▲+${latest.smpDelta} Masuk` : '0 Stabil')}</b></span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('MA')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'MA' ? 'ring-2 ring-amber-500 shadow-xs scale-105' : ''} bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>MA: <b class="${latest.maDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600'}">${latest.maDelta < 0 ? `▼${latest.maDelta} Boyong` : (latest.maDelta > 0 ? `▲+${latest.maDelta} Masuk` : '0 Tetap')}</b></span>
+          </button>
+          <button type="button" onclick="setUnitChartFocus('SMA')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold cursor-pointer transition-all ${activeUnitChartFocus === 'SMA' ? 'ring-2 ring-orange-500 shadow-xs scale-105' : ''} bg-orange-50 dark:bg-orange-950/70 border border-orange-300 dark:border-orange-700 text-orange-800 dark:text-orange-200">
+            <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+            <span>SMA: <b class="${latest.smaDelta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-orange-600'}">${latest.smaDelta < 0 ? `▼${latest.smaDelta} Boyong` : (latest.smaDelta > 0 ? `▲+${latest.smaDelta} Masuk` : '0 Tetap')}</b></span>
+          </button>
+          <span class="text-xs text-slate-400 hidden lg:inline">• Garis di atas 0 = Masuk, garis di bawah 0 = Keluar / Boyong</span>
+        `;
+      } else {
+        // Mode Prosentase (%)
         legend.innerHTML = `
           <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-[10.5px] font-bold">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -2176,45 +2317,27 @@
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
             <span>MA: ${latest.maPct || 0}% (${latest.ma || 0})</span>
           </div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200 text-[10.5px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800 text-orange-800 dark:text-orange-200 text-[10.5px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-orange-500"></span>
             <span>SMA: ${latest.smaPct || 0}% (${latest.sma || 0})</span>
-          </div>
-        `;
-      } else {
-        legend.innerHTML = `
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-[10.5px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>MTs: ${latest.mts || 0} Siswa</span>
-          </div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-200 text-[10.5px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-            <span>SMP: ${latest.smp || 0} Siswa</span>
-          </div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-[10.5px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span>MA: ${latest.ma || 0} Siswa</span>
-          </div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-200 text-[10.5px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-            <span>SMA: ${latest.sma || 0} Siswa</span>
           </div>
         `;
       }
     }
 
-    // 3. Setup SVG Canvas Dimension (Vertikal Lebar & Mepet Rapi ke Label Bulan)
-    const padL = 65;
-    const padR = 55;
-    const padT = 28;
-    const padB = 24;
+    // 3. Setup SVG Canvas Dimension: Jarak Horizontal Antar-Bulan Lebih Mepet & Vertikal Lebih Lega
+    const padL = 98;
+    const padR = 88;
+    const padT = 32;
+    const padB = 34;
     const svgW = 780;
-    const svgH = 216;
-    const plotW = svgW - padL - padR; // 660px
-    const plotH = svgH - padT - padB; // 164px
+    const svgH = 246;
+    const plotW = svgW - padL - padR; // 594px (lebih mepet antar bulan!)
+    const plotH = svgH - padT - padB; // 180px
 
     const count = periodsData.length;
     const getX = (idx) => count === 1 ? padL + plotW / 2 : padL + (idx / (count - 1)) * plotW;
+    getXCache = getX;
 
     let svgInner = '';
 
@@ -2222,15 +2345,15 @@
     svgInner += `
       <defs>
         <linearGradient id="gradAreaTeal" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#0d9488" stop-opacity="0.20" />
+          <stop offset="0%" stop-color="#0d9488" stop-opacity="0.22" />
           <stop offset="100%" stop-color="#0d9488" stop-opacity="0.0" />
         </linearGradient>
         <linearGradient id="gradAreaEmerald" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#10b981" stop-opacity="0.16" />
+          <stop offset="0%" stop-color="#10b981" stop-opacity="0.18" />
           <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
         </linearGradient>
         <linearGradient id="gradAreaAmber" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.12" />
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.14" />
           <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0" />
         </linearGradient>
         <filter id="glowTeal" x="-20%" y="-20%" width="140%" height="140%">
@@ -2239,23 +2362,34 @@
         <filter id="glowEmerald" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#10b981" flood-opacity="0.35" />
         </filter>
+        <filter id="glowSky" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0284c7" flood-opacity="0.35" />
+        </filter>
         <filter id="glowAmber" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#f59e0b" flood-opacity="0.35" />
+        </filter>
+        <filter id="glowOrange" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#f97316" flood-opacity="0.35" />
+        </filter>
+        <filter id="glowRose" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#e11d48" flood-opacity="0.35" />
         </filter>
       </defs>
     `;
 
+    // Visual Elements Layer (Wrapped with pointer-events="none" to prevent micro-jitter)
+    svgInner += '<g pointer-events="none">';
+
     if (currentStudentChartMode === 'TOTAL') {
-      // MODE UTAMA (TOTAL & MONDOK): Menampilkan kurva Total Siswa, Santri Mondok, dan Santri Bajak secara mulus tanpa glitch
-      const yMin = 150;
-      const yMax = 820;
+      // MODE UTAMA (TOTAL & MONDOK): Rincian Data Maksimal & Skala Vertikal Proporsional
+      const yMin = 100; // Skala pas agar garis bajak tidak menabrak label bulan
+      const yMax = 830;
       const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      // Gridlines (200, 400, 600, 800) - Mepet langsung di bawah kurva Bajak tanpa ruang kosong 0
       for (let val = 200; val <= 800; val += 200) {
         const yPos = getY(val);
         svgInner += `
-          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 200 ? '' : '3,3'}" />
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="3,3" />
           <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
         `;
       }
@@ -2281,74 +2415,111 @@
       // Render Strokes
       svgInner += `<path d="${totalLineD}" fill="none" stroke="#0d9488" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
       svgInner += `<path d="${mukimLineD}" fill="none" stroke="#10b981" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowEmerald)" />`;
-      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="4,3" />`;
+      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="4,3" />`;
 
-      // Render Bajak Points & Tags (y ~ 148px)
-      bajakPoints.forEach((p) => {
-        svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="#f59e0b" stroke-width="2" class="cursor-pointer hover:scale-125 transition-transform"
-            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-            onmouseleave="hideStudentChartTooltip()" 
-            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-          />
-          <rect x="${p.x - 28}" y="${p.y + 7}" width="56" height="15" rx="3" class="fill-amber-900/85 dark:fill-amber-950/95" />
-          <text x="${p.x}" y="${p.y + 18}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[8.5px]">${p.val} Bajak</text>
-        `;
-      });
-
-      // Render Mondok Points & Tags (y ~ 82px)
-      mukimPoints.forEach((p) => {
-        svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#10b981" stroke-width="2.4" class="cursor-pointer hover:scale-125 transition-transform"
-            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-            onmouseleave="hideStudentChartTooltip()" 
-            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-          />
-          <rect x="${p.x - 34}" y="${p.y - 21}" width="68" height="16" rx="3.5" class="fill-emerald-800/90 dark:fill-emerald-950/95" />
-          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[9px]">${p.val} Mondok</text>
-        `;
-      });
-
-      // Render Total Siswa Points & Tags (y ~ 46px)
-      totalPoints.forEach((p) => {
-        svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" class="cursor-pointer hover:scale-125 transition-transform"
-            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-            onmouseleave="hideStudentChartTooltip()" 
-            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-          />
-          <rect x="${p.x - 32}" y="${p.y - 23}" width="64" height="16" rx="3.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
-          <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[9.5px]">${p.val} Siswa</text>
-        `;
-      });
-
-      // Render X-Axis Month Labels
+      // A. Render Strip Ringkasan 4 Unit di Area Tengah Tiap Kolom Bulan (Rincian Maksimal)
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
+        const cx = getX(idx);
+        svgInner += `
+          <g>
+            <rect x="${cx - 48}" y="122" width="96" height="16" rx="3.5" fill="#0f172a" fill-opacity="0.88" class="shadow-2xs" />
+            <text x="${cx}" y="133.5" text-anchor="middle" class="font-mono font-bold text-[8px]">
+              <tspan fill="#34d399">T:${d.mts}</tspan> <tspan fill="#64748b">•</tspan> <tspan fill="#38bdf8">S:${d.smp}</tspan> <tspan fill="#64748b">•</tspan> <tspan fill="#fbbf24">M:${d.ma}</tspan> <tspan fill="#64748b">•</tspan> <tspan fill="#fb923c">A:${d.sma}</tspan>
+            </text>
+          </g>
+        `;
+
+        // Highlight Peristiwa Khusus
+        if (d.key === '10-2026') {
+          svgInner += `
+            <rect x="${cx - 42}" y="141" width="84" height="14" rx="3" fill="#881337" fill-opacity="0.95" stroke="#f43f5e" stroke-width="1" />
+            <text x="${cx}" y="151" text-anchor="middle" fill="#fecdd3" class="font-mono font-black text-[7.5px]">🚨 8 Santri Boyong</text>
+          `;
+        }
+      });
+
+      // B. Render Bajak Points & Tags (Dilengkapi Persentase & Delta)
+      bajakPoints.forEach((p) => {
+        const deltaBadge = p.d.nonMukimDelta !== 0 ? `
+          <rect x="${p.x + 36}" y="${p.y - 19}" width="26" height="13" rx="2.5" fill="${p.d.nonMukimDelta > 0 ? '#d97706' : '#059669'}" />
+          <text x="${p.x + 49}" y="${p.y - 9.5}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[7.5px]">${p.d.nonMukimDelta > 0 ? '▲+' : '▼'}${p.d.nonMukimDelta}</text>
+        ` : '';
+
+        svgInner += `
+          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" />
+          <g>
+            <rect x="${p.x - 38}" y="${p.y - 20}" width="72" height="15" rx="3" class="fill-amber-900/90 dark:fill-amber-950/95" />
+            <text x="${p.x - 2}" y="${p.y - 9.5}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[8.5px]">${p.val} Bajak (${p.d.nonMukimPct}%)</text>
+            ${deltaBadge}
+          </g>
+        `;
+      });
+
+      // C. Render Mondok Points & Tags (Dilengkapi Persentase & Delta)
+      mukimPoints.forEach((p) => {
+        const deltaBadge = p.d.mukimDelta !== 0 ? `
+          <rect x="${p.x + 44}" y="${p.y - 21}" width="26" height="14" rx="2.5" fill="${p.d.mukimDelta < 0 ? '#e11d48' : '#059669'}" />
+          <text x="${p.x + 57}" y="${p.y - 10.5}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[7.5px]">${p.d.mukimDelta < 0 ? '▼' : '▲+'}${p.d.mukimDelta}</text>
+        ` : '';
+
+        svgInner += `
+          <circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#ffffff" stroke="#10b981" stroke-width="2.5" />
+          <g>
+            <rect x="${p.x - 42}" y="${p.y - 22}" width="84" height="16" rx="3.5" class="fill-emerald-800/90 dark:fill-emerald-950/95" />
+            <text x="${p.x - 1}" y="${p.y - 10.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[9px]">${p.val} Mondok (${p.d.mukimPct}%)</text>
+            ${deltaBadge}
+          </g>
+        `;
+      });
+
+      // D. Render Total Siswa Points & Tags (Dilengkapi Delta Fluktuasi)
+      totalPoints.forEach((p) => {
+        const deltaBadge = p.d.totalDelta !== 0 ? `
+          <rect x="${p.x + 36}" y="${p.y - 23}" width="30" height="15" rx="3" fill="${p.d.totalDelta < 0 ? '#e11d48' : '#059669'}" />
+          <text x="${p.x + 51}" y="${p.y - 12}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8px]">${p.d.totalDelta < 0 ? '▼' : '▲+'}${p.d.totalDelta}</text>
+        ` : '';
+
+        svgInner += `
+          <circle cx="${p.x}" cy="${p.y}" r="4.8" fill="#ffffff" stroke="#0d9488" stroke-width="2.6" />
+          <g>
+            <rect x="${p.x - 34}" y="${p.y - 23}" width="68" height="16" rx="3.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
+            <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[9.5px]">${p.val} Siswa</text>
+            ${deltaBadge}
+          </g>
+        `;
+      });
+
+      // E. Render X-Axis Month Labels Mepet Rapi dengan Kapsul Bersih
+      periodsData.forEach((d, idx) => {
+        const cx = getX(idx);
+        const isCurrent = d.key === currentPeriodKey;
+        svgInner += `
+          <g>
+            <rect x="${cx - 27}" y="${padT + plotH + 8}" width="54" height="19" rx="4.5" fill="${isCurrent ? '#0d9488' : '#f1f5f9'}" class="${isCurrent ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 21.5}" text-anchor="middle" fill="${isCurrent ? '#ffffff' : 'currentColor'}" class="${isCurrent ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+          </g>
+        `;
       });
 
     } else if (currentStudentChartMode === 'MUKIM_LAJU') {
-      // MODE MONDOK (MUKIM) VS BAJAK (NON-MUKIM): 2 Kurva Jelas Tanpa Bentrok
-      const yMin = 150;
-      const yMax = 800; // Skala umum 150 s.d. 800
+      // MODE MONDOK (MUKIM) VS BAJAK (NON-MUKIM)
+      const yMin = 130;
+      const yMax = 630;
       const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      // Gridlines (200, 400, 600, 800)
-      for (let val = 200; val <= 800; val += 200) {
+      for (let val = 200; val <= 600; val += 100) {
         const yPos = getY(val);
         svgInner += `
-          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 200 ? '' : '3,3'}" />
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="3,3" />
           <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
         `;
       }
 
-      // Compute Curve 1: Mondok (Mukim)
       const mukimPoints = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.mukim), val: d.mukim, d }));
+      const nonPoints = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.nonMukim), val: d.nonMukim, d }));
+
       const mukimLineD = mukimPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
       const mukimAreaD = `${mukimLineD} L ${mukimPoints[mukimPoints.length - 1].x.toFixed(1)} ${padT + plotH} L ${mukimPoints[0].x.toFixed(1)} ${padT + plotH} Z`;
-
-      // Compute Curve 2: Bajak (Non-Mukim)
-      const nonPoints = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d.nonMukim), val: d.nonMukim, d }));
       const nonLineD = nonPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
       // Draw Area Fill for Mukim
@@ -2356,19 +2527,28 @@
 
       // Draw Lines
       svgInner += `<path d="${mukimLineD}" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
-      svgInner += `<path d="${nonLineD}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" />`;
+      svgInner += `<path d="${nonLineD}" fill="none" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" />`;
+
+      // Render Mini Rincian 4 Unit
+      periodsData.forEach((d, idx) => {
+        const cx = getX(idx);
+        svgInner += `
+          <g>
+            <rect x="${cx - 48}" y="125" width="96" height="16" rx="3.5" fill="#0f172a" fill-opacity="0.88" class="shadow-2xs" />
+            <text x="${cx}" y="136.5" text-anchor="middle" class="font-mono font-bold text-[8px]">
+              <tspan fill="#34d399">T:${d.mts}</tspan> <tspan fill="#64748b">•</tspan> <tspan fill="#38bdf8">S:${d.smp}</tspan> <tspan fill="#64748b">•</tspan> <tspan fill="#fbbf24">M:${d.ma}</tspan> <tspan fill="#64748b">•</tspan> <tspan fill="#fb923c">A:${d.sma}</tspan>
+            </text>
+          </g>
+        `;
+      });
 
       // Draw Mukim Points & Tags
       mukimPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" class="cursor-pointer hover:scale-125 transition-transform" 
-            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-            onmouseleave="hideStudentChartTooltip()" 
-            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-          />
-          <rect x="${p.x - 36}" y="${p.y - 23}" width="72" height="16" rx="3" class="fill-teal-900/90 dark:fill-teal-950/95" />
-          <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-teal-100 font-mono font-bold text-[9.5px]">
-            ${p.val} Mondok
+          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.5" />
+          <rect x="${p.x - 42}" y="${p.y - 23}" width="84" height="16" rx="3" class="fill-teal-900/90 dark:fill-teal-950/95" />
+          <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-teal-100 font-mono font-bold text-[9px]">
+            ${p.val} Mondok (${p.d.mukimPct}%)
           </text>
         `;
       });
@@ -2376,21 +2556,17 @@
       // Draw Bajak Points & Tags
       nonPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" class="cursor-pointer hover:scale-125 transition-transform" 
-            onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-            onmouseleave="hideStudentChartTooltip()" 
-            onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-          />
-          <rect x="${p.x - 30}" y="${p.y + 7}" width="60" height="15" rx="3" class="fill-amber-900/85 dark:fill-amber-950/95" />
-          <text x="${p.x}" y="${p.y + 18}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[9px]">
-            ${p.val} Bajak
+          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" />
+          <rect x="${p.x - 38}" y="${p.y - 20}" width="76" height="15" rx="3" class="fill-amber-900/85 dark:fill-amber-950/95" />
+          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[8.5px]">
+            ${p.val} Bajak (${p.d.nonMukimPct}%)
           </text>
         `;
 
-        // Highlight Alih Status pin KHUSUS di bulan yang benar-benar ada santri alih status (Oktober 2026)
+        // Highlight Alih Status pin
         if (p.d.alihMondokToNon > 0 && p.d.key === '10-2026') {
           svgInner += `
-            <line x1="${p.x}" y1="${p.y - 2}" x2="${p.x}" y2="${padT + 4}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="3,3" />
+            <line x1="${p.x}" y1="${p.y - 2}" x2="${p.x}" y2="${padT + 6}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="3,3" />
             <rect x="${p.x - 55}" y="${padT - 16}" width="110" height="17" rx="3.5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" class="dark:fill-amber-950 dark:stroke-amber-500 shadow-xs" />
             <text x="${p.x}" y="${padT - 4.5}" text-anchor="middle" fill="#92400e" class="dark:fill-amber-200 font-black text-[9px]">
               ⚡ Alih Mondok ➔ Bajak: ${p.d.alihMondokToNon}
@@ -2399,12 +2575,185 @@
         }
       });
 
-      // X-Axis Labels
+      // X-Axis Month Labels Mepet
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
+        const cx = getX(idx);
+        const isCurrent = d.key === currentPeriodKey;
+        svgInner += `
+          <g>
+            <rect x="${cx - 27}" y="${padT + plotH + 8}" width="54" height="19" rx="4.5" fill="${isCurrent ? '#0d9488' : '#f1f5f9'}" class="${isCurrent ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 21.5}" text-anchor="middle" fill="${isCurrent ? '#ffffff' : 'currentColor'}" class="${isCurrent ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+          </g>
+        `;
       });
 
-    } else if (currentStudentChartMode === 'PCT') {
+    } else if (currentStudentChartMode === 'UNITS') {
+      // MODE KURVA 4 UNIT (JUMLAH SISWA PER UNIT & FLUKTUASI MUTASI)
+      const allCounts = periodsData.flatMap(d => [d.mts, d.smp, d.ma, d.sma]);
+      const minCount = Math.min(...allCounts);
+      const maxCount = Math.max(...allCounts);
+      
+      const yMin = Math.max(80, Math.floor((minCount - 20) / 40) * 40);
+      const yMax = Math.ceil((maxCount + 20) / 40) * 40;
+      const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+
+      const step = (yMax - yMin) <= 160 ? 40 : 50;
+      for (let val = yMin; val <= yMax; val += step) {
+        const yPos = getY(val);
+        svgInner += `
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === yMin ? '' : '3,3'}" />
+          <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
+        `;
+      }
+
+      const units = [
+        { key: 'mts', name: 'MTs', color: '#10b981', glow: 'glowEmerald' },
+        { key: 'smp', name: 'SMP', color: '#0284c7', glow: 'glowSky' },
+        { key: 'ma',  name: 'MA',  color: '#f59e0b', glow: 'glowAmber' },
+        { key: 'sma', name: 'SMA', color: '#f97316', glow: 'glowOrange' }
+      ];
+
+      units.forEach(u => {
+        const isFocused = activeUnitChartFocus === 'ALL' || activeUnitChartFocus === u.name;
+        const opacity = isFocused ? '1' : '0.18';
+        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.5' : '2.6') : '1.5';
+        const filterStr = isFocused ? `filter="url(#${u.glow})"` : '';
+
+        const points = periodsData.map((d, idx) => ({ 
+          x: getX(idx), 
+          y: getY(d[u.key]), 
+          val: d[u.key], 
+          delta: d[u.key + 'Delta'] || 0,
+          d 
+        }));
+        const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+
+        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="${strokeW}" opacity="${opacity}" stroke-linecap="round" stroke-linejoin="round" ${filterStr} class="transition-all duration-300" />`;
+
+        points.forEach((p) => {
+          const isAbove = u.key === 'mts' || u.key === 'smp';
+          const rectY = isAbove ? p.y - 20 : p.y + 6;
+          const textY = isAbove ? p.y - 10 : p.y + 16;
+
+          const deltaBadge = p.delta !== 0 ? `
+            <rect x="${p.x + 22}" y="${rectY}" width="30" height="14" rx="2.5" fill="${p.delta < 0 ? '#e11d48' : '#059669'}" />
+            <text x="${p.x + 37}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8px]">${p.delta < 0 ? `▼${p.delta}` : `▲+${p.delta}`}</text>
+          ` : '';
+
+          svgInner += `
+            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? (activeUnitChartFocus === u.name ? 5 : 4) : 2.5}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.5 : 1.5}" opacity="${opacity}" />
+            <g opacity="${opacity}">
+              <rect x="${p.x - 22}" y="${rectY}" width="42" height="14" rx="3" fill="${u.color}" fill-opacity="0.92" />
+              <text x="${p.x - 1}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8.5px]">${p.val} ${u.name}</text>
+              ${deltaBadge}
+            </g>
+          `;
+        });
+      });
+
+      periodsData.forEach((d, idx) => {
+        const cx = getX(idx);
+        const isCurrent = d.key === currentPeriodKey;
+        svgInner += `
+          <g>
+            <rect x="${cx - 27}" y="${padT + plotH + 8}" width="54" height="19" rx="4.5" fill="${isCurrent ? '#0d9488' : '#f1f5f9'}" class="${isCurrent ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 21.5}" text-anchor="middle" fill="${isCurrent ? '#ffffff' : 'currentColor'}" class="${isCurrent ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+          </g>
+        `;
+      });
+
+    } else if (currentStudentChartMode === 'MUTASI_UNITS') {
+      // MODE ARUS KELUAR / MASUK SANTRI PER UNIT
+      const allDeltas = periodsData.flatMap(d => [d.mtsDelta, d.smpDelta, d.maDelta, d.smaDelta]);
+      const minDelta = Math.min(...allDeltas, -6);
+      const maxDelta = Math.max(...allDeltas, 3);
+      
+      const yMin = Math.floor(minDelta - 1);
+      const yMax = Math.ceil(maxDelta + 1);
+      const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+      const yZero = getY(0);
+
+      // Area background zona Masuk (+) dan zona Keluar (-)
+      svgInner += `
+        <rect x="${padL}" y="${padT}" width="${plotW}" height="${yZero - padT}" fill="#10b981" fill-opacity="0.04" />
+        <rect x="${padL}" y="${yZero}" width="${plotW}" height="${padT + plotH - yZero}" fill="#e11d48" fill-opacity="0.04" />
+        <text x="${padL + 8}" y="${padT + 12}" class="fill-emerald-600/70 dark:fill-emerald-400/70 font-bold text-[9px] uppercase tracking-wider">▲ Zona Siswa Masuk (Penambahan)</text>
+        <text x="${padL + 8}" y="${padT + plotH - 6}" class="fill-rose-600/70 dark:fill-rose-400/70 font-bold text-[9px] uppercase tracking-wider">▼ Zona Siswa Keluar / Boyong (Pengurangan)</text>
+      `;
+
+      // Gridlines angka delta
+      for (let val = yMin + 1; val <= yMax - 1; val += 2) {
+        if (val === 0) continue;
+        const yPos = getY(val);
+        const strokeColor = val > 0 ? '#10b981' : '#e11d48';
+        const labelText = val > 0 ? `+${val} Masuk` : `${val} Boyong`;
+        svgInner += `
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="${strokeColor}" stroke-opacity="0.25" stroke-width="1" stroke-dasharray="3,3" />
+          <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" fill="${strokeColor}" class="font-mono text-[9.5px] font-bold">${labelText}</text>
+        `;
+      }
+
+      // Garis Netral Nol (Baseline 0 - Tetap / Stabil)
+      svgInner += `
+        <line x1="${padL}" y1="${yZero}" x2="${svgW - padR}" y2="${yZero}" stroke="currentColor" class="text-slate-400 dark:text-slate-500" stroke-width="1.8" />
+        <text x="${padL - 10}" y="${yZero + 3.5}" text-anchor="end" class="fill-slate-600 dark:fill-slate-300 font-mono font-black text-[10px]">0 Tetap</text>
+      `;
+
+      const units = [
+        { key: 'mts', name: 'MTs', color: '#10b981', glow: 'glowEmerald' },
+        { key: 'smp', name: 'SMP', color: '#0284c7', glow: 'glowSky' },
+        { key: 'ma',  name: 'MA',  color: '#f59e0b', glow: 'glowAmber' },
+        { key: 'sma', name: 'SMA', color: '#f97316', glow: 'glowOrange' }
+      ];
+
+      units.forEach(u => {
+        const isFocused = activeUnitChartFocus === 'ALL' || activeUnitChartFocus === u.name;
+        const opacity = isFocused ? '1' : '0.18';
+        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.5' : '2.6') : '1.5';
+        const filterStr = isFocused ? `filter="url(#${u.glow})"` : '';
+
+        const points = periodsData.map((d, idx) => ({ 
+          x: getX(idx), 
+          y: getY(d[u.key + 'Delta']), 
+          val: d[u.key + 'Delta'], 
+          boyong: d[u.key + 'Boyong'] || 0,
+          masuk: d[u.key + 'Masuk'] || 0,
+          d 
+        }));
+        const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+
+        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="${strokeW}" opacity="${opacity}" stroke-linecap="round" stroke-linejoin="round" ${filterStr} class="transition-all duration-300" />`;
+
+        points.forEach((p) => {
+          const isAbove = u.key === 'mts' || u.key === 'smp';
+          const rectY = isAbove ? p.y - 19 : p.y + 6;
+          const textY = isAbove ? p.y - 9.5 : p.y + 16;
+
+          const badgeBg = p.val < 0 ? '#e11d48' : (p.val > 0 ? '#059669' : u.color);
+          const badgeText = p.val < 0 ? `▼${p.val} Boyong` : (p.val > 0 ? `▲+${p.val} Masuk` : `0 Tetap`);
+
+          svgInner += `
+            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? 4.5 : 2.5}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.5 : 1.5}" opacity="${opacity}" />
+            <g opacity="${opacity}">
+              <rect x="${p.x - 28}" y="${rectY}" width="56" height="14" rx="3" fill="${badgeBg}" fill-opacity="0.95" />
+              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8.5px]">${u.name} ${badgeText}</text>
+            </g>
+          `;
+        });
+      });
+
+      periodsData.forEach((d, idx) => {
+        const cx = getX(idx);
+        const isCurrent = d.key === currentPeriodKey;
+        svgInner += `
+          <g>
+            <rect x="${cx - 27}" y="${padT + plotH + 8}" width="54" height="19" rx="4.5" fill="${isCurrent ? '#0d9488' : '#f1f5f9'}" class="${isCurrent ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 21.5}" text-anchor="middle" fill="${isCurrent ? '#ffffff' : 'currentColor'}" class="${isCurrent ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+          </g>
+        `;
+      });
+
+    } else {
       // MODE PERSENTASE (%)
       const yMin = 0;
       const yMax = 50;
@@ -2422,84 +2771,76 @@
         { key: 'mtsPct', name: 'MTs', color: '#10b981' },
         { key: 'smpPct', name: 'SMP', color: '#0284c7' },
         { key: 'maPct', name: 'MA', color: '#f59e0b' },
-        { key: 'smaPct', name: 'SMA', color: '#6366f1' }
+        { key: 'smaPct', name: 'SMA', color: '#f97316' }
       ];
 
       units.forEach(u => {
         const points = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d[u.key]), val: d[u.key], d }));
         const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
-        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />`;
+        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />`;
 
         points.forEach((p, idx) => {
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="${u.color}" stroke-width="2" class="cursor-pointer" 
-              onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-              onmouseleave="hideStudentChartTooltip()" 
-              onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-            />
+            <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="${u.color}" stroke-width="2" />
             <text x="${p.x + (idx === points.length - 1 ? -6 : 6)}" y="${p.y - 6}" text-anchor="${idx === points.length - 1 ? 'end' : 'start'}" fill="${u.color}" class="font-mono font-bold text-[9px]">${p.val}%</text>
           `;
         });
       });
 
       periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
-      });
-
-    } else {
-      // MODE UNITS (JUMLAH SISWA PER UNIT)
-      const maxCount = Math.max(...periodsData.map(d => Math.max(d.mts, d.smp, d.ma, d.sma)));
-      const yMin = 0;
-      const yMax = Math.ceil((maxCount + 20) / 50) * 50;
-      const getY = (val) => padT + (1 - (val - yMin) / (yMax - yMin)) * plotH;
-
-      for (let i = 0; i <= 4; i++) {
-        const val = Math.round((i / 4) * yMax);
-        const yPos = getY(val);
+        const cx = getX(idx);
+        const isCurrent = d.key === currentPeriodKey;
         svgInner += `
-          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="1" stroke-dasharray="${val === 0 ? '' : '3,3'}" />
-          <text x="${padL - 10}" y="${yPos + 3.5}" text-anchor="end" class="fill-slate-400 dark:fill-slate-500 font-mono text-[10px] font-bold">${val}</text>
+          <g>
+            <rect x="${cx - 27}" y="${padT + plotH + 8}" width="54" height="19" rx="4.5" fill="${isCurrent ? '#0d9488' : '#f1f5f9'}" class="${isCurrent ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 21.5}" text-anchor="middle" fill="${isCurrent ? '#ffffff' : 'currentColor'}" class="${isCurrent ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+          </g>
         `;
-      }
-
-      const units = [
-        { key: 'mts', name: 'MTs', color: '#10b981' },
-        { key: 'smp', name: 'SMP', color: '#0284c7' },
-        { key: 'ma', name: 'MA', color: '#f59e0b' },
-        { key: 'sma', name: 'SMA', color: '#6366f1' }
-      ];
-
-      units.forEach(u => {
-        const points = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d[u.key]), val: d[u.key], d }));
-        const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-
-        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />`;
-
-        points.forEach((p, idx) => {
-          svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="${u.color}" stroke-width="2" class="cursor-pointer" 
-              onmouseenter="showStudentChartTooltip(event, '${p.d.key}')" 
-              onmouseleave="hideStudentChartTooltip()" 
-              onclick="showStudentChartTooltip(event, '${p.d.key}')" 
-            />
-            <text x="${p.x + (idx === points.length - 1 ? -6 : 6)}" y="${p.y - 6}" text-anchor="${idx === points.length - 1 ? 'end' : 'start'}" fill="${u.color}" class="font-mono font-bold text-[9.5px]">${p.val}</text>
-          `;
-        });
-      });
-
-      periodsData.forEach((d, idx) => {
-        svgInner += `<text x="${getX(idx)}" y="${padT + plotH + 14}" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300 font-bold text-[10.5px]">${d.shortLabel}</text>`;
       });
     }
 
+    // Close pointer-events-none layer
+    svgInner += '</g>';
+
+    // 4. OVERLAY HITBOX KOLOM PENUH INTERAKTIF (100% BEBAS GLITCH & BISA STAY / TERKUNCI)
+    svgInner += '<g class="chart-hitboxes-layer">';
+    periodsData.forEach((d, idx) => {
+      const cx = getX(idx);
+      const colLeft = idx === 0 ? padL : (getX(idx - 1) + cx) / 2;
+      const colRight = idx === count - 1 ? (svgW - padR) : (cx + getX(idx + 1)) / 2;
+      const colW = colRight - colLeft;
+      const isPinned = pinnedStudentChartKey === d.key;
+      const isActive = isPinned || (!pinnedStudentChartKey && activeStudentChartKey === d.key);
+
+      svgInner += `
+        <g class="cursor-pointer" 
+           onmouseenter="showStudentChartTooltip('${d.key}', ${cx}, false)"
+           onclick="showStudentChartTooltip('${d.key}', ${cx}, true)"
+        >
+          <!-- Hitbox transparan selebar kolom dan setinggi kanvas grafik -->
+          <rect x="${colLeft}" y="${padT - 16}" width="${colW}" height="${plotH + 46}" fill="transparent" />
+          <!-- Garis panduan vertikal saat aktif / stay -->
+          <line id="studentChartGuide_${d.key}" x1="${cx}" y1="${padT - 10}" x2="${cx}" y2="${padT + plotH + 6}" 
+            stroke="${isPinned ? '#14b8a6' : '#0d9488'}" 
+            stroke-width="${isPinned ? '2.2' : '1.5'}" 
+            stroke-dasharray="${isPinned ? '' : '3,3'}" 
+            opacity="${isActive ? (isPinned ? '1' : '0.75') : '0'}" 
+            pointer-events="none" 
+            class="transition-opacity duration-150" 
+          />
+        </g>
+      `;
+    });
+    svgInner += '</g>';
+
     container.innerHTML = `
-      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none max-h-[250px]" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none max-h-[270px]" preserveAspectRatio="xMidYMid meet">
         ${svgInner}
       </svg>
     `;
 
-    // 4. RENDER TABEL MATRIKS TREN BULANAN (SANGAT MUDAH DIANALISA)
+    // 5. RENDER TABEL MATRIKS TREN BULANAN
     const trendTbody = document.getElementById('monthlyTrendTableBody');
     if (trendTbody) {
       let tRows = '';
@@ -2557,6 +2898,11 @@
       trendTbody.innerHTML = tRows;
     }
 
+    // Jika sedang dalam status stay/pinned, pastikan tooltip tetap tampil pas
+    if (pinnedStudentChartKey) {
+      showStudentChartTooltip(pinnedStudentChartKey, null, false);
+    }
+
     if (window.lucide && typeof lucide.createIcons === 'function') {
       lucide.createIcons();
     }
@@ -2571,10 +2917,23 @@
     return `${monthNames[m] || 'Bln'} '${y}`;
   }
 
-  function showStudentChartTooltip(event, key) {
+  // --- FUNGSI TOOLTIP STABIL (ANTI-GLITCH, MEPET & DUKUNGAN STAY PINNED) ---
+  function showStudentChartTooltip(key, svgX, isClick = false) {
     const tooltip = document.getElementById('studentChartTooltip');
     const container = document.getElementById('studentLineChartContainer');
     if (!tooltip || !container) return;
+
+    if (isClick) {
+      // Klik pada titik/kolom: Toggle status PINNED (Stay)
+      if (pinnedStudentChartKey === key) {
+        pinnedStudentChartKey = null; // Unpin jika diklik ulang
+      } else {
+        pinnedStudentChartKey = key; // Kunci (Stay) pada bulan ini
+      }
+    }
+
+    activeStudentChartKey = key;
+    const isPinned = (pinnedStudentChartKey === key);
 
     let pData = computedPeriodsCache && computedPeriodsCache[key];
     if (!pData && monthlySantriStore && monthlySantriStore[key]) {
@@ -2607,60 +2966,195 @@
     const mukimSign = pData.mukimDelta > 0 ? '▲+' : (pData.mukimDelta < 0 ? '▼' : '');
     const nonSign = pData.nonMukimDelta > 0 ? '▲+' : (pData.nonMukimDelta < 0 ? '▼' : '');
 
-    tooltip.innerHTML = `
-      <div class="font-black text-teal-400 text-xs border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between gap-3">
-        <span>${titleText}</span>
-        <span class="text-white font-mono font-bold">${pData.total} Siswa</span>
-      </div>
-      <div class="space-y-1 text-[11px]">
-        <div class="flex items-center justify-between gap-3 text-teal-300 font-bold border-b border-slate-800/80 pb-0.5">
-          <span class="flex items-center gap-1">
-            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
-            <span>Mondok (Mukim):</span>
-          </span>
-          <span class="font-mono">${pData.mukim} (${pData.mukimPct}%)${pData.mukimDelta !== 0 ? ` <span class="${pData.mukimDelta > 0 ? 'text-emerald-400' : 'text-rose-400'}">${mukimSign}${pData.mukimDelta}</span>` : ''}</span>
-        </div>
-        <div class="flex items-center justify-between gap-3 text-amber-300 font-bold border-b border-slate-800/80 pb-0.5">
-          <span class="flex items-center gap-1">
-            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span>Bajak (Non-Mukim):</span>
-          </span>
-          <span class="font-mono">${pData.nonMukim} (${pData.nonMukimPct}%)${pData.nonMukimDelta !== 0 ? ` <span class="${pData.nonMukimDelta > 0 ? 'text-emerald-400' : 'text-rose-400'}">${nonSign}${pData.nonMukimDelta}</span>` : ''}</span>
-        </div>
-        ${pData.alihMondokToNon > 0 ? `
-          <div class="p-1 px-1.5 rounded bg-amber-950/80 border border-amber-600/60 text-amber-200 text-[10px] font-bold flex items-center justify-between">
-            <span class="flex items-center gap-1">
-              <i data-lucide="arrow-right-left" class="w-3 h-3 text-amber-400"></i>
-              <span>Alih Mondok ➔ Bajak:</span>
-            </span>
-            <span class="font-mono">${pData.alihMondokToNon} Santri (${pData.alihPct}%)</span>
+    // Header Tooltip dengan Pin Badge & Tombol Close jika Pinned
+    const pinBadge = isPinned 
+      ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/30 text-teal-300 border border-teal-400/40 font-bold inline-flex items-center gap-1">📌 Stay</span>' 
+      : '';
+    const closeBtn = isPinned 
+      ? '<button type="button" onclick="unpinStudentChartTooltip(event)" class="text-slate-400 hover:text-white px-1.5 py-0.2 rounded cursor-pointer leading-none text-xs font-bold transition-colors" title="Lepas Kunci (Unpin)">✕</button>' 
+      : '';
+    const footerHint = isPinned 
+      ? '<div class="mt-1 pt-1 border-t border-slate-800 text-[9px] text-teal-300 font-semibold text-center">📌 Terkunci • Klik titik lain untuk pindah</div>' 
+      : '<div class="mt-1 pt-1 border-t border-slate-800 text-[9px] text-slate-400 text-center">💡 Klik untuk kunci tampilan (Stay)</div>';
+
+    if (currentStudentChartMode === 'UNITS' || currentStudentChartMode === 'MUTASI_UNITS') {
+      const getUnitBadge = (delta, masuk, boyong) => {
+        if (delta < 0) return `<span class="px-1.5 py-0.2 rounded bg-rose-950/80 text-rose-300 border border-rose-700/60 font-mono font-bold text-[9px]">▼${delta} Boyong</span>`;
+        if (delta > 0) return `<span class="px-1.5 py-0.2 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 font-mono font-bold text-[9px]">▲+${delta} Masuk</span>`;
+        return `<span class="text-slate-400 font-mono text-[9px] font-medium">0 Tetap</span>`;
+      };
+
+      tooltip.innerHTML = `
+        <div class="font-black text-teal-400 text-xs border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5">
+            <span>${titleText}</span>
+            ${pinBadge}
           </div>
-        ` : ''}
-        <div class="pt-0.5 text-[10px] text-slate-400 font-medium">
-          MTs ${pData.mts} • SMP ${pData.smp} • MA ${pData.ma} • SMA ${pData.sma}
+          <div class="flex items-center gap-1.5">
+            <span class="text-white font-mono font-bold">${pData.total} Siswa</span>
+            ${closeBtn}
+          </div>
         </div>
-      </div>
-    `;
+        <div class="space-y-1 text-[11px]">
+          <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Analisa Rincian 4 Unit:</div>
+          <div class="flex items-center justify-between gap-2 p-1 rounded bg-slate-900/80 border border-emerald-500/40">
+            <span class="flex items-center gap-1.5 text-emerald-300 font-bold">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>MTs: ${pData.mts} Siswa</span>
+            </span>
+            ${getUnitBadge(pData.mtsDelta, pData.mtsMasuk, pData.mtsBoyong)}
+          </div>
+          <div class="flex items-center justify-between gap-2 p-1 rounded bg-slate-900/80 border border-sky-500/40">
+            <span class="flex items-center gap-1.5 text-sky-300 font-bold">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+              <span>SMP: ${pData.smp} Siswa</span>
+            </span>
+            ${getUnitBadge(pData.smpDelta, pData.smpMasuk, pData.smpBoyong)}
+          </div>
+          <div class="flex items-center justify-between gap-2 p-1 rounded bg-slate-900/80 border border-amber-500/40">
+            <span class="flex items-center gap-1.5 text-amber-300 font-bold">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span>MA: ${pData.ma} Siswa</span>
+            </span>
+            ${getUnitBadge(pData.maDelta, pData.maMasuk, pData.maBoyong)}
+          </div>
+          <div class="flex items-center justify-between gap-2 p-1 rounded bg-slate-900/80 border border-orange-500/40">
+            <span class="flex items-center gap-1.5 text-orange-300 font-bold">
+              <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+              <span>SMA: ${pData.sma} Siswa</span>
+            </span>
+            ${getUnitBadge(pData.smaDelta, pData.smaMasuk, pData.smaBoyong)}
+          </div>
+          <div class="pt-0.5 text-[9px] text-slate-400 border-t border-slate-800 text-center">
+            ${pData.totalDelta !== 0 ? `<b class="${pData.totalDelta < 0 ? 'text-rose-400' : 'text-emerald-400'}">Netto Mutasi: ${pData.totalDelta > 0 ? '+' : ''}${pData.totalDelta} Siswa</b>` : 'Kondisi Jumlah Santri Stabil'}
+          </div>
+          ${footerHint}
+        </div>
+      `;
+    } else {
+      tooltip.innerHTML = `
+        <div class="font-black text-teal-400 text-xs border-b border-slate-700 pb-1 mb-1.5 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5">
+            <span>${titleText}</span>
+            ${pinBadge}
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-white font-mono font-bold">${pData.total} Siswa</span>
+            ${closeBtn}
+          </div>
+        </div>
+        <div class="space-y-1 text-[11px]">
+          <div class="flex items-center justify-between gap-3 text-teal-300 font-bold border-b border-slate-800/80 pb-0.5">
+            <span class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+              <span>Mondok (Mukim):</span>
+            </span>
+            <span class="font-mono">${pData.mukim} (${pData.mukimPct}%)${pData.mukimDelta !== 0 ? ` <span class="${pData.mukimDelta > 0 ? 'text-emerald-400' : 'text-rose-400'}">${mukimSign}${pData.mukimDelta}</span>` : ''}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3 text-amber-300 font-bold border-b border-slate-800/80 pb-0.5">
+            <span class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span>Bajak (Non-Mukim):</span>
+            </span>
+            <span class="font-mono">${pData.nonMukim} (${pData.nonMukimPct}%)${pData.nonMukimDelta !== 0 ? ` <span class="${pData.nonMukimDelta > 0 ? 'text-emerald-400' : 'text-rose-400'}">${nonSign}${pData.nonMukimDelta}</span>` : ''}</span>
+          </div>
+          ${pData.alihMondokToNon > 0 ? `
+            <div class="p-1 px-1.5 rounded bg-amber-950/80 border border-amber-600/60 text-amber-200 text-[10px] font-bold flex items-center justify-between">
+              <span class="flex items-center gap-1">
+                <i data-lucide="arrow-right-left" class="w-3 h-3 text-amber-400"></i>
+                <span>Alih Mondok ➔ Bajak:</span>
+              </span>
+              <span class="font-mono">${pData.alihMondokToNon} Santri (${pData.alihPct}%)</span>
+            </div>
+          ` : ''}
+          <div class="p-1 rounded bg-slate-900/90 border border-slate-700/60 text-[9px] font-mono flex items-center justify-between">
+            <span class="text-emerald-400 font-bold">MTs ${pData.mts}</span>
+            <span class="text-sky-400 font-bold">SMP ${pData.smp}</span>
+            <span class="text-amber-400 font-bold">MA ${pData.ma}</span>
+            <span class="text-orange-400 font-bold">SMA ${pData.sma}</span>
+          </div>
+          ${footerHint}
+        </div>
+      `;
+    }
+
+    // Perhitungan Posisi Tooltip yang Mepet dan Presisi ke Titik Bulan
+    if (typeof svgX !== 'number') {
+      const pIdx = periodsDataCache.findIndex(d => d.key === key);
+      svgX = pIdx >= 0 ? getXCache(pIdx) : 390;
+    }
 
     const rect = container.getBoundingClientRect();
-    const clientX = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : rect.left + rect.width / 2);
-    const clientY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : rect.top + rect.height / 2);
+    const svgW = 780;
+    const scale = rect.width / svgW;
+    const screenX = svgX * scale;
+    const tooltipWidth = 230;
 
-    let left = clientX - rect.left + 10;
-    let top = clientY - rect.top - 95;
+    // Posisi horizontal mepet ke kolom bulan aktif (hanya jarak 8px!)
+    let left;
+    if (screenX > rect.width * 0.52) {
+      left = screenX - tooltipWidth - 8;
+    } else {
+      left = screenX + 8;
+    }
 
-    if (left + 190 > rect.width) left = clientX - rect.left - 195;
-    if (top < 10) top = 10;
+    if (left < 6) left = 6;
+    if (left + tooltipWidth > rect.width - 6) left = rect.width - tooltipWidth - 6;
 
-    tooltip.style.left = `${left}px`;
+    // Posisi vertikal mepet di area tengah-atas kanvas
+    const top = 16;
+
+    tooltip.style.left = `${Math.round(left)}px`;
     tooltip.style.top = `${top}px`;
     tooltip.classList.remove('hidden');
-    if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+
+    if (isPinned) {
+      tooltip.classList.remove('pointer-events-none');
+      tooltip.classList.add('pointer-events-auto');
+    } else {
+      tooltip.classList.add('pointer-events-none');
+      tooltip.classList.remove('pointer-events-auto');
+    }
+
+    // Aktifkan garis panduan vertikal pada kolom bulan ini
+    document.querySelectorAll('[id^="studentChartGuide_"]').forEach(el => {
+      if (el.id === `studentChartGuide_${key}`) {
+        el.setAttribute('opacity', isPinned ? '1' : '0.85');
+        el.setAttribute('stroke', isPinned ? '#14b8a6' : '#0d9488');
+        el.setAttribute('stroke-width', isPinned ? '2.2' : '1.8');
+      } else {
+        el.setAttribute('opacity', '0');
+      }
+    });
+
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+      lucide.createIcons();
+    }
   }
 
-  function hideStudentChartTooltip() {
+  function hideStudentChartTooltip(force = false) {
+    if (!force && pinnedStudentChartKey) {
+      showStudentChartTooltip(pinnedStudentChartKey, null, false);
+      return;
+    }
+
     const tooltip = document.getElementById('studentChartTooltip');
-    if (tooltip) tooltip.classList.add('hidden');
+    if (tooltip) {
+      tooltip.classList.add('hidden');
+      tooltip.classList.add('pointer-events-none');
+      tooltip.classList.remove('pointer-events-auto');
+    }
+    document.querySelectorAll('[id^="studentChartGuide_"]').forEach(el => el.setAttribute('opacity', '0'));
+    activeStudentChartKey = null;
+  }
+
+  function unpinStudentChartTooltip(event) {
+    if (event && event.stopPropagation) {
+      event.stopPropagation();
+    }
+    pinnedStudentChartKey = null;
+    activeStudentChartKey = null;
+    hideStudentChartTooltip(true);
   }
 
   function downloadBeritaAcaraRapatExcel() {
@@ -4443,8 +4937,10 @@
   window.renderSantriTrendAnalytics = renderSantriTrendAnalytics;
   window.renderMonthlyStudentLineChart = renderMonthlyStudentLineChart;
   window.switchStudentChartMode = switchStudentChartMode;
+  window.setUnitChartFocus = setUnitChartFocus;
   window.showStudentChartTooltip = showStudentChartTooltip;
   window.hideStudentChartTooltip = hideStudentChartTooltip;
+  window.unpinStudentChartTooltip = unpinStudentChartTooltip;
   window.updatePeriodHeaderUI = updatePeriodHeaderUI;
   window.onComparisonBasePeriodChange = onComparisonBasePeriodChange;
   window.toggleLockCurrentPeriod = toggleLockCurrentPeriod;
