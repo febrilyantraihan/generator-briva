@@ -760,6 +760,9 @@
 
   window.switchJurnalSubTab = function(tabName) {
     currentJurnalSubTab = tabName;
+    if (!window.isBackNavigating && tabName !== 'beranda' && typeof window.pushBackGuardState === 'function') {
+      window.pushBackGuardState('jurnal_sub_' + tabName);
+    }
     const subTabs = ['beranda', 'materi', 'kelas', 'presensi', 'jadwal', 'penilaian', 'rekap', 'slide', 'perangkat'];
     subTabs.forEach(t => {
       const btn = document.getElementById('jurnalSubTabBtn_' + t);
@@ -1174,6 +1177,7 @@
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
@@ -2510,6 +2514,7 @@
     }
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
+    if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_manage_jadwal');
 
     if (editId) {
       const item = (jurnalState.schedules || []).find(s => s.id === editId);
@@ -2893,6 +2898,7 @@
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
   };
 
@@ -3035,6 +3041,7 @@
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
       generateWaFormat('sesi');
     }
   };
@@ -3183,6 +3190,7 @@ _Catatan: Nilai harian & poin keaktifan telah diakumulasikan sebagai nilai tamba
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
 
     // Load saved API key
@@ -4101,6 +4109,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
