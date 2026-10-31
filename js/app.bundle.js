@@ -638,6 +638,10 @@
           document.documentElement.style.overflow = 'hidden';
           if (mc) mc.style.overflow = 'hidden';
           if (appContainer) appContainer.style.overflow = 'hidden';
+
+          if (!isBackNavigating && typeof pushBackGuardState === 'function') {
+            pushBackGuardState('drawer');
+          }
         } else {
           sidebar.classList.add('-translate-x-full');
           sidebar.classList.remove('translate-x-0');
@@ -1082,6 +1086,9 @@
       }
       activeTab = tabId;
       try { localStorage.setItem('partner_fatih_last_tab', tabId); } catch(e) {}
+      if (!isBackNav && typeof pushBackGuardState === 'function') {
+        pushBackGuardState('tab_' + tabId);
+      }
 
       // Update Mobile Header Immediately
       const tabMetaShort = {
@@ -1485,33 +1492,40 @@ if (t === 'keuangan') {
     function initSmartBackNavigation() {
       if (!window.history || !window.history.pushState) return;
 
-      // Trap awal browser history agar event popstate dapat dicegat
-      pushBackTrapState();
+      // Inisialisasi state dasar & guard state agar popstate langsung mengikat tombol back browser/HP
+      try {
+        window.history.replaceState({ appNav: true, reason: 'root_base', t: Date.now() }, document.title, window.location.href);
+        window.history.pushState({ appNav: true, reason: 'root_guard', t: Date.now() }, document.title, window.location.href);
+      } catch (e) {}
 
       window.addEventListener('popstate', function(event) {
         handleAppBackNavigation();
       });
     }
 
-    function pushBackTrapState() {
+    function pushBackGuardState(reason, detail) {
+      if (isBackNavigating) return;
       try {
         if (window.history && window.history.pushState) {
-          window.history.pushState({ appNavLevel: 1, timestamp: Date.now() }, document.title, window.location.href);
+          window.history.pushState({ appNav: true, reason: reason || 'guard', detail: detail || null, t: Date.now() }, document.title, window.location.href);
         }
       } catch (e) {}
     }
+    const pushBackTrapState = pushBackGuardState;
 
     function handleAppBackNavigation() {
       // 1. LAPIS 1: Tutup Mobile Drawer Samping jika sedang terbuka
       if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
+        isBackNavigating = true;
         toggleMobileDrawer(false);
-        pushBackTrapState();
+        isBackNavigating = false;
+        pushBackGuardState('drawer_closed');
         return;
       }
 
       // 2. LAPIS 2: Tutup Modal / Dialog / Popup yang sedang aktif di SEMUA tab
       if (tryCloseActiveModal()) {
-        pushBackTrapState();
+        pushBackGuardState('modal_closed');
         return;
       }
 
@@ -1520,9 +1534,11 @@ if (t === 'keuangan') {
       // (a) Tab Jurnal Guru: jika sedang membuka sub-tab selain 'beranda'
       if (activeTab === 'jurnal' && typeof currentJurnalSubTab !== 'undefined' && currentJurnalSubTab !== 'beranda') {
         if (typeof switchJurnalSubTab === 'function') {
+          isBackNavigating = true;
           switchJurnalSubTab('beranda');
+          isBackNavigating = false;
           if (typeof showToast === 'function') showToast('Jurnal Guru', 'Kembali ke Beranda Jurnal');
-          pushBackTrapState();
+          pushBackGuardState('jurnal_beranda');
           return;
         }
       }
@@ -1530,9 +1546,11 @@ if (t === 'keuangan') {
       // (b) Tab Akun PPDB: jika sedang di sub-tab selain 'ortu'
       if (activeTab === 'akun' && typeof currentPpdbActiveSubtab !== 'undefined' && currentPpdbActiveSubtab !== 'ortu') {
         if (typeof switchPpdbSubtab === 'function') {
+          isBackNavigating = true;
           switchPpdbSubtab('ortu');
+          isBackNavigating = false;
           if (typeof showToast === 'function') showToast('Akun PPDB', 'Kembali ke Data Orang Tua');
-          pushBackTrapState();
+          pushBackGuardState('ppdb_ortu');
           return;
         }
       }
@@ -1543,7 +1561,7 @@ if (t === 'keuangan') {
         if (typeof toggleTahfidzMasterTable === 'function') {
           toggleTahfidzMasterTable(false);
           if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Menutup Database Santri');
-          pushBackTrapState();
+          pushBackGuardState('tahfidz_panel_closed');
           return;
         }
       }
@@ -1553,7 +1571,7 @@ if (t === 'keuangan') {
         if (typeof switchTahfidzSubView === 'function') {
           switchTahfidzSubView('generator');
           if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Kembali ke Generator Sertifikat');
-          pushBackTrapState();
+          pushBackGuardState('tahfidz_generator');
           return;
         }
       }
@@ -1564,7 +1582,7 @@ if (t === 'keuangan') {
         if (typeof clearTahfidzSearch === 'function') {
           clearTahfidzSearch();
           if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Pencarian santri direset');
-          pushBackTrapState();
+          pushBackGuardState('tahfidz_search_cleared');
           return;
         }
       }
@@ -1574,7 +1592,7 @@ if (t === 'keuangan') {
       if (activeTab === 'humas' && humasTaskForm && !humasTaskForm.classList.contains('hidden')) {
         if (typeof toggleHumasTaskAddForm === 'function') {
           toggleHumasTaskAddForm();
-          pushBackTrapState();
+          pushBackGuardState('humas_form_closed');
           return;
         }
       }
@@ -1586,7 +1604,7 @@ if (t === 'keuangan') {
         if (filterSelect) filterSelect.value = 'all';
         if (typeof renderHumasTable === 'function') renderHumasTable();
         if (typeof showToast === 'function') showToast('Humas & Sosmed', 'Filter kategori dikembalikan ke Semua Agenda');
-        pushBackTrapState();
+        pushBackGuardState('humas_filter_reset');
         return;
       }
 
@@ -1596,31 +1614,41 @@ if (t === 'keuangan') {
         humasSearch.value = '';
         if (typeof renderHumasTable === 'function') renderHumasTable();
         if (typeof showToast === 'function') showToast('Humas & Sosmed', 'Pencarian agenda dibersihkan');
-        pushBackTrapState();
+        pushBackGuardState('humas_search_cleared');
         return;
       }
 
-      // (i) Tab Template WhatsApp: jika memilih template selain 'syahriyah'
+      // (i) Tab Rekap Santri: jika ada pencarian santri aktif
+      const santriSearch = document.getElementById('santriSearchInput');
+      if (activeTab === 'rekap_santri' && santriSearch && santriSearch.value.trim() !== '') {
+        santriSearch.value = '';
+        santriSearch.dispatchEvent(new Event('input'));
+        if (typeof showToast === 'function') showToast('Rekap Santri', 'Pencarian santri dibersihkan');
+        pushBackGuardState('santri_search_cleared');
+        return;
+      }
+
+      // (j) Tab Template WhatsApp: jika memilih template selain 'syahriyah'
       if (activeTab === 'wa' && typeof currentWaTemplateId !== 'undefined' && currentWaTemplateId !== 'syahriyah') {
         if (typeof selectWaTemplate === 'function') {
           selectWaTemplate('syahriyah');
           if (typeof showToast === 'function') showToast('Template WhatsApp', 'Kembali ke Template Tagihan Syahriyah');
-          pushBackTrapState();
+          pushBackGuardState('wa_syahriyah');
           return;
         }
       }
 
-      // (j) Tab Panggil Tagihan: jika memilih kategori selain 'bulanan'
+      // (k) Tab Panggil Tagihan: jika memilih kategori selain 'bulanan'
       if (activeTab === 'panggil' && typeof singleSelectedCategory !== 'undefined' && singleSelectedCategory !== 'bulanan') {
         if (typeof switchSingleCategory === 'function') {
           switchSingleCategory('bulanan');
           if (typeof showToast === 'function') showToast('Panggil Tagihan', 'Kembali ke Kategori Bulanan');
-          pushBackTrapState();
+          pushBackGuardState('panggil_bulanan');
           return;
         }
       }
 
-      // 4. LAPIS 4: Riwayat Antar-Tab (Tab Navigation Stack Seluruh 11 Tab)
+      // 4. LAPIS 4: Riwayat Antar-Tab (Tab Navigation Stack Seluruh 17 Tab)
       if (tabNavHistory.length > 0) {
         const prevTab = tabNavHistory.pop();
         if (prevTab && prevTab !== activeTab) {
@@ -1632,11 +1660,13 @@ if (t === 'keuangan') {
               humas: 'Humas & Sosmed', tahfidz: 'Tahfidz Tasmi\'', briva: 'Generator BRIVA',
               akun: 'Generator Akun', konverter: 'Konverter Excel', panggil: 'Panggil Tagihan',
               katalog: 'Katalog Biaya', pembersih: 'Pembersih & SUM', panduan: 'Panduan Excel',
-              wa: 'Template WA', jurnal: 'Jurnal Guru'
+              wa: 'Template WA', jurnal: 'Jurnal Guru', keuangan: 'Keuangan Pintar',
+              cbt: 'Soal CBT & Kunci', ide: 'Laboratorium Ide', rekap_junio: 'Rekap Junio',
+              bisnis: 'Inkubator Bisnis', rekap_santri: 'Rekap Santri'
             };
-            showToast('Navigasi Tab', 'Kembali ke tab ' + (tabNames[prevTab] || prevTab));
+            showToast('Navigasi Tab', 'Kembali ke ' + (tabNames[prevTab] || prevTab));
           }
-          pushBackTrapState();
+          pushBackGuardState('tab_' + prevTab);
           return;
         }
       } else {
@@ -1648,15 +1678,15 @@ if (t === 'keuangan') {
           if (typeof showToast === 'function') {
             showToast('Navigasi Beranda', 'Kembali ke Beranda Utama');
           }
-          pushBackTrapState();
+          pushBackGuardState('tab_root');
           return;
         }
       }
 
       // 5. LAPIS 5: Tampilan Paling Awal (Root Screen) -> Proteksi Keluar Double-Tap
       const now = Date.now();
-      if (now - lastBackPressTime < 2000) {
-        // Pengguna menekan Back 2x berturut-turut dalam 2 detik -> Izinkan keluar
+      if (now - lastBackPressTime < 2500) {
+        // Pengguna menekan Back 2x berturut-turut dalam 2.5 detik -> Izinkan keluar
         if (typeof showToast === 'function') {
           showToast('Partner Fatih', 'Keluar dari aplikasi...');
         }
@@ -1668,113 +1698,135 @@ if (t === 'keuangan') {
               window.close();
             }
           } catch (e) {}
-        }, 350);
+        }, 250);
       } else {
         lastBackPressTime = now;
         if (typeof showToast === 'function') {
           showToast('Keluar Aplikasi', 'Tekan sekali lagi untuk keluar dari aplikasi');
         }
-        pushBackTrapState();
+        pushBackGuardState('root_exit_guard');
       }
     }
 
     function tryCloseActiveModal() {
-      // 1. Modul Jurnal Guru
-      const jurnalScanner = document.getElementById('jurnalAiScannerModal');
-      if (jurnalScanner && !jurnalScanner.classList.contains('hidden') && jurnalScanner.style.display !== 'none') {
-        if (typeof closeJurnalAiScannerModal === 'function') closeJurnalAiScannerModal();
+      // 1. Modul Panduan PWA & Update
+      const pwaGuide = document.getElementById('modalPwaInstallGuide');
+      if (pwaGuide && !pwaGuide.classList.contains('hidden') && pwaGuide.style.display !== 'none') {
+        if (typeof closePwaInstallGuideModal === 'function') closePwaInstallGuideModal();
         return true;
       }
-      const jurnalQuiz = document.getElementById('jurnalAiQuizModal');
-      if (jurnalQuiz && !jurnalQuiz.classList.contains('hidden') && jurnalQuiz.style.display !== 'none') {
-        if (typeof closeJurnalAiQuizModal === 'function') closeJurnalAiQuizModal();
-        return true;
-      }
-      const jurnalWa = document.getElementById('jurnalWaModal');
-      if (jurnalWa && !jurnalWa.classList.contains('hidden') && jurnalWa.style.display !== 'none') {
-        if (typeof closeJurnalWaModal === 'function') closeJurnalWaModal();
-        return true;
-      }
-      const jurnalDetail = document.getElementById('jurnalDetailModal');
-      if (jurnalDetail && !jurnalDetail.classList.contains('hidden') && jurnalDetail.style.display !== 'none') {
-        if (typeof closeJurnalDetailModal === 'function') closeJurnalDetailModal();
-        return true;
-      }
-      const jurnalVoice = document.getElementById('jurnalVoiceAnswerCard');
-      if (jurnalVoice && !jurnalVoice.classList.contains('hidden') && jurnalVoice.style.display !== 'none') {
-        if (typeof closeJurnalVoiceAnswerCard === 'function') closeJurnalVoiceAnswerCard();
+      const appUpdate = document.getElementById('appUpdateModal');
+      if (appUpdate && !appUpdate.classList.contains('hidden') && appUpdate.style.display !== 'none') {
+        if (typeof dismissAppUpdateModal === 'function') dismissAppUpdateModal();
         return true;
       }
 
-      // 2. Modul Humas & Sosmed
-      const humasEdit = document.getElementById('modalEditProgram');
-      if (humasEdit && !humasEdit.classList.contains('hidden') && humasEdit.style.display !== 'none') {
-        if (typeof closeModalEditProgram === 'function') closeModalEditProgram();
-        return true;
-      }
-      const humasAdd = document.getElementById('modalAddProgram');
-      if (humasAdd && !humasAdd.classList.contains('hidden') && humasAdd.style.display !== 'none') {
-        if (typeof closeModalAddProgram === 'function') closeModalAddProgram();
-        return true;
-      }
-      const humasImport = document.getElementById('modalHumasBulkImport');
-      if (humasImport && !humasImport.classList.contains('hidden') && humasImport.style.display !== 'none') {
-        if (typeof closeModalHumasBulkImport === 'function') closeModalHumasBulkImport();
-        return true;
-      }
-      const humasRangkuman = document.getElementById('modalHumasRangkumanPeringatan') || document.getElementById('modalRangkumanPeringatan');
-      if (humasRangkuman && !humasRangkuman.classList.contains('hidden') && humasRangkuman.style.display !== 'none') {
-        if (typeof closeModalRangkumanPeringatan === 'function') closeModalRangkumanPeringatan();
-        return true;
-      }
-      const humasMetric = document.getElementById('humasMetricDetailModal');
-      if (humasMetric && !humasMetric.classList.contains('hidden') && humasMetric.style.display !== 'none') {
-        if (typeof closeHumasMetricDetailModal === 'function') closeHumasMetricDetailModal();
-        return true;
-      }
-      const humasSupa = document.getElementById('modalSupabaseConfig');
-      if (humasSupa && !humasSupa.classList.contains('hidden') && humasSupa.style.display !== 'none') {
-        if (typeof closeModalSupabaseConfig === 'function') closeModalSupabaseConfig();
-        return true;
+      // 2. Modul Jurnal Guru (Semua Modal Jurnal)
+      const jurnalModals = [
+        { id: 'modalJurnalDetail', fn: 'closeJurnalDetailModal' },
+        { id: 'modalJurnalAiScanner', fn: 'closeJurnalAiScannerModal' },
+        { id: 'modalJurnalAiQuiz', fn: 'closeJurnalAiQuizModal' },
+        { id: 'modalJurnalWa', fn: 'closeJurnalWaModal' },
+        { id: 'modalManageJadwalMengajar', fn: 'closeManageJadwalModal' },
+        { id: 'modalManageStudents', fn: 'closeManageStudentsModal' },
+        { id: 'modalJurnalCloudSync', fn: 'closeJurnalCloudSyncModal' },
+        { id: 'modalSlideFullScreenPresenter', fn: 'closeSlideFullScreen' },
+        { id: 'jurnalVoiceAnswerCard', fn: 'closeJurnalVoiceAnswerCard' }
+      ];
+      for (let i = 0; i < jurnalModals.length; i++) {
+        const item = jurnalModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
       }
 
-      // 3. Modul Tahfidz
-      const tahfidzModal = document.getElementById('tahfidzStudentModal');
-      if (tahfidzModal && !tahfidzModal.classList.contains('hidden') && tahfidzModal.style.display !== 'none') {
-        if (typeof closeTahfidzStudentModal === 'function') closeTahfidzStudentModal();
-        return true;
+      // 3. Modul Humas & Sosmed
+      const humasModals = [
+        { id: 'modalHumasEditProgram', fn: 'closeModalEditProgram' },
+        { id: 'modalEditProgram', fn: 'closeModalEditProgram' },
+        { id: 'modalHumasAddProgram', fn: 'closeModalAddProgram' },
+        { id: 'modalAddProgram', fn: 'closeModalAddProgram' },
+        { id: 'modalHumasBulkImport', fn: 'closeModalHumasBulkImport' },
+        { id: 'modalHumasMetricDetail', fn: 'closeHumasMetricDetailModal' },
+        { id: 'modalHumasRangkumanPeringatan', fn: 'closeModalRangkumanPeringatan' },
+        { id: 'modalRangkumanPeringatan', fn: 'closeModalRangkumanPeringatan' },
+        { id: 'modalHumasTaskEdit', fn: 'closeModalTaskEdit' },
+        { id: 'modalSupabaseConfig', fn: 'closeModalSupabaseConfig' }
+      ];
+      for (let i = 0; i < humasModals.length; i++) {
+        const item = humasModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
       }
 
-      // 4. Modul Katalog
-      const catImg = document.getElementById('catalogImageModal');
-      if (catImg && !catImg.classList.contains('hidden') && catImg.style.display !== 'none') {
-        if (typeof closeCatalogImageModal === 'function') closeCatalogImageModal();
-        return true;
-      }
-      const briModal = document.getElementById('briCodeModal');
-      if (briModal && !briModal.classList.contains('hidden') && briModal.style.display !== 'none') {
-        if (typeof closeBriCodeModal === 'function') closeBriCodeModal();
-        return true;
-      }
-
-      // 5. Modul Akun PPDB & BRIVA
-      const ppdbBriva = document.getElementById('ppdbBulkSetBrivaModal');
-      if (ppdbBriva && !ppdbBriva.classList.contains('hidden') && ppdbBriva.style.display !== 'none') {
-        if (typeof closePpdbBulkSetBrivaModal === 'function') closePpdbBulkSetBrivaModal();
-        return true;
-      }
-      const confMukim = document.getElementById('confirmMukimModal');
-      if (confMukim && !confMukim.classList.contains('hidden') && confMukim.style.display !== 'none') {
-        if (typeof closeConfirmMukimModal === 'function') closeConfirmMukimModal();
-        return true;
+      // 4. Modul Rekap Santri (Tab 17)
+      const santriModals = [
+        { id: 'modalEditSantri', fn: 'closeModalEditSantri' },
+        { id: 'modalCatatMutasi', fn: 'closeModalCatatMutasi' },
+        { id: 'modalPilihGenderSantri', fn: 'closeModalPilihGenderSantri' },
+        { id: 'modalPilihStatusSantri', fn: 'closeModalPilihStatusSantri' },
+        { id: 'modalTagihanJunio', fn: 'closeModalTagihanJunio' },
+        { id: 'modalTambahPeriode', fn: 'closeModalTambahPeriode' },
+        { id: 'modalPengesahanRapatRekonsiliasi', fn: 'closeModalPengesahanRapat' }
+      ];
+      for (let i = 0; i < santriModals.length; i++) {
+        const item = santriModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
       }
 
-      // 6. Generic Fallback untuk semua elemen modal dengan class fixed / backdrop
-      const anyModals = document.querySelectorAll('[id^="modal"], [id$="Modal"], .modal-portal');
+      // 5. Modul Rekap Junio & Keuangan Pribadi & Bisnis & Ide
+      const otherAppModals = [
+        { id: 'modalJunioPdf', fn: 'closeModalJunioPdf' },
+        { id: 'modalJunioWa', fn: 'closeModalJunioWa' },
+        { id: 'modalTambahTransaksi', fn: 'closeModalTambahTransaksi' },
+        { id: 'modalTransferKantong', fn: 'closeModalTransferKantong' },
+        { id: 'modalAturSaldo', fn: 'closeModalAturSaldo' },
+        { id: 'modalGeminiKey', fn: 'closeModalGeminiKey' },
+        { id: 'modalIncomeIdeas', fn: 'closeModalIncomeIdeas' },
+        { id: 'modalScanStruk', fn: 'closeModalScanStruk' },
+        { id: 'modalVoiceKeuangan', fn: 'closeModalVoiceKeuangan' },
+        { id: 'modalAddWarung', fn: 'closeModalAddWarung' },
+        { id: 'modalCashflow', fn: 'closeModalCashflow' },
+        { id: 'modalKunjungan', fn: 'closeModalKunjungan' },
+        { id: 'modalIdeForm', fn: 'closeModalIdeForm' },
+        { id: 'modalIdePitch', fn: 'closeModalIdePitch' },
+        { id: 'tahfidzStudentEditModal', fn: 'closeTahfidzStudentModal' },
+        { id: 'tahfidzStudentModal', fn: 'closeTahfidzStudentModal' },
+        { id: 'modalPpdbBulkBriva', fn: 'closePpdbBulkSetBrivaModal' },
+        { id: 'modalConfirmMukimStatus', fn: 'closeConfirmMukimModal' },
+        { id: 'modalBriCodes', fn: 'closeBriCodeModal' },
+        { id: 'modalKatalogImagePreview', fn: 'closeCatalogImageModal' },
+        { id: 'modalVoiceBillingResult', fn: 'closeVoiceBillingModal' }
+      ];
+      for (let i = 0; i < otherAppModals.length; i++) {
+        const item = otherAppModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
+      }
+
+      // 6. Universal Dynamic Fallback: Cari SEMUA overlay fixed modal yang sedang tampak di layar
+      const anyModals = document.querySelectorAll('[id^="modal"], [id$="Modal"], .modal-portal, [role="dialog"], .fixed.inset-0');
       for (let i = 0; i < anyModals.length; i++) {
         const m = anyModals[i];
-        if (m && !m.classList.contains('hidden') && m.style.display !== 'none') {
-          const closeBtn = m.querySelector('button[onclick*="close"], button[aria-label*="close" i], .modal-close');
+        if (m.id === 'appPreloader' || m.id === 'appSidebar' || m.id === 'drawerBackdrop' || m.id === 'mobileBottomNav') continue;
+        if (m && !m.classList.contains('hidden') && m.style.display !== 'none' && (m.offsetWidth > 0 || m.offsetHeight > 0)) {
+          const closeBtn = m.querySelector('button[onclick*="close" i], button[onclick*="tutup" i], button[aria-label*="close" i], .modal-close, button.close');
           if (closeBtn) {
             closeBtn.click();
             return true;
@@ -1789,7 +1841,8 @@ if (t === 'keuangan') {
     }
     window.initSmartBackNavigation = initSmartBackNavigation;
     window.handleAppBackNavigation = handleAppBackNavigation;
-    window.pushBackTrapState = pushBackTrapState;
+    window.pushBackGuardState = pushBackGuardState;
+    window.pushBackTrapState = pushBackGuardState;
 
     /**
      * =========================================================================
@@ -15695,32 +15748,42 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       deferredPwaPrompt = e;
       const installBtn = document.getElementById('pwaInstallBtn');
       if (installBtn) installBtn.classList.remove('hidden');
+      const drawerCard = document.getElementById('drawerPwaInstallCard');
+      if (drawerCard) drawerCard.classList.remove('hidden');
     });
 
     window.addEventListener('appinstalled', () => {
       deferredPwaPrompt = null;
       const installBtn = document.getElementById('pwaInstallBtn');
       if (installBtn) installBtn.classList.add('hidden');
+      const drawerCard = document.getElementById('drawerPwaInstallCard');
+      if (drawerCard) drawerCard.classList.add('hidden');
       if (typeof showToast === 'function') {
         showToast('Aplikasi Terpasang!', 'Partner Fatih YTPAI telah berhasil dipasang di layar utama perangkat Anda.');
       }
     });
 
     function checkStandalonePwa() {
-      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        const installBtn = document.getElementById('pwaInstallBtn');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const installBtn = document.getElementById('pwaInstallBtn');
+      const drawerCard = document.getElementById('drawerPwaInstallCard');
+      if (isStandalone) {
         if (installBtn) installBtn.classList.add('hidden');
+        if (drawerCard) drawerCard.classList.add('hidden');
+      } else {
+        if (installBtn) installBtn.classList.remove('hidden');
+        if (drawerCard) drawerCard.classList.remove('hidden');
       }
     }
     checkStandalonePwa();
     window.addEventListener('DOMContentLoaded', checkStandalonePwa);
 
-        function triggerPwaInstall() {
+    function triggerPwaInstall() {
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         if (typeof showToast === 'function') {
-          showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+          showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di HP Anda (layar penuh tanpa URL).');
         } else {
-          alert('Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+          alert('Partner Fatih sudah aktif dalam mode aplikasi mandiri di HP Anda (layar penuh tanpa URL).');
         }
         return;
       }
@@ -15735,13 +15798,31 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
           deferredPwaPrompt = null;
         });
       } else {
-        if (typeof showToast === 'function') {
-          showToast("Pasang Aplikasi", 'Tekan menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
-        } else {
-          alert('Untuk memasang di HP atau desktop, buka menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
-        }
+        openPwaInstallGuideModal();
       }
     }
+
+    function openPwaInstallGuideModal() {
+      const modal = document.getElementById('modalPwaInstallGuide');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        if (typeof safeCreateIcons === 'function') safeCreateIcons();
+        else if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+        if (typeof pushBackGuardState === 'function') pushBackGuardState('modal_pwa_guide');
+      }
+    }
+
+    function closePwaInstallGuideModal() {
+      const modal = document.getElementById('modalPwaInstallGuide');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+    window.openPwaInstallGuideModal = openPwaInstallGuideModal;
+    window.closePwaInstallGuideModal = closePwaInstallGuideModal;
+    window.triggerPwaInstall = triggerPwaInstall;
 
     // ==========================================================================
     // GLOBAL MASTER SYNC: SINKRONISASI SATU KLIK SELURUH TAB & CLOUD SUPABASE
@@ -27817,6 +27898,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -28578,6 +28662,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 
   window.switchJurnalSubTab = function(tabName) {
     currentJurnalSubTab = tabName;
+    if (!window.isBackNavigating && tabName !== 'beranda' && typeof window.pushBackGuardState === 'function') {
+      window.pushBackGuardState('jurnal_sub_' + tabName);
+    }
     const subTabs = ['beranda', 'materi', 'kelas', 'presensi', 'jadwal', 'penilaian', 'rekap', 'slide', 'perangkat'];
     subTabs.forEach(t => {
       const btn = document.getElementById('jurnalSubTabBtn_' + t);
@@ -28992,6 +29079,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
@@ -30328,6 +30416,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     }
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
+    if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_manage_jadwal');
 
     if (editId) {
       const item = (jurnalState.schedules || []).find(s => s.id === editId);
@@ -30711,6 +30800,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
   };
 
@@ -30853,6 +30943,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
       generateWaFormat('sesi');
     }
   };
@@ -31001,6 +31092,7 @@ _Catatan: Nilai harian & poin keaktifan telah diakumulasikan sebagai nilai tamba
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
 
     // Load saved API key
@@ -31919,6 +32011,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
@@ -40468,6 +40561,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42388,6 +42484,15 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
+
+
+
+
+
+
 
 
 
@@ -81412,14 +81517,14 @@ if (typeof window !== "undefined") {
     }
 
     // 3. Setup SVG Canvas: Luas, Bersih, dan Sederhana
-    const padL = 80;
-    const padR = 60;
-    const padT = 28;
-    const padB = 30;
+    const padL = 75;
+    const padR = 55;
+    const padT = 32;
+    const padB = 40;
     const svgW = 780;
-    const svgH = 226;
-    const plotW = svgW - padL - padR; // 640px
-    const plotH = svgH - padT - padB; // 168px
+    const svgH = 330;
+    const plotW = svgW - padL - padR; // 650px
+    const plotH = svgH - padT - padB; // 258px
 
     const count = periodsData.length;
     const getX = (idx) => count === 1 ? padL + plotW / 2 : padL + (idx / (count - 1)) * plotW;
@@ -81489,34 +81594,34 @@ if (typeof window !== "undefined") {
       svgInner += `<path d="${mukimAreaD}" fill="url(#gradAreaEmerald)" />`;
 
       // Render Clean Lines
-      svgInner += `<path d="${totalLineD}" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
-      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#10b981" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowEmerald)" />`;
-      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="4,3" />`;
+      svgInner += `<path d="${totalLineD}" fill="none" stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
+      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowEmerald)" />`;
+      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="5,3" />`;
 
       // 1. Bajak Points & Tags (Simpel & Rapi)
       bajakPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" />
-          <rect x="${p.x - 30}" y="${p.y - 19}" width="60" height="15" rx="3" class="fill-amber-900/90 dark:fill-amber-950/95" />
-          <text x="${p.x}" y="${p.y - 8.5}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[9px]">${p.val} Bajak</text>
+          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#f59e0b" stroke-width="2.4" />
+          <rect x="${p.x - 34}" y="${p.y - 23}" width="68" height="18" rx="4" class="fill-amber-900/90 dark:fill-amber-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[10px]">${p.val} Bajak</text>
         `;
       });
 
       // 2. Mondok Points & Tags (Simpel & Rapi)
       mukimPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#ffffff" stroke="#10b981" stroke-width="2.4" />
-          <rect x="${p.x - 34}" y="${p.y - 21}" width="68" height="16" rx="3.5" class="fill-emerald-800/90 dark:fill-emerald-950/95" />
-          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[9.5px]">${p.val} Mondok</text>
+          <circle cx="${p.x}" cy="${p.y}" r="5" fill="#ffffff" stroke="#10b981" stroke-width="2.6" />
+          <rect x="${p.x - 38}" y="${p.y - 24}" width="76" height="19" rx="4" class="fill-emerald-800/90 dark:fill-emerald-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[10.5px]">${p.val} Mondok</text>
         `;
       });
 
       // 3. Total Siswa Points & Tags (Simpel & Rapi)
       totalPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.8" fill="#ffffff" stroke="#0d9488" stroke-width="2.6" />
-          <rect x="${p.x - 32}" y="${p.y - 23}" width="64" height="16" rx="3.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
-          <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[9.5px]">${p.val} Siswa</text>
+          <circle cx="${p.x}" cy="${p.y}" r="5.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.8" />
+          <rect x="${p.x - 35}" y="${p.y - 26}" width="70" height="20" rx="4.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[11px]">${p.val} Siswa</text>
         `;
       });
 
@@ -81526,8 +81631,8 @@ if (typeof window !== "undefined") {
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -81554,22 +81659,22 @@ if (typeof window !== "undefined") {
       const nonLineD = nonPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
       svgInner += `<path d="${mukimAreaD}" fill="url(#gradAreaTeal)" />`;
-      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
-      svgInner += `<path d="${nonLineD}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" />`;
+      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
+      svgInner += `<path d="${nonLineD}" fill="none" stroke="#f59e0b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" />`;
 
       mukimPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#ffffff" stroke="#0d9488" stroke-width="2.4" />
-          <rect x="${p.x - 34}" y="${p.y - 21}" width="68" height="16" rx="3" class="fill-teal-900/90 dark:fill-teal-950/95" />
-          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-teal-100 font-mono font-bold text-[9px]">${p.val} Mondok</text>
+          <circle cx="${p.x}" cy="${p.y}" r="4.8" fill="#ffffff" stroke="#0d9488" stroke-width="2.6" />
+          <rect x="${p.x - 38}" y="${p.y - 24}" width="76" height="19" rx="4" class="fill-teal-900/90 dark:fill-teal-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10.5}" text-anchor="middle" class="fill-teal-100 font-mono font-bold text-[10.5px]">${p.val} Mondok</text>
         `;
       });
 
       nonPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" />
-          <rect x="${p.x - 30}" y="${p.y - 19}" width="60" height="15" rx="3" class="fill-amber-900/85 dark:fill-amber-950/95" />
-          <text x="${p.x}" y="${p.y - 8.5}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[8.5px]">${p.val} Bajak</text>
+          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#f59e0b" stroke-width="2.4" />
+          <rect x="${p.x - 34}" y="${p.y - 23}" width="68" height="18" rx="4" class="fill-amber-900/85 dark:fill-amber-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[10px]">${p.val} Bajak</text>
         `;
       });
 
@@ -81578,8 +81683,8 @@ if (typeof window !== "undefined") {
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -81613,7 +81718,7 @@ if (typeof window !== "undefined") {
       units.forEach(u => {
         const isFocused = activeUnitChartFocus === 'ALL' || activeUnitChartFocus === u.name;
         const opacity = isFocused ? '1' : '0.18';
-        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.5' : '2.6') : '1.5';
+        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.8' : '2.8') : '1.6';
         const filterStr = isFocused ? `filter="url(#${u.glow})"` : '';
 
         const points = periodsData.map((d, idx) => ({ 
@@ -81628,14 +81733,14 @@ if (typeof window !== "undefined") {
 
         points.forEach((p) => {
           const isAbove = u.key === 'mts' || u.key === 'smp';
-          const rectY = isAbove ? p.y - 19 : p.y + 6;
-          const textY = isAbove ? p.y - 9.5 : p.y + 16;
+          const rectY = isAbove ? p.y - 22 : p.y + 7;
+          const textY = isAbove ? p.y - 10.5 : p.y + 19;
 
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? (activeUnitChartFocus === u.name ? 4.5 : 3.5) : 2.5}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.5 : 1.5}" opacity="${opacity}" />
+            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? (activeUnitChartFocus === u.name ? 5 : 4) : 3}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.6 : 1.6}" opacity="${opacity}" />
             <g opacity="${opacity}">
-              <rect x="${p.x - 20}" y="${rectY}" width="40" height="14" rx="3" fill="${u.color}" fill-opacity="0.92" />
-              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8.5px]">${p.val} ${u.name}</text>
+              <rect x="${p.x - 24}" y="${rectY}" width="48" height="17" rx="4" fill="${u.color}" fill-opacity="0.95" shadow-xs />
+              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[9.5px]">${p.val} ${u.name}</text>
             </g>
           `;
         });
@@ -81646,8 +81751,8 @@ if (typeof window !== "undefined") {
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -81666,14 +81771,14 @@ if (typeof window !== "undefined") {
       svgInner += `
         <rect x="${padL}" y="${padT}" width="${plotW}" height="${yZero - padT}" fill="#10b981" fill-opacity="0.04" />
         <rect x="${padL}" y="${yZero}" width="${plotW}" height="${padT + plotH - yZero}" fill="#e11d48" fill-opacity="0.04" />
-        <text x="${padL + 8}" y="${padT + 12}" class="fill-emerald-600/70 dark:fill-emerald-400/70 font-bold text-[9px] uppercase tracking-wider">▲ Zona Masuk (Penambahan)</text>
-        <text x="${padL + 8}" y="${padT + plotH - 6}" class="fill-rose-600/70 dark:fill-rose-400/70 font-bold text-[9px] uppercase tracking-wider">▼ Zona Boyong (Pengurangan)</text>
+        <text x="${padL + 8}" y="${padT + 14}" class="fill-emerald-600/80 dark:fill-emerald-400/80 font-bold text-[10px] uppercase tracking-wider">▲ Zona Masuk (Penambahan)</text>
+        <text x="${padL + 8}" y="${padT + plotH - 8}" class="fill-rose-600/80 dark:fill-rose-400/80 font-bold text-[10px] uppercase tracking-wider">▼ Zona Boyong (Pengurangan)</text>
       `;
 
       // Garis Netral Nol
       svgInner += `
-        <line x1="${padL}" y1="${yZero}" x2="${svgW - padR}" y2="${yZero}" stroke="currentColor" class="text-slate-400 dark:text-slate-500" stroke-width="1.8" />
-        <text x="${padL - 10}" y="${yZero + 3.5}" text-anchor="end" class="fill-slate-600 dark:fill-slate-300 font-mono font-black text-[10px]">0 Tetap</text>
+        <line x1="${padL}" y1="${yZero}" x2="${svgW - padR}" y2="${yZero}" stroke="currentColor" class="text-slate-400 dark:text-slate-500" stroke-width="2" />
+        <text x="${padL - 10}" y="${yZero + 3.5}" text-anchor="end" class="fill-slate-600 dark:fill-slate-300 font-mono font-black text-[10.5px]">0 Tetap</text>
       `;
 
       const units = [
@@ -81686,7 +81791,7 @@ if (typeof window !== "undefined") {
       units.forEach(u => {
         const isFocused = activeUnitChartFocus === 'ALL' || activeUnitChartFocus === u.name;
         const opacity = isFocused ? '1' : '0.18';
-        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.5' : '2.6') : '1.5';
+        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.8' : '2.8') : '1.6';
         const filterStr = isFocused ? `filter="url(#${u.glow})"` : '';
 
         const points = periodsData.map((d, idx) => ({ 
@@ -81701,16 +81806,16 @@ if (typeof window !== "undefined") {
 
         points.forEach((p) => {
           const isAbove = u.key === 'mts' || u.key === 'smp';
-          const rectY = isAbove ? p.y - 19 : p.y + 6;
-          const textY = isAbove ? p.y - 9.5 : p.y + 16;
+          const rectY = isAbove ? p.y - 22 : p.y + 7;
+          const textY = isAbove ? p.y - 10.5 : p.y + 19;
           const badgeBg = p.val < 0 ? '#e11d48' : (p.val > 0 ? '#059669' : u.color);
           const badgeText = p.val < 0 ? `▼${p.val}` : (p.val > 0 ? `▲+${p.val}` : '0');
 
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? 4 : 2.5}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.5 : 1.5}" opacity="${opacity}" />
+            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? 4.5 : 3}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.6 : 1.6}" opacity="${opacity}" />
             <g opacity="${opacity}">
-              <rect x="${p.x - 20}" y="${rectY}" width="40" height="14" rx="3" fill="${badgeBg}" fill-opacity="0.95" />
-              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8.5px]">${u.name} ${badgeText}</text>
+              <rect x="${p.x - 24}" y="${rectY}" width="48" height="17" rx="4" fill="${badgeBg}" fill-opacity="0.95" shadow-xs />
+              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[9.5px]">${u.name} ${badgeText}</text>
             </g>
           `;
         });
@@ -81721,8 +81826,8 @@ if (typeof window !== "undefined") {
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -81752,12 +81857,12 @@ if (typeof window !== "undefined") {
         const points = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d[u.key]), val: d[u.key], d }));
         const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
-        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />`;
+        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />`;
 
         points.forEach((p, idx) => {
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="${u.color}" stroke-width="2" />
-            <text x="${p.x + (idx === points.length - 1 ? -6 : 6)}" y="${p.y - 6}" text-anchor="${idx === points.length - 1 ? 'end' : 'start'}" fill="${u.color}" class="font-mono font-bold text-[9px]">${p.val}%</text>
+            <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="${u.color}" stroke-width="2.2" />
+            <text x="${p.x + (idx === points.length - 1 ? -8 : 8)}" y="${p.y - 7}" text-anchor="${idx === points.length - 1 ? 'end' : 'start'}" fill="${u.color}" class="font-mono font-bold text-[10px]">${p.val}%</text>
           `;
         });
       });
@@ -81767,8 +81872,8 @@ if (typeof window !== "undefined") {
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -81791,11 +81896,11 @@ if (typeof window !== "undefined") {
            title="Klik untuk buka rincian ${d.label}"
         >
           <!-- Hitbox transparan kolom penuh -->
-          <rect x="${colLeft}" y="${padT - 14}" width="${colW}" height="${plotH + 42}" fill="transparent" />
+          <rect x="${colLeft}" y="${padT - 14}" width="${colW}" height="${plotH + 48}" fill="transparent" />
           <!-- Garis panduan vertikal pada bulan yang aktif -->
-          <line id="studentChartGuide_${d.key}" x1="${cx}" y1="${padT - 8}" x2="${cx}" y2="${padT + plotH + 6}" 
+          <line id="studentChartGuide_${d.key}" x1="${cx}" y1="${padT - 8}" x2="${cx}" y2="${padT + plotH + 8}" 
             stroke="#0d9488" 
-            stroke-width="2" 
+            stroke-width="2.5" 
             stroke-dasharray="3,3" 
             opacity="${isSelected ? '1' : '0'}" 
             pointer-events="none" 
@@ -81807,7 +81912,7 @@ if (typeof window !== "undefined") {
     svgInner += '</g>';
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none max-h-[250px]" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none min-h-[280px] sm:min-h-[320px]" preserveAspectRatio="xMidYMid meet">
         ${svgInner}
       </svg>
     `;
