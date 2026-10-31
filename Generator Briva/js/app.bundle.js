@@ -27941,6 +27941,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40609,6 +40610,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42529,6 +42531,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
@@ -86454,13 +86459,13 @@ if (typeof window !== "undefined") {
 
   // --- 1. STATE & STORAGE KEY ---
   const SANTRI_STORAGE_KEY = 'partner_fatih_santri_db_v1';
-  const SANTRI_MONTHLY_STORE_KEY = 'partner_fatih_santri_monthly_db_v9';
+  const SANTRI_MONTHLY_STORE_KEY = 'partner_fatih_santri_monthly_db_v10';
   const SANTRI_HISTORY_STORAGE_KEY = 'partner_fatih_santri_history_v1';
   const SANTRI_MUTATIONS_STORAGE_KEY = 'partner_fatih_santri_mutations_v1';
 
 
 
-  let currentPeriodKey = '10-2026';
+  let currentPeriodKey = '11-2026';
   let comparisonPeriodKey = '10-2026';
   let monthlySantriStore = {};
   let santriDataList = [];
@@ -87061,9 +87066,7 @@ if (typeof window !== "undefined") {
     }
 
     // Tentukan periode aktif (Default November 2026 Real, dengan pembanding Oktober 2026)
-    if (!monthlySantriStore[currentPeriodKey]) {
-      currentPeriodKey = monthlySantriStore['11-2026'] ? '11-2026' : '10-2026';
-    }
+    currentPeriodKey = monthlySantriStore['11-2026'] ? '11-2026' : (monthlySantriStore['10-2026'] ? '10-2026' : currentPeriodKey);
     comparisonPeriodKey = (currentPeriodKey === '11-2026' && monthlySantriStore['10-2026']) 
       ? '10-2026' 
       : ((currentPeriodKey === '10-2026' && monthlySantriStore['09-2026']) ? '09-2026' : '10-2026');
