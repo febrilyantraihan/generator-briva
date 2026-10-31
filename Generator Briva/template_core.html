@@ -3604,6 +3604,26 @@
         </button>
       </div>
 
+      <!-- BANNER PASANG APLIKASI (PWA STANDALONE - HILANGKAN URL BROWSER DI HP) -->
+      <div id="drawerPwaInstallCard" class="mb-3 p-3 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 flex items-center justify-between gap-2.5 shadow-2xs">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-emerald-500/30">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-black text-slate-900 dark:text-white truncate">Pasang di HP</span>
+              <span class="text-[8px] font-extrabold px-1.5 py-0.2 rounded-full bg-emerald-500 text-white uppercase flex-shrink-0">Layar Penuh</span>
+            </div>
+            <span class="text-[9.5px] text-slate-500 dark:text-slate-400 block truncate">Hilangkan URL &amp; tombol browser</span>
+          </div>
+        </div>
+        <button type="button" onclick="triggerPwaInstall()" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10.5px] font-black shadow-md shadow-emerald-600/30 active:scale-95 transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Pasang</span>
+        </button>
+      </div>
+
       <nav class="space-y-2" id="sidebarMenuNav">
         <!-- ==================== GRUP 1: LAYANAN BRIVA & REKAP JUNIO ==================== -->
         <div class="drawer-group rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-50/60 dark:bg-white/[0.02] overflow-hidden transition-all duration-300 shadow-2xs">
@@ -4197,12 +4217,12 @@
           </span>
         </div>
 
-        <!-- PWA Install Button (Compact Icon on standard desktop, Full on 2xl) -->
+        <!-- PWA Install Button (Compact Icon on mobile & standard desktop, Full on 2xl) -->
         <button 
           id="pwaInstallBtn" 
           onclick="triggerPwaInstall()" 
           title="Pasang Aplikasi ke Layar Utama (HP Android/iOS atau Desktop)" 
-          class="hidden sm:flex w-8 h-8 2xl:w-auto p-1.5 2xl:px-3 2xl:py-1.5 rounded-xl items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 hover:bg-emerald-200/90 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          class="flex w-8 h-8 2xl:w-auto p-1.5 2xl:px-3 2xl:py-1.5 rounded-xl items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 hover:bg-emerald-200/90 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
         >
           <svg data-lucide="download" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 pointer-events-none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
           <span class="hidden 2xl:inline font-bold">Pasang App</span>
@@ -5429,6 +5449,59 @@
   <textarea id="hiddenClipboardHelper" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
 
   <!-- ============================================================== -->
+  <!-- MODAL PANDUAN PASANG APLIKASI DI HP (HAPUS TULISAN URL VERCEL)   -->
+  <!-- ============================================================== -->
+  <div id="modalPwaInstallGuide" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md transition-all duration-300" style="display: none;">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-5 border border-emerald-500/30 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/30 flex-shrink-0">
+            <i data-lucide="smartphone" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Jadikan Aplikasi HP (Layar Penuh)</h3>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">Hilangkan tulisan URL Vercel di bagian atas</p>
+          </div>
+        </div>
+        <button type="button" onclick="closePwaInstallGuideModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all cursor-pointer flex-shrink-0">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+        Saat aplikasi dipasang ke Layar Utama HP, <strong>bilah URL browser (generator-briva.vercel.app) di atas akan hilang total</strong> dan aplikasi otomatis berjalan 100% <strong>Layar Penuh (Standalone)</strong> layaknya aplikasi Play Store.
+      </div>
+
+      <div class="space-y-2.5">
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-xs flex items-center justify-center flex-shrink-0">1</div>
+          <div class="text-xs text-slate-700 dark:text-slate-300">
+            Ketuk ikon <strong>Menu Titik Tiga (⋮)</strong> di pojok kanan atas browser Google Chrome Anda.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-xs flex items-center justify-center flex-shrink-0">2</div>
+          <div class="text-xs text-slate-700 dark:text-slate-300">
+            Pilih menu <strong>"Tambahkan ke Layar Utama" (Add to Home screen)</strong> atau <strong>"Instal aplikasi"</strong>.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-xs flex items-center justify-center flex-shrink-0">3</div>
+          <div class="text-xs text-slate-700 dark:text-slate-300">
+            Buka ikon <strong>Partner Fatih</strong> dari layar beranda HP Anda &mdash; aplikasi langsung bersih tanpa address bar!
+          </div>
+        </div>
+      </div>
+
+      <button type="button" onclick="closePwaInstallGuideModal()" class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/30 active:scale-98 transition-all cursor-pointer">
+        Saya Paham &amp; Siap Pasang
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
   <!-- IN-APP AUTO-UPDATE MODAL DIALOG (NATIVE PWA UPDATE PROMPT)      -->
   <!-- ============================================================== -->
   <div id="appUpdateModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all duration-300" style="display: none;">
@@ -6142,6 +6215,10 @@
           document.documentElement.style.overflow = 'hidden';
           if (mc) mc.style.overflow = 'hidden';
           if (appContainer) appContainer.style.overflow = 'hidden';
+
+          if (!isBackNavigating && typeof pushBackGuardState === 'function') {
+            pushBackGuardState('drawer');
+          }
         } else {
           sidebar.classList.add('-translate-x-full');
           sidebar.classList.remove('translate-x-0');
@@ -6586,6 +6663,9 @@
       }
       activeTab = tabId;
       try { localStorage.setItem('partner_fatih_last_tab', tabId); } catch(e) {}
+      if (!isBackNav && typeof pushBackGuardState === 'function') {
+        pushBackGuardState('tab_' + tabId);
+      }
 
       // Update Mobile Header Immediately
       const tabMetaShort = {
@@ -6989,33 +7069,40 @@ if (t === 'keuangan') {
     function initSmartBackNavigation() {
       if (!window.history || !window.history.pushState) return;
 
-      // Trap awal browser history agar event popstate dapat dicegat
-      pushBackTrapState();
+      // Inisialisasi state dasar & guard state agar popstate langsung mengikat tombol back browser/HP
+      try {
+        window.history.replaceState({ appNav: true, reason: 'root_base', t: Date.now() }, document.title, window.location.href);
+        window.history.pushState({ appNav: true, reason: 'root_guard', t: Date.now() }, document.title, window.location.href);
+      } catch (e) {}
 
       window.addEventListener('popstate', function(event) {
         handleAppBackNavigation();
       });
     }
 
-    function pushBackTrapState() {
+    function pushBackGuardState(reason, detail) {
+      if (isBackNavigating) return;
       try {
         if (window.history && window.history.pushState) {
-          window.history.pushState({ appNavLevel: 1, timestamp: Date.now() }, document.title, window.location.href);
+          window.history.pushState({ appNav: true, reason: reason || 'guard', detail: detail || null, t: Date.now() }, document.title, window.location.href);
         }
       } catch (e) {}
     }
+    const pushBackTrapState = pushBackGuardState;
 
     function handleAppBackNavigation() {
       // 1. LAPIS 1: Tutup Mobile Drawer Samping jika sedang terbuka
       if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
+        isBackNavigating = true;
         toggleMobileDrawer(false);
-        pushBackTrapState();
+        isBackNavigating = false;
+        pushBackGuardState('drawer_closed');
         return;
       }
 
       // 2. LAPIS 2: Tutup Modal / Dialog / Popup yang sedang aktif di SEMUA tab
       if (tryCloseActiveModal()) {
-        pushBackTrapState();
+        pushBackGuardState('modal_closed');
         return;
       }
 
@@ -7024,9 +7111,11 @@ if (t === 'keuangan') {
       // (a) Tab Jurnal Guru: jika sedang membuka sub-tab selain 'beranda'
       if (activeTab === 'jurnal' && typeof currentJurnalSubTab !== 'undefined' && currentJurnalSubTab !== 'beranda') {
         if (typeof switchJurnalSubTab === 'function') {
+          isBackNavigating = true;
           switchJurnalSubTab('beranda');
+          isBackNavigating = false;
           if (typeof showToast === 'function') showToast('Jurnal Guru', 'Kembali ke Beranda Jurnal');
-          pushBackTrapState();
+          pushBackGuardState('jurnal_beranda');
           return;
         }
       }
@@ -7034,9 +7123,11 @@ if (t === 'keuangan') {
       // (b) Tab Akun PPDB: jika sedang di sub-tab selain 'ortu'
       if (activeTab === 'akun' && typeof currentPpdbActiveSubtab !== 'undefined' && currentPpdbActiveSubtab !== 'ortu') {
         if (typeof switchPpdbSubtab === 'function') {
+          isBackNavigating = true;
           switchPpdbSubtab('ortu');
+          isBackNavigating = false;
           if (typeof showToast === 'function') showToast('Akun PPDB', 'Kembali ke Data Orang Tua');
-          pushBackTrapState();
+          pushBackGuardState('ppdb_ortu');
           return;
         }
       }
@@ -7047,7 +7138,7 @@ if (t === 'keuangan') {
         if (typeof toggleTahfidzMasterTable === 'function') {
           toggleTahfidzMasterTable(false);
           if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Menutup Database Santri');
-          pushBackTrapState();
+          pushBackGuardState('tahfidz_panel_closed');
           return;
         }
       }
@@ -7057,7 +7148,7 @@ if (t === 'keuangan') {
         if (typeof switchTahfidzSubView === 'function') {
           switchTahfidzSubView('generator');
           if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Kembali ke Generator Sertifikat');
-          pushBackTrapState();
+          pushBackGuardState('tahfidz_generator');
           return;
         }
       }
@@ -7068,7 +7159,7 @@ if (t === 'keuangan') {
         if (typeof clearTahfidzSearch === 'function') {
           clearTahfidzSearch();
           if (typeof showToast === 'function') showToast('Tahfidz Tasmi\'', 'Pencarian santri direset');
-          pushBackTrapState();
+          pushBackGuardState('tahfidz_search_cleared');
           return;
         }
       }
@@ -7078,7 +7169,7 @@ if (t === 'keuangan') {
       if (activeTab === 'humas' && humasTaskForm && !humasTaskForm.classList.contains('hidden')) {
         if (typeof toggleHumasTaskAddForm === 'function') {
           toggleHumasTaskAddForm();
-          pushBackTrapState();
+          pushBackGuardState('humas_form_closed');
           return;
         }
       }
@@ -7090,7 +7181,7 @@ if (t === 'keuangan') {
         if (filterSelect) filterSelect.value = 'all';
         if (typeof renderHumasTable === 'function') renderHumasTable();
         if (typeof showToast === 'function') showToast('Humas & Sosmed', 'Filter kategori dikembalikan ke Semua Agenda');
-        pushBackTrapState();
+        pushBackGuardState('humas_filter_reset');
         return;
       }
 
@@ -7100,31 +7191,41 @@ if (t === 'keuangan') {
         humasSearch.value = '';
         if (typeof renderHumasTable === 'function') renderHumasTable();
         if (typeof showToast === 'function') showToast('Humas & Sosmed', 'Pencarian agenda dibersihkan');
-        pushBackTrapState();
+        pushBackGuardState('humas_search_cleared');
         return;
       }
 
-      // (i) Tab Template WhatsApp: jika memilih template selain 'syahriyah'
+      // (i) Tab Rekap Santri: jika ada pencarian santri aktif
+      const santriSearch = document.getElementById('santriSearchInput');
+      if (activeTab === 'rekap_santri' && santriSearch && santriSearch.value.trim() !== '') {
+        santriSearch.value = '';
+        santriSearch.dispatchEvent(new Event('input'));
+        if (typeof showToast === 'function') showToast('Rekap Santri', 'Pencarian santri dibersihkan');
+        pushBackGuardState('santri_search_cleared');
+        return;
+      }
+
+      // (j) Tab Template WhatsApp: jika memilih template selain 'syahriyah'
       if (activeTab === 'wa' && typeof currentWaTemplateId !== 'undefined' && currentWaTemplateId !== 'syahriyah') {
         if (typeof selectWaTemplate === 'function') {
           selectWaTemplate('syahriyah');
           if (typeof showToast === 'function') showToast('Template WhatsApp', 'Kembali ke Template Tagihan Syahriyah');
-          pushBackTrapState();
+          pushBackGuardState('wa_syahriyah');
           return;
         }
       }
 
-      // (j) Tab Panggil Tagihan: jika memilih kategori selain 'bulanan'
+      // (k) Tab Panggil Tagihan: jika memilih kategori selain 'bulanan'
       if (activeTab === 'panggil' && typeof singleSelectedCategory !== 'undefined' && singleSelectedCategory !== 'bulanan') {
         if (typeof switchSingleCategory === 'function') {
           switchSingleCategory('bulanan');
           if (typeof showToast === 'function') showToast('Panggil Tagihan', 'Kembali ke Kategori Bulanan');
-          pushBackTrapState();
+          pushBackGuardState('panggil_bulanan');
           return;
         }
       }
 
-      // 4. LAPIS 4: Riwayat Antar-Tab (Tab Navigation Stack Seluruh 11 Tab)
+      // 4. LAPIS 4: Riwayat Antar-Tab (Tab Navigation Stack Seluruh 17 Tab)
       if (tabNavHistory.length > 0) {
         const prevTab = tabNavHistory.pop();
         if (prevTab && prevTab !== activeTab) {
@@ -7136,11 +7237,13 @@ if (t === 'keuangan') {
               humas: 'Humas & Sosmed', tahfidz: 'Tahfidz Tasmi\'', briva: 'Generator BRIVA',
               akun: 'Generator Akun', konverter: 'Konverter Excel', panggil: 'Panggil Tagihan',
               katalog: 'Katalog Biaya', pembersih: 'Pembersih & SUM', panduan: 'Panduan Excel',
-              wa: 'Template WA', jurnal: 'Jurnal Guru'
+              wa: 'Template WA', jurnal: 'Jurnal Guru', keuangan: 'Keuangan Pintar',
+              cbt: 'Soal CBT & Kunci', ide: 'Laboratorium Ide', rekap_junio: 'Rekap Junio',
+              bisnis: 'Inkubator Bisnis', rekap_santri: 'Rekap Santri'
             };
-            showToast('Navigasi Tab', 'Kembali ke tab ' + (tabNames[prevTab] || prevTab));
+            showToast('Navigasi Tab', 'Kembali ke ' + (tabNames[prevTab] || prevTab));
           }
-          pushBackTrapState();
+          pushBackGuardState('tab_' + prevTab);
           return;
         }
       } else {
@@ -7152,15 +7255,15 @@ if (t === 'keuangan') {
           if (typeof showToast === 'function') {
             showToast('Navigasi Beranda', 'Kembali ke Beranda Utama');
           }
-          pushBackTrapState();
+          pushBackGuardState('tab_root');
           return;
         }
       }
 
       // 5. LAPIS 5: Tampilan Paling Awal (Root Screen) -> Proteksi Keluar Double-Tap
       const now = Date.now();
-      if (now - lastBackPressTime < 2000) {
-        // Pengguna menekan Back 2x berturut-turut dalam 2 detik -> Izinkan keluar
+      if (now - lastBackPressTime < 2500) {
+        // Pengguna menekan Back 2x berturut-turut dalam 2.5 detik -> Izinkan keluar
         if (typeof showToast === 'function') {
           showToast('Partner Fatih', 'Keluar dari aplikasi...');
         }
@@ -7172,113 +7275,135 @@ if (t === 'keuangan') {
               window.close();
             }
           } catch (e) {}
-        }, 350);
+        }, 250);
       } else {
         lastBackPressTime = now;
         if (typeof showToast === 'function') {
           showToast('Keluar Aplikasi', 'Tekan sekali lagi untuk keluar dari aplikasi');
         }
-        pushBackTrapState();
+        pushBackGuardState('root_exit_guard');
       }
     }
 
     function tryCloseActiveModal() {
-      // 1. Modul Jurnal Guru
-      const jurnalScanner = document.getElementById('jurnalAiScannerModal');
-      if (jurnalScanner && !jurnalScanner.classList.contains('hidden') && jurnalScanner.style.display !== 'none') {
-        if (typeof closeJurnalAiScannerModal === 'function') closeJurnalAiScannerModal();
+      // 1. Modul Panduan PWA & Update
+      const pwaGuide = document.getElementById('modalPwaInstallGuide');
+      if (pwaGuide && !pwaGuide.classList.contains('hidden') && pwaGuide.style.display !== 'none') {
+        if (typeof closePwaInstallGuideModal === 'function') closePwaInstallGuideModal();
         return true;
       }
-      const jurnalQuiz = document.getElementById('jurnalAiQuizModal');
-      if (jurnalQuiz && !jurnalQuiz.classList.contains('hidden') && jurnalQuiz.style.display !== 'none') {
-        if (typeof closeJurnalAiQuizModal === 'function') closeJurnalAiQuizModal();
-        return true;
-      }
-      const jurnalWa = document.getElementById('jurnalWaModal');
-      if (jurnalWa && !jurnalWa.classList.contains('hidden') && jurnalWa.style.display !== 'none') {
-        if (typeof closeJurnalWaModal === 'function') closeJurnalWaModal();
-        return true;
-      }
-      const jurnalDetail = document.getElementById('jurnalDetailModal');
-      if (jurnalDetail && !jurnalDetail.classList.contains('hidden') && jurnalDetail.style.display !== 'none') {
-        if (typeof closeJurnalDetailModal === 'function') closeJurnalDetailModal();
-        return true;
-      }
-      const jurnalVoice = document.getElementById('jurnalVoiceAnswerCard');
-      if (jurnalVoice && !jurnalVoice.classList.contains('hidden') && jurnalVoice.style.display !== 'none') {
-        if (typeof closeJurnalVoiceAnswerCard === 'function') closeJurnalVoiceAnswerCard();
+      const appUpdate = document.getElementById('appUpdateModal');
+      if (appUpdate && !appUpdate.classList.contains('hidden') && appUpdate.style.display !== 'none') {
+        if (typeof dismissAppUpdateModal === 'function') dismissAppUpdateModal();
         return true;
       }
 
-      // 2. Modul Humas & Sosmed
-      const humasEdit = document.getElementById('modalEditProgram');
-      if (humasEdit && !humasEdit.classList.contains('hidden') && humasEdit.style.display !== 'none') {
-        if (typeof closeModalEditProgram === 'function') closeModalEditProgram();
-        return true;
-      }
-      const humasAdd = document.getElementById('modalAddProgram');
-      if (humasAdd && !humasAdd.classList.contains('hidden') && humasAdd.style.display !== 'none') {
-        if (typeof closeModalAddProgram === 'function') closeModalAddProgram();
-        return true;
-      }
-      const humasImport = document.getElementById('modalHumasBulkImport');
-      if (humasImport && !humasImport.classList.contains('hidden') && humasImport.style.display !== 'none') {
-        if (typeof closeModalHumasBulkImport === 'function') closeModalHumasBulkImport();
-        return true;
-      }
-      const humasRangkuman = document.getElementById('modalHumasRangkumanPeringatan') || document.getElementById('modalRangkumanPeringatan');
-      if (humasRangkuman && !humasRangkuman.classList.contains('hidden') && humasRangkuman.style.display !== 'none') {
-        if (typeof closeModalRangkumanPeringatan === 'function') closeModalRangkumanPeringatan();
-        return true;
-      }
-      const humasMetric = document.getElementById('humasMetricDetailModal');
-      if (humasMetric && !humasMetric.classList.contains('hidden') && humasMetric.style.display !== 'none') {
-        if (typeof closeHumasMetricDetailModal === 'function') closeHumasMetricDetailModal();
-        return true;
-      }
-      const humasSupa = document.getElementById('modalSupabaseConfig');
-      if (humasSupa && !humasSupa.classList.contains('hidden') && humasSupa.style.display !== 'none') {
-        if (typeof closeModalSupabaseConfig === 'function') closeModalSupabaseConfig();
-        return true;
+      // 2. Modul Jurnal Guru (Semua Modal Jurnal)
+      const jurnalModals = [
+        { id: 'modalJurnalDetail', fn: 'closeJurnalDetailModal' },
+        { id: 'modalJurnalAiScanner', fn: 'closeJurnalAiScannerModal' },
+        { id: 'modalJurnalAiQuiz', fn: 'closeJurnalAiQuizModal' },
+        { id: 'modalJurnalWa', fn: 'closeJurnalWaModal' },
+        { id: 'modalManageJadwalMengajar', fn: 'closeManageJadwalModal' },
+        { id: 'modalManageStudents', fn: 'closeManageStudentsModal' },
+        { id: 'modalJurnalCloudSync', fn: 'closeJurnalCloudSyncModal' },
+        { id: 'modalSlideFullScreenPresenter', fn: 'closeSlideFullScreen' },
+        { id: 'jurnalVoiceAnswerCard', fn: 'closeJurnalVoiceAnswerCard' }
+      ];
+      for (let i = 0; i < jurnalModals.length; i++) {
+        const item = jurnalModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
       }
 
-      // 3. Modul Tahfidz
-      const tahfidzModal = document.getElementById('tahfidzStudentModal');
-      if (tahfidzModal && !tahfidzModal.classList.contains('hidden') && tahfidzModal.style.display !== 'none') {
-        if (typeof closeTahfidzStudentModal === 'function') closeTahfidzStudentModal();
-        return true;
+      // 3. Modul Humas & Sosmed
+      const humasModals = [
+        { id: 'modalHumasEditProgram', fn: 'closeModalEditProgram' },
+        { id: 'modalEditProgram', fn: 'closeModalEditProgram' },
+        { id: 'modalHumasAddProgram', fn: 'closeModalAddProgram' },
+        { id: 'modalAddProgram', fn: 'closeModalAddProgram' },
+        { id: 'modalHumasBulkImport', fn: 'closeModalHumasBulkImport' },
+        { id: 'modalHumasMetricDetail', fn: 'closeHumasMetricDetailModal' },
+        { id: 'modalHumasRangkumanPeringatan', fn: 'closeModalRangkumanPeringatan' },
+        { id: 'modalRangkumanPeringatan', fn: 'closeModalRangkumanPeringatan' },
+        { id: 'modalHumasTaskEdit', fn: 'closeModalTaskEdit' },
+        { id: 'modalSupabaseConfig', fn: 'closeModalSupabaseConfig' }
+      ];
+      for (let i = 0; i < humasModals.length; i++) {
+        const item = humasModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
       }
 
-      // 4. Modul Katalog
-      const catImg = document.getElementById('catalogImageModal');
-      if (catImg && !catImg.classList.contains('hidden') && catImg.style.display !== 'none') {
-        if (typeof closeCatalogImageModal === 'function') closeCatalogImageModal();
-        return true;
-      }
-      const briModal = document.getElementById('briCodeModal');
-      if (briModal && !briModal.classList.contains('hidden') && briModal.style.display !== 'none') {
-        if (typeof closeBriCodeModal === 'function') closeBriCodeModal();
-        return true;
-      }
-
-      // 5. Modul Akun PPDB & BRIVA
-      const ppdbBriva = document.getElementById('ppdbBulkSetBrivaModal');
-      if (ppdbBriva && !ppdbBriva.classList.contains('hidden') && ppdbBriva.style.display !== 'none') {
-        if (typeof closePpdbBulkSetBrivaModal === 'function') closePpdbBulkSetBrivaModal();
-        return true;
-      }
-      const confMukim = document.getElementById('confirmMukimModal');
-      if (confMukim && !confMukim.classList.contains('hidden') && confMukim.style.display !== 'none') {
-        if (typeof closeConfirmMukimModal === 'function') closeConfirmMukimModal();
-        return true;
+      // 4. Modul Rekap Santri (Tab 17)
+      const santriModals = [
+        { id: 'modalEditSantri', fn: 'closeModalEditSantri' },
+        { id: 'modalCatatMutasi', fn: 'closeModalCatatMutasi' },
+        { id: 'modalPilihGenderSantri', fn: 'closeModalPilihGenderSantri' },
+        { id: 'modalPilihStatusSantri', fn: 'closeModalPilihStatusSantri' },
+        { id: 'modalTagihanJunio', fn: 'closeModalTagihanJunio' },
+        { id: 'modalTambahPeriode', fn: 'closeModalTambahPeriode' },
+        { id: 'modalPengesahanRapatRekonsiliasi', fn: 'closeModalPengesahanRapat' }
+      ];
+      for (let i = 0; i < santriModals.length; i++) {
+        const item = santriModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
       }
 
-      // 6. Generic Fallback untuk semua elemen modal dengan class fixed / backdrop
-      const anyModals = document.querySelectorAll('[id^="modal"], [id$="Modal"], .modal-portal');
+      // 5. Modul Rekap Junio & Keuangan Pribadi & Bisnis & Ide
+      const otherAppModals = [
+        { id: 'modalJunioPdf', fn: 'closeModalJunioPdf' },
+        { id: 'modalJunioWa', fn: 'closeModalJunioWa' },
+        { id: 'modalTambahTransaksi', fn: 'closeModalTambahTransaksi' },
+        { id: 'modalTransferKantong', fn: 'closeModalTransferKantong' },
+        { id: 'modalAturSaldo', fn: 'closeModalAturSaldo' },
+        { id: 'modalGeminiKey', fn: 'closeModalGeminiKey' },
+        { id: 'modalIncomeIdeas', fn: 'closeModalIncomeIdeas' },
+        { id: 'modalScanStruk', fn: 'closeModalScanStruk' },
+        { id: 'modalVoiceKeuangan', fn: 'closeModalVoiceKeuangan' },
+        { id: 'modalAddWarung', fn: 'closeModalAddWarung' },
+        { id: 'modalCashflow', fn: 'closeModalCashflow' },
+        { id: 'modalKunjungan', fn: 'closeModalKunjungan' },
+        { id: 'modalIdeForm', fn: 'closeModalIdeForm' },
+        { id: 'modalIdePitch', fn: 'closeModalIdePitch' },
+        { id: 'tahfidzStudentEditModal', fn: 'closeTahfidzStudentModal' },
+        { id: 'tahfidzStudentModal', fn: 'closeTahfidzStudentModal' },
+        { id: 'modalPpdbBulkBriva', fn: 'closePpdbBulkSetBrivaModal' },
+        { id: 'modalConfirmMukimStatus', fn: 'closeConfirmMukimModal' },
+        { id: 'modalBriCodes', fn: 'closeBriCodeModal' },
+        { id: 'modalKatalogImagePreview', fn: 'closeCatalogImageModal' },
+        { id: 'modalVoiceBillingResult', fn: 'closeVoiceBillingModal' }
+      ];
+      for (let i = 0; i < otherAppModals.length; i++) {
+        const item = otherAppModals[i];
+        const el = document.getElementById(item.id);
+        if (el && !el.classList.contains('hidden') && el.style.display !== 'none') {
+          if (typeof window[item.fn] === 'function') window[item.fn]();
+          else { el.classList.add('hidden'); el.style.display = 'none'; }
+          return true;
+        }
+      }
+
+      // 6. Universal Dynamic Fallback: Cari SEMUA overlay fixed modal yang sedang tampak di layar
+      const anyModals = document.querySelectorAll('[id^="modal"], [id$="Modal"], .modal-portal, [role="dialog"], .fixed.inset-0');
       for (let i = 0; i < anyModals.length; i++) {
         const m = anyModals[i];
-        if (m && !m.classList.contains('hidden') && m.style.display !== 'none') {
-          const closeBtn = m.querySelector('button[onclick*="close"], button[aria-label*="close" i], .modal-close');
+        if (m.id === 'appPreloader' || m.id === 'appSidebar' || m.id === 'drawerBackdrop' || m.id === 'mobileBottomNav') continue;
+        if (m && !m.classList.contains('hidden') && m.style.display !== 'none' && (m.offsetWidth > 0 || m.offsetHeight > 0)) {
+          const closeBtn = m.querySelector('button[onclick*="close" i], button[onclick*="tutup" i], button[aria-label*="close" i], .modal-close, button.close');
           if (closeBtn) {
             closeBtn.click();
             return true;
@@ -7293,7 +7418,8 @@ if (t === 'keuangan') {
     }
     window.initSmartBackNavigation = initSmartBackNavigation;
     window.handleAppBackNavigation = handleAppBackNavigation;
-    window.pushBackTrapState = pushBackTrapState;
+    window.pushBackGuardState = pushBackGuardState;
+    window.pushBackTrapState = pushBackGuardState;
 
     /**
      * =========================================================================
@@ -21199,32 +21325,42 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       deferredPwaPrompt = e;
       const installBtn = document.getElementById('pwaInstallBtn');
       if (installBtn) installBtn.classList.remove('hidden');
+      const drawerCard = document.getElementById('drawerPwaInstallCard');
+      if (drawerCard) drawerCard.classList.remove('hidden');
     });
 
     window.addEventListener('appinstalled', () => {
       deferredPwaPrompt = null;
       const installBtn = document.getElementById('pwaInstallBtn');
       if (installBtn) installBtn.classList.add('hidden');
+      const drawerCard = document.getElementById('drawerPwaInstallCard');
+      if (drawerCard) drawerCard.classList.add('hidden');
       if (typeof showToast === 'function') {
         showToast('Aplikasi Terpasang!', 'Partner Fatih YTPAI telah berhasil dipasang di layar utama perangkat Anda.');
       }
     });
 
     function checkStandalonePwa() {
-      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        const installBtn = document.getElementById('pwaInstallBtn');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const installBtn = document.getElementById('pwaInstallBtn');
+      const drawerCard = document.getElementById('drawerPwaInstallCard');
+      if (isStandalone) {
         if (installBtn) installBtn.classList.add('hidden');
+        if (drawerCard) drawerCard.classList.add('hidden');
+      } else {
+        if (installBtn) installBtn.classList.remove('hidden');
+        if (drawerCard) drawerCard.classList.remove('hidden');
       }
     }
     checkStandalonePwa();
     window.addEventListener('DOMContentLoaded', checkStandalonePwa);
 
-        function triggerPwaInstall() {
+    function triggerPwaInstall() {
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         if (typeof showToast === 'function') {
-          showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+          showToast('Sudah Terpasang', 'Partner Fatih sudah aktif dalam mode aplikasi mandiri di HP Anda (layar penuh tanpa URL).');
         } else {
-          alert('Partner Fatih sudah aktif dalam mode aplikasi mandiri di perangkat Anda.');
+          alert('Partner Fatih sudah aktif dalam mode aplikasi mandiri di HP Anda (layar penuh tanpa URL).');
         }
         return;
       }
@@ -21239,13 +21375,31 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
           deferredPwaPrompt = null;
         });
       } else {
-        if (typeof showToast === 'function') {
-          showToast("Pasang Aplikasi", 'Tekan menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
-        } else {
-          alert('Untuk memasang di HP atau desktop, buka menu browser (titik tiga) lalu pilih "Tambahkan ke Layar Utama" / "Install App".');
-        }
+        openPwaInstallGuideModal();
       }
     }
+
+    function openPwaInstallGuideModal() {
+      const modal = document.getElementById('modalPwaInstallGuide');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        if (typeof safeCreateIcons === 'function') safeCreateIcons();
+        else if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+        if (typeof pushBackGuardState === 'function') pushBackGuardState('modal_pwa_guide');
+      }
+    }
+
+    function closePwaInstallGuideModal() {
+      const modal = document.getElementById('modalPwaInstallGuide');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+    window.openPwaInstallGuideModal = openPwaInstallGuideModal;
+    window.closePwaInstallGuideModal = closePwaInstallGuideModal;
+    window.triggerPwaInstall = triggerPwaInstall;
 
     // ==========================================================================
     // GLOBAL MASTER SYNC: SINKRONISASI SATU KLIK SELURUH TAB & CLOUD SUPABASE
@@ -33317,6 +33471,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34078,6 +34235,9 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 
   window.switchJurnalSubTab = function(tabName) {
     currentJurnalSubTab = tabName;
+    if (!window.isBackNavigating && tabName !== 'beranda' && typeof window.pushBackGuardState === 'function') {
+      window.pushBackGuardState('jurnal_sub_' + tabName);
+    }
     const subTabs = ['beranda', 'materi', 'kelas', 'presensi', 'jadwal', 'penilaian', 'rekap', 'slide', 'perangkat'];
     subTabs.forEach(t => {
       const btn = document.getElementById('jurnalSubTabBtn_' + t);
@@ -34492,6 +34652,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
@@ -35828,6 +35989,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     }
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
+    if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_manage_jadwal');
 
     if (editId) {
       const item = (jurnalState.schedules || []).find(s => s.id === editId);
@@ -36211,6 +36373,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
   };
 
@@ -36353,6 +36516,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
       generateWaFormat('sesi');
     }
   };
@@ -36501,6 +36665,7 @@ _Catatan: Nilai harian & poin keaktifan telah diakumulasikan sebagai nilai tamba
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
 
     // Load saved API key
@@ -37419,6 +37584,7 @@ Kembalikan HANYA format JSON valid tanpa tanda kutip markdown backticks, contoh:
       if (modal.parentElement !== document.body) document.body.appendChild(modal);
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      if (typeof window.pushBackGuardState === 'function') window.pushBackGuardState('modal_jurnal_detail');
     }
     if (typeof safeCreateIcons === 'function') safeCreateIcons();
   };
@@ -45968,6 +46134,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -47888,6 +48057,15 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
+
+
+
+
+
+
 
 
 
