@@ -352,7 +352,7 @@
     }
   </style>
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=1.0.9-b31&t=1793458007804">
+  <link rel="stylesheet" href="css/main.css?v=1.0.9-b31&t=1793461306703">
 
 </head>
 
@@ -19833,11 +19833,133 @@
     </div>
   </div>
 
+    <!-- ============================================================== -->
+  <!-- MODAL PANDUAN PASANG APLIKASI DI HP (HAPUS TULISAN URL VERCEL)   -->
+  <!-- ============================================================== -->
+  <div id="modalPwaInstallGuide" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md transition-all duration-300" style="display: none;">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-5 border border-emerald-500/30 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/30 flex-shrink-0">
+            <i data-lucide="smartphone" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Jadikan Aplikasi HP (Layar Penuh)</h3>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">Hilangkan tulisan URL Vercel di bagian atas</p>
+          </div>
+        </div>
+        <button type="button" onclick="closePwaInstallGuideModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all cursor-pointer flex-shrink-0">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+        Saat aplikasi dipasang ke Layar Utama HP, <strong>bilah URL browser (generator-briva.vercel.app) di atas akan hilang total</strong> dan aplikasi otomatis berjalan 100% <strong>Layar Penuh (Standalone)</strong> layaknya aplikasi Play Store.
+      </div>
+
+      <div class="space-y-2.5">
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-xs flex items-center justify-center flex-shrink-0">1</div>
+          <div class="text-xs text-slate-700 dark:text-slate-300">
+            Ketuk ikon <strong>Menu Titik Tiga (⋮)</strong> di pojok kanan atas browser Google Chrome Anda.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-xs flex items-center justify-center flex-shrink-0">2</div>
+          <div class="text-xs text-slate-700 dark:text-slate-300">
+            Pilih menu <strong>"Tambahkan ke Layar Utama" (Add to Home screen)</strong> atau <strong>"Instal aplikasi"</strong>.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-xs flex items-center justify-center flex-shrink-0">3</div>
+          <div class="text-xs text-slate-700 dark:text-slate-300">
+            Buka ikon <strong>Partner Fatih</strong> dari layar beranda HP Anda &mdash; aplikasi langsung bersih tanpa address bar!
+          </div>
+        </div>
+      </div>
+
+      <button type="button" onclick="closePwaInstallGuideModal()" class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/30 active:scale-98 transition-all cursor-pointer">
+        Saya Paham &amp; Siap Pasang
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- IN-APP AUTO-UPDATE MODAL DIALOG (NATIVE PWA UPDATE PROMPT)      -->
+  <!-- ============================================================== -->
+  <div id="appUpdateModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all duration-300" style="display: none;">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <!-- Header with animated rocket -->
+      <div class="flex items-start gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/25 flex-shrink-0">
+          🚀
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Pembaruan Tersedia!</h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">Resmi</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Versi baru Partner Fatih siap dipasang tanpa perlu install ulang.</p>
+        </div>
+      </div>
+
+      <!-- Version Difference Badge Card -->
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs">
+        <div class="flex flex-col">
+          <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Versi Aktif</span>
+          <span id="updateModalCurrentVersion" class="font-mono font-black text-slate-700 dark:text-slate-300 text-sm">v1.0.0</span>
+        </div>
+        <div class="flex items-center text-emerald-500 font-black">
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </div>
+        <div class="flex flex-col text-right">
+          <span class="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Versi Terbaru</span>
+          <span id="updateModalNewVersion" class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm">v1.0.0</span>
+        </div>
+      </div>
+
+      <!-- Changelog Summary -->
+      <div class="space-y-1.5 text-xs">
+        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span>Peningkatan di Versi Ini:</span>
+        </span>
+        <ul id="updateModalChangelogList" class="space-y-1 text-slate-600 dark:text-slate-400 pl-4 list-disc text-[11.5px] leading-relaxed">
+          <li>Penyempurnaan tampilan dan kontras warna di layar HP</li>
+          <li>Perataan bilah navigasi dan penataan tombol tugas</li>
+          <li>Peningkatan kecepatan sistem offline &amp; auto-update</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-2 flex flex-col sm:flex-row items-center gap-2">
+        <button 
+          type="button" 
+          onclick="applyPwaUpdateNow()" 
+          id="btnApplyPwaUpdate" 
+          class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+        >
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span id="btnApplyPwaUpdateLabel">Perbarui Sekarang (1 Detik)</span>
+        </button>
+        <button 
+          type="button" 
+          onclick="dismissAppUpdateModal()" 
+          class="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-all cursor-pointer"
+        >
+          Nanti Saja
+        </button>
+      </div>
+    </div>
+  </div>
+
   <textarea id="hiddenClipboardHelper" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=1.0.9-b31&t=1793458007804"></script>
-  <script src="js/sahabat_fatih_ai.js?v=1.0.9-b31&t=1793458007804"></script>
+  <script src="js/app.bundle.js?v=1.0.9-b31&t=1793461306703"></script>
+  <script src="js/sahabat_fatih_ai.js?v=1.0.9-b31&t=1793461306703"></script>
 </body>
 </html>
