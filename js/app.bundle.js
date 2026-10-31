@@ -1063,11 +1063,46 @@
       }, 60);
     });
 
-    // --- 5. TAB SWITCHING & SMART MOBILE BACK NAVIGATION ---
+    // --- 5. TAB SWITCHING & SMART MOBILE BACK NAVIGATION (SAT-SET 60 FPS ENGINE) ---
     let activeTab = 'humas';
     let tabNavHistory = [];
     let isBackNavigating = false;
     let lastBackPressTime = 0;
+    window.tabInitializedMap = window.tabInitializedMap || {};
+
+    function runTabModuleLazy(tabId) {
+      if (window.tabInitializedMap[tabId]) return;
+      window.tabInitializedMap[tabId] = true;
+
+      // Inisialisasi modul lazy non-blocking: berjalan di microtask agar flip tab instan 0ms
+      setTimeout(() => {
+        try {
+          if (tabId === 'tahfidz' && typeof initTahfidzModule === 'function') {
+            initTahfidzModule();
+          } else if (tabId === 'humas' && typeof initHumasModule === 'function') {
+            initHumasModule();
+          } else if (tabId === 'jurnal' && typeof initJurnalModule === 'function') {
+            initJurnalModule();
+          } else if (tabId === 'keuangan') {
+            if (typeof initKeuanganModule === 'function') initKeuanganModule();
+            if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
+          } else if (tabId === 'cbt' && typeof window.initCbtTab === 'function') {
+            window.initCbtTab();
+          } else if (tabId === 'ide' && typeof window.initIdeTab === 'function') {
+            window.initIdeTab();
+          } else if (tabId === 'rekap_junio' && typeof window.initRekapJunioTab === 'function') {
+            window.initRekapJunioTab();
+          } else if (tabId === 'rekap_santri' && typeof window.initSantriModule === 'function') {
+            window.initSantriModule();
+          } else if (tabId === 'bisnis' && typeof window.initBisnisTab === 'function') {
+            window.initBisnisTab();
+          }
+        } catch (e) {
+          console.warn('Lazy tab init warning for', tabId, e);
+        }
+      }, 16);
+    }
+    window.runTabModuleLazy = runTabModuleLazy;
 
     function switchTab(tabId, isBackNav = false) {
       // Catat riwayat perpindahan tab jika bukan navigasi balik
@@ -1118,10 +1153,6 @@
       if (mobBadgeEl) mobBadgeEl.textContent = curShort.badge;
       if (mobDotEl) mobDotEl.className = `w-2 h-2 rounded-full ${curShort.dot} animate-pulse flex-shrink-0`;
 
-      if (tabId === 'rekap_santri') {
-        try { if (typeof window.initSantriModule === 'function') window.initSantriModule(); } catch(e) {}
-      }
-
       const tabs = ['konverter', 'briva', 'panggil', 'akun', 'katalog', 'tahfidz', 'pembersih', 'panduan', 'wa', 'humas', 'jurnal', 'keuangan', 'cbt', 'ide', 'rekap_junio', 'bisnis', 'rekap_santri'];
       try { syncDrawerActiveState(tabId); } catch(e) {}
       try { syncDesktopDropdownActiveState(tabId); } catch(e) {}
@@ -1146,7 +1177,7 @@
               room.prepend(dot);
             }
             const pillBox = document.getElementById('roomPillContainer');
-            if (pillBox && room) {
+            if (window.innerWidth >= 1024 && pillBox && room) {
               const pillCenter = room.offsetLeft - (pillBox.clientWidth / 2) + (room.clientWidth / 2);
               pillBox.scrollTo({ left: Math.max(0, pillCenter), behavior: 'smooth' });
             }
@@ -1155,27 +1186,10 @@
           if (mc) mc.scrollTop = 0;
           document.body.scrollTop = 0;
           document.documentElement.scrollTop = 0;
-          if (t === 'tahfidz' && typeof initTahfidzModule === 'function') {
-            initTahfidzModule();
-          }
-          if (t === 'humas' && typeof initHumasModule === 'function') {
-            initHumasModule();
-          }
-          if (t === 'jurnal' && typeof initJurnalModule === 'function') {
-            initJurnalModule();
-          }
-if (t === 'keuangan') {
-            if (typeof initKeuanganModule === 'function') initKeuanganModule();
-            if (typeof pullKeuanganFromCloud === 'function') pullKeuanganFromCloud(false);
-          }
-          if (t === 'cbt' && typeof window.initCbtTab === 'function') {
-            window.initCbtTab();
-          }
-          if (t === 'ide' && typeof window.initIdeTab === 'function') {
-            window.initIdeTab();
-          }
-          if (t === 'rekap_junio' && typeof window.initRekapJunioTab === 'function') {
-            window.initRekapJunioTab();
+
+          // Inisialisasi modul jika belum pernah diinisialisasi (Initialize-Once Guard, 0ms instant switch)
+          if (typeof runTabModuleLazy === 'function') {
+            runTabModuleLazy(t);
           }
         } else {
           if (el) el.classList.add('hidden');
@@ -1480,7 +1494,16 @@ if (t === 'keuangan') {
       if (mc) mc.scrollTop = 0;
       if (document.body) document.body.scrollTop = 0;
       if (document.documentElement) document.documentElement.scrollTop = 0;
-      safeCreateIcons();
+
+      // Scoped Lucide icon rendering: hanya render ikon baru di dalam tab yang aktif dan header timeline
+      const activeTabEl = document.getElementById('tab-' + tabId);
+      if (activeTabEl) {
+        safeCreateIcons(activeTabEl);
+      }
+      const timelineHeader = document.getElementById('projectTimelineBar') || document.getElementById('topHeaderBreadcrumb')?.parentElement;
+      if (timelineHeader) {
+        safeCreateIcons(timelineHeader);
+      }
     }
 
     // =========================================================================
@@ -1865,18 +1888,7 @@ if (t === 'keuangan') {
       if (humasPriorityHub) humasPriorityHub.style.display = 'none';
       if (bentoContentGrid) bentoContentGrid.style.display = 'none';
       if (mobileHubToggle) mobileHubToggle.style.display = 'none';
-
-      if (tabId === 'humas') {
-        if (typeof initHumasModule === 'function') initHumasModule();
-        else if (typeof renderHumasMetrics === 'function') renderHumasMetrics();
-        safeCreateIcons();
-        return;
-      }
-      if (tabId === 'jurnal') {
-        if (typeof initJurnalModule === 'function') initJurnalModule();
-        safeCreateIcons();
-        return;
-      }
+      return;
 
       const mobileHubBadge = document.getElementById('bentoMobileHubBadge');
       const heroBadgeText = document.getElementById('bentoHeroBadgeText');
@@ -13849,20 +13861,43 @@ Wassalamu'alaikum Wr. Wb.`;
     };
 
     // Helper pemanggil ikon aman (dengan fallback standalone jika CDN lambat terunduh di Apps Script / offline)
-    function safeCreateIcons() {
+    let _lastSafeCreateIconsTime = 0;
+    function safeCreateIcons(scope) {
+      const now = Date.now();
+      const hasSpecificScope = scope && scope.nodeType === 1;
+
+      // Throttle pemindaian global dokumen penuh agar CPU HP tidak freeze (maksimal 1x per 120ms)
+      if (!hasSpecificScope) {
+        if (now - _lastSafeCreateIconsTime < 120) return;
+        _lastSafeCreateIconsTime = now;
+      }
+
+      const root = hasSpecificScope ? scope : document;
+
       try {
         if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function' && lucide.createIcons.toString().length > 30) {
-          lucide.createIcons();
+          if (hasSpecificScope) {
+            try {
+              lucide.createIcons({ root: root });
+            } catch(e) {
+              lucide.createIcons();
+            }
+          } else {
+            lucide.createIcons();
+          }
         }
       } catch (e) {}
 
-      // Fallback Engine: pastikan semua [data-lucide] memiliki SVG resmi dan tidak pernah kosong
+      // Fallback Engine: pastikan semua tag <i> yang ber-data-lucide memiliki SVG resmi
+      // KUNCI PERFORMA: Gunakan query selector i[data-lucide] alih-alih [data-lucide]
+      // agar tidak pernah memindai ulang ratusan/ribuan SVG yang sudah selesai dibuat!
       try {
-        const iconNodes = document.querySelectorAll('[data-lucide]');
+        const iconNodes = root.querySelectorAll('i[data-lucide]');
         iconNodes.forEach(el => {
           if (el.tagName.toLowerCase() === 'svg') return;
           const name = el.getAttribute('data-lucide');
-          const path = LUCIDE_FALLBACK_ICONS[name];
+          const fallbackMap = (typeof window !== 'undefined' && window.LUCIDE_FALLBACK_ICONS) || (typeof LUCIDE_FALLBACK_ICONS !== 'undefined' ? LUCIDE_FALLBACK_ICONS : null);
+          const path = fallbackMap ? fallbackMap[name] : null;
           if (path) {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('viewBox', '0 0 24 24');
@@ -27904,6 +27939,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40570,6 +40606,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42863,6 +42900,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     // --- MODAL PORTAL HELPER ---
     function portalAllModalsToBody() {
       try {
@@ -42931,6 +42971,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
       try { if (typeof window.initSantriModule === 'function') window.initSantriModule(); } catch (e) {}
       try { renderPpdbAll(); } catch (e) {}
       try { togglePpdbViewMode(window.innerWidth < 640 ? 'cards' : 'table'); } catch (e) {}
+
+      // Initialize-Once Cache Guard: Tandai semua modul yang sudah disiapkan agar perpindahan tab selanjutnya 100% instan (0ms sat-set)
+      window.tabInitializedMap = window.tabInitializedMap || {};
+      ['humas', 'tahfidz', 'jurnal', 'keuangan', 'cbt', 'ide', 'briva', 'akun', 'konverter', 'panggil', 'katalog', 'pembersih', 'panduan', 'wa', 'rekap_santri', 'rekap_junio', 'bisnis'].forEach(t => {
+        window.tabInitializedMap[t] = true;
+      });
 
       // Pastikan semua ikon 100% menyala sempurna
       safeCreateIcons();
