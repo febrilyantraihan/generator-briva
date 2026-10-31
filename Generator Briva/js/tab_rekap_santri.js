@@ -8,7 +8,7 @@
 
   // --- 1. STATE & STORAGE KEY ---
   const SANTRI_STORAGE_KEY = 'partner_fatih_santri_db_v1';
-  const SANTRI_MONTHLY_STORE_KEY = 'partner_fatih_santri_monthly_db_v8';
+  const SANTRI_MONTHLY_STORE_KEY = 'partner_fatih_santri_monthly_db_v9';
   const SANTRI_HISTORY_STORAGE_KEY = 'partner_fatih_santri_history_v1';
   const SANTRI_MUTATIONS_STORAGE_KEY = 'partner_fatih_santri_mutations_v1';
 
@@ -421,9 +421,13 @@
       defaultStudents = mapRawSantri(sourceMaster);
     }
 
+    const rawNovember = (typeof window.MASTER_SANTRI_NOVEMBER_741 !== 'undefined' && Array.isArray(window.MASTER_SANTRI_NOVEMBER_741))
+      ? window.MASTER_SANTRI_NOVEMBER_741 : [];
+    const novemberStudents = mapRawSantri(rawNovember);
+
     // 2B. KALIBRASI DATA HISTORIS RESMI (Mondok vs Bajak): Mencegah lonjakan semu / glitch
     const officialStatusMap = new Map();
-    septemberStudents.concat(defaultStudents).forEach(s => {
+    septemberStudents.concat(defaultStudents).concat(novemberStudents).forEach(s => {
       if (s.reg && String(s.reg).trim()) officialStatusMap.set(String(s.reg).trim(), s.status);
       if (s.nama && String(s.nama).trim()) officialStatusMap.set(String(s.nama).trim().toLowerCase(), s.status);
     });
@@ -513,14 +517,24 @@
         students: JSON.parse(JSON.stringify(defaultStudents))
       };
 
-      // 6. Bulan November 2026 sebagai Draf Rapat Berjalan (Menyalin santri aktif Oktober)
-      monthlySantriStore['11-2026'] = {
-        label: 'November 2026',
-        status: 'DRAFT',
-        isPedoman: false,
-        lockedAt: null,
-        students: JSON.parse(JSON.stringify(defaultStudents.filter(s => s.status !== 'Boyong')))
-      };
+      // 6. Bulan November 2026 sebagai Data Real (741 Siswa Hasil Rekonsiliasi Folder '06. Bulan November')
+      if (novemberStudents.length > 0) {
+        monthlySantriStore['11-2026'] = {
+          label: 'November 2026',
+          status: 'LOCKED',
+          isPedoman: false,
+          lockedAt: '2026-11-01T00:00:00.000Z',
+          students: JSON.parse(JSON.stringify(novemberStudents))
+        };
+      } else {
+        monthlySantriStore['11-2026'] = {
+          label: 'November 2026',
+          status: 'DRAFT',
+          isPedoman: false,
+          lockedAt: null,
+          students: JSON.parse(JSON.stringify(defaultStudents.filter(s => s.status !== 'Boyong')))
+        };
+      }
 
       saveMonthlySantriStore();
     } else {
@@ -576,7 +590,18 @@
         };
         changed = true;
       }
-      if (!monthlySantriStore['11-2026'] && defaultStudents.length > 0) {
+      if (novemberStudents.length > 0) {
+        if (!monthlySantriStore['11-2026'] || !monthlySantriStore['11-2026'].students || monthlySantriStore['11-2026'].students.length !== novemberStudents.length) {
+          monthlySantriStore['11-2026'] = {
+            label: 'November 2026',
+            status: 'LOCKED',
+            isPedoman: false,
+            lockedAt: '2026-11-01T00:00:00.000Z',
+            students: JSON.parse(JSON.stringify(novemberStudents))
+          };
+          changed = true;
+        }
+      } else if (!monthlySantriStore['11-2026'] && defaultStudents.length > 0) {
         monthlySantriStore['11-2026'] = {
           label: 'November 2026',
           status: 'DRAFT',
@@ -589,13 +614,13 @@
       if (changed) saveMonthlySantriStore();
     }
 
-    // Tentukan periode aktif (Default Oktober 2026, dengan pembanding September 2026)
+    // Tentukan periode aktif (Default November 2026 Real, dengan pembanding Oktober 2026)
     if (!monthlySantriStore[currentPeriodKey]) {
-      currentPeriodKey = '10-2026';
+      currentPeriodKey = monthlySantriStore['11-2026'] ? '11-2026' : '10-2026';
     }
-    comparisonPeriodKey = (currentPeriodKey === '10-2026' && monthlySantriStore['09-2026']) 
-      ? '09-2026' 
-      : ((currentPeriodKey !== '10-2026' && monthlySantriStore['10-2026']) ? '10-2026' : currentPeriodKey);
+    comparisonPeriodKey = (currentPeriodKey === '11-2026' && monthlySantriStore['10-2026']) 
+      ? '10-2026' 
+      : ((currentPeriodKey === '10-2026' && monthlySantriStore['09-2026']) ? '09-2026' : '10-2026');
 
     santriDataList = monthlySantriStore[currentPeriodKey].students;
     saveSantriDataList();
@@ -2996,7 +3021,7 @@
         let keterangan = '<span class="text-slate-500">Master Data Awal</span>';
         if (d.key === '10-2026') keterangan = '<span class="text-rose-600 dark:text-rose-400 font-bold">8 Santri Boyong • 1 Alih Mondok ➔ Bajak (Fiks Pedoman)</span>';
         else if (d.key === '09-2026') keterangan = '<span class="text-slate-600 dark:text-slate-300">Validasi Data Santri (754 Siswa)</span>';
-        else if (d.key === '11-2026') keterangan = '<span class="text-teal-600 dark:text-teal-400 font-bold">Draf Rapat Lanjutan</span>';
+        else if (d.key === '11-2026') keterangan = '<span class="text-teal-600 dark:text-teal-400 font-bold">Data Real November (741 Siswa • 9 Boyong • 4 Masuk)</span>';
         else if (d.totalDelta !== 0) keterangan = `<span class="text-slate-500 font-normal">${d.totalDelta > 0 ? 'Kenaikan +' : 'Penurunan '}${d.totalDelta} siswa</span>`;
 
         const isCurrent = d.key === currentPeriodKey;
