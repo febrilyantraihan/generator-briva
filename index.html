@@ -352,7 +352,7 @@
     }
   </style>
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=1.0.9-b31&t=1792997583170">
+  <link rel="stylesheet" href="css/main.css?v=1.0.9-b31&t=1793458007804">
 
 </head>
 
@@ -930,6 +930,26 @@
         </div>
         <button onclick="toggleMobileDrawer(false)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-500 dark:text-slate-300 flex items-center justify-center transition-all active:scale-90" title="Tutup Menu">
           <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- BANNER PASANG APLIKASI (PWA STANDALONE - HILANGKAN URL BROWSER DI HP) -->
+      <div id="drawerPwaInstallCard" class="mb-3 p-3 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 flex items-center justify-between gap-2.5 shadow-2xs">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-emerald-500/30">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-black text-slate-900 dark:text-white truncate">Pasang di HP</span>
+              <span class="text-[8px] font-extrabold px-1.5 py-0.2 rounded-full bg-emerald-500 text-white uppercase flex-shrink-0">Layar Penuh</span>
+            </div>
+            <span class="text-[9.5px] text-slate-500 dark:text-slate-400 block truncate">Hilangkan URL &amp; tombol browser</span>
+          </div>
+        </div>
+        <button type="button" onclick="triggerPwaInstall()" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10.5px] font-black shadow-md shadow-emerald-600/30 active:scale-95 transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Pasang</span>
         </button>
       </div>
 
@@ -1526,12 +1546,12 @@
           </span>
         </div>
 
-        <!-- PWA Install Button (Compact Icon on standard desktop, Full on 2xl) -->
+        <!-- PWA Install Button (Compact Icon on mobile & standard desktop, Full on 2xl) -->
         <button 
           id="pwaInstallBtn" 
           onclick="triggerPwaInstall()" 
           title="Pasang Aplikasi ke Layar Utama (HP Android/iOS atau Desktop)" 
-          class="hidden sm:flex w-8 h-8 2xl:w-auto p-1.5 2xl:px-3 2xl:py-1.5 rounded-xl items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 hover:bg-emerald-200/90 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          class="flex w-8 h-8 2xl:w-auto p-1.5 2xl:px-3 2xl:py-1.5 rounded-xl items-center justify-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 hover:bg-emerald-200/90 dark:bg-emerald-950/80 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs active:scale-95 transition-all cursor-pointer flex-shrink-0"
         >
           <svg data-lucide="download" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 pointer-events-none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
           <span class="hidden 2xl:inline font-bold">Pasang App</span>
@@ -17836,8 +17856,16 @@
       </div>
 
       <!-- Interactive SVG Chart Viewport -->
-      <div class="relative w-full overflow-hidden rounded-lg bg-slate-50/80 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 p-2 sm:p-3">
-        <div id="studentLineChartContainer" onmouseleave="hideStudentChartTooltip(false)" class="w-full min-h-[210px] sm:min-h-[230px] flex items-center justify-center">
+      <div class="relative w-full overflow-x-auto rounded-xl bg-slate-50/80 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 p-2 sm:p-4">
+        <!-- Petunjuk Geser Khusus Mobile -->
+        <div class="flex items-center justify-between pb-1 px-1 text-[11px] text-slate-400 sm:hidden">
+          <span class="inline-flex items-center gap-1 font-bold text-teal-600 dark:text-teal-400">
+            <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            Geser grafik ke samping
+          </span>
+          <span class="font-medium text-slate-400 text-[10.5px]">6 Periode Lengkap</span>
+        </div>
+        <div id="studentLineChartContainer" onmouseleave="hideStudentChartTooltip(false)" class="w-full min-w-[580px] sm:min-w-full min-h-[280px] sm:min-h-[320px] flex items-center justify-center">
           <!-- Rendered dynamically by JS renderMonthlyStudentLineChart() -->
         </div>
         <!-- Tooltip box -->
@@ -19809,7 +19837,7 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=1.0.9-b31&t=1792997583170"></script>
-  <script src="js/sahabat_fatih_ai.js?v=1.0.9-b31&t=1792997583170"></script>
+  <script src="js/app.bundle.js?v=1.0.9-b31&t=1793458007804"></script>
+  <script src="js/sahabat_fatih_ai.js?v=1.0.9-b31&t=1793458007804"></script>
 </body>
 </html>
