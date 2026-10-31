@@ -1143,7 +1143,7 @@
         ide: { name: 'Laboratorium Ide', badge: 'Inkubator', dot: 'bg-amber-500' },
         rekap_junio: { name: 'Rekap Junio', badge: 'Excel 6-Sheet', dot: 'bg-emerald-500' },
         bisnis: { name: 'Inkubator Bisnis', badge: 'Titip Jual', dot: 'bg-emerald-500' },
-        rekap_santri: { name: 'Rekap Santri', badge: '746 Siswa', dot: 'bg-teal-500' }
+        rekap_santri: { name: 'Rekap Santri', badge: '741 Siswa', dot: 'bg-teal-500' }
       };
       const curShort = tabMetaShort[tabId] || { name: 'Generator Briva', badge: 'YTPAI', dot: 'bg-blue-500' };
       const mobTitleEl = document.getElementById('mobileHeaderTitle');
@@ -27936,6 +27936,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -40603,6 +40604,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42523,6 +42525,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
