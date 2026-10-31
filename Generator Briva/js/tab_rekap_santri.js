@@ -2563,14 +2563,14 @@
     }
 
     // 3. Setup SVG Canvas: Luas, Bersih, dan Sederhana
-    const padL = 80;
-    const padR = 60;
-    const padT = 28;
-    const padB = 30;
+    const padL = 75;
+    const padR = 55;
+    const padT = 32;
+    const padB = 40;
     const svgW = 780;
-    const svgH = 226;
-    const plotW = svgW - padL - padR; // 640px
-    const plotH = svgH - padT - padB; // 168px
+    const svgH = 330;
+    const plotW = svgW - padL - padR; // 650px
+    const plotH = svgH - padT - padB; // 258px
 
     const count = periodsData.length;
     const getX = (idx) => count === 1 ? padL + plotW / 2 : padL + (idx / (count - 1)) * plotW;
@@ -2640,34 +2640,34 @@
       svgInner += `<path d="${mukimAreaD}" fill="url(#gradAreaEmerald)" />`;
 
       // Render Clean Lines
-      svgInner += `<path d="${totalLineD}" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
-      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#10b981" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowEmerald)" />`;
-      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="4,3" />`;
+      svgInner += `<path d="${totalLineD}" fill="none" stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
+      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowEmerald)" />`;
+      svgInner += `<path d="${bajakLineD}" fill="none" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" stroke-dasharray="5,3" />`;
 
       // 1. Bajak Points & Tags (Simpel & Rapi)
       bajakPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" />
-          <rect x="${p.x - 30}" y="${p.y - 19}" width="60" height="15" rx="3" class="fill-amber-900/90 dark:fill-amber-950/95" />
-          <text x="${p.x}" y="${p.y - 8.5}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[9px]">${p.val} Bajak</text>
+          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#f59e0b" stroke-width="2.4" />
+          <rect x="${p.x - 34}" y="${p.y - 23}" width="68" height="18" rx="4" class="fill-amber-900/90 dark:fill-amber-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[10px]">${p.val} Bajak</text>
         `;
       });
 
       // 2. Mondok Points & Tags (Simpel & Rapi)
       mukimPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#ffffff" stroke="#10b981" stroke-width="2.4" />
-          <rect x="${p.x - 34}" y="${p.y - 21}" width="68" height="16" rx="3.5" class="fill-emerald-800/90 dark:fill-emerald-950/95" />
-          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[9.5px]">${p.val} Mondok</text>
+          <circle cx="${p.x}" cy="${p.y}" r="5" fill="#ffffff" stroke="#10b981" stroke-width="2.6" />
+          <rect x="${p.x - 38}" y="${p.y - 24}" width="76" height="19" rx="4" class="fill-emerald-800/90 dark:fill-emerald-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10.5}" text-anchor="middle" class="fill-emerald-100 font-mono font-bold text-[10.5px]">${p.val} Mondok</text>
         `;
       });
 
       // 3. Total Siswa Points & Tags (Simpel & Rapi)
       totalPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.8" fill="#ffffff" stroke="#0d9488" stroke-width="2.6" />
-          <rect x="${p.x - 32}" y="${p.y - 23}" width="64" height="16" rx="3.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
-          <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[9.5px]">${p.val} Siswa</text>
+          <circle cx="${p.x}" cy="${p.y}" r="5.5" fill="#ffffff" stroke="#0d9488" stroke-width="2.8" />
+          <rect x="${p.x - 35}" y="${p.y - 26}" width="70" height="20" rx="4.5" class="fill-slate-900/90 dark:fill-slate-100/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="fill-white dark:fill-slate-900 font-mono font-bold text-[11px]">${p.val} Siswa</text>
         `;
       });
 
@@ -2677,8 +2677,8 @@
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -2705,22 +2705,22 @@
       const nonLineD = nonPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
       svgInner += `<path d="${mukimAreaD}" fill="url(#gradAreaTeal)" />`;
-      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
-      svgInner += `<path d="${nonLineD}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" />`;
+      svgInner += `<path d="${mukimLineD}" fill="none" stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowTeal)" />`;
+      svgInner += `<path d="${nonLineD}" fill="none" stroke="#f59e0b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowAmber)" />`;
 
       mukimPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#ffffff" stroke="#0d9488" stroke-width="2.4" />
-          <rect x="${p.x - 34}" y="${p.y - 21}" width="68" height="16" rx="3" class="fill-teal-900/90 dark:fill-teal-950/95" />
-          <text x="${p.x}" y="${p.y - 9.5}" text-anchor="middle" class="fill-teal-100 font-mono font-bold text-[9px]">${p.val} Mondok</text>
+          <circle cx="${p.x}" cy="${p.y}" r="4.8" fill="#ffffff" stroke="#0d9488" stroke-width="2.6" />
+          <rect x="${p.x - 38}" y="${p.y - 24}" width="76" height="19" rx="4" class="fill-teal-900/90 dark:fill-teal-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10.5}" text-anchor="middle" class="fill-teal-100 font-mono font-bold text-[10.5px]">${p.val} Mondok</text>
         `;
       });
 
       nonPoints.forEach((p) => {
         svgInner += `
-          <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#f59e0b" stroke-width="2.2" />
-          <rect x="${p.x - 30}" y="${p.y - 19}" width="60" height="15" rx="3" class="fill-amber-900/85 dark:fill-amber-950/95" />
-          <text x="${p.x}" y="${p.y - 8.5}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[8.5px]">${p.val} Bajak</text>
+          <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#f59e0b" stroke-width="2.4" />
+          <rect x="${p.x - 34}" y="${p.y - 23}" width="68" height="18" rx="4" class="fill-amber-900/85 dark:fill-amber-950/95 shadow-xs" />
+          <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" class="fill-amber-200 font-mono font-bold text-[10px]">${p.val} Bajak</text>
         `;
       });
 
@@ -2729,8 +2729,8 @@
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -2764,7 +2764,7 @@
       units.forEach(u => {
         const isFocused = activeUnitChartFocus === 'ALL' || activeUnitChartFocus === u.name;
         const opacity = isFocused ? '1' : '0.18';
-        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.5' : '2.6') : '1.5';
+        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.8' : '2.8') : '1.6';
         const filterStr = isFocused ? `filter="url(#${u.glow})"` : '';
 
         const points = periodsData.map((d, idx) => ({ 
@@ -2779,14 +2779,14 @@
 
         points.forEach((p) => {
           const isAbove = u.key === 'mts' || u.key === 'smp';
-          const rectY = isAbove ? p.y - 19 : p.y + 6;
-          const textY = isAbove ? p.y - 9.5 : p.y + 16;
+          const rectY = isAbove ? p.y - 22 : p.y + 7;
+          const textY = isAbove ? p.y - 10.5 : p.y + 19;
 
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? (activeUnitChartFocus === u.name ? 4.5 : 3.5) : 2.5}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.5 : 1.5}" opacity="${opacity}" />
+            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? (activeUnitChartFocus === u.name ? 5 : 4) : 3}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.6 : 1.6}" opacity="${opacity}" />
             <g opacity="${opacity}">
-              <rect x="${p.x - 20}" y="${rectY}" width="40" height="14" rx="3" fill="${u.color}" fill-opacity="0.92" />
-              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8.5px]">${p.val} ${u.name}</text>
+              <rect x="${p.x - 24}" y="${rectY}" width="48" height="17" rx="4" fill="${u.color}" fill-opacity="0.95" shadow-xs />
+              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[9.5px]">${p.val} ${u.name}</text>
             </g>
           `;
         });
@@ -2797,8 +2797,8 @@
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -2817,14 +2817,14 @@
       svgInner += `
         <rect x="${padL}" y="${padT}" width="${plotW}" height="${yZero - padT}" fill="#10b981" fill-opacity="0.04" />
         <rect x="${padL}" y="${yZero}" width="${plotW}" height="${padT + plotH - yZero}" fill="#e11d48" fill-opacity="0.04" />
-        <text x="${padL + 8}" y="${padT + 12}" class="fill-emerald-600/70 dark:fill-emerald-400/70 font-bold text-[9px] uppercase tracking-wider">▲ Zona Masuk (Penambahan)</text>
-        <text x="${padL + 8}" y="${padT + plotH - 6}" class="fill-rose-600/70 dark:fill-rose-400/70 font-bold text-[9px] uppercase tracking-wider">▼ Zona Boyong (Pengurangan)</text>
+        <text x="${padL + 8}" y="${padT + 14}" class="fill-emerald-600/80 dark:fill-emerald-400/80 font-bold text-[10px] uppercase tracking-wider">▲ Zona Masuk (Penambahan)</text>
+        <text x="${padL + 8}" y="${padT + plotH - 8}" class="fill-rose-600/80 dark:fill-rose-400/80 font-bold text-[10px] uppercase tracking-wider">▼ Zona Boyong (Pengurangan)</text>
       `;
 
       // Garis Netral Nol
       svgInner += `
-        <line x1="${padL}" y1="${yZero}" x2="${svgW - padR}" y2="${yZero}" stroke="currentColor" class="text-slate-400 dark:text-slate-500" stroke-width="1.8" />
-        <text x="${padL - 10}" y="${yZero + 3.5}" text-anchor="end" class="fill-slate-600 dark:fill-slate-300 font-mono font-black text-[10px]">0 Tetap</text>
+        <line x1="${padL}" y1="${yZero}" x2="${svgW - padR}" y2="${yZero}" stroke="currentColor" class="text-slate-400 dark:text-slate-500" stroke-width="2" />
+        <text x="${padL - 10}" y="${yZero + 3.5}" text-anchor="end" class="fill-slate-600 dark:fill-slate-300 font-mono font-black text-[10.5px]">0 Tetap</text>
       `;
 
       const units = [
@@ -2837,7 +2837,7 @@
       units.forEach(u => {
         const isFocused = activeUnitChartFocus === 'ALL' || activeUnitChartFocus === u.name;
         const opacity = isFocused ? '1' : '0.18';
-        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.5' : '2.6') : '1.5';
+        const strokeW = isFocused ? (activeUnitChartFocus === u.name ? '3.8' : '2.8') : '1.6';
         const filterStr = isFocused ? `filter="url(#${u.glow})"` : '';
 
         const points = periodsData.map((d, idx) => ({ 
@@ -2852,16 +2852,16 @@
 
         points.forEach((p) => {
           const isAbove = u.key === 'mts' || u.key === 'smp';
-          const rectY = isAbove ? p.y - 19 : p.y + 6;
-          const textY = isAbove ? p.y - 9.5 : p.y + 16;
+          const rectY = isAbove ? p.y - 22 : p.y + 7;
+          const textY = isAbove ? p.y - 10.5 : p.y + 19;
           const badgeBg = p.val < 0 ? '#e11d48' : (p.val > 0 ? '#059669' : u.color);
           const badgeText = p.val < 0 ? `▼${p.val}` : (p.val > 0 ? `▲+${p.val}` : '0');
 
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? 4 : 2.5}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.5 : 1.5}" opacity="${opacity}" />
+            <circle cx="${p.x}" cy="${p.y}" r="${isFocused ? 4.5 : 3}" fill="#ffffff" stroke="${u.color}" stroke-width="${isFocused ? 2.6 : 1.6}" opacity="${opacity}" />
             <g opacity="${opacity}">
-              <rect x="${p.x - 20}" y="${rectY}" width="40" height="14" rx="3" fill="${badgeBg}" fill-opacity="0.95" />
-              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[8.5px]">${u.name} ${badgeText}</text>
+              <rect x="${p.x - 24}" y="${rectY}" width="48" height="17" rx="4" fill="${badgeBg}" fill-opacity="0.95" shadow-xs />
+              <text x="${p.x}" y="${textY}" text-anchor="middle" fill="#ffffff" class="font-mono font-black text-[9.5px]">${u.name} ${badgeText}</text>
             </g>
           `;
         });
@@ -2872,8 +2872,8 @@
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -2903,12 +2903,12 @@
         const points = periodsData.map((d, idx) => ({ x: getX(idx), y: getY(d[u.key]), val: d[u.key], d }));
         const lineD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
-        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />`;
+        svgInner += `<path d="${lineD}" fill="none" stroke="${u.color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />`;
 
         points.forEach((p, idx) => {
           svgInner += `
-            <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#ffffff" stroke="${u.color}" stroke-width="2" />
-            <text x="${p.x + (idx === points.length - 1 ? -6 : 6)}" y="${p.y - 6}" text-anchor="${idx === points.length - 1 ? 'end' : 'start'}" fill="${u.color}" class="font-mono font-bold text-[9px]">${p.val}%</text>
+            <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="${u.color}" stroke-width="2.2" />
+            <text x="${p.x + (idx === points.length - 1 ? -8 : 8)}" y="${p.y - 7}" text-anchor="${idx === points.length - 1 ? 'end' : 'start'}" fill="${u.color}" class="font-mono font-bold text-[10px]">${p.val}%</text>
           `;
         });
       });
@@ -2918,8 +2918,8 @@
         const isSelected = d.key === selectedPeriodTabKey;
         svgInner += `
           <g>
-            <rect x="${cx - 26}" y="${padT + plotH + 8}" width="52" height="18" rx="4" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
-            <text x="${cx}" y="${padT + plotH + 20.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[10px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[10px]'}">${d.shortLabel}</text>
+            <rect x="${cx - 28}" y="${padT + plotH + 10}" width="56" height="22" rx="5" fill="${isSelected ? '#0d9488' : '#f1f5f9'}" class="${isSelected ? '' : 'dark:fill-slate-800/90'} shadow-2xs" />
+            <text x="${cx}" y="${padT + plotH + 24.5}" text-anchor="middle" fill="${isSelected ? '#ffffff' : 'currentColor'}" class="${isSelected ? 'font-black text-[11px]' : 'fill-slate-700 dark:fill-slate-200 font-bold text-[11px]'}">${d.shortLabel}</text>
           </g>
         `;
       });
@@ -2942,11 +2942,11 @@
            title="Klik untuk buka rincian ${d.label}"
         >
           <!-- Hitbox transparan kolom penuh -->
-          <rect x="${colLeft}" y="${padT - 14}" width="${colW}" height="${plotH + 42}" fill="transparent" />
+          <rect x="${colLeft}" y="${padT - 14}" width="${colW}" height="${plotH + 48}" fill="transparent" />
           <!-- Garis panduan vertikal pada bulan yang aktif -->
-          <line id="studentChartGuide_${d.key}" x1="${cx}" y1="${padT - 8}" x2="${cx}" y2="${padT + plotH + 6}" 
+          <line id="studentChartGuide_${d.key}" x1="${cx}" y1="${padT - 8}" x2="${cx}" y2="${padT + plotH + 8}" 
             stroke="#0d9488" 
-            stroke-width="2" 
+            stroke-width="2.5" 
             stroke-dasharray="3,3" 
             opacity="${isSelected ? '1' : '0'}" 
             pointer-events="none" 
@@ -2958,7 +2958,7 @@
     svgInner += '</g>';
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none max-h-[250px]" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox="0 0 ${svgW} ${svgH}" class="w-full h-auto overflow-visible select-none min-h-[280px] sm:min-h-[320px]" preserveAspectRatio="xMidYMid meet">
         ${svgInner}
       </svg>
     `;
