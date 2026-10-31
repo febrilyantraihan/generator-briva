@@ -8,13 +8,13 @@
 
   // --- 1. STATE & STORAGE KEY ---
   const SANTRI_STORAGE_KEY = 'partner_fatih_santri_db_v1';
-  const SANTRI_MONTHLY_STORE_KEY = 'partner_fatih_santri_monthly_db_v9';
+  const SANTRI_MONTHLY_STORE_KEY = 'partner_fatih_santri_monthly_db_v10';
   const SANTRI_HISTORY_STORAGE_KEY = 'partner_fatih_santri_history_v1';
   const SANTRI_MUTATIONS_STORAGE_KEY = 'partner_fatih_santri_mutations_v1';
 
 
 
-  let currentPeriodKey = '10-2026';
+  let currentPeriodKey = '11-2026';
   let comparisonPeriodKey = '10-2026';
   let monthlySantriStore = {};
   let santriDataList = [];
@@ -615,9 +615,7 @@
     }
 
     // Tentukan periode aktif (Default November 2026 Real, dengan pembanding Oktober 2026)
-    if (!monthlySantriStore[currentPeriodKey]) {
-      currentPeriodKey = monthlySantriStore['11-2026'] ? '11-2026' : '10-2026';
-    }
+    currentPeriodKey = monthlySantriStore['11-2026'] ? '11-2026' : (monthlySantriStore['10-2026'] ? '10-2026' : currentPeriodKey);
     comparisonPeriodKey = (currentPeriodKey === '11-2026' && monthlySantriStore['10-2026']) 
       ? '10-2026' 
       : ((currentPeriodKey === '10-2026' && monthlySantriStore['09-2026']) ? '09-2026' : '10-2026');
