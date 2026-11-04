@@ -22851,6 +22851,15 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
 
     function deduplicateHumasPrograms(programs) {
       if (!Array.isArray(programs)) return [];
+      // FILTER KETAT: Abaikan data sinkronisasi modul lain (sync_ide, sync_jurnal, sync_keuangan, dsb)
+      programs = programs.filter(p => {
+        if (!p) return false;
+        const id = String(p.id || '').trim();
+        if (id.startsWith('sync_')) return false;
+        const uraian = String(p.uraian || '').trim();
+        if (uraian.startsWith('{') && (uraian.includes('ideList') || uraian.includes('classes') || uraian.includes('saldo') || uraian.includes('transaksi'))) return false;
+        return true;
+      });
       const seenIds = new Set();
       const seenKeys = new Set();
       const unique = [];
@@ -22878,6 +22887,19 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     function loadHumasPrograms() {
       neutralizeTasmiStudentsCache();
       try {
+        // Auto-heal: Bersihkan cache yang tercemar data sinkronisasi modul lain
+        ['humas_programs_master_v1', 'humas_programs_master_v2', 'humas_programs_master_v3', 'humas_programs_master_v4', 'humas_programs_master_v5'].forEach(k => {
+          try {
+            const raw = localStorage.getItem(k);
+            if (raw && (raw.includes('sync_ide') || raw.includes('unfairAdvantage') || raw.includes('sync_jurnal') || raw.includes('sync_keuangan'))) {
+              const arr = JSON.parse(raw);
+              if (Array.isArray(arr)) {
+                const cleaned = arr.filter(p => p && !String(p.id || '').startsWith('sync_') && !String(p.uraian || '').trim().startsWith('{'));
+                localStorage.setItem(k, JSON.stringify(cleaned));
+              }
+            }
+          } catch(e) {}
+        });
         localStorage.removeItem('humas_programs_master_v1');
         localStorage.removeItem('humas_programs_master_v2');
         localStorage.removeItem('humas_programs_master_v4');
@@ -27104,7 +27126,7 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
         // Jika mode timpa total, bersihkan data lama di cloud terlebih dahulu agar tidak tercampur data uji coba lama
         if (isOverwrite) {
           try {
-            await fetch(`${cfg.url}/rest/v1/humas_programs?id=neq.__keep_nothing__`, {
+            await fetch(`${cfg.url}/rest/v1/humas_programs?id=not.like.sync_*`, {
               method: 'DELETE',
               headers: {
                 'apikey': cfg.anonKey,
@@ -27115,7 +27137,7 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
             console.warn('Hapus data lama di Supabase error:', delErr);
           }
         }
-        const payload = humasState.programs.map(p => ({
+        const payload = humasState.programs.filter(p => p && !String(p.id || '').startsWith('sync_') && !String(p.uraian || '').trim().startsWith('{')).map(p => ({
           id: p.id,
           no: p.no,
           tgl: p.tgl,
@@ -27268,7 +27290,7 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
       if (!cfg.url || !cfg.anonKey) return false;
 
       try {
-        const endpoint = `${cfg.url}/rest/v1/humas_programs?select=*&order=start_date.asc`;
+        const endpoint = `${cfg.url}/rest/v1/humas_programs?id=not.like.sync_*&select=*&order=start_date.asc`;
         const res = await fetch(endpoint, {
           headers: {
             'apikey': cfg.anonKey,
@@ -27279,7 +27301,9 @@ Kirim doa dan dukungan terbaikmu untuk anak-anak santri di balasan cerita ini ya
         if (!res.ok) return false;
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          humasState.programs = data.map(item => ({
+          humasState.programs = data
+            .filter(item => item && !String(item.id || '').startsWith('sync_') && !(String(item.uraian || '').trim().startsWith('{') && String(item.uraian || '').includes('ideList')))
+            .map(item => ({
             id: item.id,
             no: item.no,
             tgl: item.tgl,
@@ -27654,6 +27678,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
@@ -40611,6 +40636,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42531,6 +42557,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
