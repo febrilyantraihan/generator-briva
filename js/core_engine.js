@@ -27991,6 +27991,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34120,7 +34121,7 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
   window.updateJurnalCloudStatusBadge = updateJurnalCloudStatusBadge;
   window.getJurnalSupabaseConfig = getJurnalSupabaseConfig;
 
-  // Global Bridge untuk Co-Pilot Fathiya AI
+  // Global Bridge untuk Co-Pilot Malih AI
   window.renderJurnalDashboard = renderJurnalDashboard;
   window.renderJurnalClassCards = renderJurnalClassCards;
   window.renderJurnalTimetable = renderJurnalTimetable;
@@ -34191,7 +34192,7 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     return true;
   };
 
-  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Fathiya AI
+  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Malih AI
   window.renderJurnalDashboard = renderJurnalDashboard;
   window.renderJurnalClassCards = renderJurnalClassCards;
   window.renderJurnalTimetable = renderJurnalTimetable;
@@ -36200,7 +36201,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
   global.syncKeuanganToCloud = syncKeuanganToCloud;
   global.pullKeuanganFromCloud = pullKeuanganFromCloud;
 
-  // Global Bridge untuk Co-Pilot Fathiya AI
+  // Global Bridge untuk Co-Pilot Malih AI
   global.loadFinanceData = loadFinanceData;
   global.renderAllFinanceViews = renderAllFinanceViews;
   global.addFinanceTransactionDirect = function(tx) {
@@ -36215,7 +36216,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
       wallet: tx.wallet || 'pribadi',
       category: tx.category || (tx.type === 'masuk' ? 'Gaji & Honorarium' : 'Kebutuhan Harian'),
       amount: Math.round(Number(tx.amount) || 0),
-      note: tx.note || 'Dicatat via Fathiya AI',
+      note: tx.note || 'Dicatat via Malih AI',
       isLeak: !!tx.isLeak
     };
     financeTransactions.unshift(newTx);
@@ -36282,7 +36283,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
         wallet: w,
         category: 'Penyesuaian Saldo',
         amount: Math.abs(diff),
-        note: `Penyesuaian saldo via Fathiya AI (Menjadi Rp ${amt.toLocaleString('id-ID')})`,
+        note: `Penyesuaian saldo via Malih AI (Menjadi Rp ${amt.toLocaleString('id-ID')})`,
         isLeak: false
       };
       financeTransactions.unshift(adjustTx);
@@ -40485,7 +40486,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
   window.pullIdeFromCloud = pullIdeFromCloud;
   window.syncIdeCloudManual = syncIdeCloudManual;
 
-  // Global Bridge untuk Co-Pilot Fathiya AI
+  // Global Bridge untuk Co-Pilot Malih AI
   window.loadIdeData = loadIdeData;
   window.saveIdeData = saveIdeData;
   window.renderIdeCards = renderIdeCards;
@@ -40498,7 +40499,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
       title: item.title || 'Ide Baru',
       category: item.category || 'jasa_digital',
       status: item.status || 'spark',
-      desc: item.desc || 'Dicatat via Fathiya AI Partner',
+      desc: item.desc || 'Dicatat via Malih AI Partner',
       estRevenue: parseInt(item.estRevenue) || 150000,
       scoreEase: parseInt(item.scoreEase) || 4,
       scoreDemand: parseInt(item.scoreDemand) || 4,
@@ -40534,6 +40535,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+// ==============================================================================
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
@@ -42582,6 +42584,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
