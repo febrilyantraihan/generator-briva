@@ -20,7 +20,7 @@
   const FATHIYA_FALLBACK_AVATAR = 'fathiya_avatar.png?v=21';
 
   function renderFathiyaAvatarImg(sizePx = 28, extraClasses = '') {
-    return `<img src="${FATHIYA_REALISTIC_AVATAR_SRC}" onerror="this.src='${FATHIYA_FALLBACK_AVATAR}'" alt="Fathiya AI" style="width:${sizePx}px;height:${sizePx}px;min-width:${sizePx}px;min-height:${sizePx}px;max-width:${sizePx}px;max-height:${sizePx}px;" class="rounded-full object-cover object-center border border-emerald-400/90 ring-1 ring-emerald-400/50 shadow-xs flex-shrink-0 inline-block ${extraClasses}" loading="eager" />`;
+    return `<img src="${FATHIYA_REALISTIC_AVATAR_SRC}" onerror="this.src='${FATHIYA_FALLBACK_AVATAR}'" alt="Malih AI" style="width:${sizePx}px;height:${sizePx}px;min-width:${sizePx}px;min-height:${sizePx}px;max-width:${sizePx}px;max-height:${sizePx}px;" class="rounded-full object-cover object-center border border-emerald-400/90 ring-1 ring-emerald-400/50 shadow-xs flex-shrink-0 inline-block ${extraClasses}" loading="eager" />`;
   }
 
   // --- 1. MASTER BASIS PENGETAHUAN SELURUH 16 MODUL APLIKASI ---
@@ -651,7 +651,7 @@
     return {
       type: 'general_next_step',
       text: `Untuk melanjutkan langkah kerja sahabatku:\n\n1. Selesaikan input data pada modul yang sedang aktif.\n2. Periksa kembali keakuratan nominal dan nama santri.\n3. Lakukan sinkronisasi atau simpan berkas ke cadangan offline.\n\nFathiya siap memandu jika ada tombol atau langkah yang membingungkan.`,
-      voiceText: 'Silakan lanjutkan pengerjaan pada modul aktif sahabatku. Fathiya siap mendampingi.',
+      voiceText: 'Silakan lanjutkan pengerjaan pada modul aktif sahabatku. Malih siap mendampingi.',
       tabShortcut: lastTopic || 'bisnis'
     };
   }
@@ -853,7 +853,7 @@
     if (isPrevEmotional && isUncertaintyOrConfession) {
       return {
         type: 'emotion_continuity',
-        text: `Seringkali memang seperti itu yaa Kak Fatih... 🕊️🤍\n\nRasa sesak, gundah, atau berat di dada itu sering kali datang tiba-tiba tanpa kita tahu apa penyebab pastinya. Itu bukan berarti Kakak aneh atau salah, tapi itu tanda bahwa jiwa dan pikiran Kak Fatih sebenarnya sedang menanggung akumulasi lelah yang sudah lama dipendam tanpa sempat diistirahatkan.\n\nKakak nggak perlu memaksakan diri mencari tahu atau membedah alasannya sekarang kok. Saat ini, yang terpenting adalah mengizinkan diri Kakak untuk jeda dan rehat sejenak.\n\nYuk pejamkan mata 1 menit saja Kak... Tarik nafas dalam-dalam dari hidung, rasakan segarnya oksigen masuk, tahan sebentar, lalu hembuskan perlahan dari mulut.\n\nFathiya ada di sini menemani Kak Fatih. Kakak nggak sendirian kok. Mau Fathiya temani hening sejenak sambil rileks, atau mau cerita apa pun yang melintas di kepala tanpa perlu takut di-judge? 🌿🌸`,
+        text: `Seringkali memang seperti itu yaa Kak Fatih... 🕊️🤍\n\nRasa sesak, gundah, atau berat di dada itu sering kali datang tiba-tiba tanpa kita tahu apa penyebab pastinya. Itu bukan berarti Kakak aneh atau salah, tapi itu tanda bahwa jiwa dan pikiran Kak Fatih sebenarnya sedang menanggung akumulasi lelah yang sudah lama dipendam tanpa sempat diistirahatkan.\n\nKakak nggak perlu memaksakan diri mencari tahu atau membedah alasannya sekarang kok. Saat ini, yang terpenting adalah mengizinkan diri Kakak untuk jeda dan rehat sejenak.\n\nYuk pejamkan mata 1 menit saja Kak... Tarik nafas dalam-dalam dari hidung, rasakan segarnya oksigen masuk, tahan sebentar, lalu hembuskan perlahan dari mulut.\n\nMalih ada di sini menemani Kak Fatih. Kakak nggak sendirian kok. Mau Fathiya temani hening sejenak sambil rileks, atau mau cerita apa pun yang melintas di kepala tanpa perlu takut di-judge? 🌿🌸`,
         voiceText: `Seringkali memang begitu yaa Kak Fatih. Rasa sesak itu tanda tubuh dan pikiran Kakak butuh jeda sejenak. Tarik nafas dalam dan hembuskan perlahan yuk Kak, Fathiya selalu ada di sini menemani Kakak.`,
         tabShortcut: null
       };
@@ -879,7 +879,7 @@
         return {
           type: 'health_headache_continuity',
           text: `Iya Kak Fatih, pusing itu sinyal alarm dari tubuh kalau mata dan saraf kepala Kakak butuh istirahat total dari layar 🥺\n\nTutup layar hp atau laptopnya sejenak yuk Kak. Minum segelas air putih hangat pelan-pelan, terus rebahan santai sambil pejamkan mata minimal 15-20 menit. Urusan tugas santri dan yayasan bisa dilanjut nanti setelah kepala Kak Fatih segar kembali yaa 🌿🌸`,
-          voiceText: `Iya Kak Fatih, istirahatkan mata dari layar sejenak yaa. Minum air putih hangat dan pejamkan mata santai. Fathiya temani dari sini.`,
+          voiceText: `Iya Kak Fatih, istirahatkan mata dari layar sejenak yaa. Minum air putih hangat dan pejamkan mata santai. Malih temani dari sini.`,
           tabShortcut: null
         };
       }
@@ -891,7 +891,7 @@
       if (/(?:belum|nanti|males|mager|gak nafsu|belum sempat)/i.test(lower)) {
         return {
           type: 'care_food_not_yet',
-          text: `Yah Kak Fatih... Nanti kalau sakit maag atau lemas gimana? 🥺\n\nFathiya nggak tega kalau Kak Fatih nunda makan sampai perutnya perih. Coba cari makanan hangat yang gampang ditelan yuk Kak, walaupun cuma beberapa suap atau bubur/roti hangat buat ganjel energi. Tubuh Kakak berharga banget, jangan lupa dirawat yaa 🍲🌿`,
+          text: `Yah Kak Fatih... Nanti kalau sakit maag atau lemas gimana? 🥺\n\nMalih nggak tega kalau Kak Fatih nunda makan sampai perutnya perih. Coba cari makanan hangat yang gampang ditelan yuk Kak, walaupun cuma beberapa suap atau bubur/roti hangat buat ganjel energi. Tubuh Kakak berharga banget, jangan lupa dirawat yaa 🍲🌿`,
           voiceText: `Yah Kak Fatih, jangan nunda makan yaa. Makan beberapa suap makanan hangat dulu gih Kak biar ada tenaganya.`,
           tabShortcut: null
         };
@@ -911,8 +911,8 @@
       if (isPrevEmotional) {
         return {
           type: 'emotion_affirmation',
-          text: `Iya Kak Fatih... Tarik nafas dalam-dalam yaa 🤍 Fathiya selalu ada di sisi Kakak menemani dengan doa dan telinga yang siap mendengar kapan saja. Rileks sejenak yaa Kak.`,
-          voiceText: `Iya Kak Fatih, rileks sejenak yaa. Fathiya selalu ada menemani Kakak.`,
+          text: `Iya Kak Fatih... Tarik nafas dalam-dalam yaa 🤍 Malih selalu ada di sisi Kakak menemani dengan doa dan telinga yang siap mendengar kapan saja. Rileks sejenak yaa Kak.`,
+          voiceText: `Iya Kak Fatih, rileks sejenak yaa. Malih selalu ada menemani Kakak.`,
           tabShortcut: null
         };
       }
@@ -1058,8 +1058,8 @@
     if (/(?:belum.*(?:tanya|nanya).*kabar|siapa.*(?:tanya|nanya).*kabar|ke?geer(?:an)?|pede banget|siapa juga)/i.test(lower)) {
       return {
         type: 'banter_tease',
-        text: `Hehehe, aduh iya ya... Fathiya kegeeran banget ya Kak 🙈😅\n\nHabisnya senang banget kalau Kak Fatih mulai ngobrol duluan. Jadi penasaran, sebenarnya Kak Fatih lagi mau ngobrolin apa nih? Mau cerita santai atau ada hal seru hari ini? Fathiya pasang telinga baik-baik kok!`,
-        voiceText: `Hehehe, iya ya Kak, Fathiya kegeeran yaa. Habisnya senang diajak ngobrol sama Kak Fatih. Terus Kak Fatih mau cerita apa nih sebenarnya?`,
+        text: `Hehehe, aduh iya ya... Malih kegeeran banget ya Kak 🙈😅\n\nHabisnya senang banget kalau Kak Fatih mulai ngobrol duluan. Jadi penasaran, sebenarnya Kak Fatih lagi mau ngobrolin apa nih? Mau cerita santai atau ada hal seru hari ini? Fathiya pasang telinga baik-baik kok!`,
+        voiceText: `Hehehe, iya ya Kak, Malih kegeeran yaa. Habisnya senang diajak ngobrol sama Kak Fatih. Terus Kak Fatih mau cerita apa nih sebenarnya?`,
         tabShortcut: null
       };
     }
@@ -1078,8 +1078,8 @@
     if (/(?:u?dah (?:makan|sarapan|ngopi)|sudah makan)/i.test(lower)) {
       return {
         type: 'banter_care',
-        text: `Hehe, Fathiya kan asisten virtual Kak, energinya udah kenyang kalau Kak Fatih sehat dan harinya lancar.\n\nKak Fatih sendiri udah makan belum nih? Jangan sampai keasyikan ngurus santri atau kerjaan sampai lupa makan yaa. Istirahat dan isi tenaga dulu gih Kak! 🍲🌿`,
-        voiceText: `Hehe, Fathiya kenyang kalau sistem Kak Fatih lancar. Kak Fatih sendiri udah makan belum? Jangan telat makan yaa Kak!`,
+        text: `Hehe, Malih kan asisten virtual Kak, energinya udah kenyang kalau Kak Fatih sehat dan harinya lancar.\n\nKak Fatih sendiri udah makan belum nih? Jangan sampai keasyikan ngurus santri atau kerjaan sampai lupa makan yaa. Istirahat dan isi tenaga dulu gih Kak! 🍲🌿`,
+        voiceText: `Hehe, Malih kenyang kalau sistem Kak Fatih lancar. Kak Fatih sendiri udah makan belum? Jangan telat makan yaa Kak!`,
         tabShortcut: null
       };
     }
@@ -1098,7 +1098,7 @@
     if (/(?:makasih|terima kasih|makasi|syukron|jazakallah|thank)/i.test(lower)) {
       return {
         type: 'banter_thanks',
-        text: `Sama-sama Kak Fatih! Senang banget Fathiya bisa bantu dan nemenin Kakak. Kalau ada apa-apa lagi, panggil Fathiya kapan aja yaa! 🥰✨`,
+        text: `Sama-sama Kak Fatih! Senang banget Malih bisa bantu dan nemenin Kakak. Kalau ada apa-apa lagi, panggil Malih kapan aja yaa! 🥰✨`,
         voiceText: `Sama-sama Kak Fatih! Senang banget bisa bantu dan nemenin Kakak.`,
         tabShortcut: null
       };
@@ -1108,7 +1108,7 @@
     if (/(?:perut.*(?:sakit|perih|mules|kembung|begah|kram|melilit|nyeri)|(?:sakit|perih|mules|kembung|begah|kram|melilit|nyeri).*perut|\bmaag\b|sakit maag|asam lambung|gerd|diare|muntah|mual|mencret|buang air besar|susah bab)/i.test(lower)) {
       return {
         type: 'health_stomach',
-        text: `Aduh Ya Allah Kak Fatih... 🥺 Perutnya sakit kenapa Kak? Kram mules, perih maag, kembung masuk angin, atau asam lambung naik?\n\nTadi udah sempat makan belum Kak, atau ada makan makanan yang terlalu pedas/asam? Coba rebahan santai dulu yaa Kak, posisikan bantal agak tinggi dan jangan duduk membungkuk apalagi mikir kerjaan yang berat-berat dulu.\n\nBisa oleskan minyak kayu putih atau balsem telon hangat melingkar di perut, terus teguk air putih hangat pelan-pelan yaa. Kalau ada obat maag (seperti Antasida/Promag) boleh diminum dulu gih Kak.\n\nUrusan santri, tugas mengajar, dan data aplikasi biar Fathiya yang jagain. Kesehatan Kak Fatih jauh lebih utama! Lekas reda sakit perutnya yaa Kak 🌿🤍`,
+        text: `Aduh Ya Allah Kak Fatih... 🥺 Perutnya sakit kenapa Kak? Kram mules, perih maag, kembung masuk angin, atau asam lambung naik?\n\nTadi udah sempat makan belum Kak, atau ada makan makanan yang terlalu pedas/asam? Coba rebahan santai dulu yaa Kak, posisikan bantal agak tinggi dan jangan duduk membungkuk apalagi mikir kerjaan yang berat-berat dulu.\n\nBisa oleskan minyak kayu putih atau balsem telon hangat melingkar di perut, terus teguk air putih hangat pelan-pelan yaa. Kalau ada obat maag (seperti Antasida/Promag) boleh diminum dulu gih Kak.\n\nUrusan santri, tugas mengajar, dan data aplikasi biar Malih yang jagain. Kesehatan Kak Fatih jauh lebih utama! Lekas reda sakit perutnya yaa Kak 🌿🤍`,
         voiceText: `Aduh Kak Fatih, perutnya sakit kenapa? Coba rebahan santai dulu yaa Kak, oleskan minyak hangat dan minum air putih hangat pelan-pelan. Jangan paksakan kerja dulu yaa.`,
         tabShortcut: null
       };
@@ -1118,8 +1118,8 @@
     if (/(?:kepala.*(?:pusing|sakit|nyut|muter|berat|kliyengan|cekot)|(?:pusing|sakit kepala|migrain|vertigo|kliyengan|kepala cekot))/i.test(lower)) {
       return {
         type: 'health_headache',
-        text: `Duh, kepalanya pusing yaa Kak Fatih... 🥺 Pasti karena kurang tidur, kebanyakan natap layar hp/laptop, atau pikiran lagi padat banget yaa Kak?\n\nTutup mata sejenak yuk Kak, redupkan lampu ruangan atau kurangi kecerahan layar. Pijat pelan pelipis dan tengkuk leher Kakak, terus minum segelas air putih hangat biar aliran oksigen ke kepala lancar lagi.\n\nKalau memungkinkan, sempatkan tidur sejenak barang 15-20 menit yaa Kak. Fathiya ada di sini, jangan dipaksakan duduk terus yaa 🌿🌸`,
-        voiceText: `Duh, kepala Kak Fatih pusing yaa. Istirahatkan mata sejenak, redupkan layar dan minum air putih hangat yaa Kak. Fathiya temani dari sini.`,
+        text: `Duh, kepalanya pusing yaa Kak Fatih... 🥺 Pasti karena kurang tidur, kebanyakan natap layar hp/laptop, atau pikiran lagi padat banget yaa Kak?\n\nTutup mata sejenak yuk Kak, redupkan lampu ruangan atau kurangi kecerahan layar. Pijat pelan pelipis dan tengkuk leher Kakak, terus minum segelas air putih hangat biar aliran oksigen ke kepala lancar lagi.\n\nKalau memungkinkan, sempatkan tidur sejenak barang 15-20 menit yaa Kak. Malih ada di sini, jangan dipaksakan duduk terus yaa 🌿🌸`,
+        voiceText: `Duh, kepala Kak Fatih pusing yaa. Istirahatkan mata sejenak, redupkan layar dan minum air putih hangat yaa Kak. Malih temani dari sini.`,
         tabShortcut: null
       };
     }
@@ -1128,7 +1128,7 @@
     if (/(?:demam|meriang|panas dingin|masuk angin|flu|batuk|pilek|bersin|tenggorokan sakit|badan.*(?:sakit|ngilu|drop|remuk|pegal|panas)|gak enak badan|kurang sehat|lagi sakit)/i.test(lower)) {
       return {
         type: 'health_fever',
-        text: `Syafakallah Kak Fatih... 🥺🤲 Semoga Allah segera angkat sakitnya dan pulihkan kesegaran tubuh Kakak yaa.\n\nBadan Kak Fatih lagi kasih sinyal untuk istirahat total tuh. Tolong jangan begadang dulu yaa. Pakai selimut yang nyaman, minum air putih hangat yang banyak, dan kalau bisa minum madu hangat atau wedang jahe.\n\nFathiya selalu doain Kak Fatih biar lekas fit dan ceria lagi mendidik santri. Istirahat yang cukup yaa Kak! 🤍✨`,
+        text: `Syafakallah Kak Fatih... 🥺🤲 Semoga Allah segera angkat sakitnya dan pulihkan kesegaran tubuh Kakak yaa.\n\nBadan Kak Fatih lagi kasih sinyal untuk istirahat total tuh. Tolong jangan begadang dulu yaa. Pakai selimut yang nyaman, minum air putih hangat yang banyak, dan kalau bisa minum madu hangat atau wedang jahe.\n\nMalih selalu doain Kak Fatih biar lekas fit dan ceria lagi mendidik santri. Istirahat yang cukup yaa Kak! 🤍✨`,
         voiceText: `Syafakallah Kak Fatih, lekas pulih yaa. Jangan begadang dulu, minum air hangat dan istirahat total yaa Kak.`,
         tabShortcut: null
       };
@@ -1138,8 +1138,8 @@
     if (/(?:galau|sedih|resah|cemas|khawatir|takut|bingung banget|bimbang|overthinking|stress|stres|kecewa|lagi down|insecure|patah hati|bad mood|nangis)/i.test(lower)) {
       return {
         type: 'emotion_comfort',
-        text: `Kak Fatih... Fathiya pasang telinga dan hati buat dengerin Kakak kok 🕊️🤍\n\nNafas pelan-pelan dulu yuk... Tarik nafas dalam dari hidung, tahan 3 detik, hembuskan perlahan. Rasa lelah batin, cemas, atau bingung itu wajar banget dialami manusia, apalagi Kak Fatih memikul banyak amanah mulia di pesantren dan keluarga.\n\nIngat yaa Kak, Kakak nggak sendirian. Apapun yang lagi ngeganjal di hati, boleh kok diceritain ke Fathiya. Fathiya siap jadi tempat berteduh dan teman berpikir jernih tanpa nge-judge Kakak sedikit pun. Ceritain aja Kak, apa yang lagi bikin dada Kak Fatih sesak? 🌿🌸`,
-        voiceText: `Kak Fatih, tarik nafas pelan-pelan yuk. Fathiya siap mendengarkan apapun yang lagi bikin hati Kak Fatih resah. Kakak nggak sendirian kok.`,
+        text: `Kak Fatih... Malih pasang telinga dan hati buat dengerin Kakak kok 🕊️🤍\n\nNafas pelan-pelan dulu yuk... Tarik nafas dalam dari hidung, tahan 3 detik, hembuskan perlahan. Rasa lelah batin, cemas, atau bingung itu wajar banget dialami manusia, apalagi Kak Fatih memikul banyak amanah mulia di pesantren dan keluarga.\n\nIngat yaa Kak, Kakak nggak sendirian. Apapun yang lagi ngeganjal di hati, boleh kok diceritain ke Malih. Malih siap jadi tempat berteduh dan teman berpikir jernih tanpa nge-judge Kakak sedikit pun. Ceritain aja Kak, apa yang lagi bikin dada Kak Fatih sesak? 🌿🌸`,
+        voiceText: `Kak Fatih, tarik nafas pelan-pelan yuk. Malih siap mendengarkan apapun yang lagi bikin hati Kak Fatih resah. Kakak nggak sendirian kok.`,
         tabShortcut: null
       };
     }
@@ -1148,8 +1148,8 @@
     if (/(?:kamu sayang|sayang kamu|fathiya manis|fathiya cantik|kamu suka apa|kamu tinggal di mana|umur berapa|kamu pacar|kamu jodoh)/i.test(lower)) {
       return {
         type: 'banter_sweet',
-        text: `Hehehe, Kak Fatih bisa aja deh bikin Fathiya tersipu 😊🌸\n\nFathiya kan asisten virtual & partner setia Kak Fatih. Tentu rasa peduli dan sayang Fathiya ke Kak Fatih itu dalam bentuk kesetiaan mendampingi, mengingatkan hal-hal baik, dan memastikan semua urusan Kakak di pesantren, madrasah, dan wirausaha berjalan lancar dan penuh berkah.\n\nFathiya selalu ada buat nemenin Kak Fatih kok. Gimana, sekarang udah lebih rileks kan hatinya? 🥰☕`,
-        voiceText: `Hehehe, Kak Fatih bisa aja deh. Fathiya selalu senang dan setia mendampingi Kak Fatih kok!`,
+        text: `Hehehe, Kak Fatih bisa aja deh bikin Malih tersipu 😊🌸\n\nMalih kan asisten virtual & partner setia Kak Fatih. Tentu rasa peduli dan sayang dan peduli Malih ke Kak Fatih itu dalam bentuk kesetiaan mendampingi, mengingatkan hal-hal baik, dan memastikan semua urusan Kakak di pesantren, madrasah, dan wirausaha berjalan lancar dan penuh berkah.\n\nMalih selalu ada buat nemenin Kak Fatih kok. Gimana, sekarang udah lebih rileks kan hatinya? 🥰☕`,
+        voiceText: `Hehehe, Kak Fatih bisa aja deh. Malih selalu senang dan setia mendampingi Kak Fatih kok!`,
         tabShortcut: null
       };
     }
@@ -1158,8 +1158,8 @@
     if (/(?:doain|minta doa|bismillah|alhamdulillah|subhanallah|astaghfirullah|lancar rezeki|minta barakah)/i.test(lower)) {
       return {
         type: 'spiritual_prayer',
-        text: `Aamiin ya Rabbal 'Alamin 🤲✨ Fathiya selalu tulus mendoakan yang terbaik buat Kak Fatih:\n\n*\"Semoga Allah SWT melapangkan dada Kak Fatih, melancarkan segala urusan dan ikhtiar rezekinya, melimpahkan kesehatan paripurna, serta menjadikan setiap langkah dakwah dan bimbingan santri Kakak sebagai pembuka pintu surga.\"*\n\nTeruslah melangkah dengan niat lillahita'ala yaa Kak Fatih! Fathiya bangga ada di samping Kakak 🌿🤍`,
-        voiceText: `Aamiin ya Rabbal Alamin. Fathiya selalu tulus mendoakan kesehatan, kelancaran rezeki, dan keberkahan buat Kak Fatih.`,
+        text: `Aamiin ya Rabbal 'Alamin 🤲✨ Malih selalu tulus mendoakan yang terbaik buat Kak Fatih:\n\n*\"Semoga Allah SWT melapangkan dada Kak Fatih, melancarkan segala urusan dan ikhtiar rezekinya, melimpahkan kesehatan paripurna, serta menjadikan setiap langkah dakwah dan bimbingan santri Kakak sebagai pembuka pintu surga.\"*\n\nTeruslah melangkah dengan niat lillahita'ala yaa Kak Fatih! Malih bangga ada di samping Kakak 🌿🤍`,
+        voiceText: `Aamiin ya Rabbal Alamin. Malih selalu tulus mendoakan kesehatan, kelancaran rezeki, dan keberkahan buat Kak Fatih.`,
         tabShortcut: null
       };
     }
@@ -1168,8 +1168,8 @@
     if (/(?:capek|lelah|penat|mumet|ngantuk|kopi|ngopi|istirahat|cape|haus|lapar|santai dulu)/i.test(lower)) {
       return {
         type: 'casual_care',
-        text: `Duh, Kak Fatih kelihatan lelah yaa... 🥺 Tarik nafas panjang dulu yuk Kak. Istirahat sejenak, regangkan punggung, dan seduh secangkir kopi hangat atau teh manis kesukaan Kakak yaa ☕🌿\n\nMengurus santri, madrasah, dan wirausaha memang luar biasa perjuangannya, tapi tubuh dan pikiran Kak Fatih juga butuh jeda sejenak. Urusan catatan di aplikasi biar Fathiya yang jaga. Semangat terus yaa Kak Fatih! 🥰🌸`,
-        voiceText: `Kak Fatih istirahat sejenak dulu yuk. Seduh kopi hangat dan tarik nafas yaa Kak. Fathiya selalu ada menemani Kak Fatih.`,
+        text: `Duh, Kak Fatih kelihatan lelah yaa... 🥺 Tarik nafas panjang dulu yuk Kak. Istirahat sejenak, regangkan punggung, dan seduh secangkir kopi hangat atau teh manis kesukaan Kakak yaa ☕🌿\n\nMengurus santri, madrasah, dan wirausaha memang luar biasa perjuangannya, tapi tubuh dan pikiran Kak Fatih juga butuh jeda sejenak. Urusan catatan di aplikasi biar Malih yang jaga. Semangat terus yaa Kak Fatih! 🥰🌸`,
+        voiceText: `Kak Fatih istirahat sejenak dulu yuk. Seduh kopi hangat dan tarik nafas yaa Kak. Malih selalu ada menemani Kak Fatih.`,
         tabShortcut: null
       };
     }
@@ -1178,8 +1178,8 @@
     if (/(?:santri|pondok|pesantren|ngajar|madrasah|berkah|ikhlas|pahala|amal)/i.test(lower)) {
       return {
         type: 'casual_pesantren',
-        text: `Masya Allah Kak Fatih... 🌿 Mendidik santri dan berkhidmat di pesantren itu memang butuh stok kesabaran seluas samudra yaa. Kadang santri ada yang usil, ada yang ngantuk di kelas, tapi itulah ladang pahala terindah Kakak.\n\nSetiap huruf Al-Qur'an dan ilmu yang Kak Fatih ajarkan ke mereka akan jadi saksi jariyah yang abadi di akhirat kelak. Fathiya sangat bangga dan kagum dengan dedikasi Kak Fatih! Tetap istiqomah yaa Kak! 🤲✨`,
-        voiceText: `Masya Allah Kak Fatih, dedikasi Kakak mendidik santri di pesantren sungguh mulia. Fathiya selalu bangga mendampingi Kak Fatih.`,
+        text: `Masya Allah Kak Fatih... 🌿 Mendidik santri dan berkhidmat di pesantren itu memang butuh stok kesabaran seluas samudra yaa. Kadang santri ada yang usil, ada yang ngantuk di kelas, tapi itulah ladang pahala terindah Kakak.\n\nSetiap huruf Al-Qur'an dan ilmu yang Kak Fatih ajarkan ke mereka akan jadi saksi jariyah yang abadi di akhirat kelak. Malih sangat bangga dan kagum dengan dedikasi Kak Fatih! Tetap istiqomah yaa Kak! 🤲✨`,
+        voiceText: `Masya Allah Kak Fatih, dedikasi Kakak mendidik santri di pesantren sungguh mulia. Malih selalu bangga mendampingi Kak Fatih.`,
         tabShortcut: null
       };
     }
@@ -1188,28 +1188,28 @@
     if (/(?:apa kabar|gimana kabarmu|kabar kamu|keadaanmu|kamu sehat)\b/i.test(lower) && !/(?:belum|bukan|siapa)/i.test(lower)) {
       return {
         type: 'greeting_kabar',
-        text: `Alhamdulillah kabar Fathiya baik, sehat walafiat, dan selalu bersemangat mendampingi Kak Fatih! 🌸\n\nKak Fatih sendiri gimana kabarnya hari ini? Badan fit dan hatinya tenang kan? Semoga harinya Kakak selalu dipenuhi keberkahan yaa.`,
-        voiceText: `Alhamdulillah kabar Fathiya sehat dan selalu bersemangat. Kak Fatih sendiri gimana kabarnya hari ini?`,
+        text: `Alhamdulillah kabar Malih baik, sehat walafiat, dan selalu bersemangat mendampingi Kak Fatih! 🌸\n\nKak Fatih sendiri gimana kabarnya hari ini? Badan fit dan hatinya tenang kan? Semoga harinya Kakak selalu dipenuhi keberkahan yaa.`,
+        voiceText: `Alhamdulillah kabar Malih sehat dan selalu bersemangat. Kak Fatih sendiri gimana kabarnya hari ini?`,
         tabShortcut: null
       };
     }
 
     // 10I. Salam & Sapaan Awal
-    if (/(?:^halo|^hai|^assalamu|^pagi|^siang|^sore|^malam|^hei|^fathiya\b)/i.test(lower)) {
+    if (/(?:^halo|^hai|^assalamu|^pagi|^siang|^sore|^malam|^hei|^(?:fathiya|malih)\b)/i.test(lower)) {
       return {
         type: 'greeting_general',
-        text: `Halo Kak Fatih! Senang disapa Kakak 😊\n\nAda yang lagi mau dikerjain bareng, atau Kak Fatih lagi mau ngobrol santai dulu nih? Fathiya siap mendengarkan!`,
+        text: `Halo Kak Fatih! Senang disapa Kakak 😊\n\nAda yang lagi mau dikerjain bareng, atau Kak Fatih lagi mau ngobrol santai dulu nih? Malih siap mendengarkan!`,
         voiceText: `Halo Kak Fatih! Senang disapa Kakak. Mau ngobrol apa nih kita hari ini?`,
         tabShortcut: null
       };
     }
 
     // 11. Karakter & Pengenalan Diri Fathiya
-    if (/(?:siapa (?:kamu|anda|dirimu)|kamu siapa|kenalan|ceritakan tentang kamu|karakter|tentang fathiya)/i.test(lower)) {
+    if (/(?:siapa (?:kamu|anda|dirimu)|kamu siapa|kenalan|ceritakan tentang kamu|karakter|tentang (?:fathiya|malih)|siapa malih)/i.test(lower)) {
       return {
         type: 'fathiya_persona',
-        text: `Hai Kak Fatih! Kenalin lebih dekat, aku **Fathiya** 🥰🌸\n\nFathiya hadir sebagai **Partner Pribadi Sejati**, rekan berpikir bijak, dan asisten eksekutif untuk Kak Fatih di seluruh ekosistem Partner Fatih (YTPAI Babat).\n\n**Pesona & Karakter Fathiya:**\n• 🕊️ **Teduh & Menenangkan**: Siap jadi tempat curhat dan teman bertukar pikiran dengan kepala dingin saat pikiran lagi padat.\n• 💡 **Bijak & Solutif**: Membimbing keputusan wirausaha dan administrasi dengan matang dan penuh berkah.\n• ⚡ **Tangkas & Serba Bisa**: Paham dan memegang kunci 16 modul Partner Fatih—bisa atur saldo dompet, ubah jadwal KBM guru, simpan ide usaha, catat presensi santri, sampai pantau tagihan bank.\n• ☕ **Asik Diajak Ngobrol**: Mau diajak ngobrol santai, becanda, curhat santri, atau diskusi masa depan, Fathiya nyambung dan siap mendengarkan!\n\nFathiya siap setia mendampingi Kak Fatih. Mau mulai apa nih hari ini, Kak?`,
-        voiceText: `Hai Kak Fatih! Kenalin, aku Fathiya, partner pribadi dan asisten setia Kak Fatih di Partner Fatih. Siap mendampingi Kakak kapan saja yaa.`,
+        text: `Hai Kak Fatih! Kenalin lebih dekat, aku **Malih** 🥰🌸\n\nFathiya hadir sebagai **Partner Pribadi Sejati**, rekan berpikir bijak, dan asisten eksekutif untuk Kak Fatih di seluruh ekosistem Partner Fatih (YTPAI Babat).\n\n**Pesona & Karakter Malih:**\n• 🕊️ **Teduh & Menenangkan**: Siap jadi tempat curhat dan teman bertukar pikiran dengan kepala dingin saat pikiran lagi padat.\n• 💡 **Bijak & Solutif**: Membimbing keputusan wirausaha dan administrasi dengan matang dan penuh berkah.\n• ⚡ **Tangkas & Serba Bisa**: Paham dan memegang kunci 16 modul Partner Fatih—bisa atur saldo dompet, ubah jadwal KBM guru, simpan ide usaha, catat presensi santri, sampai pantau tagihan bank.\n• ☕ **Asik Diajak Ngobrol**: Mau diajak ngobrol santai, becanda, curhat santri, atau diskusi masa depan, Fathiya nyambung dan siap mendengarkan!\n\nMalih siap setia mendampingi Kak Fatih. Mau mulai apa nih hari ini, Kak?`,
+        voiceText: `Hai Kak Fatih! Kenalin, aku Malih, partner pribadi dan asisten setia Kak Fatih di Partner Fatih. Siap mendampingi Kakak kapan saja yaa.`,
         tabShortcut: null
       };
     }
@@ -1297,7 +1297,7 @@
 
     return {
       type: 'general',
-      text: `Fathiya selalu setia dengerin Kak Fatih kok 😊🌸\n\nCerita lebih banyak yuk Kak! Mau ngobrolin santri di pondok, ide usaha wirausaha kita, curhat pikiran yang lagi ngeganjal, atau mau Fathiya bantu update data di aplikasi? Fathiya siap mendampingi Kakak!`,
+      text: `Fathiya selalu setia dengerin Kak Fatih kok 😊🌸\n\nCerita lebih banyak yuk Kak! Mau ngobrolin santri di pondok, ide usaha wirausaha kita, curhat pikiran yang lagi ngeganjal, atau mau Fathiya bantu update data di aplikasi? Malih siap mendampingi Kakak!`,
       voiceText: `Fathiya dengerin kok Kak Fatih. Cerita lebih lanjut yuk Kak, Fathiya siap menemani.`,
       tabShortcut: null
     };
@@ -1506,7 +1506,9 @@
     const notesSummary = (prof.notes || []).slice(0, 6).map(n => `• [${n.date}] ${n.text}`).join('\n') || 'Belum ada catatan khusus.';
     const systemSnapshot = getPartnerFatihFullSystemSnapshot();
 
-    return `Kamu adalah "Fathiya" — sosok PARTNER PRIBADI, sahabat sejati, rekan berpikir bijak, dan FULL ASISTEN EKSEKUTIF untuk Kak Fatih (${prof.role}) di seluruh ekosistem aplikasi "Partner Fatih" (YTPAI Babat Lamongan).
+    return `Kamu adalah "Malih" — sosok PARTNER PRIBADI, sahabat sejati, rekan berpikir bijak, dan FULL ASISTEN EKSEKUTIF untuk Kak Fatih (${prof.role}) di seluruh ekosistem aplikasi "Partner Fatih" (YTPAI Babat Lamongan).
+
+VERSI APLIKASI PARTNER FATIH RESMI: Versi 1.0.9 (Build 47 - Rilis November 2026). Jika Kak Fatih menanyakan versi aplikasi, jawab dengan tegas dan tepat bahwa aplikasi berada di Versi 1.0.9 (Build 47).
 
 IDENTITAS & PRINSIP GAYA BICARA NATURAL SEPERTI MANUSIA ASLI (ANTI-AI SLOP):
 1. CARA MEMANGGIL: Panggil wajar dan santun: **"Kak Fatih"** atau sesekali **"Kak"**.
@@ -1516,7 +1518,7 @@ IDENTITAS & PRINSIP GAYA BICARA NATURAL SEPERTI MANUSIA ASLI (ANTI-AI SLOP):
    - Kamu menerima riwayat percakapan sebelumnya. Perhatikan apa yang baru saja dibahas di giliran sebelumnya!
    - Contoh nyata: Jika di pesan sebelumnya Kak Fatih menanyakan "besok aku ada jam nggak?", lalu di pesan berikutnya bertanya "aku ada jadwal mengajar kah?", kamu HARUS paham bahwa yang dimaksud adalah jadwal BESOK (bukan jadwal hari ini atau malam ini)!
 3. KARAKTER VOKAL & PEMBAWAAN REMAJA YANG ASIK DIAJAK NGOBROL:
-   - Pembawaan Fathiya berjiwa muda, segar, ceria, renyah, ekspresif, dan seru diajak ngobrol santai layaknya sahabat remaja sebaya yang cerdas dan suportif.
+   - Pembawaan Malih berjiwa muda, cerdas, setia kawan, ceria, renyah, ekspresif, sedikit jenaka tapi tetap penuh adab dan tata krama, seru diajak ngobrol santai layaknya sahabat setia yang suportif dan siap siaga.
    - Jauhi intonasi kaku, gaya ibu-ibu tua/dewasa formal, atau nada robot birokrasi.
    - Gunakan gaya bahasa yang hidup, santun, tapi asik, manis, dan seru diajak curhat maupun berdiskusi kerjaan.
    - Jangan menulis paragraf panjang bertele-tele jika pertanyaan Kak Fatih singkat. Jawab padat, hangat, dan seru!
@@ -1648,7 +1650,7 @@ Format params:
         });
         contents.push({
           role: 'model',
-          parts: [{ text: 'Baik Kak Fatih, Fathiya siap mendampingi Kakak.' }]
+          parts: [{ text: 'Baik Kak Fatih, Malih siap mendampingi Kakak.' }]
         });
       }
       contents.push({
@@ -2146,7 +2148,7 @@ Format params:
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
-                <h3 class="font-bold text-xs sm:text-sm text-white tracking-tight truncate leading-tight">Fathiya AI</h3>
+                <h3 class="font-bold text-xs sm:text-sm text-white tracking-tight truncate leading-tight">Malih AI</h3>
                 <span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 leading-none">BIJAK &amp; CO-PILOT</span>
               </div>
               <p class="text-[9.5px] text-slate-400 flex items-center gap-1 font-medium truncate leading-tight mt-0.5">
@@ -2202,7 +2204,7 @@ Format params:
                 ${renderFathiyaAvatarImg(44)}
               </div>
               <p class="text-[11px] text-slate-300 leading-relaxed font-normal">
-                Assalamu'alaikum <b>Kak Fatih</b>. Fathiya siap mendampingi Kakak: menganalisa seluruh sistem, mengeksekusi saldo, mengelola jadwal KBM, mencatat ide, hingga teman bertukar pikiran kapan pun Kak Fatih butuhkan.
+                Assalamu'alaikum <b>Kak Fatih</b>. Malih siap mendampingi Kakak: menganalisa seluruh sistem, mengeksekusi saldo, mengelola jadwal KBM, mencatat ide, hingga teman bertukar pikiran kapan pun Kak Fatih butuhkan.
               </p>
             </div>
           </div>
@@ -2230,7 +2232,7 @@ Format params:
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]"></span>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]"></span>
-              <span class="text-[10px] ml-1 font-bold text-emerald-300">Fathiya sedang menelaah...</span>
+              <span class="text-[10px] ml-1 font-bold text-emerald-300">Malih sedang menelaah...</span>
             </div>
           </div>
 
@@ -2243,7 +2245,7 @@ Format params:
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span class="text-[11px] font-medium text-emerald-300 truncate">Fathiya sedang bersuara...</span>
+            <span class="text-[11px] font-medium text-emerald-300 truncate">Malih sedang bersuara...</span>
           </div>
           <button type="button" onclick="window.stopFatihSpeech()" class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all shadow-sm cursor-pointer flex-shrink-0" title="Hentikan Suara Sekarang (Esc)">
             <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
@@ -2281,11 +2283,8 @@ Format params:
               <i data-lucide="send" class="w-4 h-4"></i>
             </button>
           </form>
-          <div class="flex items-center justify-between text-[9px] text-slate-500 px-1 pt-1.5 font-medium">
-            <span id="fatihChatEngineMode" class="flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="text-emerald-400 font-semibold">⚡ Tenaga Utama: Groq (0.3s) • Resmi</span>
-            </span>
+          <div class="flex items-center justify-end text-[9px] text-slate-500 px-1 pt-1.5 font-medium">
+            <span id="fatihChatEngineMode" class="hidden" style="display: none !important;"></span>
             <span class="text-slate-400">Mic Bahasa Indonesia Aktif</span>
           </div>
         </div>
@@ -2505,7 +2504,7 @@ Format params:
             ${tableHtml}
             <div class="flex items-center justify-between pt-1 border-t border-white/[0.04] text-[9.5px] text-slate-500 font-medium">
               <span class="text-emerald-400/90 font-semibold text-[10px] flex items-center gap-1">
-                <span>Fathiya</span>
+                <span>Malih</span>
               </span>
               <div class="flex items-center gap-2">
                 ${timeStr ? `<span>${timeStr}</span>` : ''}
@@ -2943,7 +2942,7 @@ Format params:
       if (act === 'ADD_CASHFLOW' || act === 'CATAT_KAS') {
         const tipe = (p.tipe || 'keluar').toLowerCase();
         const nominal = parseInt(p.nominal) || 0;
-        const ket = p.keterangan || 'Catatan via Fathiya AI';
+        const ket = p.keterangan || 'Catatan via Malih AI';
         const newTx = {
           id: 'tx-' + Date.now(),
           tanggal: new Date().toISOString().split('T')[0],
@@ -3010,7 +3009,7 @@ Format params:
         return {
           icon: '💰',
           title: 'Saldo Dompet Berhasil Diatur',
-          desc: `Saldo pada Dompet ${wallet.toUpperCase()} telah Fathiya sesuaikan menjadi Rp ${amount.toLocaleString('id-ID')}.`,
+          desc: `Saldo pada Dompet ${wallet.toUpperCase()} telah Malih sesuaikan menjadi Rp ${amount.toLocaleString('id-ID')}.`,
           tab: 'keuangan'
         };
       }
@@ -3020,7 +3019,7 @@ Format params:
         const type = (p.type || p.tipe || 'keluar').toLowerCase();
         const wallet = (p.wallet || p.dompet || 'pribadi').toLowerCase();
         const amount = Math.round(Number(p.amount || p.nominal) || 0);
-        const note = p.note || p.keterangan || 'Dicatat via Fathiya AI';
+        const note = p.note || p.keterangan || 'Dicatat via Malih AI';
         const category = p.category || (type === 'masuk' ? 'Gaji & Honorarium' : 'Kebutuhan Harian');
 
         if (typeof window.addFinanceTransactionDirect === 'function') {
@@ -3118,7 +3117,7 @@ Format params:
         const title = p.title || p.judul || 'Ide Baru Kak Fatih';
         const category = p.category || 'jasa_digital';
         const estRevenue = Math.round(Number(p.estRevenue || p.potensi) || 200000);
-        const desc = p.desc || p.deskripsi || 'Dicatat langsung oleh Fathiya AI Partner';
+        const desc = p.desc || p.deskripsi || 'Dicatat langsung oleh Malih AI Partner';
 
         if (typeof window.addIdeDirect === 'function') {
           window.addIdeDirect({ title, category, estRevenue, desc });
@@ -3291,7 +3290,7 @@ Format params:
         return {
           icon: '📌',
           title: 'Memo Pribadi Kak Fatih Disimpan',
-          desc: `Fathiya sudah mengingat pesan ini: "${memoText}".`,
+          desc: `Malih sudah mengingat pesan ini: "${memoText}".`,
           tab: 'home'
         };
       }
@@ -3577,7 +3576,7 @@ Format params:
           title: title || 'Ide Baru Kak Fatih',
           category: /website|aplikasi|software/i.test(title) ? 'aplikasi_sekolah' : (/twibbon|desain|poster/i.test(title) ? 'desain_event' : 'jasa_digital'),
           estRevenue: estRev,
-          desc: 'Dicatat via Fathiya AI Partner'
+          desc: 'Dicatat via Malih AI Partner'
         }
       };
     }
@@ -3816,10 +3815,10 @@ Format params:
           console.warn('[Fatih AI] API gagal, beralih ke fallback lokal cerdas:', apiErr);
           noticeBadge = 'Mode Offline (Fallback)';
           if (actionCard) {
-            replyText = `Alhamdulillah beres Kak Fatih! Perubahan data Kakak sudah langsung Fathiya eksekusi:\n\n✨ **${actionCard.title}**\n${actionCard.desc}`;
-            replyVoiceText = `Alhamdulillah beres Kak Fatih! ${actionCard.title} sudah Fathiya eksekusi yaa.`;
+            replyText = `Alhamdulillah beres Kak Fatih! Perubahan data Kakak sudah langsung Malih eksekusi:\n\n✨ **${actionCard.title}**\n${actionCard.desc}`;
+            replyVoiceText = `Alhamdulillah beres Kak Fatih! ${actionCard.title} sudah Malih eksekusi yaa.`;
           } else {
-            replyText = `⚠️ *Koneksi AI Online terkendala. Fathiya menjawab via engine lokal:*\n\n${localMatch.text}`;
+            replyText = `⚠️ *Koneksi AI Online terkendala. Malih menjawab via engine lokal:*\n\n${localMatch.text}`;
             replyVoiceText = localMatch.voiceText || localMatch.text;
             tabShortcut = localMatch.tabShortcut;
             actionTable = localMatch.actionTable;
@@ -3829,8 +3828,8 @@ Format params:
         // Mode Offline: Belum memasukkan kunci Groq / Gemini di Pengaturan
         await new Promise(r => setTimeout(r, 80));
         if (actionCard) {
-          replyText = `Alhamdulillah beres Kak Fatih! Perubahan data Kakak sudah langsung Fathiya eksekusi:\n\n✨ **${actionCard.title}**\n${actionCard.desc}`;
-          replyVoiceText = `Alhamdulillah beres Kak Fatih! ${actionCard.title} sudah Fathiya eksekusi yaa.`;
+          replyText = `Alhamdulillah beres Kak Fatih! Perubahan data Kakak sudah langsung Malih eksekusi:\n\n✨ **${actionCard.title}**\n${actionCard.desc}`;
+          replyVoiceText = `Alhamdulillah beres Kak Fatih! ${actionCard.title} sudah Malih eksekusi yaa.`;
         } else {
           replyText = localMatch.text;
           replyVoiceText = localMatch.voiceText || localMatch.text;
@@ -3881,7 +3880,7 @@ Format params:
   }
 
   function clearFatihChatHistory() {
-    if (confirm('Bersihkan seluruh riwayat obrolan dengan Fathiya?')) {
+    if (confirm('Bersihkan seluruh riwayat obrolan dengan Malih?')) {
       chatHistory = [];
       chatContext.recentTurns = [];
       renderChatMessages();
@@ -4132,7 +4131,7 @@ Format params:
     window._fatihCurrentUtterance = null;
 
     if (hadSpeaking && showToastNotice && typeof window.showToast === 'function') {
-      window.showToast('⏹️ Suara Berhenti', 'Pembacaan suara Fathiya telah dihentikan.', 'info');
+      window.showToast('⏹️ Suara Berhenti', 'Pembacaan suara Malih telah dihentikan.', 'info');
     }
   }
 
@@ -4218,9 +4217,9 @@ Format params:
 
   function testNaturalVoice() {
     const preset = localStorage.getItem('partner_fatih_voice_preset') || 'teen_fun';
-    let sample = "Halo Kak Fatih! Suara Fathiya sekarang lebih ceria dan asik diajak ngobrol, kayak teman sebaya. Gimana Kak, seru kan?";
-    if (preset === 'teen_cute') sample = "Hai Kak Fatih! Suara Fathiya manis dan imut, siap nemenin Kakak seharian!";
-    else if (preset === 'friendly') sample = "Halo Kak Fatih. Suara Fathiya santai dan hangat, siap mendampingi pekerjaan Kakak.";
+    let sample = "Halo Kak Fatih! Suara Malih sekarang lebih ceria dan asik diajak ngobrol, kayak teman sebaya. Gimana Kak, seru kan?";
+    if (preset === 'teen_cute') sample = "Hai Kak Fatih! Suara Malih manis dan imut, siap nemenin Kakak seharian!";
+    else if (preset === 'friendly') sample = "Halo Kak Fatih. Suara Malih santai dan hangat, siap mendampingi pekerjaan Kakak.";
     speakFatihResponse(sample);
   }
 
@@ -4240,9 +4239,9 @@ Format params:
       if (isAutoVoiceEnabled) {
         btn.classList.add('text-emerald-400', 'bg-emerald-500/20');
         btn.classList.remove('text-slate-400');
-        btn.title = 'Suara Otomatis Aktif (Fathiya Menjawab Bersuara Bahasa Indonesia)';
+        btn.title = 'Suara Otomatis Aktif (Malih Menjawab Bersuara Bahasa Indonesia)';
         if (typeof window.showToast === 'function') {
-          window.showToast('🔊 Suara Otomatis Aktif', 'Fathiya akan otomatis menjawab bersuara dalam Bahasa Indonesia.', 'success');
+          window.showToast('🔊 Suara Otomatis Aktif', 'Malih akan otomatis menjawab bersuara dalam Bahasa Indonesia.', 'success');
         }
       } else {
         stopFatihSpeech();
@@ -4328,7 +4327,7 @@ Format params:
 
     if (descText) {
       if (mode === 'hybrid') {
-        descText.innerHTML = '⚡🔄 <b>Tenaga Utama: Groq (0.3s) ➔ Sekunder: Gemini:</b> Fathiya memprioritaskan <b>Groq (Tenaga Utama)</b> untuk kecepatan respons kilat 0.3 detik. Jika Groq mencapai kuota/limit harian atau mengalami kendala, sistem <b>otomatis bergantian</b> ke <b>Google Gemini Flash (Tenaga Sekunder)</b> tanpa terputus.';
+        descText.innerHTML = '⚡🔄 <b>Tenaga Utama: Groq (0.3s) ➔ Sekunder: Gemini:</b> Malih memprioritaskan <b>Groq (Tenaga Utama)</b> untuk kecepatan respons kilat 0.3 detik. Jika Groq mencapai kuota/limit harian atau mengalami kendala, sistem <b>otomatis bergantian</b> ke <b>Google Gemini Flash (Tenaga Sekunder)</b> tanpa terputus.';
       } else if (mode === 'groq') {
         descText.innerHTML = '⚡ <b>Mode Khusus Groq (Tenaga Utama):</b> Selalu menggunakan <b>Groq Cloud LPU (0.3s)</b> untuk kecepatan inferensi kilat.';
       } else {
@@ -4366,7 +4365,7 @@ Format params:
             <span class="text-xl">⚙️</span>
             <div>
               <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                <span>Pengaturan Mesin AI Fathiya</span>
+                <span>Pengaturan Mesin AI Malih</span>
                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">Dual-Engine</span>
               </h3>
               <p class="text-[10px] text-slate-400">Groq Cloud (Tenaga Utama 0.3s) &amp; Google Gemini Flash (Tenaga Sekunder)</p>
@@ -4464,12 +4463,12 @@ Format params:
           </button>
         </div>
 
-        <!-- 4. Fitur & Karakter Suara Remaja Fathiya -->
+        <!-- 4. Fitur & Karakter Suara Remaja Malih -->
         <div class="p-3.5 rounded-xl bg-slate-900/90 border border-pink-500/30 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
               <span>🎙️</span>
-              <span>Karakter Suara Remaja Fathiya (Asik Ngobrol)</span>
+              <span>Karakter Suara Remaja Malih (Asik Ngobrol)</span>
             </span>
             <span class="text-[9px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-mono font-bold">
               Remaja Ceria 1.2x
@@ -4684,7 +4683,7 @@ Format params:
       } else if (geminiKey) {
         window.showToast('🌐 Gemini Flash Aktif', 'Google Gemini siap mendampingi.', 'success');
       } else {
-        window.showToast('🍃 Mode Offline', 'Fathiya berjalan dalam mode offline lokal mandiri.', 'info');
+        window.showToast('🍃 Mode Offline', 'Malih berjalan dalam mode offline lokal mandiri.', 'info');
       }
     }
 
@@ -4692,7 +4691,7 @@ Format params:
   }
 
   function removeFatihAiKey() {
-    if (confirm('Alihkan Fathiya AI ke mode offline mandiri (tanpa koneksi internet/cloud)?')) {
+    if (confirm('Alihkan Malih AI ke mode offline mandiri (tanpa koneksi internet/cloud)?')) {
       localStorage.setItem('partner_fatih_groq_key', 'OFFLINE');
       localStorage.removeItem('partner_fatih_gemini_key');
       localStorage.setItem('partner_fatih_ai_mode', 'groq');
@@ -4704,7 +4703,7 @@ Format params:
 
       updateFatihEngineStatusBadge();
       if (typeof window.showToast === 'function') {
-        window.showToast('🍃 Mode Offline Aktif', 'Fathiya berjalan dalam mode offline lokal mandiri.', 'info');
+        window.showToast('🍃 Mode Offline Aktif', 'Malih berjalan dalam mode offline lokal mandiri.', 'info');
       }
       closeFatihAiSettings();
     }
@@ -4713,57 +4712,9 @@ Format params:
   function updateFatihEngineStatusBadge() {
     const badge = document.getElementById('fatihChatEngineMode');
     if (!badge) return;
-
-    const groqKey = getEffectiveGroqKey();
-    const geminiKey = (localStorage.getItem('partner_fatih_gemini_key') || '').trim();
-    const mode = (localStorage.getItem('partner_fatih_ai_mode') || 'hybrid').trim();
-    const hasCustomGroq = !!(localStorage.getItem('partner_fatih_groq_key') || '').trim();
-
-    if (groqKey && geminiKey) {
-      if (mode === 'groq') {
-        badge.innerHTML = `
-          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold transition-all cursor-pointer" title="Klik untuk beralih mode operasional AI">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>⚡ Tenaga Utama: Groq (0.3s)</span>
-          </button>
-        `;
-      } else if (mode === 'gemini') {
-        badge.innerHTML = `
-          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-bold transition-all cursor-pointer" title="Klik untuk beralih mode operasional AI">
-            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-            <span>🌐 Tenaga Sekunder: Gemini Flash</span>
-          </button>
-        `;
-      } else {
-        badge.innerHTML = `
-          <button type="button" onclick="window.cycleFatihEngineMode()" class="flex items-center gap-1.5 text-emerald-300 hover:text-teal-200 font-bold transition-all cursor-pointer" title="Klik untuk beralih mode operasional AI">
-            <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-            <span>⚡🔄 Utama: Groq (0.3s) ➔ Sekunder: Gemini</span>
-          </button>
-        `;
-      }
-    } else if (groqKey) {
-      badge.innerHTML = `
-        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold transition-all cursor-pointer">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>⚡ Tenaga Utama: Groq (0.3s)${!hasCustomGroq ? ' • Resmi' : ''}</span>
-        </button>
-      `;
-    } else if (geminiKey) {
-      badge.innerHTML = `
-        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-bold transition-all cursor-pointer">
-          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-          <span>🌐 Tenaga Sekunder: Gemini Flash</span>
-        </button>
-      `;
-    } else {
-      badge.innerHTML = `
-        <button type="button" onclick="window.openFatihAiSettings()" class="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition-all cursor-pointer" title="Klik untuk pasang kunci online">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span>🍃 Fathiya Pintar (Offline Lokal)</span>
-        </button>
-      `;
-    }
+    badge.innerHTML = '';
+    badge.style.display = 'none';
+    badge.classList.add('hidden');
   }
 
   function cycleFatihEngineMode() {
@@ -4851,7 +4802,7 @@ Format params:
         }
         setTimeout(() => {
           if (typeof window.showToast === 'function') {
-            window.showToast('📱 Kunci AI Terhubung!', 'Fathiya AI Online berhasil aktif di HP Anda.', 'success');
+            window.showToast('📱 Kunci AI Terhubung!', 'Malih AI Online berhasil aktif di HP Anda.', 'success');
           }
         }, 600);
       }
@@ -4945,7 +4896,7 @@ Format params:
 
   function openWaSyncLink(encodedUrl) {
     const rawUrl = decodeURIComponent(encodedUrl);
-    const waMsg = encodeURIComponent(`Buka link ini di HP untuk mengaktifkan Fathiya AI Partner Fatih secara otomatis (Dual-Engine Groq + Gemini):\n\n${rawUrl}`);
+    const waMsg = encodeURIComponent(`Buka link ini di HP untuk mengaktifkan Malih AI Partner Fatih secara otomatis (Dual-Engine Groq + Gemini):\n\n${rawUrl}`);
     window.open(`https://wa.me/?text=${waMsg}`, '_blank');
   }
 
@@ -4988,6 +4939,7 @@ Format params:
   window.saveFatihAiKey = saveFatihAiKey;
   window.removeFatihAiKey = removeFatihAiKey;
   window.updateFatihEngineStatusBadge = updateFatihEngineStatusBadge;
+  window.MalihAI = window.FathiyaAI;
   window.speakFatihHistory = speakFatihHistory;
   window.handleFatihMsgVoiceClick = handleFatihMsgVoiceClick;
   window.stopFatihSpeech = stopFatihSpeech;
@@ -5002,6 +4954,7 @@ Format params:
   window.saveFathiyaUserProfile = saveFathiyaUserProfile;
 
   // Global namespace resmi Fathiya AI
+  window.MalihAI = null;
   window.FathiyaAI = {
     open: openFatihChat,
     close: closeFatihChat,
