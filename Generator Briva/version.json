@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 46,
-  "releaseDate": "2026-10-26",
-  "title": "Rilis v1.0.9 Build 46 (Generator Tagihan Excel Per-Kelas Resmi BRIVA Bank BRI)",
+  "build": 47,
+  "releaseDate": "2026-11-10",
+  "title": "Rilis v1.0.9 Build 47 (Sistem Rekap Santri Real 741 & Stabilisasi Navigasi)",
   "changelog": [
-    "Generator Tagihan BRIVA Per-Kelas: Menghasilkan berkas Excel tagihan per-kelas (MTs 7.xlsx, SMP 7.xlsx, dst.) sesuai standar resmi 5 kolom BRIVA.",
-    "Kode & Nominal Dinamis: Otomatis mengisi kode ID Tagihan bulanan resmi (misal ID 64 untuk November, 63 untuk Oktober) dan nominal masing-masing santri.",
-    "Unduh Satuan Per-Kelas: Menyediakan tombol unduh Excel per-kelas mandiri untuk dibagikan langsung ke bendahara unit terkait."
+    "Rekap Santri November Real (741 Siswa): Sinkronisasi data mutasi resmi 9 santri keluar & 4 santri baru sesuai rapat validasi.",
+    "Perbaikan Filter Lintas Modul: Pembersihan tuntas data teknis Ruang Ide pada antrean pamflet Humas.",
+    "Peningkatan Navigasi Halus: Sistem tombol kembali bertingkat satu per satu tanpa keluar dari browser HP."
   ]
 }
