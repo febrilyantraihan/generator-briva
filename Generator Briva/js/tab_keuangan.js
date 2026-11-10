@@ -1991,4 +1991,100 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
   global.syncKeuanganToCloud = syncKeuanganToCloud;
   global.pullKeuanganFromCloud = pullKeuanganFromCloud;
 
+  // Global Bridge untuk Co-Pilot Malih AI
+  global.loadFinanceData = loadFinanceData;
+  global.renderAllFinanceViews = renderAllFinanceViews;
+  global.addFinanceTransactionDirect = function(tx) {
+    if (!tx) return false;
+    loadFinanceData();
+    const d = new Date();
+    const newTx = {
+      id: tx.id || ('tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+      date: tx.date || getTodayString(),
+      time: tx.time || `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+      type: (tx.type || 'keluar').toLowerCase(),
+      wallet: tx.wallet || 'pribadi',
+      category: tx.category || (tx.type === 'masuk' ? 'Gaji & Honorarium' : 'Kebutuhan Harian'),
+      amount: Math.round(Number(tx.amount) || 0),
+      note: tx.note || 'Dicatat via Malih AI',
+      isLeak: !!tx.isLeak
+    };
+    financeTransactions.unshift(newTx);
+    try {
+      localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+      triggerCloudSyncKeuangan();
+    } catch(e) {}
+    renderAllFinanceViews();
+    return newTx;
+  };
+
+  global.transferFinanceKantongDirect = function(fromW, toW, amount, note) {
+    loadFinanceData();
+    const d = new Date();
+    const amt = Math.round(Number(amount) || 0);
+    if (amt <= 0) return false;
+    const newTransfer = {
+      id: 'tx_trf_' + Date.now(),
+      date: getTodayString(),
+      time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+      type: 'transfer',
+      wallet: fromW || 'operasional',
+      toWallet: toW || 'tabungan',
+      category: 'Pindah Dana',
+      amount: amt,
+      note: note || `Pindah saldo dari ${fromW} ke ${toW}`,
+      isLeak: false
+    };
+    financeTransactions.unshift(newTransfer);
+    try {
+      localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+      triggerCloudSyncKeuangan();
+    } catch(e) {}
+    renderAllFinanceViews();
+    return newTransfer;
+  };
+
+  global.setFinanceWalletBalanceDirect = function(walletName, targetAmount) {
+    loadFinanceData();
+    const w = (walletName || 'pribadi').toLowerCase();
+    const amt = Math.round(Number(targetAmount) || 0);
+
+    // Hitung saldo terkini
+    let currentBalances = { pribadi: 0, operasional: 0, tabungan: 0 };
+    try {
+      const calc = calculateWalletBalances();
+      if (calc) {
+        currentBalances.pribadi = calc.pribadi || 0;
+        currentBalances.operasional = calc.operasional || 0;
+        currentBalances.tabungan = calc.tabungan || 0;
+      }
+    } catch(e) {}
+
+    const currentWalletBal = currentBalances[w] !== undefined ? currentBalances[w] : 0;
+    const diff = amt - currentWalletBal;
+
+    if (diff !== 0) {
+      const d = new Date();
+      const adjustTx = {
+        id: 'tx_adj_' + Date.now(),
+        date: getTodayString(),
+        time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+        type: diff > 0 ? 'masuk' : 'keluar',
+        wallet: w,
+        category: 'Penyesuaian Saldo',
+        amount: Math.abs(diff),
+        note: `Penyesuaian saldo via Malih AI (Menjadi Rp ${amt.toLocaleString('id-ID')})`,
+        isLeak: false
+      };
+      financeTransactions.unshift(adjustTx);
+      try {
+        localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+        triggerCloudSyncKeuangan();
+      } catch(e) {}
+    }
+
+    renderAllFinanceViews();
+    return true;
+  };
+
 })(window);
