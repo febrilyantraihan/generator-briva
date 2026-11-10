@@ -16003,7 +16003,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
     const CURRENT_APP_VERSION = '1.0.9';
-    const CURRENT_APP_BUILD = 33;
+    const CURRENT_APP_BUILD = 47;
     window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
     window.CURRENT_APP_BUILD = CURRENT_APP_BUILD;
 
@@ -16039,7 +16039,14 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         if (Array.isArray(changelogList) && changelogList.length > 0) {
           const ul = document.getElementById('updateModalChangelogList');
           if (ul) {
-            ul.innerHTML = changelogList.map(c => `<li>${c}</li>`).join('');
+            ul.innerHTML = changelogList.map(c => `
+            <li class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+              <span class="w-5 h-5 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+              </span>
+              <span class="leading-relaxed">${c}</span>
+            </li>
+          `).join('');
           }
         }
 
@@ -16063,6 +16070,9 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         modal.classList.add('hidden');
         modal.style.display = 'none';
       }
+      try {
+        sessionStorage.setItem('pwa_update_dismissed_build', String(window._lastRemoteBuild || CURRENT_APP_BUILD));
+      } catch (e) {}
     }
     window.dismissAppUpdateModal = dismissAppUpdateModal;
 
@@ -16075,8 +16085,18 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
       }
 
       try {
-        safeStorage.setItem('pwa_just_updated_to', '1');
+        sessionStorage.setItem('pwa_update_dismissed_build', String(window._lastRemoteBuild || CURRENT_APP_BUILD));
+        safeStorage.setItem('pwa_just_updated_to', String(window._lastRemoteBuild || CURRENT_APP_BUILD));
       } catch (e) {}
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            if (!name.includes(`b${window._lastRemoteBuild || CURRENT_APP_BUILD}`)) {
+              caches.delete(name);
+            }
+          });
+        });
+      }
 
       if (pendingSwWorker) {
         pendingSwWorker.postMessage({ type: 'SKIP_WAITING' });
@@ -16102,6 +16122,13 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
         if (res.ok) {
           const meta = await res.json();
           const remoteBuild = parseInt(meta.build || 0, 10);
+          window._lastRemoteBuild = remoteBuild;
+          try {
+            const dismissed = sessionStorage.getItem('pwa_update_dismissed_build');
+            if (dismissed && parseInt(dismissed, 10) >= remoteBuild) {
+              return;
+            }
+          } catch (e) {}
           if (meta && (meta.version !== CURRENT_APP_VERSION || remoteBuild > CURRENT_APP_BUILD)) {
             console.log(`[PWA Update Found] Lokal: v${CURRENT_APP_VERSION}-b${CURRENT_APP_BUILD} -> Server: v${meta.version}-b${meta.build}`);
             showAppUpdateModal(meta.version + (meta.build ? ` (Build ${meta.build})` : ''), meta.changelog);
@@ -27678,6 +27705,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
@@ -40637,6 +40665,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42557,6 +42586,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
