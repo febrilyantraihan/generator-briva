@@ -5502,60 +5502,66 @@
   <!-- ============================================================== -->
   <!-- IN-APP AUTO-UPDATE MODAL DIALOG (NATIVE PWA UPDATE PROMPT)      -->
   <!-- ============================================================== -->
-  <div id="appUpdateModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all duration-300" style="display: none;">
-    <div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-      <!-- Header with animated rocket -->
-      <div class="flex items-start gap-3.5">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/25 flex-shrink-0">
-          🚀
-        </div>
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Pembaruan Tersedia!</h3>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">Resmi</span>
+  <div id="appUpdateModal" class="hidden fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md transition-all duration-300" style="display: none; z-index: 99999 !important;" onclick="if(event.target === this) dismissAppUpdateModal()">
+    <div class="w-full max-w-md bg-white dark:bg-[#111728] border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200 relative overflow-hidden">
+      <!-- Glow ambient background effect -->
+      <div class="absolute -top-16 -right-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <!-- Top Bar: Header with modern icon & Close Button -->
+      <div class="flex items-start justify-between gap-3 relative">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/10 flex-shrink-0">
+            <svg data-lucide="sparkles" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Versi baru Partner Fatih siap dipasang tanpa perlu install ulang.</p>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Pembaruan Tersedia</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60">Resmi</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">Fitur terbaru siap dipasang instan tanpa install ulang.</p>
+          </div>
         </div>
+        <button type="button" onclick="dismissAppUpdateModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex-shrink-0" title="Tutup">
+          <svg data-lucide="x" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4.5 h-4.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
       </div>
 
-      <!-- Version Difference Badge Card -->
-      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3 text-xs">
+      <!-- Version Difference Card -->
+      <div class="p-3 rounded-2xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-3 text-xs">
         <div class="flex flex-col">
-          <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Versi Aktif</span>
-          <span id="updateModalCurrentVersion" class="font-mono font-black text-slate-700 dark:text-slate-300 text-sm">v1.0.0</span>
+          <span class="text-[9.5px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Versi Saat Ini</span>
+          <span id="updateModalCurrentVersion" class="font-mono font-black text-slate-700 dark:text-slate-300 text-xs sm:text-sm mt-0.5">v1.0.9</span>
         </div>
-        <div class="flex items-center text-emerald-500 font-black">
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        <div class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 shadow-2xs">
+          <svg data-lucide="arrow-right" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
         <div class="flex flex-col text-right">
-          <span class="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Versi Terbaru</span>
-          <span id="updateModalNewVersion" class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm">v1.0.0</span>
+          <span class="text-[9.5px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">Versi Terbaru</span>
+          <span id="updateModalNewVersion" class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm mt-0.5">v1.0.9 (Build 47)</span>
         </div>
       </div>
 
-      <!-- Changelog Summary -->
-      <div class="space-y-1.5 text-xs">
-        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+      <!-- Changelog Section -->
+      <div class="space-y-2 text-xs">
+        <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           <span>Peningkatan di Versi Ini:</span>
-        </span>
-        <ul id="updateModalChangelogList" class="space-y-1 text-slate-600 dark:text-slate-400 pl-4 list-disc text-[11.5px] leading-relaxed">
-          <li>Penyempurnaan tampilan dan kontras warna di layar HP</li>
-          <li>Perataan bilah navigasi dan penataan tombol tugas</li>
-          <li>Peningkatan kecepatan sistem offline &amp; auto-update</li>
+        </div>
+        <ul id="updateModalChangelogList" class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+          <!-- Rendered dynamically -->
         </ul>
       </div>
 
-      <!-- Actions -->
+      <!-- Action Buttons -->
       <div class="pt-2 flex flex-col sm:flex-row items-center gap-2">
         <button 
           type="button" 
           onclick="applyPwaUpdateNow()" 
           id="btnApplyPwaUpdate" 
-          class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+          class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
         >
-          <i data-lucide="zap" class="w-4 h-4"></i>
-          <span id="btnApplyPwaUpdateLabel">Perbarui Sekarang (1 Detik)</span>
+          <svg data-lucide="zap" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 fill-white"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span id="btnApplyPwaUpdateLabel">Pasang Pembaruan Sekarang</span>
         </button>
         <button 
           type="button" 
@@ -5568,7 +5574,7 @@
     </div>
   </div>
 
-    <textarea id="hiddenClipboardHelper" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
+  <textarea id="hiddenClipboardHelper" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
 
   <!-- ============================================================== -->
   <!-- JAVASCRIPT LOGIC & BUSINESS RULES ENGINE                        -->
