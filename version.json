@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 47,
-  "releaseDate": "2026-11-10",
-  "title": "Rilis v1.0.9 Build 47 (Sistem Rekap Santri Real 741 & Stabilisasi Navigasi)",
+  "build": 48,
+  "releaseDate": "2026-11-11",
+  "title": "Rilis v1.0.9 Build 48 (Malih AI Assistant & UI Streamline)",
   "changelog": [
-    "Rekap Santri November Real (741 Siswa): Sinkronisasi data mutasi resmi 9 santri keluar & 4 santri baru sesuai rapat validasi.",
-    "Perbaikan Filter Lintas Modul: Pembersihan tuntas data teknis Ruang Ide pada antrean pamflet Humas.",
-    "Peningkatan Navigasi Halus: Sistem tombol kembali bertingkat satu per satu tanpa keluar dari browser HP."
+    "Pembaruan Resmi Malih AI: Asisten cerdas bertransformasi menjadi Malih AI dengan gaya komunikasi hangat, cerdas, dan responsif.",
+    "Pembersihan Antarmuka Chat: Menghilangkan bilah status mesin AI agar tampilan chat lebih lega, minimalis, dan elegan.",
+    "Bust Cache Otomatis: Sinkronisasi instan aset PWA Build 48 ke browser HP dan Desktop."
   ]
 }
