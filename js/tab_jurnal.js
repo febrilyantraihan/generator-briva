@@ -6128,7 +6128,7 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
   window.updateJurnalCloudStatusBadge = updateJurnalCloudStatusBadge;
   window.getJurnalSupabaseConfig = getJurnalSupabaseConfig;
 
-  // Global Bridge untuk Co-Pilot Fathiya AI
+  // Global Bridge untuk Co-Pilot Malih AI
   window.renderJurnalDashboard = renderJurnalDashboard;
   window.renderJurnalClassCards = renderJurnalClassCards;
   window.renderJurnalTimetable = renderJurnalTimetable;
@@ -6199,7 +6199,7 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     return true;
   };
 
-  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Fathiya AI
+  // Expose fungsi kontrol & render Jurnal Guru ke window agar dapat diperbarui realtime oleh Malih AI
   window.renderJurnalDashboard = renderJurnalDashboard;
   window.renderJurnalClassCards = renderJurnalClassCards;
   window.renderJurnalTimetable = renderJurnalTimetable;
