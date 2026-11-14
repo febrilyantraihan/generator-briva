@@ -512,10 +512,11 @@
         ];
       case 'keuangan':
         return [
-          { icon: '🔍', title: 'Radar Bocor Halus', desc: 'Detektor pengeluaran kecil', prompt: 'Bagaimana cara mendeteksi bocor halus pengeluaran pribadi?' },
-          { icon: '✉️', title: 'Alokasi Amplop', desc: 'Manajemen pos dana pintar', prompt: 'Jelaskan metode alokasi amplop untuk mengontrol pengeluaran' },
-          { icon: '🎙️', title: 'Catat Belanja Suara', desc: 'Input instan via mic', prompt: 'Bagaimana cara mencatat belanja harian lewat asisten suara?' },
-          { icon: '💡', title: 'Tips Berhemat', desc: 'Menata gaji guru berkah', prompt: 'Beri saya tips mengelola keuangan guru agar tetap lapang dan berkah' }
+          { icon: '💰', title: 'Cek Saldo Kas', desc: 'Rincian 3 kantong aktif', prompt: 'Berapa saldo kas saya sekarang di semua kantong?' },
+          { icon: '🔍', title: 'Radar Bocor Halus', desc: 'Detektor pengeluaran kecil', prompt: 'Berapa total kebocoran halus (latte factor) bulan ini?' },
+          { icon: '🎙️', title: 'Catat Pengeluaran', desc: 'Catat instan via mic/teks', prompt: 'Catat pengeluaran bensin 25000 di operasional' },
+          { icon: '✉️', title: 'Alokasi Amplop', desc: 'Metode 3 kantong berkah', prompt: 'Bagaimana cara terbaik membagi gaji ke 3 pos amplop?' },
+          { icon: '💡', title: 'Tambah Income', desc: 'Peluang usaha realistis', prompt: 'Beri rekomendasi ide peluang tambahan penghasilan' }
         ];
       case 'akun':
         return [
@@ -2386,6 +2387,28 @@ Format params:
     scrollChatToBottom();
   }
 
+  function openFatihChatWithContext(tabId, initialPrompt) {
+    if (tabId) {
+      chatContext.lastTab = tabId;
+      try { window.currentTab = tabId; } catch(e) {}
+    }
+    openFatihChat();
+    const effectiveTab = tabId || detectActiveAppTab();
+    const tabMeta = FATIH_KNOWLEDGE_BASE.tabs[effectiveTab];
+    if (tabMeta) {
+      const headerContext = document.getElementById('fatihHeaderContextTab');
+      if (headerContext) headerContext.textContent = `● Tab: ${tabMeta.name}`;
+      const badge = document.getElementById('fatihActiveContextBadge');
+      if (badge) badge.textContent = `● Mode: ${tabMeta.name}`;
+      renderSuggestionsDom(effectiveTab);
+    }
+    if (initialPrompt) {
+      setTimeout(() => {
+        sendFatihQuickPrompt(initialPrompt);
+      }, 300);
+    }
+  }
+
   function closeFatihChat() {
     stopFatihSpeech();
     const modal = document.getElementById('modalFatihChat');
@@ -3014,6 +3037,81 @@ Format params:
         };
       }
 
+      // 6C. CEK SALDO KAS & MULTI-DOMPET
+      if (act === 'CEK_SALDO' || act === 'LIHAT_SALDO') {
+        let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
+        try {
+          const rawW = localStorage.getItem('partner_fatih_wallets_v2');
+          if (rawW) wallets = Object.assign(wallets, JSON.parse(rawW));
+        } catch(e) {}
+
+        let txs = [];
+        try {
+          const rawTx = localStorage.getItem('partner_fatih_finance_data_v2');
+          if (rawTx) txs = JSON.parse(rawTx);
+        } catch(e) {}
+
+        let curP = wallets.pribadi || 0;
+        let curO = wallets.operasional || 0;
+        let curT = wallets.tabungan || 0;
+
+        for (let tx of txs) {
+          const amt = Number(tx.amount) || 0;
+          if (tx.type === 'keluar') {
+            if (tx.wallet === 'operasional') curO -= amt;
+            else if (tx.wallet === 'tabungan') curT -= amt;
+            else curP -= amt;
+          } else if (tx.type === 'masuk') {
+            if (tx.wallet === 'operasional') curO += amt;
+            else if (tx.wallet === 'tabungan') curT += amt;
+            else curP += amt;
+          } else if (tx.type === 'transfer') {
+            if (tx.wallet === 'operasional') curO -= amt;
+            else if (tx.wallet === 'tabungan') curT -= amt;
+            else curP -= amt;
+
+            if (tx.toWallet === 'operasional') curO += amt;
+            else if (tx.toWallet === 'tabungan') curT += amt;
+            else curP += amt;
+          }
+        }
+        const totalNetWorth = curP + curO + curT;
+
+        return {
+          icon: '💰',
+          title: `Total Saldo Kas: Rp ${totalNetWorth.toLocaleString('id-ID')}`,
+          desc: `Rincian: Pribadi Rp ${curP.toLocaleString('id-ID')} • Operasional Rp ${curO.toLocaleString('id-ID')} • Tabungan Rp ${curT.toLocaleString('id-ID')}. Total ${txs.length} transaksi tercatat.`,
+          tab: 'keuangan'
+        };
+      }
+
+      // 6D. CEK BOCOR HALUS (LATTE FACTOR)
+      if (act === 'CEK_BOCOR_HALUS') {
+        let txs = [];
+        try {
+          const rawTx = localStorage.getItem('partner_fatih_finance_data_v2');
+          if (rawTx) txs = JSON.parse(rawTx);
+        } catch(e) {}
+
+        const now = new Date();
+        const curYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        let leakSum = 0;
+        let leakCount = 0;
+        for (let tx of txs) {
+          if ((tx.isLeak || (tx.category && /jajan|kopi|snack|boba/i.test(tx.category))) && tx.date && tx.date.startsWith(curYM)) {
+            leakSum += Number(tx.amount) || 0;
+            leakCount++;
+          }
+        }
+
+        return {
+          icon: '🔍',
+          title: `Radar Bocor Halus: Rp ${leakSum.toLocaleString('id-ID')}`,
+          desc: `Tercatat ${leakCount} pengeluaran kecil (jajan kopi, camilan, biaya admin) bulan ini. Menguranginya 30-50% akan mengamankan kantong tabungan Kak Fatih.`,
+          tab: 'keuangan'
+        };
+      }
+
       // 7. KEUANGAN PRIBADI & MULTI-DOMPET (Tab Keuangan)
       if (act === 'ADD_FINANCE_TRANSACTION' || act === 'CATAT_KEUANGAN_PRIBADI') {
         const type = (p.type || p.tipe || 'keluar').toLowerCase();
@@ -3478,6 +3576,24 @@ Format params:
           };
         }
       }
+    }
+
+    // 0D. Cek Saldo Kas & Multi-Dompet Terkini
+    // Contoh: "berapa saldo saya", "cek saldo", "sisa uang saya", "lihat saldo kas", "tampilkan saldo", "saldo dompet"
+    if (/(?:berapa|cek|lihat|tampilkan|sisa|total)\s+(?:saldo|uang|kas|dompet|kantong)/i.test(t) || /^(?:saldo|cek\s+saldo)$/i.test(t)) {
+      return {
+        action: 'CEK_SALDO',
+        params: {}
+      };
+    }
+
+    // 0E. Cek Kebocoran Halus / Latte Factor
+    // Contoh: "cek bocor halus", "berapa bocor halus", "latte factor", "pengeluaran bocor halus"
+    if (/(?:bocor\s+halus|latte\s+factor|kebocoran\s+kas)/i.test(t)) {
+      return {
+        action: 'CEK_BOCOR_HALUS',
+        params: {}
+      };
     }
 
     // 1. Catat Keuangan Pribadi (Multi-Dompet)
@@ -4915,6 +5031,7 @@ Format params:
 
   // --- 14. EXPORT GLOBALS & INITIALIZATION ---
   window.openFatihChat = openFatihChat;
+  window.openFatihChatWithContext = openFatihChatWithContext;
   window.closeFatihChat = closeFatihChat;
   window.handleFatihChatSubmit = handleFatihChatSubmit;
   window.sendFatihQuickPrompt = sendFatihQuickPrompt;
