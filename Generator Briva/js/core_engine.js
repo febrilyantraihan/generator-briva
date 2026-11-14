@@ -16003,7 +16003,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
     const CURRENT_APP_VERSION = '1.0.9';
-    const CURRENT_APP_BUILD = 49;
+    const CURRENT_APP_BUILD = 50;
     window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
     window.CURRENT_APP_BUILD = CURRENT_APP_BUILD;
 
@@ -27994,6 +27994,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -34424,6 +34425,7 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     loadFinanceData();
     renderAllFinanceViews();
     updateAiKeyBadgeStatus();
+    updateFinanceAssistantLiveSummary();
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       window.lucide.createIcons();
     }
@@ -35208,6 +35210,7 @@ _Dokumen tersinkronisasi otomatis dengan aplikasi Partner Fatih (Tab 11 Jurnal G
     renderMoneyLeakRadar();
     renderPeriodMetricsAndCharts();
     renderFinanceTable();
+    updateFinanceAssistantLiveSummary();
   }
 
   // ============================================================================
@@ -36298,6 +36301,334 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     renderAllFinanceViews();
     return true;
   };
+
+  // ============================================================================
+  // ASISTEN PRIBADI KEUANGAN (MALIH AI) EMBEDDED INTEGRATION
+  // ============================================================================
+  let financeAssistantSpeechRec = null;
+  let isFinanceAssistantListening = false;
+  let lastFinanceAssistantAnswerText = '';
+
+  function updateFinanceAssistantLiveSummary() {
+    const summaryEl = document.getElementById('financeAssistantLiveSummary');
+    if (!summaryEl) return;
+    try {
+      const calc = calculateWalletBalances();
+      const net = calc ? calc.netWorth : 0;
+      const today = getTodayString();
+      const curYM = today.slice(0, 7);
+      
+      let outThisMonth = 0;
+      let leakThisMonth = 0;
+      financeTransactions.forEach(tx => {
+        if ((tx.date || '').slice(0, 7) === curYM && tx.type === 'keluar') {
+          const a = Number(tx.amount) || 0;
+          outThisMonth += a;
+          if (tx.isLeak || isLikelyLeakTransaction(tx)) leakThisMonth += a;
+        }
+      });
+
+      const netFormatted = formatRupiah(net);
+      const outFormatted = formatRupiah(outThisMonth);
+      const leakFormatted = formatRupiah(leakThisMonth);
+
+      summaryEl.innerHTML = `Kas Aktif: <strong class="text-white">${netFormatted}</strong> • Keluar Bln Ini: <strong class="text-rose-300">${outFormatted}</strong> (Bocor: <span class="text-amber-300 font-bold">${leakFormatted}</span>)`;
+    } catch(e) {
+      summaryEl.textContent = 'Siap mendampingi Kak Fatih: catat saldo instan, deteksi bocor halus, dan analisa kas bijak.';
+    }
+  }
+
+  function handleFinanceAssistantSubmit(rawQuery) {
+    const query = (rawQuery || '').trim();
+    if (!query) return;
+
+    const inputEl = document.getElementById('financeAssistantSmartInput');
+    if (inputEl) inputEl.value = '';
+
+    const answerCard = document.getElementById('financeAssistantAnswerCard');
+    const echoEl = document.getElementById('financeAssistantQueryEcho');
+    const bodyEl = document.getElementById('financeAssistantAnswerBody');
+    const actionCont = document.getElementById('financeAssistantActionContainer');
+
+    if (echoEl) echoEl.textContent = `"${query}"`;
+    if (answerCard) {
+      answerCard.classList.remove('hidden');
+      answerCard.style.display = 'block';
+    }
+
+    const low = query.toLowerCase();
+
+    // 1. TANYA SALDO / CEK UANG KAS
+    if (/(?:berapa|cek|lihat|tampilkan|sisa|total)\s+(?:saldo|uang|kas|dompet|kantong)/i.test(low) || /^(?:saldo|cek\s+saldo)$/i.test(low)) {
+      const calc = calculateWalletBalances();
+      const balP = calc ? calc.pribadi.balance : 0;
+      const balO = calc ? calc.operasional.balance : 0;
+      const balT = calc ? calc.tabungan.balance : 0;
+      const net = calc ? calc.netWorth : 0;
+
+      const reply = `Assalamu'alaikum Kak Fatih! 🌸 Berikut rincian saldo kas terkini di seluruh kantong:\n\n• 👤 **Kantong Pribadi** (Living & Lifestyle): **${formatRupiah(balP)}**\n• 💼 **Kantong Operasional** (Bensin & Dinas): **${formatRupiah(balO)}**\n• 🏦 **Kantong Tabungan** (Aset & Darurat): **${formatRupiah(balT)}**\n\n💰 **Total Saldo Kas:** **${formatRupiah(net)}**\n\nSemua catatan tersimpan rapi dan aman di perangkat Kak Fatih.`;
+      
+      lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+      if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+
+      if (actionCont) {
+        actionCont.innerHTML = `
+          <button type="button" onclick="openModalAturSaldo()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all">Atur Saldo Riil</button>
+          <button type="button" onclick="openModalTransferKantong()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-white/10 hover:bg-white/20 text-white border border-white/10 cursor-pointer transition-all">Pindah Dana Kantong</button>
+          <button type="button" onclick="openFatihChatWithContext('keuangan')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer transition-all">Diskusi Lanjut di Co-Pilot</button>
+        `;
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+      return;
+    }
+
+    // 2. TANYA BOCOR HALUS / LATTE FACTOR
+    if (/(?:bocor\s+halus|latte\s+factor|kebocoran|jajan)/i.test(low)) {
+      const today = getTodayString();
+      const curYM = today.slice(0, 7);
+      let totalLeak = 0;
+      let leakCount = 0;
+      let topItems = [];
+
+      financeTransactions.forEach(tx => {
+        if ((tx.date || '').slice(0, 7) === curYM && tx.type === 'keluar') {
+          if (tx.isLeak || isLikelyLeakTransaction(tx)) {
+            const a = Number(tx.amount) || 0;
+            totalLeak += a;
+            leakCount++;
+            topItems.push(`${tx.note || tx.category} (${formatRupiah(a)})`);
+          }
+        }
+      });
+
+      let sampleText = topItems.slice(0, 3).join(', ');
+      if (sampleText) sampleText = ` (antara lain: ${sampleText})`;
+
+      const reply = `Berdasarkan radar deteksi kebocoran kas bulan ini:\n\n🔍 **Total Pengeluaran Bocor Halus**: **${formatRupiah(totalLeak)}**\n📊 **Frekuensi**: Terdeteksi **${leakCount} kali** jajan mikro / pengeluaran kecil${sampleText}.\n\n💡 **Nasehat Bijak Malih**: Pengeluaran kecil harian seperti kopi kekinian, camilan ringan, atau biaya admin sering tidak terasa, tapi bila diakumulasi bisa menjadi tabungan berharga. Menguranginya 30-50% minggu ini akan mengamankan kantong tabungan Kak Fatih!`;
+
+      lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+      if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+
+      if (actionCont) {
+        actionCont.innerHTML = `
+          <button type="button" onclick="filterByWallet('all')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer transition-all">Lihat Semua Transaksi</button>
+          <button type="button" onclick="handleFinanceAssistantSubmit('Bagaimana cara terbaik membagi gaji ke 3 pos amplop?')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-white/10 hover:bg-white/20 text-white border border-white/10 cursor-pointer transition-all">Tips Alokasi Amplop</button>
+        `;
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+      return;
+    }
+
+    // 3. CATAT TRANSAKSI CEPAT (NATURAL LANGUAGE PARSER)
+    if (/(?:catat|masukkan|tambah|beli|isi\s+bensin|makan\s+siang|bayar|pemasukan|honor|gaji)/i.test(low)) {
+      const isMasuk = /(?:pemasukan|honor|gaji|dapat\s+uang|terima)/i.test(low);
+      const type = isMasuk ? 'masuk' : 'keluar';
+
+      let wallet = 'pribadi';
+      if (/operasional|bensin|kerja/i.test(low)) wallet = 'operasional';
+      else if (/tabungan|darurat|aset/i.test(low)) wallet = 'tabungan';
+
+      let amount = 0;
+      const rbMatch = low.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+      if (rbMatch) {
+        amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+      } else {
+        const numMatch = low.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i);
+        if (numMatch) {
+          amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
+        }
+      }
+
+      if (amount > 0) {
+        let note = query
+          .replace(/^(?:malih,?\s*)?(?:fathiya,?\s*)?(?:tolong\s*)?(?:catat|masukkan|tambah)\s+(?:pengeluaran|pemasukan|belanja|biaya)?/i, '')
+          .replace(/(?:di\s+kantong|di\s+dompet\s+)?(?:pribadi|operasional|tabungan)/i, '')
+          .replace(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i, '')
+          .replace(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i, '')
+          .trim();
+        if (!note) note = isMasuk ? 'Pemasukan Kas' : 'Pengeluaran Kebutuhan';
+
+        const isLeak = !isMasuk && (/(?:kopi|jajan|snack|boba|gorengan|rokok|nongkrong|indomaret|alfamart)/i.test(note) || amount <= 25000);
+
+        const newTx = global.addFinanceTransactionDirect({
+          type: type,
+          wallet: wallet,
+          amount: amount,
+          note: note,
+          category: isMasuk ? 'Gaji & Honor' : (wallet === 'operasional' ? 'Bensin & Transportasi' : (isLeak ? 'Jajan & Kopi' : 'Kebutuhan Harian')),
+          isLeak: isLeak
+        });
+
+        const reply = `Alhamdulillah, sudah Malih catatkan langsung ke dalam pembukuan ya Kak! ✍️\n\n• **Jenis**: ${type === 'masuk' ? 'Pemasukan Kas' : 'Pengeluaran'}\n• **Nominal**: **${formatRupiah(amount)}**\n• **Kantong**: **${wallet.toUpperCase()}**\n• **Keterangan**: "${note}"${isLeak ? '\n• ⚠️ *Ditandai sebagai Bocor Halus (Latte Factor)*' : ''}\n\nTabel catatan transaksi dan saldo dompet telah otomatis ter-update.`;
+
+        lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+        if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+
+        if (actionCont) {
+          actionCont.innerHTML = `
+            <button type="button" onclick="filterByWallet('${wallet}')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all">Lihat Kantong ${wallet.toUpperCase()}</button>
+            <button type="button" onclick="deleteFinanceTransaction('${newTx.id}')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white border border-rose-500/30 cursor-pointer transition-all">Batalkan / Hapus</button>
+          `;
+        }
+        showToast('Transaksi Berhasil Dicatat', `${type === 'masuk' ? 'Masuk' : 'Keluar'} ${formatRupiah(amount)} [${wallet.toUpperCase()}]`);
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+        return;
+      }
+    }
+
+    // 4. ALOKASI AMPLOP & TIPS BERHEMAT
+    if (/(?:amplop|alokasi|bagi\s+gaji|tips\s+hemat|kelola\s+gaji)/i.test(low)) {
+      const reply = `Metode Alokasi 3 Kantong Bijak khas Partner Fatih:\n\n1. 👤 **Kantong Pribadi (50%)**: Kebutuhan makan harian, keluarga, dan gaya hidup terkontrol.\n2. 💼 **Kantong Operasional (30%)**: Biaya dinas, bensin motor, pulsa/kuota, dan alat mengajar santri.\n3. 🏦 **Kantong Tabungan (20%)**: Dana darurat, investasi masa depan, dan infaq berkah.\n\n💡 *Tips Kunci*: Kunci saldo tabungan di awal begitu menerima honor, jangan menunggu sisa akhir bulan!`;
+
+      lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+      if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+
+      if (actionCont) {
+        actionCont.innerHTML = `
+          <button type="button" onclick="openModalAturSaldo()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all">Atur Saldo Kantong</button>
+          <button type="button" onclick="openFatihChatWithContext('keuangan')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer transition-all">Konsultasi dengan Malih</button>
+        `;
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+      return;
+    }
+
+    // 5. IDE INCOME
+    if (/(?:income|peluang|penghasilan|tambah\s+uang|usaha|bisnis)/i.test(low)) {
+      if (typeof openModalIncomeIdeas === 'function') {
+        openModalIncomeIdeas();
+      }
+      const reply = `Malih sedang membuka panel **AI Income Hunter** untuk Kak Fatih! 💡\n\nKakak juga bisa memanfaatkan **Tab 16: Inkubator Bisnis** untuk memulai wirausaha titip jual ke warung mitra tanpa modal besar dengan bagi hasil otomatis 20%.`;
+      lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+      if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+      return;
+    }
+
+    // 6. FALLBACK: TANYA MALIH AI CO-PILOT
+    if (typeof openFatihChatWithContext === 'function') {
+      openFatihChatWithContext('keuangan', query);
+    }
+    const reply = `Pertanyaan Kak Fatih sedang Malih teruskan ke jendela Co-Pilot Malih AI agar bisa kita diskusikan lebih mendalam. Silakan cek jendela obrolan di samping kanan layar ya Kak! 🌸`;
+    lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+    if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+  }
+
+  function formatMarkdownToSimpleHtml(text) {
+    if (!text) return '';
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-emerald-300 font-bold">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="text-slate-300">$1</em>')
+      .replace(/\n/g, '<br/>');
+  }
+
+  function closeFinanceAssistantAnswerCard() {
+    const card = document.getElementById('financeAssistantAnswerCard');
+    if (card) {
+      card.classList.add('hidden');
+      card.style.display = 'none';
+    }
+    stopFinanceAssistantSpeech();
+  }
+
+  function toggleFinanceAssistantSpeech() {
+    if (!lastFinanceAssistantAnswerText) return;
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      return;
+    }
+    try {
+      const u = new SpeechSynthesisUtterance(lastFinanceAssistantAnswerText);
+      u.lang = 'id-ID';
+      u.rate = 1.0;
+      u.pitch = 1.05;
+      window.speechSynthesis.speak(u);
+    } catch(e) {}
+  }
+
+  function stopFinanceAssistantSpeech() {
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  function toggleFinanceAssistantVoice() {
+    if (isFinanceAssistantListening) {
+      stopFinanceAssistantVoice();
+      return;
+    }
+
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      showToast('Browser Tidak Mendukung', 'Gunakan Google Chrome untuk fitur input suara.');
+      return;
+    }
+
+    try {
+      financeAssistantSpeechRec = new SpeechRec();
+      financeAssistantSpeechRec.lang = 'id-ID';
+      financeAssistantSpeechRec.continuous = false;
+      financeAssistantSpeechRec.interimResults = true;
+
+      const banner = document.getElementById('financeAssistantListeningBanner');
+      const transcriptEl = document.getElementById('financeAssistantLiveTranscript');
+      const btn = document.getElementById('btnFinanceAssistantVoice');
+      const label = document.getElementById('labelFinanceAssistantVoice');
+
+      financeAssistantSpeechRec.onstart = function() {
+        isFinanceAssistantListening = true;
+        if (banner) banner.classList.remove('hidden');
+        if (transcriptEl) transcriptEl.textContent = 'Mendengarkan suara Kak Fatih...';
+        if (btn) btn.classList.add('ring-2', 'ring-red-400');
+        if (label) label.textContent = 'Stop';
+      };
+
+      financeAssistantSpeechRec.onresult = function(event) {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcriptEl) transcriptEl.textContent = `"${transcript}"`;
+        if (event.results[0].isFinal) {
+          stopFinanceAssistantVoice();
+          handleFinanceAssistantSubmit(transcript);
+        }
+      };
+
+      financeAssistantSpeechRec.onerror = function() {
+        stopFinanceAssistantVoice();
+      };
+
+      financeAssistantSpeechRec.onend = function() {
+        stopFinanceAssistantVoice();
+      };
+
+      financeAssistantSpeechRec.start();
+    } catch(err) {
+      stopFinanceAssistantVoice();
+    }
+  }
+
+  function stopFinanceAssistantVoice() {
+    isFinanceAssistantListening = false;
+    if (financeAssistantSpeechRec) {
+      try { financeAssistantSpeechRec.stop(); } catch(e) {}
+      financeAssistantSpeechRec = null;
+    }
+    const banner = document.getElementById('financeAssistantListeningBanner');
+    if (banner) banner.classList.add('hidden');
+    const btn = document.getElementById('btnFinanceAssistantVoice');
+    if (btn) btn.classList.remove('ring-2', 'ring-red-400');
+    const label = document.getElementById('labelFinanceAssistantVoice');
+    if (label) label.textContent = 'Bicara';
+  }
+
+  global.updateFinanceAssistantLiveSummary = updateFinanceAssistantLiveSummary;
+  global.handleFinanceAssistantSubmit = handleFinanceAssistantSubmit;
+  global.closeFinanceAssistantAnswerCard = closeFinanceAssistantAnswerCard;
+  global.toggleFinanceAssistantSpeech = toggleFinanceAssistantSpeech;
+  global.stopFinanceAssistantSpeech = stopFinanceAssistantSpeech;
+  global.toggleFinanceAssistantVoice = toggleFinanceAssistantVoice;
+  global.stopFinanceAssistantVoice = stopFinanceAssistantVoice;
 
 })(window);
 
@@ -40668,6 +40999,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42588,6 +42920,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
 
 
 
