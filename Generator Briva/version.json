@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 48,
-  "releaseDate": "2026-11-11",
-  "title": "Rilis v1.0.9 Build 48 (Malih AI Assistant & UI Streamline)",
+  "build": 49,
+  "releaseDate": "2026-11-15",
+  "title": "Rilis v1.0.9 Build 49 (Auto-Cloud Sync & Integrasi Modul Menyeluruh)",
   "changelog": [
-    "Pembaruan Resmi Malih AI: Asisten cerdas bertransformasi menjadi Malih AI dengan gaya komunikasi hangat, cerdas, dan responsif.",
-    "Pembersihan Antarmuka Chat: Menghilangkan bilah status mesin AI agar tampilan chat lebih lega, minimalis, dan elegan.",
-    "Bust Cache Otomatis: Sinkronisasi instan aset PWA Build 48 ke browser HP dan Desktop."
+    "Sinkronisasi Otomatis Lintas Browser/Perangkat: Menyelaraskan saldo keuangan, catatan jurnal guru, dan ide langsung saat aplikasi dibuka di perangkat baru.",
+    "Perbaikan Total Tab Inkubator Bisnis (Titip Jual Warung): Mengaktifkan modal warung, pencatatan kas, dan simulasi keuntungan.",
+    "Penyempurnaan Handler Tombol Tab BRIVA, Tahfidz, PPDB, dan Humas: Menghilangkan seluruh kendala klik/ekspor tanpa error."
   ]
 }
