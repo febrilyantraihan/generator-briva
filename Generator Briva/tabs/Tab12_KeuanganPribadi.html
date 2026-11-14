@@ -34,6 +34,18 @@
               <!-- Right: Quick AI & Transaction Actions (Responsive 2x2 Grid on Mobile, Flex on Desktop) -->
               <div class="w-full lg:w-auto">
                 <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 w-full">
+                  <!-- 0. Asisten Malih AI Button (Direct Co-Pilot Trigger) -->
+                  <button 
+                    type="button" 
+                    onclick="openFatihChatWithContext('keuangan')" 
+                    class="h-9 px-2.5 sm:px-3 py-1.5 rounded-lg text-[10.5px] sm:text-xs font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap min-w-0 ring-1 ring-emerald-400/50"
+                    title="Konsultasi & Tanya Asisten Pribadi Malih AI"
+                  >
+                    <img src="fathiya_avatar.jpg?v=21" alt="Malih AI" class="w-4 h-4 rounded-full object-cover border border-white/70 shrink-0 pointer-events-none" />
+                    <span class="truncate">Asisten Malih</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse shrink-0"></span>
+                  </button>
+
                   <!-- 1. Scan Struk AI Button -->
                   <button 
                     type="button" 
@@ -101,6 +113,143 @@
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- 1.5. ASISTEN PRIBADI KEUANGAN MALIH AI (EMBEDDED CO-PILOT & VOICE ASSISTANT) -->
+            <div id="financeAssistantCard" class="bg-gradient-to-r from-emerald-950/90 via-slate-900/95 to-teal-950/90 rounded-2xl border border-emerald-500/40 p-3 sm:p-4 shadow-lg text-white space-y-2.5 relative overflow-hidden">
+              <!-- Glowing Background Ambient -->
+              <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none"></div>
+
+              <!-- Header Bar of Assistant Card -->
+              <div class="flex items-center justify-between gap-2 relative z-10">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="relative flex-shrink-0 cursor-pointer" onclick="openFatihChatWithContext('keuangan')" title="Buka Jendela Percakapan Penuh Malih AI">
+                    <img src="fathiya_avatar.jpg?v=21" alt="Malih AI" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-emerald-400/90 ring-2 ring-emerald-500/30 shadow-md" />
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900 animate-pulse"></span>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <h4 class="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1.5 truncate">
+                        <span>Asisten Pribadi Keuangan (Malih AI)</span>
+                      </h4>
+                      <span class="text-[8.5px] px-1.5 py-0.5 rounded-md font-extrabold bg-emerald-500/25 text-emerald-300 border border-emerald-400/30 uppercase tracking-wider">
+                        Personal Co-Pilot
+                      </span>
+                    </div>
+                    <p class="text-[10px] sm:text-[11px] text-emerald-200/80 truncate mt-0.5 font-medium" id="financeAssistantLiveSummary">
+                      Siap mendampingi Kak Fatih: catat saldo instan, deteksi bocor halus, dan analisa kas bijak.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Quick Action: Buka Chat Penuh -->
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <button 
+                    type="button" 
+                    onclick="openFatihChatWithContext('keuangan')" 
+                    class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/25 text-emerald-300 hover:text-white border border-white/15 text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
+                    title="Buka Jendela Obrolan Penuh Malih AI"
+                  >
+                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Tanya Malih</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Smart Command Input Bar with Voice & Instant Enter -->
+              <div class="relative flex items-center z-10">
+                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input 
+                  type="text" 
+                  id="financeAssistantSmartInput" 
+                  placeholder="Tanya asisten atau beri perintah (cth: 'Berapa saldo saya?', 'Catat beli bensin 25rb', 'Cek bocor halus')..." 
+                  onkeydown="if(event.key==='Enter'){event.preventDefault(); handleFinanceAssistantSubmit(this.value);}"
+                  class="w-full pl-9 pr-24 py-2 sm:py-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/40 text-xs sm:text-sm font-medium text-white placeholder-emerald-200/50 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all shadow-inner"
+                />
+                
+                <div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <!-- Voice Mic Button -->
+                  <button 
+                    type="button" 
+                    id="btnFinanceAssistantVoice" 
+                    onclick="toggleFinanceAssistantVoice()" 
+                    class="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-md cursor-pointer transition-all border border-emerald-300/30"
+                    title="Bicara Langsung ke Asisten (Input Suara)"
+                  >
+                    <i data-lucide="mic" class="w-3.5 h-3.5" id="iconFinanceAssistantVoice"></i>
+                    <span id="labelFinanceAssistantVoice">Bicara</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Voice Listening Banner (Hidden by default) -->
+              <div id="financeAssistantListeningBanner" class="hidden p-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-xl shadow-lg flex items-center justify-between gap-2 text-xs animate-pulse border border-white/20 z-10">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-3 h-3 rounded-full bg-emerald-300 animate-ping flex-shrink-0"></div>
+                  <div class="min-w-0">
+                    <span class="font-extrabold uppercase tracking-wide text-[10.5px]">🎙️ Malih Mendengarkan...</span>
+                    <p id="financeAssistantLiveTranscript" class="text-xs opacity-95 truncate font-medium">Katakan sesuatu (misal: "Catat makan siang dua puluh ribu rupiah")...</p>
+                  </div>
+                </div>
+                <button type="button" onclick="stopFinanceAssistantVoice()" class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold cursor-pointer whitespace-nowrap flex-shrink-0">
+                  Selesai
+                </button>
+              </div>
+
+              <!-- Interactive Answer / Result Display Card (Hidden by default, shown when query processed) -->
+              <div id="financeAssistantAnswerCard" class="hidden p-3 sm:p-4 bg-slate-950/95 rounded-xl border border-emerald-400/60 shadow-xl space-y-2.5 z-10 transition-all">
+                <div class="flex items-center justify-between gap-2 border-b border-emerald-500/30 pb-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <img src="fathiya_avatar.jpg?v=21" alt="Malih AI" class="w-5 h-5 rounded-full object-cover border border-emerald-400 shrink-0" />
+                    <span class="text-xs font-bold text-emerald-300 truncate">Jawaban Asisten Malih</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" id="btnFinanceVoiceSpeech" onclick="toggleFinanceAssistantSpeech()" class="p-1 rounded-md text-slate-400 hover:text-emerald-300 hover:bg-white/10" title="Dengarkan Suara Malih">
+                      <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button type="button" onclick="closeFinanceAssistantAnswerCard()" class="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10" title="Tutup">
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Query Info -->
+                <div class="text-[11px] text-slate-300">
+                  <span>Pertanyaan / Instruksi: </span>
+                  <span id="financeAssistantQueryEcho" class="text-white font-bold italic"></span>
+                </div>
+
+                <!-- Response Body -->
+                <div id="financeAssistantAnswerBody" class="text-xs leading-relaxed text-slate-100 bg-white/5 p-2.5 rounded-lg border border-white/5 whitespace-pre-line">
+                </div>
+
+                <!-- Action Buttons inside Answer -->
+                <div id="financeAssistantActionContainer" class="flex items-center gap-2 pt-1 flex-wrap">
+                </div>
+              </div>
+
+              <!-- Quick Recommendation Chips (Pilihan Pertanyaan & Aksi Cepat) -->
+              <div class="pt-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px] z-10">
+                <span class="text-[10px] text-emerald-300/80 font-bold shrink-0 flex items-center gap-1">
+                  <i data-lucide="zap" class="w-3 h-3 text-emerald-400"></i>
+                  <span>Aksi Cepat:</span>
+                </span>
+                <button type="button" onclick="handleFinanceAssistantSubmit('Berapa saldo kas saya sekarang di semua kantong?')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-emerald-500/25 border border-white/10 text-slate-200 hover:text-white shrink-0 transition-all cursor-pointer flex items-center gap-1 text-[10.5px]">
+                  <span>💰 Cek Saldo Kas</span>
+                </button>
+                <button type="button" onclick="handleFinanceAssistantSubmit('Berapa total kebocoran halus atau latte factor bulan ini?')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-emerald-500/25 border border-white/10 text-slate-200 hover:text-white shrink-0 transition-all cursor-pointer flex items-center gap-1 text-[10.5px]">
+                  <span>🔍 Radar Bocor Halus</span>
+                </button>
+                <button type="button" onclick="handleFinanceAssistantSubmit('Catat pengeluaran bensin 25000 di operasional')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-emerald-500/25 border border-white/10 text-slate-200 hover:text-white shrink-0 transition-all cursor-pointer flex items-center gap-1 text-[10.5px]">
+                  <span>🎙️ Catat Bensin 25rb</span>
+                </button>
+                <button type="button" onclick="handleFinanceAssistantSubmit('Bagaimana cara terbaik membagi gaji ke 3 pos amplop?')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-emerald-500/25 border border-white/10 text-slate-200 hover:text-white shrink-0 transition-all cursor-pointer flex items-center gap-1 text-[10.5px]">
+                  <span>✉️ Alokasi Amplop</span>
+                </button>
+                <button type="button" onclick="handleFinanceAssistantSubmit('Beri rekomendasi ide peluang tambahan penghasilan')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-emerald-500/25 border border-white/10 text-slate-200 hover:text-white shrink-0 transition-all cursor-pointer flex items-center gap-1 text-[10.5px]">
+                  <span>💡 Ide Tambah Income</span>
+                </button>
               </div>
             </div>
 
