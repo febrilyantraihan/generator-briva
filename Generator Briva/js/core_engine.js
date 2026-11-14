@@ -16003,7 +16003,7 @@ https://linktr.ee/YTPAI_Raudlatul_Mutaallimin_LA
     // PWA SEMANTIC VERSIONING & IN-APP AUTO-UPDATE ENGINE (v1.0.0)
     // ==========================================================================
     const CURRENT_APP_VERSION = '1.0.9';
-    const CURRENT_APP_BUILD = 48;
+    const CURRENT_APP_BUILD = 49;
     window.CURRENT_APP_VERSION = CURRENT_APP_VERSION;
     window.CURRENT_APP_BUILD = CURRENT_APP_BUILD;
 
@@ -27701,6 +27701,7 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
     // ==============================================================
     // 14B. JURNAL GURU, JADWAL MENGAJAR & PENILAIAN STS/SAS ENGINE
     // ==============================================================
+// ============================================================================
 // ============================================================================
 // ============================================================================
 // ============================================================================
@@ -40666,6 +40667,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -42979,6 +42981,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
 
 
+
+
+
     function initializeApp() {
       // Pastikan iframe window tidak tergeser ke bawah (mencegah bagian atas terpotong di Apps Script)
       try {
@@ -43066,6 +43071,215 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 
       // Sat-Set Instant Ready: Render ikon secara instan & tanpa jeda
       safeCreateIcons();
+      
+    // ==========================================================================
+    // CRITICAL GLOBAL BRIDGES & COMPATIBILITY HELPERS (ALL BROWSERS & DEVICES)
+    // ==========================================================================
+
+    // 1. PPDB Bento Header Actions
+    window.copyCurrentPpdbTableExcel = function() {
+      const sub = typeof currentPpdbActiveSubtab !== 'undefined' ? currentPpdbActiveSubtab : 'ortu';
+      if (sub === 'siswa' && typeof copyPpdbSiswaToClipboard === 'function') {
+        copyPpdbSiswaToClipboard();
+      } else if (sub === 'guru' && typeof copyPpdbGuruToClipboard === 'function') {
+        copyPpdbGuruToClipboard();
+      } else if (typeof copyPpdbOrtuToClipboard === 'function') {
+        copyPpdbOrtuToClipboard();
+      }
+    };
+
+    window.exportCurrentPpdbToNativeXlsx = function() {
+      const sub = typeof currentPpdbActiveSubtab !== 'undefined' ? currentPpdbActiveSubtab : 'ortu';
+      if (sub === 'siswa' && typeof exportPpdbSiswaToExcel === 'function') {
+        exportPpdbSiswaToExcel();
+      } else if (sub === 'guru' && typeof exportPpdbGuruToExcel === 'function') {
+        exportPpdbGuruToExcel();
+      } else if (typeof exportPpdbOrtuToExcel === 'function') {
+        exportPpdbOrtuToExcel();
+      }
+    };
+
+    // 2. Timeline Header Action Fallback
+    window.handleTimelineHeaderAction = function() {
+      const curTab = typeof currentActiveTab !== 'undefined' ? currentActiveTab : (window.appRootTab || 'humas');
+      if (curTab === 'humas' && typeof openModalHumasBulkImport === 'function') {
+        openModalHumasBulkImport();
+      } else if (curTab === 'tahfidz') {
+        document.getElementById('tahfidzSearchInput')?.focus();
+      } else if (curTab === 'jurnal' && typeof exportJurnalToExcel === 'function') {
+        exportJurnalToExcel();
+      } else if (curTab === 'akun' && typeof copyAllPpdbStudentsWa === 'function') {
+        copyAllPpdbStudentsWa();
+      } else if (curTab === 'briva' && typeof generateBrivaFromPpdb === 'function') {
+        generateBrivaFromPpdb();
+      } else if (curTab === 'wa' && typeof selectWaTemplate === 'function') {
+        selectWaTemplate('akun_santri');
+      } else if (curTab === 'ide' && typeof openIdeModal === 'function') {
+        openIdeModal();
+      } else {
+        document.getElementById('bulkInput')?.focus();
+      }
+    };
+
+    // 3. BRIVA Manual Helpers & Inline Row Management
+    window.applyQuickBrivaReg = function() {
+      const input = document.getElementById('quickBrivaRegInput');
+      const val = (input?.value || '').trim();
+      if (!val) {
+        if (typeof showToast === 'function') {
+          showToast('Masukkan Nomor Registrasi', 'Silakan ketik nomor registrasi (cth: 015660) terlebih dahulu.', 'warning');
+        }
+        return;
+      }
+      window.applyRegToAllRows(val);
+      if (input) input.value = '';
+    };
+
+    window.applyRegToAllRows = function(noReg) {
+      if (!noReg) {
+        const inputPrompt = prompt('Masukkan Nomor Registrasi untuk seluruh baris tagihan:', '015660');
+        if (inputPrompt) noReg = inputPrompt.trim();
+        else return;
+      }
+      
+      let cleanNo = String(noReg).trim();
+      const lockZero = document.getElementById('brivaLockLeadingZero')?.checked ?? true;
+      if (lockZero && /^\d+$/.test(cleanNo) && cleanNo.length < 6) {
+        cleanNo = cleanNo.padStart(6, '0');
+      }
+
+      if (typeof currentBrivaResults !== 'undefined' && Array.isArray(currentBrivaResults)) {
+        currentBrivaResults.forEach(r => {
+          r.noRegistrasi = cleanNo;
+        });
+      }
+
+      if (typeof syncBrivaInputTextareaFromResults === 'function') syncBrivaInputTextareaFromResults();
+      if (typeof renderBrivaTable === 'function') renderBrivaTable();
+      if (typeof recordBrivaHistory === 'function') {
+        recordBrivaHistory('Set No. Registrasi ' + cleanNo);
+      }
+      if (typeof soundSuccess === 'function') soundSuccess();
+      if (typeof showToast === 'function') {
+        showToast('Nomor Berhasil Diterapkan!', 'Nomor Registrasi ' + cleanNo + ' diterapkan ke semua baris 5 kolom BRI.', 'success');
+      }
+    };
+
+    window.updateBrivaTableRowReg = function(rowIdx, newNoReg) {
+      if (typeof currentBrivaResults !== 'undefined' && currentBrivaResults[rowIdx]) {
+        currentBrivaResults[rowIdx].noRegistrasi = newNoReg;
+        if (typeof syncBrivaInputTextareaFromResults === 'function') syncBrivaInputTextareaFromResults();
+      }
+    };
+
+    window.syncBrivaInputTextareaFromResults = function() {
+      const textarea = document.getElementById('brivaInput');
+      if (textarea && typeof brivaInputMode !== 'undefined' && brivaInputMode === 'mass') {
+        if (typeof currentBrivaResults !== 'undefined' && Array.isArray(currentBrivaResults)) {
+          const uniqueRegs = [...new Set(currentBrivaResults.map(r => r.noRegistrasi).filter(Boolean))];
+          if (uniqueRegs.length > 0) {
+            textarea.value = uniqueRegs.join('\n');
+          }
+        }
+      }
+    };
+
+    window.addSingleDraftBrivaRow = function() {
+      if (typeof currentBrivaResults === 'undefined' || !Array.isArray(currentBrivaResults)) return;
+      const idx = currentBrivaResults.length + 1;
+      const tglEf = document.getElementById('brivaTglEfektif')?.value || '01-09-2026';
+      const tglTp = document.getElementById('brivaTglJatuhTempo')?.value || '10-09-2026';
+      const idGlobal = document.getElementById('brivaIdTagihan')?.value || '62';
+      
+      let lastReg = '';
+      if (currentBrivaResults.length > 0) {
+        lastReg = currentBrivaResults[currentBrivaResults.length - 1].noRegistrasi || '';
+      }
+
+      currentBrivaResults.push({
+        index: idx,
+        noRegistrasi: lastReg,
+        idTagihan: idGlobal,
+        rawAmount: 281000,
+        jumlahFormatted: typeof formatNominal === 'function' ? formatNominal(281000) : '281.000',
+        tglEfektif: tglEf,
+        tglJatuhTempo: tglTp,
+        componentTitle: 'Tagihan Tambahan #' + idx,
+        componentBadge: 'bg-blue-100 text-blue-900 border-blue-300',
+        studentClass: '7',
+        statusKey: 'reguler',
+        studentGender: 'PA',
+        rawLine: lastReg
+      });
+
+      if (typeof renderBrivaTable === 'function') renderBrivaTable();
+      if (typeof recordBrivaHistory === 'function') {
+        recordBrivaHistory('Tambah Baris Tagihan');
+      }
+      if (typeof soundSuccess === 'function') soundSuccess();
+      if (typeof showToast === 'function') {
+        showToast('Baris Ditambahkan', 'Baris #' + idx + ' berhasil ditambahkan ke tabel 5 kolom.', 'info');
+      }
+    };
+
+    // 4. Tahfidz Blur Caption Updaters
+    window.handleTahfidzKategoriBlur = function(el) {
+      if (typeof updateTahfidzCaptionPreview === 'function') {
+        updateTahfidzCaptionPreview();
+      }
+    };
+
+    window.handleTahfidzJuzBlur = function(el) {
+      if (typeof updateTahfidzCaptionPreview === 'function') {
+        updateTahfidzCaptionPreview();
+      }
+    };
+
+    // 5. Humas Voice Answer & Duplicate Cleaner
+    window.closeHumasVoiceAnswerCard = function() {
+      const card = document.getElementById('humasVoiceAnswerCard');
+      if (card) card.classList.add('hidden');
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      const speakingBadge = document.getElementById('humasVoiceSpeakingBadge');
+      if (speakingBadge) speakingBadge.classList.add('hidden');
+    };
+
+    window.repeatHumasVoiceAnswer = function() {
+      if (typeof lastSpokenHumasAnswer !== 'undefined' && lastSpokenHumasAnswer) {
+        if (typeof speakHumasAnswer === 'function') speakHumasAnswer(lastSpokenHumasAnswer);
+      }
+    };
+
+    window.cleanDuplicateHumasPrograms = function(showFeedback = true) {
+      if (typeof humasState !== 'undefined' && Array.isArray(humasState.programs)) {
+        const beforeCount = humasState.programs.length;
+        if (typeof deduplicateHumasPrograms === 'function') {
+          humasState.programs = deduplicateHumasPrograms(humasState.programs);
+        }
+        const removed = beforeCount - humasState.programs.length;
+        if (typeof saveHumasData === 'function') saveHumasData();
+        if (typeof renderHumasAll === 'function') renderHumasAll();
+        if (showFeedback && typeof showToast === 'function') {
+          showToast('Pembersihan Selesai', removed > 0 ? (removed + ' agenda ganda berhasil dibersihkan.') : 'Data agenda sudah bersih, tidak ada duplikat.');
+        }
+      }
+    };
+
+    // 6. AUTO CROSS-BROWSER CLOUD SYNC ON COLD START
+    // Memastikan ketika pengguna membuka aplikasi di browser/device berbeda (HP Samsung A55, PC, dll),
+    // data Jurnal Guru, Keuangan, Ruang Ide & Tahfidz otomatis ditarik dari Cloud tanpa perlu klik manual!
+    setTimeout(async () => {
+      try {
+        console.log('[AutoSync] Memeriksa sinkronisasi Cloud Supabase...');
+        if (typeof pullKeuanganFromCloud === 'function') await pullKeuanganFromCloud(false);
+        if (typeof pullJurnalFromSupabase === 'function') await pullJurnalFromSupabase(false);
+        if (typeof pullIdeFromCloud === 'function') await pullIdeFromCloud(false);
+        if (typeof syncTahfidzToSupabase === 'function') syncTahfidzToSupabase(false);
+      } catch (e) {
+        console.warn('[AutoSync] Background sync notice:', e);
+      }
+    }, 1500);
+
       if (typeof window.dismissAppPreloader === 'function') window.dismissAppPreloader();
     }
 
