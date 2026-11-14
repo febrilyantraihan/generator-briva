@@ -1,11 +1,11 @@
 {
   "version": "1.0.9",
-  "build": 49,
+  "build": 50,
   "releaseDate": "2026-11-15",
-  "title": "Rilis v1.0.9 Build 49 (Auto-Cloud Sync & Integrasi Modul Menyeluruh)",
+  "title": "Rilis v1.0.9 Build 50 (Penanaman Asisten Pribadi Malih AI di Keuangan Pintar)",
   "changelog": [
-    "Sinkronisasi Otomatis Lintas Browser/Perangkat: Menyelaraskan saldo keuangan, catatan jurnal guru, dan ide langsung saat aplikasi dibuka di perangkat baru.",
-    "Perbaikan Total Tab Inkubator Bisnis (Titip Jual Warung): Mengaktifkan modal warung, pencatatan kas, dan simulasi keuntungan.",
-    "Penyempurnaan Handler Tombol Tab BRIVA, Tahfidz, PPDB, dan Humas: Menghilangkan seluruh kendala klik/ekspor tanpa error."
+    "Asisten Pribadi Keuangan Malih AI Tersemat: Kartu interaktif Co-Pilot langsung di Tab Keuangan untuk mencatat transaksi suara/teks cepat, cek saldo, dan analisa bocor halus.",
+    "Tombol Pintasan Co-Pilot di Header Keuangan: Akses instan 1-klik ke Malih AI dengan konteks keuangan & saran cerdas.",
+    "Cek Saldo Kas & Radar Bocor Halus Otomatis: Respon instan asisten menyebutkan saldo riil 3 kantong dan deteksi latte factor secara real-time."
   ]
 }
