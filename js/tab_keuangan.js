@@ -311,16 +311,20 @@
     const labelBadge = document.getElementById('labelKeuanganCloudStatus');
     if (labelBadge) labelBadge.textContent = 'Menyimpan...';
 
+    const nowTs = Date.now();
+    localStorage.setItem('partner_fatih_finance_updated_at_ts', nowTs.toString());
+    const nowIso = new Date(nowTs).toISOString();
+
     const payload = [{
       id: CLOUD_SYNC_ID,
       no: 99999,
       uraian: JSON.stringify({
         wallets: walletStartingBalances,
         transactions: financeTransactions,
-        updatedAt: new Date().toISOString()
+        updatedAt: nowIso
       }),
       pj: 'Keuangan AutoSync',
-      updated_at: new Date().toISOString()
+      updated_at: nowIso
     }];
 
     try {
@@ -368,6 +372,16 @@
       if (data && data.length > 0 && data[0].uraian) {
         const cloudData = JSON.parse(data[0].uraian);
         if (cloudData) {
+          const cloudUpdatedAt = new Date(cloudData.updatedAt || data[0].updated_at || 0).getTime();
+          const localUpdatedAt = Number(localStorage.getItem('partner_fatih_finance_updated_at_ts')) || 0;
+
+          // Proteksi Overwrite: Jika data lokal lebih baru dari cloud (baru diedit di device ini),
+          // JANGAN TIMPA data lokal! Sebaliknya dorong data lokal ke cloud.
+          if (localUpdatedAt > cloudUpdatedAt && !isManual) {
+            syncKeuanganToCloud(false);
+            return true;
+          }
+
           let updated = false;
           if (cloudData.wallets) {
             const currentStr = JSON.stringify(walletStartingBalances);
@@ -387,6 +401,7 @@
           }
 
           if (updated) {
+            localStorage.setItem('partner_fatih_finance_updated_at_ts', cloudUpdatedAt.toString());
             renderHeroAndWallets();
             renderMoneyLeakRadar();
             renderFinanceTable();
@@ -449,16 +464,35 @@
   }
 
   // ============================================================================
-  // CALCULATIONS & BALANCES
+  // CALCULATIONS & BALANCES (PERSISTENT & ACCURATE FORMULA)
   // ============================================================================
+  function getWalletTransactionDelta(walletName) {
+    const w = (walletName || '').toLowerCase();
+    let delta = 0;
+    financeTransactions.forEach(tx => {
+      const amt = Number(tx.amount) || 0;
+      if (tx.type === 'masuk') {
+        if (tx.wallet === w) delta += amt;
+      } else if (tx.type === 'keluar') {
+        if (tx.wallet === w) delta -= amt;
+      } else if (tx.type === 'transfer') {
+        if (tx.wallet === w) delta -= amt;
+        if (tx.toWallet === w) delta += amt;
+      }
+    });
+    return delta;
+  }
+
   function calculateWalletBalances() {
-    let balPribadi = Number(walletStartingBalances.pribadi) || 0;
-    let balOperasional = Number(walletStartingBalances.operasional) || 0;
-    let balTabungan = Number(walletStartingBalances.tabungan) || 0;
+    const balPribadi = (Number(walletStartingBalances.pribadi) || 0) + getWalletTransactionDelta('pribadi');
+    const balOperasional = (Number(walletStartingBalances.operasional) || 0) + getWalletTransactionDelta('operasional');
+    const balTabungan = (Number(walletStartingBalances.tabungan) || 0) + getWalletTransactionDelta('tabungan');
 
     let outPribadiThisMonth = 0;
     let outOperasionalThisMonth = 0;
     let inTabunganThisMonth = 0;
+    let monthIncome = 0;
+    let monthExpense = 0;
 
     const currentYearMonth = getTodayString().slice(0, 7); // YYYY-MM
 
@@ -466,51 +500,20 @@
       const amt = Number(tx.amount) || 0;
       const txMonth = (tx.date || '').slice(0, 7);
 
-      if (tx.type === 'masuk') {
-        if (tx.wallet === 'pribadi') balPribadi += amt;
-        else if (tx.wallet === 'operasional') balOperasional += amt;
-        else if (tx.wallet === 'tabungan') {
-          balTabungan += amt;
-          if (txMonth === currentYearMonth) inTabunganThisMonth += amt;
+      if (txMonth === currentYearMonth) {
+        if (tx.type === 'masuk') {
+          monthIncome += amt;
+          if (tx.wallet === 'tabungan') inTabunganThisMonth += amt;
+        } else if (tx.type === 'keluar') {
+          monthExpense += amt;
+          if (tx.wallet === 'pribadi') outPribadiThisMonth += amt;
+          else if (tx.wallet === 'operasional') outOperasionalThisMonth += amt;
         }
-      } else if (tx.type === 'keluar') {
-        if (tx.wallet === 'pribadi') {
-          balPribadi -= amt;
-          if (txMonth === currentYearMonth) outPribadiThisMonth += amt;
-        } else if (tx.wallet === 'operasional') {
-          balOperasional -= amt;
-          if (txMonth === currentYearMonth) outOperasionalThisMonth += amt;
-        } else if (tx.wallet === 'tabungan') {
-          balTabungan -= amt;
-        }
-      } else if (tx.type === 'transfer') {
-        // Debet sumber
-        if (tx.wallet === 'pribadi') balPribadi -= amt;
-        else if (tx.wallet === 'operasional') balOperasional -= amt;
-        else if (tx.wallet === 'tabungan') balTabungan -= amt;
-
-        // Kredit tujuan
-        if (tx.toWallet === 'pribadi') balPribadi += amt;
-        else if (tx.toWallet === 'operasional') balOperasional += amt;
-        else if (tx.toWallet === 'tabungan') balTabungan += amt;
       }
     });
 
     const netWorth = balPribadi + balOperasional + balTabungan;
-
-    // Monthly cashflow: total pemasukan bulan ini minus total pengeluaran bulan ini
-    let monthIncome = 0;
-    let monthExpense = 0;
-    financeTransactions.forEach(tx => {
-      if ((tx.date || '').slice(0, 7) === currentYearMonth) {
-        const amt = Number(tx.amount) || 0;
-        if (tx.type === 'masuk') monthIncome += amt;
-        else if (tx.type === 'keluar') monthExpense += amt;
-      }
-    });
     const monthlyNet = monthIncome - monthExpense;
-
-    // Savings rate = (pemasukan tabungan / total pemasukan) * 100
     const savingsRate = monthIncome > 0 ? Math.min(100, Math.max(0, Math.round(((monthIncome - monthExpense) / monthIncome) * 100))) : 0;
 
     return {
@@ -874,7 +877,7 @@
   }
 
   // ============================================================================
-  // RENDER TRANSACTION TABLE
+  // RENDER TRANSACTION TABLE (WITH RUNNING BALANCE MUTASI)
   // ============================================================================
   function renderFinanceTable() {
     const tbody = document.getElementById('financeTableBody');
@@ -885,6 +888,34 @@
     const searchKeyword = (document.getElementById('searchFinanceInput')?.value || '').toLowerCase().trim();
     const filterWallet = document.getElementById('filterWalletSelect')?.value || 'all';
     const filterType = document.getElementById('filterTypeSelect')?.value || 'all';
+
+    // Hitung running balance per-dompet secara kronologis (dari awal hingga akhir)
+    const sortedChronological = [...financeTransactions].sort((a, b) => {
+      const dtA = (a.date || '') + ' ' + (a.time || '00:00');
+      const dtB = (b.date || '') + ' ' + (b.time || '00:00');
+      return dtA.localeCompare(dtB);
+    });
+
+    const running = {
+      pribadi: Number(walletStartingBalances.pribadi) || 0,
+      operasional: Number(walletStartingBalances.operasional) || 0,
+      tabungan: Number(walletStartingBalances.tabungan) || 0
+    };
+    const txBalanceAfter = {};
+
+    sortedChronological.forEach(tx => {
+      const amt = Number(tx.amount) || 0;
+      const w = tx.wallet;
+      if (tx.type === 'masuk') {
+        if (running[w] !== undefined) running[w] += amt;
+      } else if (tx.type === 'keluar') {
+        if (running[w] !== undefined) running[w] -= amt;
+      } else if (tx.type === 'transfer') {
+        if (running[w] !== undefined) running[w] -= amt;
+        if (running[tx.toWallet] !== undefined) running[tx.toWallet] += amt;
+      }
+      txBalanceAfter[tx.id] = running[w] !== undefined ? running[w] : 0;
+    });
 
     let filtered = [...financeTransactions];
 
@@ -951,6 +982,8 @@
         amountClass = 'text-blue-600 dark:text-blue-400 font-extrabold';
       }
 
+      const balAfter = txBalanceAfter[tx.id] !== undefined ? txBalanceAfter[tx.id] : 0;
+
       return `
         <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
           <td class="py-2.5 px-3 whitespace-nowrap">
@@ -970,8 +1003,9 @@
             <span class="font-bold text-slate-800 dark:text-slate-100">${escapeHtml(tx.note || '-')}</span>
             ${isLeak ? `<span class="inline-flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 ml-1.5">⚠️ Bocor Halus</span>` : ''}
           </td>
-          <td class="py-2.5 px-3 text-right whitespace-nowrap tabular-nums ${amountClass}">
-            ${amountDisplay}
+          <td class="py-2.5 px-3 text-right whitespace-nowrap tabular-nums">
+            <span class="${amountClass} block">${amountDisplay}</span>
+            <span class="text-[9.5px] font-bold text-slate-400 dark:text-slate-500 block mt-0.5" title="Sisa saldo kantong ini setelah transaksi">Sisa: ${formatRupiah(balAfter)}</span>
           </td>
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${tx.type === 'masuk' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : (tx.type === 'keluar' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300')}">
@@ -979,7 +1013,7 @@
             </span>
           </td>
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
-            <button onclick="deleteFinanceTransaction('${tx.id}')" class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors" title="Hapus Transaksi">
+            <button onclick="deleteFinanceTransaction('${tx.id}')" class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer" title="Hapus Transaksi">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
@@ -1040,9 +1074,9 @@
   }
 
   // ============================================================================
-  // MANUAL TRANSACTION CRUD
+  // MANUAL TRANSACTION CRUD (WITH PREFILLED WALLET & TYPE SUPPORT)
   // ============================================================================
-  function openModalTambahTransaksi() {
+  function openModalTambahTransaksi(defaultType, defaultWallet) {
     const modal = document.getElementById('modalTambahTransaksi');
     if (!modal) return;
     if (modal.parentElement !== document.body) document.body.appendChild(modal);
@@ -1050,10 +1084,20 @@
     document.getElementById('formTransaksiManual').reset();
     document.getElementById('manualDate').value = getTodayString();
     document.getElementById('manualEditIndex').value = '-1';
-    setManualType('keluar');
+    
+    setManualType(defaultType === 'masuk' ? 'masuk' : 'keluar');
+
+    if (defaultWallet) {
+      const walletSelect = document.getElementById('manualWallet');
+      if (walletSelect) walletSelect.value = defaultWallet;
+    }
 
     modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
     modal.style.display = 'flex';
+
+    setTimeout(() => {
+      document.getElementById('manualAmount')?.focus();
+    }, 100);
   }
 
   function closeModalTambahTransaksi() {
@@ -1870,7 +1914,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
 
 
   // ============================================================================
-  // ATUR SALDO AWAL SEMUA KANTONG
+  // ATUR SALDO RIIL SEMUA KANTONG (FORMULA BEBAS DRIFT & STABIL 100%)
   // ============================================================================
   function openModalAturSaldo(focusWallet) {
     const balances = calculateWalletBalances();
@@ -1878,9 +1922,9 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     const inpOperasional = document.getElementById('inputSaldoOperasional');
     const inpTabungan = document.getElementById('inputSaldoTabungan');
 
-    if (inpPribadi) inpPribadi.value = Math.max(0, balances.pribadi.balance);
-    if (inpOperasional) inpOperasional.value = Math.max(0, balances.operasional.balance);
-    if (inpTabungan) inpTabungan.value = Math.max(0, balances.tabungan.balance);
+    if (inpPribadi) inpPribadi.value = balances.pribadi ? balances.pribadi.balance : 0;
+    if (inpOperasional) inpOperasional.value = balances.operasional ? balances.operasional.balance : 0;
+    if (inpTabungan) inpTabungan.value = balances.tabungan ? balances.tabungan.balance : 0;
 
     const modal = document.getElementById('modalAturSaldo');
     if (modal) {
@@ -1911,14 +1955,18 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     const valOperasional = Math.round(Number(document.getElementById('inputSaldoOperasional')?.value) || 0);
     const valTabungan = Math.round(Number(document.getElementById('inputSaldoTabungan')?.value) || 0);
 
+    // KOREKSI SALDO DENGAN FORMULA PRESISI BEBAS DOUBLE DEDUCTION DRIFT:
+    // StartingBalance = TargetAmount - DeltaTransaksi
+    // Sehingga: SaldoTerkini = StartingBalance + DeltaTransaksi = TargetAmount (100% Presisi & Stabil!)
     walletStartingBalances = {
-      pribadi: valPribadi,
-      operasional: valOperasional,
-      tabungan: valTabungan
+      pribadi: valPribadi - getWalletTransactionDelta('pribadi'),
+      operasional: valOperasional - getWalletTransactionDelta('operasional'),
+      tabungan: valTabungan - getWalletTransactionDelta('tabungan')
     };
 
     try {
       localStorage.setItem(STORAGE_WALLETS, JSON.stringify(walletStartingBalances));
+      localStorage.setItem('partner_fatih_finance_updated_at_ts', Date.now().toString());
       triggerCloudSyncKeuangan();
     } catch(err) {
       console.warn('Gagal menyimpan wallet starting balances:', err);
@@ -1930,7 +1978,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     closeModalAturSaldo();
 
     if (typeof showToast === 'function') {
-      showToast('Saldo berhasil disimpan & diperbarui!', 'success');
+      showToast('✅ Saldo Berhasil Diperbarui', 'Saldo kas telah disesuaikan dengan uang riil Anda saat ini.');
     }
   }
 
@@ -2051,38 +2099,21 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     const w = (walletName || 'pribadi').toLowerCase();
     const amt = Math.round(Number(targetAmount) || 0);
 
-    // Hitung saldo terkini
-    let currentBalances = { pribadi: 0, operasional: 0, tabungan: 0 };
+    if (w === 'all') {
+      walletStartingBalances.pribadi = amt - getWalletTransactionDelta('pribadi');
+      walletStartingBalances.operasional = amt - getWalletTransactionDelta('operasional');
+      walletStartingBalances.tabungan = amt - getWalletTransactionDelta('tabungan');
+    } else {
+      const validW = ['pribadi', 'operasional', 'tabungan'].includes(w) ? w : 'pribadi';
+      walletStartingBalances[validW] = amt - getWalletTransactionDelta(validW);
+    }
+
     try {
-      const calc = calculateWalletBalances();
-      if (calc) {
-        currentBalances.pribadi = calc.pribadi || 0;
-        currentBalances.operasional = calc.operasional || 0;
-        currentBalances.tabungan = calc.tabungan || 0;
-      }
-    } catch(e) {}
-
-    const currentWalletBal = currentBalances[w] !== undefined ? currentBalances[w] : 0;
-    const diff = amt - currentWalletBal;
-
-    if (diff !== 0) {
-      const d = new Date();
-      const adjustTx = {
-        id: 'tx_adj_' + Date.now(),
-        date: getTodayString(),
-        time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
-        type: diff > 0 ? 'masuk' : 'keluar',
-        wallet: w,
-        category: 'Penyesuaian Saldo',
-        amount: Math.abs(diff),
-        note: `Penyesuaian saldo via Malih AI (Menjadi Rp ${amt.toLocaleString('id-ID')})`,
-        isLeak: false
-      };
-      financeTransactions.unshift(adjustTx);
-      try {
-        localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
-        triggerCloudSyncKeuangan();
-      } catch(e) {}
+      localStorage.setItem(STORAGE_WALLETS, JSON.stringify(walletStartingBalances));
+      localStorage.setItem('partner_fatih_finance_updated_at_ts', Date.now().toString());
+      triggerCloudSyncKeuangan();
+    } catch(e) {
+      console.warn('Gagal menyimpan wallet balance direct:', e);
     }
 
     renderAllFinanceViews();
