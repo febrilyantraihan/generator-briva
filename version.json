@@ -1,11 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 50,
+  "build": 51,
   "releaseDate": "2026-11-15",
-  "title": "Rilis v1.0.9 Build 50 (Penanaman Asisten Pribadi Malih AI di Keuangan Pintar)",
+  "title": "Rilis v1.0.9 Build 51 (Solusi Saldo Stabil & Alur Keuangan Super Mudah)",
   "changelog": [
-    "Asisten Pribadi Keuangan Malih AI Tersemat: Kartu interaktif Co-Pilot langsung di Tab Keuangan untuk mencatat transaksi suara/teks cepat, cek saldo, dan analisa bocor halus.",
-    "Tombol Pintasan Co-Pilot di Header Keuangan: Akses instan 1-klik ke Malih AI dengan konteks keuangan & saran cerdas.",
-    "Cek Saldo Kas & Radar Bocor Halus Otomatis: Respon instan asisten menyebutkan saldo riil 3 kantong dan deteksi latte factor secara real-time."
+    "Solusi Saldo Stabil & Anti-Drift: Formula matematis presisi bebas pengurangan ganda, saldo tidak akan pernah lagi melompat atau berubah-ubah sendiri.",
+    "Alur Praktis 3-Langkah: Banner panduan cepat (1. Atur Saldo Riil, 2. Catat Belanja, 3. Pantau Sisa Uang) langsung di depan layar.",
+    "Tombol Aksi Cepat di Tiap Kantong: Tombol [Koreksi Saldo] dan [+ Catat Belanja/Biaya/Nabung] langsung di masing-masing kartu dompet dengan form otomatis terisi.",
+    "Buku Mutasi Transparan: Riwayat transaksi kini dilengkapi catatan 'Sisa Saldo' setelah transaksi seperti rekening koran bank.",
+    "Proteksi Cloud Sync Antar-Browser: Sinkronisasi cloud cerdas berbasis timestamp mencegah data lama menimpa saldo baru saat berpindah browser/perangkat."
   ]
 }
