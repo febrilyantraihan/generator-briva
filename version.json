@@ -2,11 +2,12 @@
   "version": "1.0.9",
   "build": 53,
   "releaseDate": "2026-11-15",
-  "title": "Rilis v1.0.9 Build 53 (Perbaikan Presisi Alokasi Saldo Riil & Anti Saldo Ganda)",
+  "title": "Rilis v1.0.9 Build 53 (Malih AI Asisten Eksekutif & Presisi Saldo Riil Bebas Drift)",
   "changelog": [
-    "Perbaikan Presisi Alokasi Saldo Riil: Mengeliminasi duplikasi penambahan saldo saat membagi uang kas yang sudah di tangan, saldo tetap pas 100% (tidak pernah lagi berlipat ganda).",
+    "Malih AI Eksekutif Nyata: Memahami bahasa alami sehari-hari ('saldo real saya hari ini adalah 321,000', 'langsung bagi uang 321rb', 'beli bensin 20rb') dan langsung mengeksekusi perubahannya detik itu juga.",
+    "Perbaikan Presisi Alokasi Saldo Riil: Mengeliminasi duplikasi penambahan saldo saat membagi uang kas, saldo tetap pas 100% dan tidak pernah berlipat ganda.",
     "Pembersihan Otomatis Saldo Ganda: Mengembalikan saldo yang sempat melonjak ke angka riil sebenarnya secara otomatis dan bersih.",
-    "Tombol Cepat [⚡ Saldo Saat Ini]: Otomatis mendeteksi saldo kas riil saat ini sehingga pengguna tinggal 1 klik untuk membagi uang yang dipegang.",
+    "Tombol Cepat [⚡ Saldo Saat Ini]: Otomatis mendeteksi saldo kas aktif saat ini sehingga pengguna tinggal 1 klik untuk membagi uang yang dipegang.",
     "Pencatatan Alokasi Netral: Transaksi pembagian dicatat rapi sebagai alokasi kas tanpa mengubah arus kas bulanan.",
     "Radar Jatah Belanja Aman Harian (Safe to Spend): Batasan belanja harian yang akurat agar uang tidak cepat ludes."
   ]
