@@ -27998,6 +27998,8 @@ CREATE POLICY "Public Insert & Update Tahfidz" ON tahfidz_students
 // ============================================================================
 // ============================================================================
 // ============================================================================
+// ============================================================================
+// ============================================================================
 // MODULE: tab_jurnal.js
 // Jurnal Guru, Jadwal Mengajar, Presensi & Penilaian Tambahan STS/SAS
 // Formal: MTs Kelas 7A, 7B, 7C, 7D (Prakarya)
@@ -36596,10 +36598,11 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     const w = (walletName || 'pribadi').toLowerCase();
     const amt = Math.round(Number(targetAmount) || 0);
 
-    if (w === 'all') {
+    if (w === 'all' || w === 'total' || w === 'kas') {
+      // Set total saldo riil kas ke amt (di dompet utama pribadi, nol-kan dompet lainnya agar total pas 100%)
       walletStartingBalances.pribadi = amt - getWalletTransactionDelta('pribadi');
-      walletStartingBalances.operasional = amt - getWalletTransactionDelta('operasional');
-      walletStartingBalances.tabungan = amt - getWalletTransactionDelta('tabungan');
+      walletStartingBalances.operasional = 0 - getWalletTransactionDelta('operasional');
+      walletStartingBalances.tabungan = 0 - getWalletTransactionDelta('tabungan');
     } else {
       const validW = ['pribadi', 'operasional', 'tabungan'].includes(w) ? w : 'pribadi';
       walletStartingBalances[validW] = amt - getWalletTransactionDelta(validW);
@@ -36673,6 +36676,83 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
 
     const low = query.toLowerCase();
 
+    // Helper parser nominal rupiah
+    const parseRupiah = (typeof window !== 'undefined' && window.parseRupiahNumber) ? window.parseRupiahNumber : function(str) {
+      if (!str) return 0;
+      const s = String(str).toLowerCase().trim();
+      const jtMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:jt|juta)\b/i);
+      if (jtMatch) return Math.round(parseFloat(jtMatch[1].replace(',', '.')) * 1000000);
+      const rbMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+      if (rbMatch) return Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+      const formattedMatch = s.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+)\b/i);
+      if (formattedMatch) return parseInt(formattedMatch[1].replace(/[.,]/g, ''), 10);
+      const rawMatch = s.match(/(?:rp\.?\s*)?(\b\d{3,}\b)/i);
+      if (rawMatch) return parseInt(rawMatch[1], 10);
+      return 0;
+    };
+
+    // 0. ATUR SALDO RIIL KAS LANGSUNG
+    // Contoh: "saldo real saya hari ini adalah 321,000", "atur saldo kas 321.000", "saldoku hari ini 321,000", "saldo pribadi 500rb", "ubah saldo operasional 150rb"
+    if (/(?:saldo|saldoku|uang\s+kas|uang\s+riil|uang\s+real)/i.test(low) || /(?:atur|set|masukkan|ganti|ubah|sesuaikan)\s+saldo/i.test(low)) {
+      if (!/(?:berapa|cek|lihat|tampilkan|sisa|total\s+saldo)/i.test(low) && !/(?:bagi|bagikan|alokasi|pecah)/i.test(low) && !/(?:beli|bayar|jajan|makan)/i.test(low)) {
+        const amt = parseRupiah(query);
+        if (amt > 0) {
+          let wallet = 'kas';
+          if (/operasional/i.test(low)) wallet = 'operasional';
+          else if (/tabungan/i.test(low)) wallet = 'tabungan';
+          else if (/pribadi/i.test(low)) wallet = 'pribadi';
+
+          global.setFinanceWalletBalanceDirect(wallet, amt);
+          const walletLabel = wallet === 'kas' ? 'TOTAL KAS RIIL' : `Kantong ${wallet.toUpperCase()}`;
+          const reply = `Alhamdulillah beres Kak Fatih! 🌸 Saldo **${walletLabel}** telah langsung Malih atur menjadi **${formatRupiah(amt)}**.\n\nSekarang saldo di aplikasi sudah 100% sinkron dan pas dengan uang fisik riil Kakak tanpa selisih.`;
+          lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+          if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+          if (actionCont) {
+            actionCont.innerHTML = `
+              <button type="button" onclick="openModalBagiUang(${amt})" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all">⚡ Bagi Uang Anti-Boncos</button>
+              <button type="button" onclick="openModalAturSaldo()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-white/10 hover:bg-white/20 text-white border border-white/10 cursor-pointer transition-all">Koreksi Saldo</button>
+            `;
+          }
+          showToast('💰 Saldo Diperbarui', `${walletLabel} diatur ke ${formatRupiah(amt)}`);
+          if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+          return;
+        }
+      }
+    }
+
+    // 0B. BAGI UANG GAJIAN / DANA DARURAT LANGSUNG
+    // Contoh: "bagi uang 321.000", "bagi gaji 2jt", "langsung bagi uang 321rb", "alokasi uang saya 500rb"
+    if (/(?:bagi|bagikan|alokasi|bagikanlah|pecah|hitung|kalkulator)\s+(?:uang|gaji|penghasilan|pendapatan|dana|rupiah|kas)/i.test(low) || /(?:langsung\s+)?bagi\s+(?:uang|gaji|dana)/i.test(low)) {
+      const amt = parseRupiah(query);
+      const targetAmt = amt > 0 ? amt : 2000000;
+      const isAuto = /(?:langsung|terapkan|kunci|eksekusi|simpan|auto)/i.test(low);
+
+      openModalBagiUang(targetAmt);
+      if (isAuto) {
+        handleApplyMoneySplit();
+      }
+
+      const pakai = Math.round(targetAmt * 0.60);
+      const tabung = Math.round(targetAmt * 0.25);
+      const darurat = targetAmt - pakai - tabung;
+      const dailySafe = Math.round(pakai / 30);
+
+      const reply = isAuto
+        ? `Alhamdulillah beres Kak Fatih! ⚡ Uang **${formatRupiah(targetAmt)}** telah langsung Malih alokasikan dan kunci ke saldo 3 kantong:\n\n• 👤 **Boleh Dipakai**: **${formatRupiah(pakai)}** (Jatah aman: maks **${formatRupiah(dailySafe)}/hari**)\n• 🏦 **Wajib Ditabung**: **${formatRupiah(tabung)}**\n• 🛡️ **Dana Darurat**: **${formatRupiah(darurat)}**\n\nTotal saldo tetap pas **${formatRupiah(targetAmt)}** tanpa penambahan ganda!`
+        : `Berikut pembagian uang **${formatRupiah(targetAmt)}** dengan rumus Anti-Boncos:\n\n• 👤 **Boleh Dipakai (60%)**: **${formatRupiah(pakai)}** (Jatah aman: maks **${formatRupiah(dailySafe)}/hari**)\n• 🏦 **Wajib Ditabung (25%)**: **${formatRupiah(tabung)}**\n• 🛡️ **Dana Darurat (15%)**: **${formatRupiah(darurat)}**\n\nSilakan klik tombol **'Terapkan'** di modal untuk mengunci saldonya ya Kak Fatih!`;
+
+      lastFinanceAssistantAnswerText = reply.replace(/[#*_]/g, '');
+      if (bodyEl) bodyEl.innerHTML = formatMarkdownToSimpleHtml(reply);
+      if (actionCont) {
+        actionCont.innerHTML = `
+          <button type="button" onclick="handleApplyMoneySplit()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all">🔒 Terapkan & Kunci Saldo</button>
+          <button type="button" onclick="openModalBagiUang(${targetAmt})" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-white/10 hover:bg-white/20 text-white border border-white/10 cursor-pointer transition-all">Ubah Nominal / Aturan</button>
+        `;
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+      return;
+    }
+
     // 1. TANYA SALDO / CEK UANG KAS
     if (/(?:berapa|cek|lihat|tampilkan|sisa|total)\s+(?:saldo|uang|kas|dompet|kantong)/i.test(low) || /^(?:saldo|cek\s+saldo)$/i.test(low)) {
       const calc = calculateWalletBalances();
@@ -36743,16 +36823,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
       if (/operasional|bensin|kerja/i.test(low)) wallet = 'operasional';
       else if (/tabungan|darurat|aset/i.test(low)) wallet = 'tabungan';
 
-      let amount = 0;
-      const rbMatch = low.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
-      if (rbMatch) {
-        amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
-      } else {
-        const numMatch = low.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i);
-        if (numMatch) {
-          amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
-        }
-      }
+      let amount = parseRupiah(low);
 
       if (amount > 0) {
         let note = query
@@ -41318,6 +41389,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 // ==============================================================================
 // ==============================================================================
 // ==============================================================================
+// ==============================================================================
+// ==============================================================================
 // MODULE: tab_rekap_junio.js
 // REKAP TRANSAKSI JUNIO TERPADU (YTPAI RAUDLATUL MUTA'ALLIMIN)
 // Ekspor Excel 6 Sheet, PDF Legal Landscape Kop Hal 1, & Ringkasan WhatsApp
@@ -43238,6 +43311,12 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh.`;
 })(window);
 
 // END MODULE: tab_rekap_junio.js
+
+
+
+
+
+
 
 
 
