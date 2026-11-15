@@ -5,7 +5,7 @@
  */
 
 const APP_VERSION = '1.0.9';
-const CACHE_NAME = `partner-fatih-v1.0.9-b52`;
+const CACHE_NAME = `partner-fatih-v1.0.9-b53`;
 
 // Seluruh aset inti yang wajib tersedia offline secara instan
 const PRECACHE_ASSETS = [
