@@ -3005,20 +3005,21 @@ Format params:
 
         if (typeof window.setFinanceWalletBalanceDirect === 'function') {
           try { window.setFinanceWalletBalanceDirect(wallet, amount); } catch(e) {}
+        } else {
+          // Fallback jika tab keuangan belum aktif di DOM
+          let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
+          try {
+            const raw = localStorage.getItem('partner_fatih_wallets_v2') || localStorage.getItem('partner_fatih_finance_wallets_v1');
+            if (raw) wallets = Object.assign(wallets, JSON.parse(raw));
+          } catch(e) {}
+
+          if (wallet === 'operasional') wallets.operasional = amount;
+          else if (wallet === 'tabungan') wallets.tabungan = amount;
+          else wallets.pribadi = amount;
+
+          localStorage.setItem('partner_fatih_wallets_v2', JSON.stringify(wallets));
+          localStorage.setItem('partner_fatih_finance_updated_at_ts', Date.now().toString());
         }
-
-        let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
-        try {
-          const raw = localStorage.getItem('partner_fatih_finance_wallets_v1') || localStorage.getItem('partner_fatih_wallets_v2');
-          if (raw) wallets = Object.assign(wallets, JSON.parse(raw));
-        } catch(e) {}
-
-        if (wallet === 'operasional') wallets.operasional = amount;
-        else if (wallet === 'tabungan') wallets.tabungan = amount;
-        else wallets.pribadi = amount;
-
-        localStorage.setItem('partner_fatih_finance_wallets_v1', JSON.stringify(wallets));
-        localStorage.setItem('partner_fatih_wallets_v2', JSON.stringify(wallets));
 
         if (typeof window.loadFinanceData === 'function') window.loadFinanceData();
         if (typeof window.renderAllFinanceViews === 'function') window.renderAllFinanceViews();
