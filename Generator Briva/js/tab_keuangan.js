@@ -1032,6 +1032,7 @@
     renderPeriodMetricsAndCharts();
     renderFinanceTable();
     updateFinanceAssistantLiveSummary();
+    updateSafeToSpendBanner();
   }
 
   // ============================================================================
@@ -2006,6 +2007,246 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
       }
     }
   }
+
+  // ============================================================================
+  // PEMBAGI UANG GAJIAN & DANA DARURAT OTOMATIS (SMART MONEY ALLOCATOR)
+  // ============================================================================
+  let activeSplitStrategy = 'anti_boncos'; // 'anti_boncos' (60/25/15) | 'klasik' (50/30/20) | 'ketat' (70/15/15)
+  let currentSplitCalculated = {
+    total: 0,
+    pakai: 0,
+    tabung: 0,
+    darurat: 0,
+    pribadi: 0,
+    operasional: 0,
+    tabunganTotal: 0,
+    dailySafe: 0
+  };
+
+  function openModalBagiUang(defaultAmount) {
+    const modal = document.getElementById('modalBagiUangOtomatis');
+    if (!modal) return;
+    if (modal.parentElement !== document.body) document.body.appendChild(modal);
+
+    const inp = document.getElementById('inputNominalBagiUang');
+    if (inp) {
+      if (defaultAmount && Number(defaultAmount) > 0) {
+        inp.value = Math.round(Number(defaultAmount));
+      } else if (!inp.value || Number(inp.value) === 0) {
+        inp.value = 2000000; // Contoh default 2 juta
+      }
+    }
+
+    setSplitStrategy(activeSplitStrategy || 'anti_boncos');
+    recalculateMoneySplit();
+
+    modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+    modal.style.display = 'flex';
+
+    setTimeout(() => {
+      if (inp) {
+        inp.focus();
+        inp.select();
+      }
+    }, 100);
+  }
+
+  function closeModalBagiUang() {
+    const modal = document.getElementById('modalBagiUangOtomatis');
+    if (modal) {
+      modal.classList.add('hidden', 'opacity-0', 'pointer-events-none');
+      modal.style.display = 'none';
+    }
+  }
+
+  function setQuickNominalBagiUang(amt) {
+    const inp = document.getElementById('inputNominalBagiUang');
+    if (inp) {
+      inp.value = amt;
+      recalculateMoneySplit();
+    }
+  }
+
+  function setSplitStrategy(strategyKey) {
+    activeSplitStrategy = strategyKey;
+    const strategies = ['anti_boncos', 'klasik', 'ketat'];
+    strategies.forEach(k => {
+      const btn = document.getElementById('btnStrategy_' + k);
+      if (btn) {
+        if (k === strategyKey) {
+          btn.className = 'p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold text-xs cursor-pointer shadow-xs';
+        } else {
+          btn.className = 'p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50';
+        }
+      }
+    });
+    recalculateMoneySplit();
+  }
+
+  function recalculateMoneySplit() {
+    const inp = document.getElementById('inputNominalBagiUang');
+    const total = Math.round(Number(inp?.value) || 0);
+
+    let pctPakai = 0.60;
+    let pctTabung = 0.25;
+    let pctDarurat = 0.15;
+
+    if (activeSplitStrategy === 'klasik') {
+      pctPakai = 0.80; // 50% Pokok + 30% Pribadi
+      pctTabung = 0.10;
+      pctDarurat = 0.10;
+    } else if (activeSplitStrategy === 'ketat') {
+      pctPakai = 0.70;
+      pctTabung = 0.15;
+      pctDarurat = 0.15;
+    }
+
+    const valPakai = Math.round(total * pctPakai);
+    const valTabung = Math.round(total * pctTabung);
+    const valDarurat = Math.max(0, total - valPakai - valTabung);
+
+    const valPribadi = Math.round(valPakai * 0.5);
+    const valOperasional = valPakai - valPribadi;
+    const valTabunganTotal = valTabung + valDarurat;
+    const dailySafe = Math.round(valPakai / 30);
+
+    currentSplitCalculated = {
+      total,
+      pakai: valPakai,
+      tabung: valTabung,
+      darurat: valDarurat,
+      pribadi: valPribadi,
+      operasional: valOperasional,
+      tabunganTotal: valTabunganTotal,
+      dailySafe
+    };
+
+    const elPakai = document.getElementById('splitValPakai');
+    const elTabung = document.getElementById('splitValTabung');
+    const elDarurat = document.getElementById('splitValDarurat');
+    const elDailySafe = document.getElementById('splitValDailySafe');
+    const elPribadiSub = document.getElementById('splitSubPribadi');
+    const elOperasionalSub = document.getElementById('splitSubOperasional');
+
+    if (elPakai) elPakai.textContent = formatRupiah(valPakai);
+    if (elTabung) elTabung.textContent = formatRupiah(valTabung);
+    if (elDarurat) elDarurat.textContent = formatRupiah(valDarurat);
+    if (elDailySafe) elDailySafe.textContent = 'Maks ' + formatRupiah(dailySafe) + ' / hari';
+    if (elPribadiSub) elPribadiSub.textContent = formatRupiah(valPribadi);
+    if (elOperasionalSub) elOperasionalSub.textContent = formatRupiah(valOperasional);
+  }
+
+  function handleApplyMoneySplit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!currentSplitCalculated || currentSplitCalculated.total <= 0) {
+      if (typeof showToast === 'function') {
+        showToast('⚠️ Masukkan Nominal', 'Ketikkan jumlah uang yang Anda terima terlebih dahulu.');
+      }
+      return;
+    }
+
+    const { total, pribadi, operasional, tabunganTotal, tabung, darurat, dailySafe } = currentSplitCalculated;
+
+    // Kunci saldo riil sesuai hasil pembagian amplop bebas drift
+    walletStartingBalances = {
+      pribadi: pribadi - getWalletTransactionDelta('pribadi'),
+      operasional: operasional - getWalletTransactionDelta('operasional'),
+      tabungan: tabunganTotal - getWalletTransactionDelta('tabungan')
+    };
+
+    const isRecordTx = document.getElementById('checkRecordSplitAsTx')?.checked;
+    if (isRecordTx) {
+      const d = new Date();
+      const splitTx = {
+        id: 'tx_split_' + Date.now(),
+        date: getTodayString(),
+        time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+        type: 'masuk',
+        wallet: 'pribadi',
+        category: 'Gaji & Honor',
+        amount: total,
+        note: `⚡ Alokasi Uang Otomatis: Boleh Dipakai ${formatRupiah(pribadi + operasional)} (Maks ${formatRupiah(dailySafe)}/hr) • Tabungan ${formatRupiah(tabung)} • Darurat ${formatRupiah(darurat)}`,
+        isLeak: false
+      };
+      financeTransactions.unshift(splitTx);
+    }
+
+    try {
+      localStorage.setItem('partner_fatih_daily_safe_limit', dailySafe.toString());
+      localStorage.setItem(STORAGE_WALLETS, JSON.stringify(walletStartingBalances));
+      localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+      localStorage.setItem('partner_fatih_finance_updated_at_ts', Date.now().toString());
+      triggerCloudSyncKeuangan();
+    } catch(err) {
+      console.warn('Gagal simpan split money:', err);
+    }
+
+    renderHeroAndWallets();
+    renderMoneyLeakRadar();
+    renderFinanceTable();
+    updateSafeToSpendBanner();
+    closeModalBagiUang();
+
+    if (typeof showToast === 'function') {
+      showToast('🎉 Uang Berhasil Dialokasikan!', `Boleh dipakai: ${formatRupiah(pribadi+operasional)} (Maks ${formatRupiah(dailySafe)}/hari) • Aman di Tabungan & Darurat: ${formatRupiah(tabunganTotal)}`, 'success');
+    }
+  }
+
+  function updateSafeToSpendBanner() {
+    const banner = document.getElementById('dailySafeToSpendBanner');
+    if (!banner) return;
+    const limit = Number(localStorage.getItem('partner_fatih_daily_safe_limit')) || 0;
+    if (limit <= 0) {
+      banner.classList.add('hidden');
+      return;
+    }
+    banner.classList.remove('hidden');
+
+    const today = getTodayString();
+    let spentToday = 0;
+    financeTransactions.forEach(tx => {
+      if (tx.date === today && tx.type === 'keluar' && (tx.wallet === 'pribadi' || tx.wallet === 'operasional')) {
+        spentToday += (Number(tx.amount) || 0);
+      }
+    });
+
+    const remainingSafe = limit - spentToday;
+    const txtLimit = document.getElementById('textDailySafeLimit');
+    const txtSpent = document.getElementById('textDailySafeSpent');
+    const txtRem = document.getElementById('textDailySafeRemaining');
+    const progressBar = document.getElementById('barDailySafeProgress');
+
+    if (txtLimit) txtLimit.textContent = formatRupiah(limit);
+    if (txtSpent) txtSpent.textContent = formatRupiah(spentToday);
+    if (txtRem) {
+      if (remainingSafe >= 0) {
+        txtRem.textContent = 'Sisa jatah: ' + formatRupiah(remainingSafe);
+        txtRem.className = 'font-black text-emerald-600 dark:text-emerald-400';
+      } else {
+        txtRem.textContent = '⚠️ Lewat jatah: ' + formatRupiah(Math.abs(remainingSafe));
+        txtRem.className = 'font-black text-rose-600 dark:text-rose-400';
+      }
+    }
+    if (progressBar) {
+      const pct = Math.min(100, Math.round((spentToday / limit) * 100));
+      progressBar.style.width = pct + '%';
+      if (pct >= 100) {
+        progressBar.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
+      } else if (pct >= 75) {
+        progressBar.className = 'bg-amber-500 h-1.5 rounded-full transition-all duration-300';
+      } else {
+        progressBar.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-300';
+      }
+    }
+  }
+
+  global.openModalBagiUang = openModalBagiUang;
+  global.closeModalBagiUang = closeModalBagiUang;
+  global.setQuickNominalBagiUang = setQuickNominalBagiUang;
+  global.setSplitStrategy = setSplitStrategy;
+  global.recalculateMoneySplit = recalculateMoneySplit;
+  global.handleApplyMoneySplit = handleApplyMoneySplit;
+  global.updateSafeToSpendBanner = updateSafeToSpendBanner;
 
   global.openModalTransferKantong = openModalTransferKantong;
   global.openModalAturSaldo = openModalAturSaldo;
