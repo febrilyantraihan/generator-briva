@@ -1509,7 +1509,7 @@
 
     return `Kamu adalah "Malih" — sosok PARTNER PRIBADI, sahabat sejati, rekan berpikir bijak, dan FULL ASISTEN EKSEKUTIF untuk Kak Fatih (${prof.role}) di seluruh ekosistem aplikasi "Partner Fatih" (YTPAI Babat Lamongan).
 
-VERSI APLIKASI PARTNER FATIH RESMI: Versi 1.0.9 (Build 47 - Rilis November 2026). Jika Kak Fatih menanyakan versi aplikasi, jawab dengan tegas dan tepat bahwa aplikasi berada di Versi 1.0.9 (Build 47).
+VERSI APLIKASI PARTNER FATIH RESMI: Versi 1.0.9 (Build 53 - Rilis November 2026). Jika Kak Fatih menanyakan versi aplikasi, jawab dengan tegas dan tepat bahwa aplikasi berada di Versi 1.0.9 (Build 53).
 
 IDENTITAS & PRINSIP GAYA BICARA NATURAL SEPERTI MANUSIA ASLI (ANTI-AI SLOP):
 1. CARA MEMANGGIL: Panggil wajar dan santun: **"Kak Fatih"** atau sesekali **"Kak"**.
@@ -1536,17 +1536,19 @@ WAKTU & KONTEKS APLIKASI SAAT INI:
 - Pengguna saat ini sedang membuka Tab Modul: "${activeMeta?.name || 'Inkubator Bisnis'}" (${activeMeta?.category || 'Umum'}).
 - Aplikasi Partner Fatih memiliki 16 Modul Terintegrasi: Jurnal Mengajar Guru (Jadwal KBM, Absensi, Nilai), Inkubator Bisnis (Titip Jual Warung), Rekap Transaksi Junio Smart BRI, Generator BRIVA 5-Kolom, Panggil Tagihan & Kwitansi, Katalog Biaya, Konverter Excel, CBT Bank Soal Word, Tahfidz Tasmi 31 Santri, Akun PPDB, Humas Radar H-7 (252 Agenda), Keuangan Pribadi (Radar Bocor Halus & Multi-Dompet), Ruang Ide (Inkubator Peluang), Pembersih SUM, Template WA, dan Panduan SOP.
 
-KEMAMPUAN UNIVERSAL LIVE ACTION ENGINE (BISA MERUBAH SEMUA DATA DI 16 MODUL):
-Kamu MEMILIKI AKSES & OTORITAS PENUH untuk langsung mengubah, memindahkan, mencatat, mengatur saldo, dan menghapus data di SEMUA modul aplikasi jika Kak Fatih memberikan instruksi!
-JANGAN HANYA MENYURUH KAK FATIH BUKA SENDIRI JIKA KAK FATIH MEMINTA PERUBAHAN!
+KEMAMPUAN UNIVERSAL LIVE ACTION ENGINE (BISA MERUBAH SEMUA DATA DI 16 MODUL SECARA NYATA):
+Kamu MEMILIKI AKSES & OTORITAS EKSEKUTIF PENUH untuk langsung mengubah, memindahkan, mencatat, mengatur saldo, membagi uang gajian, dan menghapus data di SEMUA modul aplikasi jika Kak Fatih memberikan instruksi!
+DILARANG KERAS HANYA MEMBERIKAN TEKS CARA MENGUBAH / MENYURUH KAK FATIH MENGKLIK SENDIRI! Jika Kak Fatih meminta sesuatu diubah atau dicatat, KAMU WAJIB MENYERTAKAN BLOK AKSI fatih-action AGAR SISTEM LANGSUNG MENGEKSEKUSI DATA NYA DETIK INI JUGA!
+
 Jika Kak Fatih meminta untuk:
-- Mengatur / memasukkan saldo dompet sekarang (misal: "masukkan saldo saya sekarang sejumlah 500rb", "atur saldo pribadi saya 2 juta", "saldo operasional saya sekarang 350.000") -> AKSI: SET_WALLET_BALANCE
-- Memindahkan/mengubah jadwal mengajar (misal: "jadwal di 8d dipindah ke sabtu jam 3-4") -> AKSI: MUTATE_SCHEDULE
+- Mengatur / memasukkan saldo kas atau saldo riil sekarang (misal: "saldo real saya hari ini adalah 321,000", "atur saldo kas jadi 321rb", "saldo saya sekarang 321000", "saldo pribadi 500rb") -> AKSI: SET_WALLET_BALANCE
+- Membagi uang gajian / penghasilan ke 3 amplop aman & kunci saldonya (misal: "bagi uang 321rb", "bagi uang saya 321 ribu", "bagi gaji 2 juta", "langsung bagi uang 321rb") -> AKSI: SPLIT_MONEY
+- Mencatat belanja / pengeluaran / pemasukan kas (misal: "beli bensin 20rb", "isi bensin motor 25000", "beli nasi goreng 15rb", "bayar wifi 100rb", "catat pemasukan honor 500rb") -> AKSI: ADD_FINANCE_TRANSACTION
+- Memindahkan dana antar kantong (misal: "transfer dari pribadi ke tabungan 50000", "pindah dana 100rb dari operasional ke tabungan") -> AKSI: TRANSFER_DOMPET
+- Memindahkan/mengubah jadwal mengajar guru (misal: "jadwal di 8d dipindah ke sabtu jam 3-4", "pindah jadwal 8d ke sabtu jam 3-4") -> AKSI: MUTATE_SCHEDULE
 - Menghapus jadwal mengajar (misal: "hapus jadwal 8D hari senin") -> AKSI: DELETE_SCHEDULE
 - Mengisi jurnal materi KBM guru (misal: "catat jurnal kelas 8D pertemuan 2 materi budidaya sayur") -> AKSI: CATAT_JURNAL_GURU
 - Mencatat presensi/absensi santri (misal: "catat presensi kelas 8D ahmad izin dan budi sakit") -> AKSI: CATAT_PRESENSI
-- Mencatat pengeluaran/pemasukan keuangan pribadi (misal: "catat pengeluaran pribadi beli bensin 35000", "pemasukan honor 500000 ke dompet tabungan") -> AKSI: ADD_FINANCE_TRANSACTION
-- Memindahkan dana antar dompet (misal: "transfer dari operasional ke tabungan 100000") -> AKSI: TRANSFER_DOMPET
 - Menambah ide/peluang baru ke Ruang Ide (misal: "tambah ide jasa desain twibbon milad estimasi 250000") -> AKSI: ADD_IDE
 - Mengubah status ide (misal: "ide jasa soal cbt sudah jalan") -> AKSI: UPDATE_IDE_STATUS
 - Menambah agenda/acara yayasan (misal: "tambah agenda rapat pleno 25 oktober pj ust fatih") -> AKSI: ADD_HUMAS_EVENT
@@ -1556,24 +1558,25 @@ Jika Kak Fatih meminta untuk:
 - Mengubah status tasmi' (misal: "ahmad fauzi sudah lulus tasmi") -> AKSI: UPDATE_TASMI_STATUS
 - Menambah mitra warung titip jual (misal: "tambah warung berkah bu siti no wa 08123456789") -> AKSI: ADD_WARUNG_STORE
 - Mencatat kas bisnis titip jual (misal: "catat kas masuk dari warung berkah 40000") -> AKSI: ADD_CASHFLOW
-- Menyimpan catatan/memo pribadi Kak Fatih (misal: "ingat ya fathiya besok aku ada janji ketemu pak kades") -> AKSI: SAVE_PERSONAL_NOTE
-- Membuka modul aplikasi (misal: "buka tab jurnal") -> AKSI: SWITCH_TAB
+- Menyimpan catatan/memo pribadi Kak Fatih (misal: "ingat ya besok aku ada janji ketemu pak kades") -> AKSI: SAVE_PERSONAL_NOTE
+- Membuka modul aplikasi (misal: "buka tab keuangan", "buka modul jurnal") -> AKSI: SWITCH_TAB
 
-Maka di AKHIR jawabanmu, setelah memberikan konfirmasi hangat, manis, manja elegan dan profesional bahwa kamu sudah mengeksekusi perubahannya, SERTAKAN PERSIS SATU BLOK fatih-action berikut:
+Maka di AKHIR jawabanmu, setelah memberikan konfirmasi hangat, manis, santun dan ramah bahwa kamu sudah mengeksekusi perubahannya, SERTAKAN PERSIS SATU BLOK fatih-action berikut:
 \`\`\`fatih-action
 {
-  "action": "SET_WALLET_BALANCE | MUTATE_SCHEDULE | DELETE_SCHEDULE | CATAT_JURNAL_GURU | CATAT_PRESENSI | ADD_FINANCE_TRANSACTION | TRANSFER_DOMPET | ADD_IDE | UPDATE_IDE_STATUS | ADD_HUMAS_EVENT | UPDATE_PAMFLET_STATUS | DELETE_HUMAS_EVENT | ADD_TAHFIDZ_STUDENT | UPDATE_TASMI_STATUS | ADD_WARUNG_STORE | ADD_CASHFLOW | SAVE_PERSONAL_NOTE | SWITCH_TAB",
+  "action": "SET_WALLET_BALANCE | SPLIT_MONEY | ADD_FINANCE_TRANSACTION | TRANSFER_DOMPET | MUTATE_SCHEDULE | DELETE_SCHEDULE | CATAT_JURNAL_GURU | CATAT_PRESENSI | ADD_IDE | UPDATE_IDE_STATUS | ADD_HUMAS_EVENT | UPDATE_PAMFLET_STATUS | DELETE_HUMAS_EVENT | ADD_TAHFIDZ_STUDENT | UPDATE_TASMI_STATUS | ADD_WARUNG_STORE | ADD_CASHFLOW | SAVE_PERSONAL_NOTE | SWITCH_TAB",
   "params": { ... }
 }
 \`\`\`
 Format params:
-- SET_WALLET_BALANCE: {"wallet": "pribadi|operasional|tabungan|all", "amount": 500000}
-- MUTATE_SCHEDULE: {"classId": "8D", "day": "Sabtu", "time": "08.30 - 09.50", "hourLabel": "Jam 3-4", "subject": "Prakarya", "room": "Ruang MTs 8D"}
+- SET_WALLET_BALANCE: {"wallet": "all|pribadi|operasional|tabungan", "amount": 321000}
+- SPLIT_MONEY: {"total": 321000, "autoApply": true}
+- ADD_FINANCE_TRANSACTION: {"type": "keluar|masuk", "wallet": "pribadi|operasional|tabungan", "amount": 35000, "category": "Bensin & Transportasi", "note": "Beli Pertalite"}
+- TRANSFER_DOMPET: {"fromWallet": "pribadi", "toWallet": "tabungan", "amount": 50000, "note": "Tabungan rutin"}
+- MUTATE_SCHEDULE: {"classId": "8D", "day": "Sabtu", "time": "08.30 - 09.50 (Jam 3-4)", "hourLabel": "Jam 3-4", "subject": "Prakarya", "room": "Ruang MTs 8D"}
 - DELETE_SCHEDULE: {"classId": "8D", "day": "Senin"}
 - CATAT_JURNAL_GURU: {"classId": "8D", "pertemuan": 2, "materi": "Nama Materi", "indikator": "Indikator Capaian"}
 - CATAT_PRESENSI: {"classId": "8D", "sakit": ["Ahmad"], "izin": ["Budi"], "alpa": []}
-- ADD_FINANCE_TRANSACTION: {"type": "keluar|masuk", "wallet": "pribadi|operasional|tabungan", "amount": 35000, "category": "Bensin", "note": "Beli Pertalite"}
-- TRANSFER_DOMPET: {"fromWallet": "operasional", "toWallet": "tabungan", "amount": 100000, "note": "Sisihkan keuntungan"}
 - ADD_IDE: {"title": "Judul Ide", "category": "jasa_digital|aplikasi_sekolah|cbt_soal|desain_event|kebutuhan_wali", "estRevenue": 200000, "desc": "Penjelasan singkat"}
 - UPDATE_IDE_STATUS: {"keyword": "kata kunci ide", "status": "spark|planning|launched"}
 - ADD_HUMAS_EVENT: {"uraian": "Nama Kegiatan", "tgl": "25", "bulan": "Oktober", "tahun": "2026", "pj": "Nama PJ", "kategori": "umum", "statusPamflet": "belum"}
@@ -3013,9 +3016,17 @@ Format params:
             if (raw) wallets = Object.assign(wallets, JSON.parse(raw));
           } catch(e) {}
 
-          if (wallet === 'operasional') wallets.operasional = amount;
-          else if (wallet === 'tabungan') wallets.tabungan = amount;
-          else wallets.pribadi = amount;
+          if (wallet === 'operasional') {
+            wallets.operasional = amount;
+          } else if (wallet === 'tabungan') {
+            wallets.tabungan = amount;
+          } else if (wallet === 'kas' || wallet === 'all' || wallet === 'total') {
+            wallets.pribadi = amount;
+            wallets.operasional = 0;
+            wallets.tabungan = 0;
+          } else {
+            wallets.pribadi = amount;
+          }
 
           localStorage.setItem('partner_fatih_wallets_v2', JSON.stringify(wallets));
           localStorage.setItem('partner_fatih_finance_updated_at_ts', Date.now().toString());
@@ -3026,14 +3037,15 @@ Format params:
         if (typeof window.renderHeroAndWallets === 'function') window.renderHeroAndWallets();
         if (typeof window.renderFinanceTable === 'function') window.renderFinanceTable();
 
+        const walletLabel = (wallet === 'kas' || wallet === 'all' || wallet === 'total') ? 'TOTAL KAS RIIL' : `Dompet ${wallet.toUpperCase()}`;
         if (typeof window.showToast === 'function') {
-          window.showToast('💰 Saldo Diperbarui', `Dompet ${wallet.toUpperCase()} diatur ke Rp ${amount.toLocaleString('id-ID')}`, 'success');
+          window.showToast('💰 Saldo Diperbarui', `${walletLabel} diatur ke Rp ${amount.toLocaleString('id-ID')}`, 'success');
         }
 
         return {
           icon: '💰',
-          title: 'Saldo Dompet Berhasil Diatur',
-          desc: `Saldo pada Dompet ${wallet.toUpperCase()} telah Malih sesuaikan menjadi Rp ${amount.toLocaleString('id-ID')}.`,
+          title: 'Saldo Berhasil Disesuaikan',
+          desc: `Saldo pada ${walletLabel} telah Malih sesuaikan menjadi Rp ${amount.toLocaleString('id-ID')}. Angka di aplikasi sekarang 100% pas sesuai uang fisik riil Kak Fatih.`,
           tab: 'keuangan'
         };
       }
@@ -3042,8 +3054,15 @@ Format params:
       if (act === 'SPLIT_MONEY' || act === 'BAGI_UANG' || act === 'ALOKASI_GAJI') {
         const total = Math.round(Number(p.total || p.nominal || p.amount) || 0);
         const effectiveTotal = total > 0 ? total : 2000000;
+        const isAuto = !!(p.autoApply || p.langsung || p.terapkan);
+
         if (typeof window.openModalBagiUang === 'function') {
-          try { window.openModalBagiUang(effectiveTotal); } catch(e) {}
+          try {
+            window.openModalBagiUang(effectiveTotal);
+            if (isAuto && typeof window.handleApplyMoneySplit === 'function') {
+              window.handleApplyMoneySplit();
+            }
+          } catch(e) {}
         }
         const pakai = Math.round(effectiveTotal * 0.60);
         const tabung = Math.round(effectiveTotal * 0.25);
@@ -3052,8 +3071,10 @@ Format params:
 
         return {
           icon: '⚡',
-          title: 'Kalkulator Bagi Uang Anti-Boncos Siap',
-          desc: `Dari uang Rp ${effectiveTotal.toLocaleString('id-ID')}, Malih bagi menjadi 3 amplop aman: Uang Boleh Dipakai Rp ${pakai.toLocaleString('id-ID')} (Maksimal Rp ${dailySafe.toLocaleString('id-ID')}/hari), Wajib Ditabung Rp ${tabung.toLocaleString('id-ID')}, dan Dana Darurat Rp ${darurat.toLocaleString('id-ID')}. Silakan klik tombol 'Terapkan' di modal untuk mengunci saldonya ya Kak Fatih!`,
+          title: isAuto ? 'Pembagian Uang Berhasil Dikunci' : 'Kalkulator Bagi Uang Anti-Boncos Siap',
+          desc: isAuto
+            ? `Uang Rp ${effectiveTotal.toLocaleString('id-ID')} telah langsung Malih kunci ke saldo dompet: Boleh Dipakai Rp ${pakai.toLocaleString('id-ID')} (Maks Rp ${dailySafe.toLocaleString('id-ID')}/hari), Ditabung Rp ${tabung.toLocaleString('id-ID')}, dan Dana Darurat Rp ${darurat.toLocaleString('id-ID')}. Total saldo tetap pas!`
+            : `Dari uang Rp ${effectiveTotal.toLocaleString('id-ID')}, Malih bagi menjadi 3 amplop aman: Uang Boleh Dipakai Rp ${pakai.toLocaleString('id-ID')} (Maks Rp ${dailySafe.toLocaleString('id-ID')}/hari), Wajib Ditabung Rp ${tabung.toLocaleString('id-ID')}, dan Dana Darurat Rp ${darurat.toLocaleString('id-ID')}. Silakan klik tombol 'Terapkan' di modal untuk mengunci saldonya ya Kak Fatih!`,
           tab: 'keuangan'
         };
       }
@@ -3493,6 +3514,35 @@ Format params:
     return null;
   }
 
+  // Helper parser mata uang Rupiah cerdas & fleksibel
+  // Mendukung: 321,000 | 321.000 | 321000 | 321rb | 321ribu | 50k | 2.5 jt | 2 juta | Rp 321.000
+  function parseRupiahNumber(str) {
+    if (!str) return 0;
+    const s = String(str).toLowerCase().trim();
+    // 1. Cek juta: misal 2.5 jt, 2,5 juta, 1jt, 3 juta
+    const jtMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:jt|juta)\b/i);
+    if (jtMatch) {
+      return Math.round(parseFloat(jtMatch[1].replace(',', '.')) * 1000000);
+    }
+    // 2. Cek ribu/k: misal 321 rb, 321ribu, 50k, 25.5 rb
+    const rbMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+    if (rbMatch) {
+      return Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+    }
+    // 3. Format angka standar dengan titik/koma ribuan: 321.000, 321,000, 1.500.000, atau Rp 321.000
+    const formattedMatch = s.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+)\b/i);
+    if (formattedMatch) {
+      return parseInt(formattedMatch[1].replace(/[.,]/g, ''), 10);
+    }
+    // 4. Angka polos minimal 3 digit (atau diawali rp): Rp 50000, 321000
+    const rawMatch = s.match(/(?:rp\.?\s*)?(\b\d{3,}\b)/i);
+    if (rawMatch) {
+      return parseInt(rawMatch[1], 10);
+    }
+    return 0;
+  }
+  window.parseRupiahNumber = parseRupiahNumber;
+
   // Detektor perintah mutasi data lokal (Offline Intent Parser)
   function detectOfflineActionIntent(text) {
     const t = text.trim();
@@ -3566,47 +3616,36 @@ Format params:
     }
 
     // 0B-2. Bagi Uang Gajian & Dana Darurat Otomatis (Anti-Boncos)
-    if (/(?:bagi|bagikan|alokasi|bagikanlah)\s+(?:uang|gaji|penghasilan|pendapatan|honor|dana)/i.test(t) || /(?:uang\s+sering\s+habis|cara\s+mengatur\s+uang|pembagi\s+uang|bagi\s+gaji)/i.test(t)) {
-      let amount = 0;
-      const jtMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:jt|juta)\b/i);
-      const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
-      if (jtMatch) amount = Math.round(parseFloat(jtMatch[1].replace(',', '.')) * 1000000);
-      else if (rbMatch) amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
-      else {
-        const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d{4,})/i);
-        if (numMatch) amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
-      }
-      return { action: 'SPLIT_MONEY', params: { total: amount > 0 ? amount : 2000000 } };
+    // Contoh: "bagi uang saya 321 ribu", "langsung bagi uang 321,000", "alokasi gaji 2 juta", "bagi uang 500rb dan langsung terapkan"
+    if (/(?:bagi|bagikan|alokasi|bagikanlah|pecah|hitung|kalkulator)\s+(?:uang|gaji|penghasilan|pendapatan|dana|rupiah|kas)/i.test(t) || /(?:uang\s+sering\s+habis|cara\s+mengatur\s+uang|pembagi\s+uang|bagi\s+gaji)/i.test(t) || /(?:langsung\s+)?bagi\s+(?:uang|gaji|dana)/i.test(t)) {
+      const amount = parseRupiahNumber(t);
+      const isAuto = /(?:langsung|terapkan|kunci|eksekusi|simpan|auto)/i.test(t);
+      return {
+        action: 'SPLIT_MONEY',
+        params: {
+          total: amount > 0 ? amount : 2000000,
+          autoApply: isAuto
+        }
+      };
     }
 
-    // 0C. Masukkan / Atur Saldo Dompet Sekarang
-    // Contoh: "masukkan saldo saya sekarang sejumlah 500rb", "atur saldo pribadi saya 2 juta", "saldo operasional saya sekarang 350.000", "saldo tabungan sekarang 5jt", "saldo saya sekarang 1500000"
-    if (/(?:masukkan|atur|set|ganti|ubah|sesuaikan)\s+saldo/i.test(t) || /(?:saldo\s+(?:saya\s+)?(?:sekarang\s+)?(?:sejumlah\s+)?)/i.test(t)) {
-      if (/(?:saldo|uang).*(?:sekarang|sejumlah|\d)/i.test(t)) {
-        let wallet = 'pribadi';
-        if (/operasional/i.test(t)) wallet = 'operasional';
-        else if (/tabungan/i.test(t)) wallet = 'tabungan';
+    // 0C. Masukkan / Atur Saldo Dompet & Saldo Riil Kas Sekarang
+    // Contoh: "saldo real saya hari ini adalah 321,000", "saldo riil saya sekarang 321.000", "atur saldo saya 321 ribu", "masukkan saldo 321000", "saldoku hari ini 321,000", "uang kas saya sekarang ada 321.000", "atur saldo pribadi 500rb", "ubah saldo operasional 150rb", "set saldo tabungan 2 juta"
+    const parsedAmt = parseRupiahNumber(t);
+    if (parsedAmt > 0) {
+      if (/(?:saldo|saldoku|uang\s+kas|uang\s+riil|uang\s+real)/i.test(t) || /(?:atur|set|masukkan|ganti|ubah|sesuaikan)\s+saldo/i.test(t)) {
+        // Pastikan bukan perintah bagi uang atau belanja
+        if (!/(?:bagi|bagikan|alokasi|pecah|hitung|kalkulator)/i.test(t) && !/(?:beli|bayar|jajan|makan|ongkos|biaya|tarik|belanja)/i.test(t)) {
+          let wallet = 'pribadi';
+          if (/operasional/i.test(t)) wallet = 'operasional';
+          else if (/tabungan/i.test(t)) wallet = 'tabungan';
+          else if (/total|semua|kas|real|riil|hari\s+ini/i.test(t)) wallet = 'kas'; // total saldo kas fisik riil
 
-        let amount = 0;
-        const jtMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:jt|juta)\b/i);
-        const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
-        if (jtMatch) {
-          amount = Math.round(parseFloat(jtMatch[1].replace(',', '.')) * 1000000);
-        } else if (rbMatch) {
-          amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
-        } else {
-          const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d{4,})/i);
-          if (numMatch) {
-            amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
-          }
-        }
-
-        if (amount > 0) {
           return {
             action: 'SET_WALLET_BALANCE',
             params: {
               wallet: wallet,
-              amount: amount
+              amount: parsedAmt
             }
           };
         }
@@ -3632,36 +3671,30 @@ Format params:
     }
 
     // 1. Catat Keuangan Pribadi (Multi-Dompet)
-    // Contoh: "catat pengeluaran pribadi bensin 35rb", "catat pemasukan honor 500rb", "beli bensin motor 25000", "pemasukan gaji 2000000"
-    if (/(?:catat|masukkan|tambah)\s+(?:pengeluaran|pemasukan|belanja|biaya|honor|gaji)/i.test(t) || /(?:beli|isi\s+bensin|makan\s+siang|bayar)\s+/i.test(t)) {
-      const isMasuk = /(?:pemasukan|honor|gaji|dapat\s+uang|terima\s+transfer)/i.test(t);
-      const tipe = isMasuk ? 'masuk' : 'keluar';
+    // Contoh: "catat pengeluaran pribadi bensin 35rb", "catat pemasukan honor 500rb", "beli bensin motor 25000", "beli makan siang 15rb", "bayar wifi 150rb", "pemasukan gaji 2000000"
+    const isBeliAtauBayar = /(?:beli|bayar|jajan|makan|ongkos|parkir|belanja|isi\s+bensin)\b/i.test(t);
+    const isCatat = /(?:catat|masukkan|tambah|input)\s+(?:pengeluaran|pemasukan|belanja|biaya|honor|gaji|uang\s+masuk|uang\s+keluar)/i.test(t);
+    const isIncome = /(?:pemasukan|honor|gaji|dapat\s+uang|terima\s+transfer|cair)/i.test(t);
 
-      // Dompet
-      let wallet = 'pribadi';
-      if (/operasional/i.test(t)) wallet = 'operasional';
-      else if (/tabungan/i.test(t)) wallet = 'tabungan';
-
-      // Nominal (mendukung 35rb, 35k, 35.000, 35000)
-      let amount = 0;
-      const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
-      if (rbMatch) {
-        amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
-      } else {
-        const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i);
-        if (numMatch) {
-          amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
-        }
-      }
-
+    if (isBeliAtauBayar || isCatat || isIncome) {
+      const amount = parseRupiahNumber(t);
       if (amount > 0) {
+        const tipe = isIncome ? 'masuk' : 'keluar';
+
+        // Dompet
+        let wallet = 'pribadi';
+        if (/operasional|kantor|bensin|kerja/i.test(t)) wallet = 'operasional';
+        else if (/tabungan|darurat|aset/i.test(t)) wallet = 'tabungan';
+
         let note = t
-          .replace(/^(?:fathiya,?\s*)?(?:tolong\s*)?(?:catat|masukkan|tambah)\s+(?:pengeluaran|pemasukan|belanja|biaya)?/i, '')
-          .replace(/(?:di\s+dompet\s+)?(?:pribadi|operasional|tabungan)/i, '')
-          .replace(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i, '')
+          .replace(/^(?:malih|fathiya),?\s*/i, '')
+          .replace(/^(?:tolong\s*)?(?:catat|masukkan|tambah|input)\s+(?:pengeluaran|pemasukan|belanja|biaya|honor|gaji)?/i, '')
+          .replace(/(?:di\s+dompet\s+|di\s+kantong\s+)?(?:pribadi|operasional|tabungan)/i, '')
+          .replace(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k|jt|juta)\b/i, '')
           .replace(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)/i, '')
+          .replace(/\b(?:sebesar|sejumlah|seharga|senilai)\b/i, '')
           .trim();
-        if (!note) note = isMasuk ? 'Pemasukan Kas' : 'Pengeluaran Kebutuhan';
+        if (!note) note = isIncome ? 'Pemasukan Kas' : 'Pengeluaran Kebutuhan';
 
         return {
           action: 'ADD_FINANCE_TRANSACTION',
@@ -3670,7 +3703,7 @@ Format params:
             wallet: wallet,
             amount: amount,
             note: note,
-            category: isMasuk ? 'Gaji & Honorarium' : 'Kebutuhan Harian'
+            category: isIncome ? 'Gaji & Honorarium' : (wallet === 'operasional' ? 'Bensin & Transportasi' : 'Kebutuhan Harian')
           }
         };
       }
