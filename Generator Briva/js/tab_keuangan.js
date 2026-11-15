@@ -240,7 +240,21 @@
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
-          financeTransactions = parsed;
+          // Sanitasi otomatis: jika ada mutasi tx_split_ lama yang bertipe 'masuk' (yang menyebabkan saldo ganda),
+          // ubah tipenya ke 'alokasi' agar saldo riil kembali tepat dan tidak bertambah 2x lipat
+          let sanitized = false;
+          financeTransactions = parsed.map(tx => {
+            if (tx && tx.id && String(tx.id).startsWith('tx_split_') && tx.type === 'masuk') {
+              sanitized = true;
+              return Object.assign({}, tx, { type: 'alokasi', category: 'Alokasi Uang' });
+            }
+            return tx;
+          });
+          if (sanitized) {
+            try {
+              localStorage.setItem(STORAGE_FINANCE_DATA, JSON.stringify(financeTransactions));
+            } catch(e) {}
+          }
         } else {
           financeTransactions = [];
           saveFinanceData();
@@ -976,6 +990,9 @@
       } else if (tx.type === 'keluar') {
         amountDisplay = '-' + formatRupiah(tx.amount);
         amountClass = 'text-rose-600 dark:text-rose-400 font-extrabold';
+      } else if (tx.type === 'alokasi') {
+        amountDisplay = '⚡ ' + formatRupiah(tx.amount);
+        amountClass = 'text-teal-600 dark:text-teal-400 font-extrabold';
       } else {
         const toInfo = walletLabels[tx.toWallet]?.name || tx.toWallet;
         amountDisplay = '⇄ ' + formatRupiah(tx.amount);
@@ -1008,7 +1025,10 @@
             <span class="text-[9.5px] font-bold text-slate-400 dark:text-slate-500 block mt-0.5" title="Sisa saldo kantong ini setelah transaksi">Sisa: ${formatRupiah(balAfter)}</span>
           </td>
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${tx.type === 'masuk' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : (tx.type === 'keluar' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300')}">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${tx.type === 'masuk' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : (tx.type === 'keluar' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300' : (tx.type === 'alokasi' ? 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'))}">
+              ${tx.type === 'masuk' ? 'Masuk' : (tx.type === 'keluar' ? 'Keluar' : (tx.type === 'alokasi' ? 'Alokasi' : 'Pindah'))}
+            </span>
+          </td>
               ${tx.type === 'masuk' ? 'Masuk' : (tx.type === 'keluar' ? 'Keluar' : 'Pindah')}
             </span>
           </td>
@@ -2028,12 +2048,29 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     if (!modal) return;
     if (modal.parentElement !== document.body) document.body.appendChild(modal);
 
+    // Hitung saldo riil total saat ini
+    const curBalPribadi = (Number(walletStartingBalances.pribadi) || 0) + getWalletTransactionDelta('pribadi');
+    const curBalOperasional = (Number(walletStartingBalances.operasional) || 0) + getWalletTransactionDelta('operasional');
+    const curBalTabungan = (Number(walletStartingBalances.tabungan) || 0) + getWalletTransactionDelta('tabungan');
+    const totalCurBal = Math.max(0, curBalPribadi + curBalOperasional + curBalTabungan);
+
+    const btnCurBal = document.getElementById('btnQuickUseCurrentBalance');
+    if (btnCurBal) {
+      if (totalCurBal > 0) {
+        btnCurBal.textContent = `⚡ Saldo Saat Ini: ${formatRupiah(totalCurBal)}`;
+        btnCurBal.onclick = function() { setQuickNominalBagiUang(totalCurBal); };
+        btnCurBal.classList.remove('hidden');
+      } else {
+        btnCurBal.classList.add('hidden');
+      }
+    }
+
     const inp = document.getElementById('inputNominalBagiUang');
     if (inp) {
       if (defaultAmount && Number(defaultAmount) > 0) {
         inp.value = Math.round(Number(defaultAmount));
-      } else if (!inp.value || Number(inp.value) === 0) {
-        inp.value = 2000000; // Contoh default 2 juta
+      } else if (!inp.value || Number(inp.value) === 0 || inp.value === '2000000') {
+        inp.value = totalCurBal > 0 ? totalCurBal : 2000000;
       }
     }
 
@@ -2140,14 +2177,17 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     if (e && e.preventDefault) e.preventDefault();
     if (!currentSplitCalculated || currentSplitCalculated.total <= 0) {
       if (typeof showToast === 'function') {
-        showToast('⚠️ Masukkan Nominal', 'Ketikkan jumlah uang yang Anda terima terlebih dahulu.');
+        showToast('⚠️ Masukkan Nominal', 'Ketikkan jumlah uang yang ingin Anda bagi terlebih dahulu.');
       }
       return;
     }
 
     const { total, pribadi, operasional, tabunganTotal, tabung, darurat, dailySafe } = currentSplitCalculated;
 
-    // Kunci saldo riil sesuai hasil pembagian amplop bebas drift
+    // Bersihkan transaksi alokasi tx_split_ lama jika ada agar riwayat selalu bersih dan satu
+    financeTransactions = financeTransactions.filter(tx => !tx.id || !String(tx.id).startsWith('tx_split_'));
+
+    // Kunci saldo riil sesuai hasil pembagian amplop bebas drift (100% akurat tanpa penambahan ganda)
     walletStartingBalances = {
       pribadi: pribadi - getWalletTransactionDelta('pribadi'),
       operasional: operasional - getWalletTransactionDelta('operasional'),
@@ -2161,11 +2201,11 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
         id: 'tx_split_' + Date.now(),
         date: getTodayString(),
         time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
-        type: 'masuk',
+        type: 'alokasi',
         wallet: 'pribadi',
-        category: 'Gaji & Honor',
+        category: 'Alokasi Uang',
         amount: total,
-        note: `⚡ Alokasi Uang Otomatis: Boleh Dipakai ${formatRupiah(pribadi + operasional)} (Maks ${formatRupiah(dailySafe)}/hr) • Tabungan ${formatRupiah(tabung)} • Darurat ${formatRupiah(darurat)}`,
+        note: `⚡ Alokasi Uang: Boleh Dipakai ${formatRupiah(pribadi + operasional)} (Maks ${formatRupiah(dailySafe)}/hr) • Tabungan ${formatRupiah(tabung)} • Darurat ${formatRupiah(darurat)}`,
         isLeak: false
       };
       financeTransactions.unshift(splitTx);
@@ -2188,7 +2228,7 @@ Buatkan 4 ide bisnis sampingan / freelance konkret dalam format JSON murni tanpa
     closeModalBagiUang();
 
     if (typeof showToast === 'function') {
-      showToast('🎉 Uang Berhasil Dialokasikan!', `Boleh dipakai: ${formatRupiah(pribadi+operasional)} (Maks ${formatRupiah(dailySafe)}/hari) • Aman di Tabungan & Darurat: ${formatRupiah(tabunganTotal)}`, 'success');
+      showToast('🎉 Uang Berhasil Dialokasikan!', `Total saldo tetap ${formatRupiah(total)} • Boleh dipakai: ${formatRupiah(pribadi+operasional)} (Maks ${formatRupiah(dailySafe)}/hari) • Aman di Tabungan & Darurat: ${formatRupiah(tabunganTotal)}`, 'success');
     }
   }
 
