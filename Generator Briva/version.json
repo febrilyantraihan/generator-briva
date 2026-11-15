@@ -1,13 +1,13 @@
 {
   "version": "1.0.9",
-  "build": 52,
+  "build": 53,
   "releaseDate": "2026-11-15",
-  "title": "Rilis v1.0.9 Build 52 (Fitur Pembagi Uang & Dana Darurat Otomatis Anti-Boncos)",
+  "title": "Rilis v1.0.9 Build 53 (Perbaikan Presisi Alokasi Saldo Riil & Anti Saldo Ganda)",
   "changelog": [
-    "Fitur Pembagi Uang Gajian & Dana Darurat Otomatis (Anti-Boncos): Pengguna cukup masukkan 1 nominal, sistem langsung membagi otomatis ke 3 amplop aman (60% Boleh Dipakai, 25% Wajib Ditabung, 15% Dana Darurat).",
-    "Radar Jatah Belanja Aman Harian (Safe to Spend): Memberikan batasan harian yang jelas (misal maks Rp 40.000/hari) dengan indikator visual dan progress bar warna adaptif agar uang tidak cepat ludes.",
-    "Integrasi Malih AI Voice & Action: Cukup perintahkan Malih 'bagi uang 2 juta' atau 'bagikan gaji', Malih akan membuka kalkulator dan mengunci pembagian ke kantong secara instan.",
-    "Pemisahan Alokasi Real-Time: Breakout otomatis Uang Hidup (Makan/Jajan vs Bensin/Kerja) dan tombol 1-klik 'Terapkan Pembagian ke Saldo Sekarang'.",
-    "Solusi Saldo Stabil & Anti-Drift: Formula matematis presisi bebas drift, saldo terkunci stabil tanpa risiko berubah-ubah sendiri."
+    "Perbaikan Presisi Alokasi Saldo Riil: Mengeliminasi duplikasi penambahan saldo saat membagi uang kas yang sudah di tangan, saldo tetap pas 100% (tidak pernah lagi berlipat ganda).",
+    "Pembersihan Otomatis Saldo Ganda: Mengembalikan saldo yang sempat melonjak ke angka riil sebenarnya secara otomatis dan bersih.",
+    "Tombol Cepat [⚡ Saldo Saat Ini]: Otomatis mendeteksi saldo kas riil saat ini sehingga pengguna tinggal 1 klik untuk membagi uang yang dipegang.",
+    "Pencatatan Alokasi Netral: Transaksi pembagian dicatat rapi sebagai alokasi kas tanpa mengubah arus kas bulanan.",
+    "Radar Jatah Belanja Aman Harian (Safe to Spend): Batasan belanja harian yang akurat agar uang tidak cepat ludes."
   ]
 }
