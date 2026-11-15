@@ -352,7 +352,7 @@
     }
   </style>
   <!-- External Modular Stylesheet -->
-  <link rel="stylesheet" href="css/main.css?v=1.0.9-b50&t=1794742206068">
+  <link rel="stylesheet" href="css/main.css?v=1.0.9-b50&t=1794742856734">
 
 </head>
 
@@ -14593,6 +14593,7 @@
                   <!-- Quick Nominal Chips -->
                   <div class="flex items-center gap-1.5 flex-wrap pt-1 text-[10.5px]">
                     <span class="text-slate-400 font-semibold text-[10px]">Cepat:</span>
+                    <button type="button" id="btnQuickUseCurrentBalance" class="px-2.5 py-0.5 rounded-md bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 font-black border border-teal-300 dark:border-teal-700 cursor-pointer hidden">⚡ Saldo Saat Ini</button>
                     <button type="button" onclick="setQuickNominalBagiUang(500000)" class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-950 font-bold border border-slate-200 dark:border-slate-700 cursor-pointer">500rb</button>
                     <button type="button" onclick="setQuickNominalBagiUang(1000000)" class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-950 font-bold border border-slate-200 dark:border-slate-700 cursor-pointer">1 Juta</button>
                     <button type="button" onclick="setQuickNominalBagiUang(1500000)" class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-950 font-bold border border-slate-200 dark:border-slate-700 cursor-pointer">1.5 Juta</button>
@@ -14737,7 +14738,7 @@
                 <div class="pt-1 flex items-center gap-2">
                   <input type="checkbox" id="checkRecordSplitAsTx" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer" />
                   <label for="checkRecordSplitAsTx" class="text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
-                    Catat sebagai riwayat pemasukan resmi di buku keuangan
+                    Simpan catatan pembagian uang ini di riwayat buku kas (saldo tetap pas)
                   </label>
                 </div>
 
@@ -20455,6 +20456,6 @@
   <!-- ============================================================== -->
   <!-- MODULAR JAVASCRIPT ENGINE (CLEAN & SEPARATED FOR SUPABASE/WEB) -->
   <!-- ============================================================== -->
-  <script src="js/app.bundle.js?v=1.0.9-b50&t=1794742206068"></script>
+  <script src="js/app.bundle.js?v=1.0.9-b50&t=1794742856734"></script>
 </body>
 </html>
