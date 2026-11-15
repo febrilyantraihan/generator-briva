@@ -3038,6 +3038,26 @@ Format params:
         };
       }
 
+      // 6B-2. BAGI UANG GAJIAN & DANA DARURAT OTOMATIS (ANTI BONCOS)
+      if (act === 'SPLIT_MONEY' || act === 'BAGI_UANG' || act === 'ALOKASI_GAJI') {
+        const total = Math.round(Number(p.total || p.nominal || p.amount) || 0);
+        const effectiveTotal = total > 0 ? total : 2000000;
+        if (typeof window.openModalBagiUang === 'function') {
+          try { window.openModalBagiUang(effectiveTotal); } catch(e) {}
+        }
+        const pakai = Math.round(effectiveTotal * 0.60);
+        const tabung = Math.round(effectiveTotal * 0.25);
+        const darurat = effectiveTotal - pakai - tabung;
+        const dailySafe = Math.round(pakai / 30);
+
+        return {
+          icon: '⚡',
+          title: 'Kalkulator Bagi Uang Anti-Boncos Siap',
+          desc: `Dari uang Rp ${effectiveTotal.toLocaleString('id-ID')}, Malih bagi menjadi 3 amplop aman: Uang Boleh Dipakai Rp ${pakai.toLocaleString('id-ID')} (Maksimal Rp ${dailySafe.toLocaleString('id-ID')}/hari), Wajib Ditabung Rp ${tabung.toLocaleString('id-ID')}, dan Dana Darurat Rp ${darurat.toLocaleString('id-ID')}. Silakan klik tombol 'Terapkan' di modal untuk mengunci saldonya ya Kak Fatih!`,
+          tab: 'keuangan'
+        };
+      }
+
       // 6C. CEK SALDO KAS & MULTI-DOMPET
       if (act === 'CEK_SALDO' || act === 'LIHAT_SALDO') {
         let wallets = { pribadi: 0, operasional: 0, tabungan: 0 };
@@ -3543,6 +3563,20 @@ Format params:
           }
         };
       }
+    }
+
+    // 0B-2. Bagi Uang Gajian & Dana Darurat Otomatis (Anti-Boncos)
+    if (/(?:bagi|bagikan|alokasi|bagikanlah)\s+(?:uang|gaji|penghasilan|pendapatan|honor|dana)/i.test(t) || /(?:uang\s+sering\s+habis|cara\s+mengatur\s+uang|pembagi\s+uang|bagi\s+gaji)/i.test(t)) {
+      let amount = 0;
+      const jtMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:jt|juta)\b/i);
+      const rbMatch = t.match(/(\d+(?:[.,]\d+)?)\s*(?:rb|ribu|k)\b/i);
+      if (jtMatch) amount = Math.round(parseFloat(jtMatch[1].replace(',', '.')) * 1000000);
+      else if (rbMatch) amount = Math.round(parseFloat(rbMatch[1].replace(',', '.')) * 1000);
+      else {
+        const numMatch = t.match(/(?:rp\.?\s*)?(\d{1,3}(?:[.,]\d{3})+|\d{4,})/i);
+        if (numMatch) amount = parseInt(numMatch[1].replace(/[.,]/g, ''), 10);
+      }
+      return { action: 'SPLIT_MONEY', params: { total: amount > 0 ? amount : 2000000 } };
     }
 
     // 0C. Masukkan / Atur Saldo Dompet Sekarang
